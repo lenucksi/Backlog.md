@@ -1,0 +1,27 @@
+src/commands/overview.ts
+  s_bac595338da49a::t_f0b487fa9d047e 24,33
+src/cli.ts
+  s_bac595338da49a::t_f0b487fa9d047e 2808-2812
+src/core/statistics.ts
+  s_bac595338da49a::t_f0b487fa9d047e 2,25-30,69,89,107,118-122,126
+src/core/milestones.ts
+  s_bac595338da49a::t_f0b487fa9d047e 2,264-267,281,298,326,347,349-352,365
+src/server/index.ts
+  s_bac595338da49a::t_f0b487fa9d047e 1657,1660
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "e1556879c14f1f239c1f6279ab2c7a0847175f87",
+  "prompts": {},
+  "sessions": {
+    "s_bac595338da49a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "620b61af-f4d5-4911-aa51-628417d95ccd",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
