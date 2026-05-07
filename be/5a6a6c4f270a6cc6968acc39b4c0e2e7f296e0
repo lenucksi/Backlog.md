@@ -1,0 +1,33 @@
+src/web/components/BoardPage.tsx
+  s_63e1342afa27a0::t_797cab2f4660ae 14,29,135
+src/test/status-icon.test.ts
+  s_63e1342afa27a0::t_797cab2f4660ae 49-68
+src/types/index.ts
+  s_63e1342afa27a0::t_797cab2f4660ae 287
+src/web/components/Board.tsx
+  s_63e1342afa27a0::t_797cab2f4660ae 21,57,605,639
+src/ui/status-icon.ts
+  s_63e1342afa27a0::t_797cab2f4660ae 13-19,29-32,41-42,50-51,59-60
+src/file-system/operations.ts
+  s_63e1342afa27a0::t_797cab2f4660ae 1380-1388,1452,1485-1486
+src/web/App.tsx
+  s_63e1342afa27a0::t_797cab2f4660ae 501
+src/web/components/TaskColumn.tsx
+  s_63e1342afa27a0::t_797cab2f4660ae 20,35-36,91-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "be5a6a6c4f270a6cc6968acc39b4c0e2e7f296e0",
+  "prompts": {},
+  "sessions": {
+    "s_63e1342afa27a0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "13ca44e6-935d-498a-ac08-f15f4b806d82",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
