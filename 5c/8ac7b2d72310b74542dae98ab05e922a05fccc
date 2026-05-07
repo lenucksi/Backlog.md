@@ -1,0 +1,19 @@
+src/file-system/operations.ts
+  s_63e1342afa27a0::t_797cab2f4660ae 1422-1431,1467-1468,1501-1505
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "5c8ac7b2d72310b74542dae98ab05e922a05fccc",
+  "prompts": {},
+  "sessions": {
+    "s_63e1342afa27a0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "13ca44e6-935d-498a-ac08-f15f4b806d82",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
