@@ -1,0 +1,21 @@
+src/test/config-commands.test.ts
+  s_ac55fa4e4b7e77::t_1ca4d3eb1000a3 177-196
+"backlog/tasks/back-472 - Fix-config-list-missing-terminalStatuses-blockedStatuses-and-refactor-to-shared-descriptor-map.md"
+  s_ac55fa4e4b7e77::t_639ef389a4ef14 1-5,7-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "3f59ff814c8e6f84303edeb82f7c859c97888906",
+  "prompts": {},
+  "sessions": {
+    "s_ac55fa4e4b7e77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d337697-7e15-4b9d-83dc-886894252c0a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
