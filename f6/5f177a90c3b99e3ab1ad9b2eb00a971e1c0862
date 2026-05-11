@@ -1,0 +1,19 @@
+"backlog/tasks/back-469 - Add-terminalStatuses-to-config-get-set-CLI-commands.md"
+  s_055abf7c11cd12::t_aa40a773402249 8,34,36-40,42-44,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "f65f177a90c3b99e3ab1ad9b2eb00a971e1c0862",
+  "prompts": {},
+  "sessions": {
+    "s_055abf7c11cd12": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d051cde-fb35-499b-a686-f1a0e03b99ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
