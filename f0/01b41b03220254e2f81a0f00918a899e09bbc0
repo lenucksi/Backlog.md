@@ -1,0 +1,21 @@
+"backlog/tasks/back-471 - Fix-CLI-auto-commit-for-doc-decision-task-create-commands.md"
+  s_e817edcf2ad2c3::t_0167756abf1e2a 1-55
+src/test/cli-commit-behaviour.test.ts
+  s_e817edcf2ad2c3::t_0167756abf1e2a 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "f001b41b03220254e2f81a0f00918a899e09bbc0",
+  "prompts": {},
+  "sessions": {
+    "s_e817edcf2ad2c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "22c73b28-9b41-496f-9096-dcf7de54b9cc",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
