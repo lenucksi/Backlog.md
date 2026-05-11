@@ -1,0 +1,19 @@
+package.json
+  s_60687e0785b528::t_debfaf3e1314f8 2-98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "e33b70f9a629627bec1a2c9a2de61cd71799f95a",
+  "prompts": {},
+  "sessions": {
+    "s_60687e0785b528": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d6b6896-71ab-4a99-b4a2-551a380d4d63",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
