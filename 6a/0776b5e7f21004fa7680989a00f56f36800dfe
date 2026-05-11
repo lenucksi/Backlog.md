@@ -1,0 +1,22 @@
+"backlog/tasks/back-468 - Bug-6-Custom-Blocked-Status-Styling.md"
+  s_7b284dd99b14cf::t_099ac5d96a6985 4,8,133-136
+  s_7b284dd99b14cf::t_0ed93144b87bd0 1-3,5-7,9-132,137-143
+src/ui/overview-tui.ts
+  s_7b284dd99b14cf::t_e87637d264be71 9-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "6a0776b5e7f21004fa7680989a00f56f36800dfe",
+  "prompts": {},
+  "sessions": {
+    "s_7b284dd99b14cf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7aca6a5a-9a2b-4820-abb0-58510fcc1a9b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
