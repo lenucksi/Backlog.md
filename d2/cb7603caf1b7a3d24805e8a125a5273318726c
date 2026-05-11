@@ -1,0 +1,11 @@
+"backlog/tasks/back-471 - Fix-CLI-auto-commit-for-doc-decision-task-create-commands.md"
+  ai_agent 1-55
+src/test/cli-commit-behaviour.test.ts
+  ai_agent 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "d2cb7603caf1b7a3d24805e8a125a5273318726c",
+  "prompts": {}
+}
