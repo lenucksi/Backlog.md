@@ -1,0 +1,26 @@
+"backlog/tasks/back-467 - Secondary-Fix-Switch-active-task-filters-to-isTerminalStatus.md"
+  ai_agent 1-103
+"backlog/tasks/back-469 - Add-terminalStatuses-to-config-get-set-CLI-commands.md"
+  s_055abf7c11cd12::t_cd5efe8f28d047 1-7,9-33,47-54
+  ai_agent 8,34-46
+"backlog/tasks/back-470 - Add-missing-tests-for-BACK-467-active-filter-isTerminalStatus.md"
+  s_055abf7c11cd12::t_cd5efe8f28d047 1-116
+"backlog/tasks/back-466 - Core-Fix-isTerminalStatus-in-statistics.ts-handlers.ts-milestones.ts.md"
+  ai_agent 1-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "a23cd3fb2c41f86ce7e689211c38947dc1b4984b",
+  "prompts": {},
+  "sessions": {
+    "s_055abf7c11cd12": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d051cde-fb35-499b-a686-f1a0e03b99ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
