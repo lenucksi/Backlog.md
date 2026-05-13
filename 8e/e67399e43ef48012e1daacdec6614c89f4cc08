@@ -1,0 +1,9 @@
+.serena/project.yml
+  ai_agent 1-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "8ee67399e43ef48012e1daacdec6614c89f4cc08",
+  "prompts": {}
+}
