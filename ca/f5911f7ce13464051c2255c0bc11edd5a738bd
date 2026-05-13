@@ -1,0 +1,19 @@
+"backlog/tasks/back-473 - handle-port-congestion-for-backlog-browser.md"
+  s_7bf5095d834e3a::t_1149cedeaacf9d 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "caf5911f7ce13464051c2255c0bc11edd5a738bd",
+  "prompts": {},
+  "sessions": {
+    "s_7bf5095d834e3a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1dd961bc3ffeRhQNxpJaWEix4S",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
