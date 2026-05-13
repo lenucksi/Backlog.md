@@ -1,0 +1,31 @@
+"backlog/tasks/back-482 - Narrow-BACK-472-Refactor-config-to-shared-descriptor-map-and-fix-config-list-visibility-for-existing-keys-only.md"
+  ai_agent 6-8,10,61-72,75-80,83-85
+.gitignore
+  s_1d2f7cb567f1ff::t_af9504f5e6694f 72-74
+"backlog/tasks/back-466 - Core-Fix-isTerminalStatus-in-statistics.ts-handlers.ts-milestones.ts.md"
+  ai_agent 3,8,133-145,151
+"backlog/tasks/back-483 - We-want-subtasks-taskmaster-style.-Or-do-we-not-want-it-Es-gibt-einen-Epic-Level-issue-in-GH.-was-ist-hier-der-richtige-weg.md"
+  ai_agent 2-6,8-11,13
+"backlog/tasks/back-479 - Rebase-BACK-471-cli-commit-behaviour-test-fix-as-single-commit-clean-PR-on-upstream.md"
+  ai_agent 6-8,10,54-62,65-76,79-81
+"backlog/tasks/back-467 - Secondary-Fix-Switch-active-task-filters-to-isTerminalStatus.md"
+  ai_agent 3,8
+"backlog/tasks/back-481 - Complete-BACK-468-blockedStatuses-thread-into-TUI-fix-config-plus-fallback-logic-expose-in-config-CLI-clean-standalone-PR-on-upstream.md"
+  ai_agent 6-8,10,86-100,103-126,129-131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "a48f5efc46f48f0ae886f95831380523e5cc014e",
+  "prompts": {},
+  "sessions": {
+    "s_1d2f7cb567f1ff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "81c19b77-cd8e-42ac-ba24-43fd85020e47",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
