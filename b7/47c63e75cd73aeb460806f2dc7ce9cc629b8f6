@@ -1,0 +1,17 @@
+"backlog/tasks/back-477 - refences-should-be-clickable-and-open-something-useful.md"
+  ai_agent 5-6,8
+"backlog/tasks/back-476 - Dedicated-view-for-completed-tasks.md"
+  ai_agent 5-6,8
+"backlog/tasks/back-475 - proper-opencode-integration.md"
+  ai_agent 5-6,8
+"backlog/tasks/back-473 - handle-port-congestion-for-backlog-browser.md"
+  ai_agent 5-6,8
+"backlog/tasks/back-485 - Filter-board-by-free-text.md"
+  ai_agent 1-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "b747c63e75cd73aeb460806f2dc7ce9cc629b8f6",
+  "prompts": {}
+}
