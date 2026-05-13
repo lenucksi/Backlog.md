@@ -1,0 +1,20 @@
+src/cli.ts
+  s_7bf5095d834e3a::t_49ab612036a4cf 3841
+  s_7bf5095d834e3a::t_ec5ff1940f3ef1 3862-3863,3866-3880
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "0a59593b52e64d274dbc1755532b14d1a53b5b4c",
+  "prompts": {},
+  "sessions": {
+    "s_7bf5095d834e3a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1dd961bc3ffeRhQNxpJaWEix4S",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
