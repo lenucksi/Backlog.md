@@ -1,0 +1,29 @@
+src/test/mcp-stdio-exit.test.ts
+  ai_agent 5-8,71-103,136-185
+"backlog/tasks/back-465 - Fix-Windows-MCP-document-tool-hangs.md"
+  ai_agent 1-72
+src/commands/mcp.ts
+  ai_agent 74-77
+biome.json
+  s_5a334d7a4f6ccd::t_2545bc3553bcaf 40-46
+src/test/git.test.ts
+  ai_agent 2,16-18
+src/git/operations.ts
+  ai_agent 753-760
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "34e3ca321e18015f81d5cfc8ba0e8f387ac3d793",
+  "prompts": {},
+  "sessions": {
+    "s_5a334d7a4f6ccd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a6ec06c7-d6a2-4b2f-b527-6ed54b9a2fc6",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
