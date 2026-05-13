@@ -1,0 +1,30 @@
+"backlog/tasks/back-473 - handle-port-congestion-for-backlog-browser.md"
+  s_7bf5095d834e3a::t_7f20ca3e87212b 25-26
+  s_7bf5095d834e3a::t_8941fc1a6644a4 36
+  s_7bf5095d834e3a::t_d5731be7b17080 27,29
+  s_7bf5095d834e3a::t_4e096087dd5b9d 4,8,339-356
+  s_7bf5095d834e3a::t_1149cedeaacf9d 32-35,38
+  s_7bf5095d834e3a::t_33774bec06b3de 6
+src/test/server-port.test.ts
+  s_7bf5095d834e3a::t_4c2fce3252182f 1-44
+src/cli.ts
+  s_7bf5095d834e3a::t_4c2fce3252182f 3860,3868,3874-3891
+src/server/index.ts
+  s_7bf5095d834e3a::t_4c2fce3252182f 1,191-205,484
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9c232bd59be3d8eb6ce989c57b5d58f65c71656f",
+  "prompts": {},
+  "sessions": {
+    "s_7bf5095d834e3a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1dd961bc3ffeRhQNxpJaWEix4S",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
