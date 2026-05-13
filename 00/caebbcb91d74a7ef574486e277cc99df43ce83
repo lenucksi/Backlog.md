@@ -1,0 +1,19 @@
+src/test/server-port.test.ts
+  s_7bf5095d834e3a::t_1b8a213b4e2373 3-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "00caebbcb91d74a7ef574486e277cc99df43ce83",
+  "prompts": {},
+  "sessions": {
+    "s_7bf5095d834e3a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1dd961bc3ffeRhQNxpJaWEix4S",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
