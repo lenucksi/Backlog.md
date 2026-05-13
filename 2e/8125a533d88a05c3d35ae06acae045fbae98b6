@@ -1,0 +1,19 @@
+.gitignore
+  s_bb41547577c8ef::t_f1e3433f7332f9 35-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "2e8125a533d88a05c3d35ae06acae045fbae98b6",
+  "prompts": {},
+  "sessions": {
+    "s_bb41547577c8ef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d03e12e5-a8c2-4ba6-9a0a-29193cab1af9",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
