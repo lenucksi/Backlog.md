@@ -1,0 +1,13 @@
+.serena/project.yml
+  ai_agent 2
+.gitignore
+  ai_agent 75-78
+"backlog/tasks/back-494 - Backlog-Guard-PreToolUse-hook-to-enforce-MCP-CLI-access-to-backlog-directories.md"
+  ai_agent 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "2f24018025bbc18684d8db15aafb26b5686330fe",
+  "prompts": {}
+}
