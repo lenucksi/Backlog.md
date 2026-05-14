@@ -1,0 +1,30 @@
+opencode.json
+  s_1dab99606d967f::t_77964c45e2cd8d 6
+  s_1dab99606d967f::t_559a72acf260b4 9-10
+"backlog/tasks/back-494 - Backlog-Guard-PreToolUse-hook-to-enforce-MCP-CLI-access-to-backlog-directories.md"
+  s_fbec7a4f9e13e0::t_eefb9bde03cb51 124-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "17a4aab4d28d0d47a584467dac4df0a4481bda53",
+  "prompts": {},
+  "sessions": {
+    "s_1dab99606d967f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2071d2e4-ccfb-48fa-9ae7-966efc2276a0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": null
+    },
+    "s_fbec7a4f9e13e0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f2556da1-370c-4176-ab59-dd9a3904b3c4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
