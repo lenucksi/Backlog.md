@@ -1,0 +1,19 @@
+opencode.json
+  s_1dab99606d967f::t_47326daf70b5c7 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9d5361620937de702bccc639631a66493b764b03",
+  "prompts": {},
+  "sessions": {
+    "s_1dab99606d967f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2071d2e4-ccfb-48fa-9ae7-966efc2276a0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
