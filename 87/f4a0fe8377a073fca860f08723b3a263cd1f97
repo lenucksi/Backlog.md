@@ -1,0 +1,23 @@
+"backlog/tasks/back-483 - We-want-subtasks-taskmaster-style.-Or-do-we-not-want-it-Es-gibt-einen-Epic-Level-issue-in-GH.-was-ist-hier-der-richtige-weg.md"
+  s_7bf5095d834e3a::t_f911b786fa3ca4 11-16,20-26
+"backlog/tasks/back-349 - Publish-Backlog.md-as-an-Agent-Skill-with-bundled-guidance-no-MCP-resources-required-for-instructions.md"
+  s_7bf5095d834e3a::t_f911b786fa3ca4 9
+"backlog/tasks/back-429 - Preserve-unsaved-Web-drafts-across-file-refreshes.md"
+  s_7bf5095d834e3a::t_f911b786fa3ca4 25-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "87f4a0fe8377a073fca860f08723b3a263cd1f97",
+  "prompts": {},
+  "sessions": {
+    "s_7bf5095d834e3a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1dd961bc3ffeRhQNxpJaWEix4S",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
