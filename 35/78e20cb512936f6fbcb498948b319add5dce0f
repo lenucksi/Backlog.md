@@ -1,0 +1,22 @@
+.github/workflows/ci.yml
+  s_cc59de0c7f0c66::t_14e08a4b34b5ec 135-168
+  s_cc59de0c7f0c66::t_766a49319a5fe2 7
+sonar-project.properties
+  s_cc59de0c7f0c66::t_e45bfa2c24ffa1 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "3578e20cb512936f6fbcb498948b319add5dce0f",
+  "prompts": {},
+  "sessions": {
+    "s_cc59de0c7f0c66": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1c50d8388ffexNaAtUh0giEk1k",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
