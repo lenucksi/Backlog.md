@@ -1,0 +1,24 @@
+.github/workflows/ci.yml
+  s_cc59de0c7f0c66::t_7d63d7968f158b 49,106
+  s_cc59de0c7f0c66::t_0736202e2624eb 176-181
+  s_cc59de0c7f0c66::t_f87108b4f11cfe 43-47,100-104
+.github/workflows/release.yml
+  s_cc59de0c7f0c66::t_e2467e0331f7d3 38-42
+  s_cc59de0c7f0c66::t_ea9a367652fb3f 98-102,178-182,492-496
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "c2f12b8e611208f5419c2e6d59788317ee291e06",
+  "prompts": {},
+  "sessions": {
+    "s_cc59de0c7f0c66": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1c50d8388ffexNaAtUh0giEk1k",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
