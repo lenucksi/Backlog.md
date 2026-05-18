@@ -60,7 +60,7 @@ jobs:
           cd bun-cache-primer
           echo 'console.log("cache primer")' > index.js
           bun build --compile --target=${{ matrix.target }} ./index.js --outfile primer.exe || true
-          cd $GITHUB_WORKSPACE
+          cd "$GITHUB_WORKSPACE"
       - name: Compile standalone binary
         shell: bash
         run: |
