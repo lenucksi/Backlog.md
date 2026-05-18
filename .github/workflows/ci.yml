@@ -36,6 +36,8 @@ jobs:
             ${{ runner.os }}-${{ matrix.os }}-bun-${{ env.BUN_VERSION }}-
       - run: bun install --frozen-lockfile --linker=isolated
       - run: bun run lint
+      - name: Build CSS (Tailwind)
+        run: bun run build:css
       - name: Run tests
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
@@ -95,6 +97,8 @@ jobs:
           echo 'console.log("cache primer")' > index.js
           bun build --compile --target=${{ matrix.target }} ./index.js --outfile primer.exe || true
           cd $GITHUB_WORKSPACE
+      - name: Build CSS (Tailwind)
+        run: bun run build:css
       - name: Build standalone binary
         shell: bash
         run: |
@@ -153,6 +157,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-${{ env.BUN_VERSION }}-
       - run: bun install --frozen-lockfile --linker=isolated
+      - name: Build CSS (Tailwind)
+        run: bun run build:css
       - name: Run tests with coverage
         run: bun test --coverage --coverage-reporter=lcov --timeout=10000 --reporter=junit --reporter-outfile=test-results.xml
       - name: Cache SonarCloud packages
