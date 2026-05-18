@@ -1,0 +1,19 @@
+sonar-project.properties
+  s_cc59de0c7f0c66::t_54fa30fa959636 8-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a87301b575ad8596c21d0a39edf7c998354f1b82",
+  "prompts": {},
+  "sessions": {
+    "s_cc59de0c7f0c66": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1c50d8388ffexNaAtUh0giEk1k",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
