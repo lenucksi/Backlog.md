@@ -100,19 +100,20 @@ jobs:
       - name: Create npm-ready package.json
         shell: bash
         run: |
+          # shellcheck disable=SC2086
           TAG="${GITHUB_REF##refs/tags/v}"
-          jq 'del(.devDependencies,.scripts.prepare,.scripts.preinstall,.type) |
-              .version = "'"$TAG"'" |
+          jq --arg tag "$TAG" 'del(.devDependencies,.scripts.prepare,.scripts.preinstall,.type) |
+              .version = $tag |
               .bin = {backlog:"cli.js"} |
               .files = ["cli.js","resolveBinary.cjs","postuninstall.cjs","package.json","README.md","LICENSE"] |
               .scripts = {"postuninstall": "node postuninstall.cjs"} |
               .repository = {"type":"git","url":"https://github.com/MrLesk/Backlog.md"} |
               .optionalDependencies = {
-                "backlog.md-linux-x64"  : "'"$TAG"'",
-                "backlog.md-linux-arm64": "'"$TAG"'",
-                "backlog.md-darwin-x64" : "'"$TAG"'",
-                "backlog.md-darwin-arm64": "'"$Tag"'",
-                "backlog.md-windows-x64": "'"$TAG"'"
+                "backlog.md-linux-x64"  : $tag,
+                "backlog.md-linux-arm64": $tag,
+                "backlog.md-darwin-x64" : $tag,
+                "backlog.md-darwin-arm64": $tag,
+                "backlog.md-windows-x64": $tag
               }' package.json > dist/package.json
           cp LICENSE README.md dist/ 2>/dev/null || true
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
@@ -238,6 +239,7 @@ jobs:
           VERSION="${GITHUB_REF##refs/tags/v}"
           MAX_ATTEMPTS=40
           SLEEP_SECONDS=15
+          # shellcheck disable=SC2016
           PACKAGE_NAME="$(node -e 'const map = { win32: "windows", darwin: "darwin", linux: "linux" }; const platform = map[process.platform]; const arch = process.arch; if (!platform || !["x64","arm64"].includes(arch)) { process.exit(1); } process.stdout.write(`backlog.md-${platform}-${arch}`);')"
           BINARY_PATH="node_modules/${PACKAGE_NAME}/backlog"
 
@@ -378,6 +380,7 @@ jobs:
           VERSION="${GITHUB_REF##refs/tags/v}"
           MAX_ATTEMPTS=40
           SLEEP_SECONDS=15
+          # shellcheck disable=SC2016
           EXPECTED_PACKAGE="$(node -e 'const map = { win32: "windows", darwin: "darwin", linux: "linux" }; const platform = map[process.platform]; const arch = process.arch; if (!platform || !["x64","arm64"].includes(arch)) { process.exit(1); } process.stdout.write(`backlog.md-${platform}-${arch}`);')"
           echo "Waiting for backlog.md@${VERSION} install + ${EXPECTED_PACKAGE} optional dependency..."
 
@@ -476,7 +479,7 @@ jobs:
       - name: Rename binaries for release
         run: |
           echo "=== Debug: Downloaded artifacts ==="
-          find release-assets -type f -exec ls -lh {} \;
+          find release-assets -type f -exec ls -lh {} +
           echo "=== Processing artifacts ==="
           mkdir -p binaries
           for dir in release-assets/*/; do
@@ -487,13 +490,14 @@ jobs:
               ls -la "$dir"
               binary=$(find "$dir" -name "backlog-bin*" -type f)
               if [ -n "$binary" ]; then
-                echo "Found binary: $binary ($(ls -lh "$binary" | awk '{print $5}'))"
+                binary_size=$(stat -f '%z' "$binary" 2>/dev/null || stat -c '%s' "$binary" 2>/dev/null || echo "unknown")
+                echo "Found binary: $binary ($binary_size bytes)"
                 if [[ "$target" == *"windows"* ]] && [[ "$binary" == *".exe" ]]; then
                   cp "$binary" "binaries/backlog-${target}.exe"
-                  echo "Copied to binaries/backlog-${target}.exe ($(ls -lh "binaries/backlog-${target}.exe" | awk '{print $5}'))"
+                  echo "Copied to binaries/backlog-${target}.exe"
                 else
                   cp "$binary" "binaries/backlog-${target}"
-                  echo "Copied to binaries/backlog-${target} ($(ls -lh "binaries/backlog-${target}" | awk '{print $5}'))"
+                  echo "Copied to binaries/backlog-${target}"
                 fi
               fi
             fi
