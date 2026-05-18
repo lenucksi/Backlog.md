@@ -1,0 +1,22 @@
+renovate.json
+  ai_agent 1-10
+.github/workflows/ci.yml
+  s_cc59de0c7f0c66::t_c9e76c32a207d7 19-31,34,40-43,46,70,78,90-93,96,148,153-188
+  s_cc59de0c7f0c66::t_527a3399f59305 7,16,55-56,114-115,189
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ade8b583fcb659c3db46d1063a44d0eca0344eb3",
+  "prompts": {},
+  "sessions": {
+    "s_cc59de0c7f0c66": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1c50d8388ffexNaAtUh0giEk1k",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
