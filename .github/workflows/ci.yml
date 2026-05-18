@@ -173,15 +173,7 @@ jobs:
     steps:
       - uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
-          egress-policy: block
-          allowed-endpoints: >
-            github.com:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
-            sonarcloud.io:443
-            binaries.sonarsource.com:443
-            keyserver.ubuntu.com:443
-            keys.openpgp.org:443
+          egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
