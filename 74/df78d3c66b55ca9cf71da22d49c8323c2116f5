@@ -1,0 +1,34 @@
+renovate.json
+  s_c91465b44f3cf6::t_f6dcbee44e9d28 1,66
+  s_c91465b44f3cf6::t_a32f08f68eb994 2-65
+.github/workflows/actionlint.yml
+  s_c91465b44f3cf6::t_f4648201f3cb91 1-25
+.github/workflows/publish-backlog-guard.yml
+  s_c91465b44f3cf6::t_79d7f9c9d0a93d 32,34
+.github/workflows/release.yml
+  s_c91465b44f3cf6::t_87854c4789f6c2 34-36
+  s_c91465b44f3cf6::t_b9ab87312e3003 160,467
+  s_c91465b44f3cf6::t_040319fec81de5 87,159,506
+  s_c91465b44f3cf6::t_5f42ce0c8bc230 114,198,225,365
+  s_c91465b44f3cf6::t_ce3e581f2d1704 78
+.github/workflows/shai-hulud-check.yml
+  s_c91465b44f3cf6::t_6a5d6c21a048ec 15
+.github/workflows/ci.yml
+  s_c91465b44f3cf6::t_5b5e224e0530ee 17-39,42-43,49-50,53,75,83-84,96-97,100,150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "74df78d3c66b55ca9cf71da22d49c8323c2116f5",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
