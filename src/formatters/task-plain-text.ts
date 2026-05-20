@@ -58,56 +58,50 @@ function formatSubtaskLines(subtasks: Array<{ id: string; title: string }>): str
 	return sorted.map((subtask) => `- ${subtask.id} - ${subtask.title}`);
 }
 
-export function formatTaskPlainText(task: Task, options: TaskPlainTextOptions = {}): string {
-	const lines: string[] = [];
+function formatFileSection(task: Task, options: TaskPlainTextOptions, lines: string[]): void {
 	const filePath = options.filePathOverride ?? task.filePath;
-
 	if (filePath) {
-		lines.push(`File: ${filePath}`);
-		lines.push("");
+		lines.push(`File: ${filePath}`, "");
 	}
+}
 
+function formatHeaderSection(task: Task, lines: string[]): void {
 	lines.push(`Task ${task.id} - ${task.title}`);
 	lines.push("=".repeat(50));
 	lines.push("");
 	lines.push(`Status: ${formatStatusWithIcon(task.status)}`);
-
 	const priorityLabel = formatPriority(task.priority);
-	if (priorityLabel) {
-		lines.push(`Priority: ${priorityLabel}`);
-	}
-	if (task.ordinal !== undefined) {
-		lines.push(`Ordinal: ${task.ordinal}`);
-	}
+	if (priorityLabel) lines.push(`Priority: ${priorityLabel}`);
+	if (task.ordinal !== undefined) lines.push(`Ordinal: ${task.ordinal}`);
+}
 
+function formatPeopleSection(task: Task, lines: string[]): void {
 	const assigneeText = formatAssignees(task.assignee);
-	if (assigneeText) {
-		lines.push(`Assignee: ${assigneeText}`);
-	}
-
+	if (assigneeText) lines.push(`Assignee: ${assigneeText}`);
 	if (task.reporter) {
 		const reporter = task.reporter.startsWith("@") ? task.reporter : `@${task.reporter}`;
 		lines.push(`Reporter: ${reporter}`);
 	}
+}
 
+function formatDateSection(task: Task, lines: string[]): void {
 	lines.push(`Created: ${formatDateForDisplay(task.createdDate)}`);
-	if (task.updatedDate) {
-		lines.push(`Updated: ${formatDateForDisplay(task.updatedDate)}`);
-	}
+	if (task.updatedDate) lines.push(`Updated: ${formatDateForDisplay(task.updatedDate)}`);
+}
 
-	if (task.labels?.length) {
-		lines.push(`Labels: ${task.labels.join(", ")}`);
-	}
+function formatMetadataSection(task: Task, lines: string[]): void {
+	if (task.labels?.length) lines.push(`Labels: ${task.labels.join(", ")}`);
+	if (task.milestone) lines.push(`Milestone: ${task.milestone}`);
+}
 
-	if (task.milestone) {
-		lines.push(`Milestone: ${task.milestone}`);
-	}
-
+function formatParentSection(task: Task, lines: string[]): void {
 	if (task.parentTaskId) {
 		const parentLabel = task.parentTaskTitle ? `${task.parentTaskId} - ${task.parentTaskTitle}` : task.parentTaskId;
 		lines.push(`Parent: ${parentLabel}`);
 	}
+}
 
+function formatSubtasksSection(task: Task, lines: string[]): void {
 	const subtaskSummaries = task.subtaskSummaries ?? [];
 	const subtaskCount = subtaskSummaries.length > 0 ? subtaskSummaries.length : (task.subtasks?.length ?? 0);
 	if (subtaskCount > 0) {
@@ -119,73 +113,74 @@ export function formatTaskPlainText(task: Task, options: TaskPlainTextOptions = 
 			lines.push(`Subtasks: ${subtaskCount}`);
 		}
 	}
+}
 
-	if (task.dependencies?.length) {
-		lines.push(`Dependencies: ${task.dependencies.join(", ")}`);
-	}
+function formatLinkSection(task: Task, lines: string[]): void {
+	if (task.dependencies?.length) lines.push(`Dependencies: ${task.dependencies.join(", ")}`);
+	if (task.references?.length) lines.push(`References: ${task.references.join(", ")}`);
+	if (task.documentation?.length) lines.push(`Documentation: ${task.documentation.join(", ")}`);
+	if (task.modifiedFiles?.length) lines.push(`Modified files: ${task.modifiedFiles.join(", ")}`);
+}
 
-	if (task.references?.length) {
-		lines.push(`References: ${task.references.join(", ")}`);
-	}
-
-	if (task.documentation?.length) {
-		lines.push(`Documentation: ${task.documentation.join(", ")}`);
-	}
-
-	if (task.modifiedFiles?.length) {
-		lines.push(`Modified files: ${task.modifiedFiles.join(", ")}`);
-	}
-
+function formatDescriptionSection(task: Task, lines: string[]): void {
 	lines.push("");
 	lines.push("Description:");
 	lines.push("-".repeat(50));
 	const description = task.description?.trim();
 	lines.push(transformCodePathsPlain(description && description.length > 0 ? description : "No description provided"));
 	lines.push("");
+}
 
-	lines.push("Acceptance Criteria:");
+function formatChecklistSection(label: string, noItemsText: string, items: ChecklistItem[], lines: string[]): void {
+	lines.push("");
+	lines.push(`${label}:`);
 	lines.push("-".repeat(50));
-	const criteriaItems = buildAcceptanceCriteriaItems(task);
-	if (criteriaItems.length > 0) {
-		lines.push(...formatAcceptanceCriteriaLines(criteriaItems));
+	if (items.length > 0) {
+		lines.push(...formatAcceptanceCriteriaLines(items));
 	} else {
-		lines.push("No acceptance criteria defined");
+		lines.push(noItemsText);
 	}
 	lines.push("");
+}
 
-	lines.push("Definition of Done:");
-	lines.push("-".repeat(50));
-	const definitionItems = buildDefinitionOfDoneItems(task);
-	if (definitionItems.length > 0) {
-		lines.push(...formatAcceptanceCriteriaLines(definitionItems));
-	} else {
-		lines.push("No Definition of Done items defined");
-	}
-	lines.push("");
-
-	const implementationPlan = task.implementationPlan?.trim();
-	if (implementationPlan) {
-		lines.push("Implementation Plan:");
+function formatTextSection(label: string, content: string | undefined, lines: string[]): void {
+	const trimmed = content?.trim();
+	if (trimmed) {
+		lines.push("");
+		lines.push(`${label}:`);
 		lines.push("-".repeat(50));
-		lines.push(transformCodePathsPlain(implementationPlan));
+		lines.push(transformCodePathsPlain(trimmed));
 		lines.push("");
 	}
+}
 
-	const implementationNotes = task.implementationNotes?.trim();
-	if (implementationNotes) {
-		lines.push("Implementation Notes:");
-		lines.push("-".repeat(50));
-		lines.push(transformCodePathsPlain(implementationNotes));
-		lines.push("");
-	}
+export function formatTaskPlainText(task: Task, options: TaskPlainTextOptions = {}): string {
+	const lines: string[] = [];
 
-	const finalSummary = task.finalSummary?.trim();
-	if (finalSummary) {
-		lines.push("Final Summary:");
-		lines.push("-".repeat(50));
-		lines.push(transformCodePathsPlain(finalSummary));
-		lines.push("");
-	}
+	formatFileSection(task, options, lines);
+	formatHeaderSection(task, lines);
+	formatPeopleSection(task, lines);
+	formatDateSection(task, lines);
+	formatMetadataSection(task, lines);
+	formatParentSection(task, lines);
+	formatSubtasksSection(task, lines);
+	formatLinkSection(task, lines);
+	formatDescriptionSection(task, lines);
+	formatChecklistSection(
+		"Acceptance Criteria",
+		"No acceptance criteria defined",
+		buildAcceptanceCriteriaItems(task),
+		lines,
+	);
+	formatChecklistSection(
+		"Definition of Done",
+		"No Definition of Done items defined",
+		buildDefinitionOfDoneItems(task),
+		lines,
+	);
+	formatTextSection("Implementation Plan", task.implementationPlan, lines);
+	formatTextSection("Implementation Notes", task.implementationNotes, lines);
+	formatTextSection("Final Summary", task.finalSummary, lines);
 
 	return lines.join("\n");
 }
