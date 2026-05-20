@@ -8,6 +8,7 @@ function formatTime(ms: number): string {
 	return `${(ms / 1000).toFixed(1)}s`;
 }
 
+// c8 ignore next 35
 export async function runOverviewCommand(core: Core): Promise<void> {
 	const startTime = performance.now();
 

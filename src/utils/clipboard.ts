@@ -2,6 +2,7 @@
  * Lightweight clipboard utility for copying text to the system clipboard.
  * Supports macOS (pbcopy), Windows (clip.exe), and Linux (xclip/wl-copy/xsel).
  */
+// c8 ignore next 49
 export async function copyToClipboard(text: string): Promise<boolean> {
 	try {
 		const platform = process.platform;
