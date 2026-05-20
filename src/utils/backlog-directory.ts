@@ -153,6 +153,12 @@ export function normalizeProjectBacklogDirectory(value: string | null | undefine
 	return normalized;
 }
 
+function resolveDirectorySource(dir: string): BacklogDirectorySource {
+	if (dir === DEFAULT_DIRECTORIES.BACKLOG) return "backlog";
+	if (dir === DEFAULT_DIRECTORIES.HIDDEN_BACKLOG) return ".backlog";
+	return "custom";
+}
+
 export function resolveBacklogDirectory(projectRoot: string): BacklogDirectoryResolution {
 	const rootConfigPath = join(projectRoot, DEFAULT_FILES.ROOT_CONFIG);
 	const rootConfigExists = fileExists(rootConfigPath);
@@ -162,12 +168,7 @@ export function resolveBacklogDirectory(projectRoot: string): BacklogDirectoryRe
 		const configuredBacklogDir = metadata?.backlogDirectory ?? null;
 		if (metadata && configuredBacklogDir) {
 			const configuredBacklogPath = join(projectRoot, configuredBacklogDir);
-			const configuredSource: BacklogDirectorySource =
-				configuredBacklogDir === DEFAULT_DIRECTORIES.BACKLOG
-					? "backlog"
-					: configuredBacklogDir === DEFAULT_DIRECTORIES.HIDDEN_BACKLOG
-						? ".backlog"
-						: "custom";
+			const configuredSource = resolveDirectorySource(configuredBacklogDir);
 			return {
 				projectRoot,
 				backlogDir: configuredBacklogDir,

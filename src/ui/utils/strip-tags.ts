@@ -27,6 +27,26 @@ function isForegroundTag(name: string): boolean {
 	return name.endsWith("-fg");
 }
 
+function processCloseTag(tag: string, stack: TagState[], output: string): string | null {
+	const closeTagName = parseCloseTag(tag);
+	if (closeTagName === null) return null;
+	const openTag = stack.pop();
+	if (!openTag) return output + tag;
+	if (closeTagName && closeTagName !== openTag.name) {
+		stack.push(openTag);
+		return output + tag;
+	}
+	return openTag.strip ? output : output + tag;
+}
+
+function processOpenTag(tag: string, stack: TagState[], output: string): string {
+	const openTagName = parseOpenTag(tag);
+	if (!openTagName) return output + tag;
+	const strip = isForegroundTag(openTagName);
+	stack.push({ name: openTagName, strip });
+	return strip ? output : output + tag;
+}
+
 export function stripBlessedFgTags(value: string): string {
 	if (!value.includes("{")) {
 		return value;
@@ -43,37 +63,12 @@ export function stripBlessedFgTags(value: string): string {
 		output += value.slice(cursor, start);
 		cursor = start + tag.length;
 
-		const closeTag = parseCloseTag(tag);
-		if (closeTag !== null) {
-			const openTag = stack.pop();
-			if (!openTag) {
-				output += tag;
-				continue;
-			}
-
-			if (closeTag && closeTag !== openTag.name) {
-				stack.push(openTag);
-				output += tag;
-				continue;
-			}
-
-			if (!openTag.strip) {
-				output += tag;
-			}
+		const closeResult = processCloseTag(tag, stack, output);
+		if (closeResult !== null) {
+			output = closeResult;
 			continue;
 		}
-
-		const openTagName = parseOpenTag(tag);
-		if (!openTagName) {
-			output += tag;
-			continue;
-		}
-
-		const strip = isForegroundTag(openTagName);
-		stack.push({ name: openTagName, strip });
-		if (!strip) {
-			output += tag;
-		}
+		output = processOpenTag(tag, stack, output);
 	}
 
 	output += value.slice(cursor);

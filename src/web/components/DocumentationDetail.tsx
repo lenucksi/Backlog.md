@@ -9,6 +9,10 @@ import {SuccessToast} from './SuccessToast';
 import { useTheme } from '../contexts/ThemeContext';
 import { sanitizeUrlTitle } from '../utils/urlHelpers';
 
+function optionalUpdateValue<T>(changed: boolean, value: T): T | undefined {
+	return changed ? value : undefined;
+}
+
 // Custom MDEditor wrapper for proper height handling
 const MarkdownEditor = memo(function MarkdownEditor({
 	value,
@@ -204,12 +208,11 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
                 const titleChanged = normalizedTitle !== originalDocTitle;
                 const pathChanged = normalizedPath !== originalDocPath;
 
-                // Pass title only if it has changed
                 const updatedDocument = await apiClient.updateDoc(
                     addDocPrefix(id),
                     content,
-                    titleChanged ? normalizedTitle : undefined,
-                    pathChanged ? normalizedPath : undefined
+                    optionalUpdateValue(titleChanged, normalizedTitle),
+                    optionalUpdateValue(pathChanged, normalizedPath)
                 );
 
                 // Update original title to the new value

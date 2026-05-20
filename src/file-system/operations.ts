@@ -56,6 +56,42 @@ export function isCreateLockError(error: unknown): error is Error {
 	);
 }
 
+function resolvePersistedIdentities(
+	existingTask: Task | null,
+	task: Task,
+	taskId: string,
+	prefix: string,
+): { id: string; parentTaskId: string | undefined } {
+	const persistedTaskId = existingTask?.id && taskIdsEqual(existingTask.id, task.id) ? existingTask.id : taskId;
+	const normalizedParentTaskId = task.parentTaskId
+		? normalizeId(task.parentTaskId, extractAnyPrefix(task.parentTaskId) ?? prefix)
+		: undefined;
+	const persistedParentTaskId =
+		existingTask?.parentTaskId && task.parentTaskId && taskIdsEqual(existingTask.parentTaskId, task.parentTaskId)
+			? existingTask.parentTaskId
+			: normalizedParentTaskId;
+	return { id: persistedTaskId, parentTaskId: persistedParentTaskId };
+}
+
+function documentMatchesId(relative: string, canonicalId: string): boolean {
+	const base = relative.split("/").pop() || relative;
+	const [candidateId] = base.split(" - ");
+	if (!candidateId) return false;
+	return documentIdsEqual(canonicalId, candidateId);
+}
+
+async function cleanupDocumentDuplicates(docsDir: string, matchesForId: string[], filepath: string): Promise<void> {
+	for (const match of matchesForId) {
+		const matchPath = join(docsDir, ...normalizeDocumentRelativePath(match).split("/"));
+		if (matchPath === filepath) continue;
+		try {
+			await unlink(matchPath);
+		} catch {
+			// Ignore cleanup errors - file may have been removed already
+		}
+	}
+}
+
 export class FileSystem {
 	private resolvedBacklogDir: string;
 	private resolvedBacklogDirName: string;
@@ -308,14 +344,12 @@ export class FileSystem {
 			}
 		}
 
-		const persistedTaskId = existingTask?.id && taskIdsEqual(existingTask.id, task.id) ? existingTask.id : taskId;
-		const normalizedParentTaskId = task.parentTaskId
-			? normalizeId(task.parentTaskId, extractAnyPrefix(task.parentTaskId) ?? prefix)
-			: undefined;
-		const persistedParentTaskId =
-			existingTask?.parentTaskId && task.parentTaskId && taskIdsEqual(existingTask.parentTaskId, task.parentTaskId)
-				? existingTask.parentTaskId
-				: normalizedParentTaskId;
+		const { id: persistedTaskId, parentTaskId: persistedParentTaskId } = resolvePersistedIdentities(
+			existingTask,
+			task,
+			taskId,
+			prefix,
+		);
 
 		// Normalize new task IDs before serialization, but preserve existing file identity on updates.
 		const normalizedTask = {
@@ -781,12 +815,7 @@ export class FileSystem {
 		const existingMatches = (await Array.fromAsync(glob.scan({ cwd: docsDir, followSymlinks: true }))).map((relative) =>
 			normalizeDocumentRelativePath(relative),
 		);
-		const matchesForId = existingMatches.filter((relative) => {
-			const base = relative.split("/").pop() || relative;
-			const [candidateId] = base.split(" - ");
-			if (!candidateId) return false;
-			return documentIdsEqual(canonicalId, candidateId);
-		});
+		const matchesForId = existingMatches.filter((relative) => documentMatchesId(relative, canonicalId));
 
 		let sourceRelativePath = document.path ? normalizeDocumentRelativePath(document.path) : undefined;
 		if (!sourceRelativePath && matchesForId.length > 0) {
@@ -806,17 +835,7 @@ export class FileSystem {
 			}
 		}
 
-		for (const match of matchesForId) {
-			const matchPath = join(docsDir, ...normalizeDocumentRelativePath(match).split("/"));
-			if (matchPath === filepath) {
-				continue;
-			}
-			try {
-				await unlink(matchPath);
-			} catch {
-				// Ignore cleanup errors - file may have been removed already
-			}
-		}
+		await cleanupDocumentDuplicates(docsDir, matchesForId, filepath);
 
 		await Bun.write(filepath, content);
 
