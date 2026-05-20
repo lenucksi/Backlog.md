@@ -1,0 +1,23 @@
+src/test/tui-interactive-editor-handoff.test.ts
+  s_c91465b44f3cf6::t_2a29e0dd0d4ad5 14,20,42-43,48-50,52,63,104,107-108,110-112,122-125,127-135,137,141-144,148-168,188,193,202,207
+  s_c91465b44f3cf6::t_c4d29d8e29c3c0 93-103,115,184
+  s_c91465b44f3cf6::t_1afa37871f7fb7 183,185-187
+  s_c91465b44f3cf6::t_c9cedecd4db295 44-47,51,92,106,126,136,145
+  s_c91465b44f3cf6::t_cb0af3ad3aa99e 85-91,109,114,116-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "5a963f0c71baa89a0485036aaf3d7392d51ef328",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
