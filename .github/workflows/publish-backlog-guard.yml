@@ -29,9 +29,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@f4d14f5b48bcdedae6ff8571e4a5b03ab34e2e9e # v2.2.0
         with:
           bun-version: latest
 

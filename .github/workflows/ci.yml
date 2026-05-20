@@ -14,19 +14,43 @@ env:
   BUN_VERSION: 1.3.11
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      ts: ${{ steps.filter.outputs.ts }}
+      guard: ${{ steps.filter.outputs.guard }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            ts:
+              - 'src/**'
+              - 'scripts/**'
+              - 'package.json'
+              - 'bun.lock'
+              - 'tsconfig.json'
+              - 'biome.json'
+            guard:
+              - 'hooks/backlog-guard/**'
+              - 'packages/backlog-guard/**'
+
   test:
     name: lint-and-unit-test
+    needs: [changes]
+    if: needs.changes.outputs.ts == 'true' || needs.changes.outputs.guard == 'true'
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: oven-sh/setup-bun@f4d14f5b48bcdedae6ff8571e4a5b03ab34e2e9e # v2.2.0
         with:
-          # Bun >=1.3 includes stdin pause/subprocess handoff fixes used by TUI editor launch.
           bun-version: ${{ env.BUN_VERSION }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         id: cache
         with:
           path: ~/.bun/install/cache
@@ -38,10 +62,8 @@ jobs:
       - name: Run tests
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            # Windows runners hit Bun/file-system resource pressure under the default parallelism.
             bun test --timeout=30000 --max-concurrency=4 --reporter=junit --reporter-outfile=test-results.xml
           else
-            # Run tests with increased timeout to handle Bun shell operations
             bun test --timeout=10000 --reporter=junit --reporter-outfile=test-results.xml
           fi
         shell: bash
@@ -50,7 +72,7 @@ jobs:
         run: bash scripts/run-tui-interactive-tests.sh
       - name: Upload interactive TUI transcripts on failure
         if: failure() && matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tui-interactive-transcripts-${{ matrix.os }}
           path: tmp/tui-interactive-transcripts/*.log
@@ -58,6 +80,8 @@ jobs:
 
   build-test:
     name: compile-and-smoke-test
+    needs: [changes]
+    if: needs.changes.outputs.ts == 'true'
     strategy:
       matrix:
         include:
@@ -69,12 +93,11 @@ jobs:
             target: bun-windows-x64-baseline
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: oven-sh/setup-bun@f4d14f5b48bcdedae6ff8571e4a5b03ab34e2e9e # v2.2.0
         with:
-          # Bun >=1.3 includes stdin pause/subprocess handoff fixes used by TUI editor launch.
           bun-version: ${{ env.BUN_VERSION }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         id: cache
         with:
           path: ~/.bun/install/cache
@@ -86,8 +109,6 @@ jobs:
         if: ${{ contains(matrix.target, 'baseline') && matrix.os == 'windows-latest' }}
         shell: bash
         run: |
-          # Workaround for https://github.com/oven-sh/bun/issues/13513
-          # Build a dummy project from C:\ to prime the baseline binary cache
           cd /c
           mkdir -p bun-cache-primer
           cd bun-cache-primer
@@ -126,7 +147,7 @@ jobs:
           bun test src/test/tui-interactive-editor-handoff.test.ts --timeout=30000
       - name: Upload compiled-binary interactive transcripts on failure
         if: failure() && matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tui-interactive-transcripts-compiled-${{ matrix.os }}
           path: tmp/tui-interactive-transcripts/*.log
