@@ -75,10 +75,11 @@ function loadConfigWithGitRoot(cwd) {
 function isProtected(filePath, protectedDirs) {
   if (!filePath)
     return null;
-  const abs = resolve(filePath);
+  const abs = resolve(filePath).replace(/\\/g, "/");
   for (const d of protectedDirs) {
-    if (abs === d || abs.startsWith(d + "/"))
-      return d;
+    const nd = d.replace(/\\/g, "/");
+    if (abs === nd || abs.startsWith(nd + "/"))
+      return nd;
   }
   return null;
 }
@@ -87,7 +88,7 @@ function extractTaskId(pathStr) {
   return m ? `BACK-${m[1]}` : null;
 }
 function classifyPath(pathStr) {
-  const parts = pathStr.split("/");
+  const parts = pathStr.replace(/\\/g, "/").split("/");
   for (const part of parts) {
     if (part === "tasks" || part === "completed" || part === "drafts")
       return "task";

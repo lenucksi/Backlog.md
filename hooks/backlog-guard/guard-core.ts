@@ -101,9 +101,10 @@ export function loadConfigWithGitRoot(cwd: string): GuardConfig | null {
 
 export function isProtected(filePath: string, protectedDirs: string[]): string | null {
 	if (!filePath) return null
-	const abs = resolve(filePath)
+	const abs = resolve(filePath).replace(/\\/g, "/")
 	for (const d of protectedDirs) {
-		if (abs === d || abs.startsWith(d + "/")) return d
+		const nd = d.replace(/\\/g, "/")
+		if (abs === nd || abs.startsWith(nd + "/")) return nd
 	}
 	return null
 }
@@ -114,7 +115,7 @@ export function extractTaskId(pathStr: string): string | null {
 }
 
 export function classifyPath(pathStr: string): SuggestionKind {
-	const parts = pathStr.split("/")
+	const parts = pathStr.replace(/\\/g, "/").split("/")
 	for (const part of parts) {
 		if (part === "tasks" || part === "completed" || part === "drafts") return "task"
 		if (part === "docs") return "doc"
