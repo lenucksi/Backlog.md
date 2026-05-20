@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@lenucksi'
 created_date: '2026-05-13 11:12'
-updated_date: '2026-05-20 16:35'
+updated_date: '2026-05-20 18:12'
 labels:
   - tooling
   - hooks
@@ -63,6 +63,10 @@ The hook ships inside the Backlog.md repo under `hooks/backlog-guard/` so it is 
 - [x] #23 #23 GitHub Actions publish workflow (.github/workflows/publish-backlog-guard.yml)
 - [x] #24 #24 .claude-plugin/marketplace.json for one-liner install via /plugin marketplace add .
 - [x] #25 #25 Worktree branch rebased on main, ready for upstream PR
+- [x] #26 #26 Blocked milestone Read/Write/Edit suggests milestone_list / milestone_add / milestone_rename instead of generic search
+- [x] #27 #27 Blocked decision Read suggests backlog search --type decision (no dedicated view tool exists)
+- [x] #28 #28 Blocked decision Write suggests backlog decision create --status proposed (no MCP tool)
+- [x] #29 #29 Blocked config Write suggests backlog config set (generic CLI only)
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -154,6 +158,20 @@ GitHub Actions publish workflow (.github/workflows/publish-backlog-guard.yml).
 Deleted old files: check.py, opencode-plugin.js (old format), test_check.py.
 
 3 commits on feature/back-494-backlog-guard-hook, rebased on main.
+
+=== Improved Per-Type Suggestions (2026-05-20) ===
+
+Added milestoneSuggestions(): Read→milestone_list, Write→milestone_add, Edit→milestone_rename/remove/archive
+
+Added decisionSuggestions(): Read→backlog search --type decision (no view MCP), Write→backlog decision create (no MCP), Edit→note that no edit tool exists
+
+Added configSuggestions(): get/list/set via CLI only
+
+buildErrorMessage routes by kind: task→taskSuggestions, doc→docSuggestions, milestone→milestoneSuggestions, decision→decisionSuggestions, config→configSuggestions, other→genericSuggestions fallback
+
+grepSuggestions: doc+decision both route to document_search (decisions share search index with docs)
+
+33 tests pass (+7 new: milestone read/write/edit, decision write, config read/write, grep decisions)
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
