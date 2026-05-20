@@ -1,0 +1,26 @@
+src/web/components/TaskCard.tsx
+  s_c91465b44f3cf6::t_041d4cbab378ab 21,30-31,37
+src/test/task-loader-branch-normalization.test.ts
+  s_c91465b44f3cf6::t_f3306da4eb5496 74
+  s_c91465b44f3cf6::t_34fd5174109ef9 50-51,55,58-61,70,75
+  s_c91465b44f3cf6::t_cf896412de6b48 37-41,43-49,52-54,56-57,62-69,71-73,76-88,90-91
+  s_c91465b44f3cf6::t_aeb1f9d07940d9 42,89
+src/core/task-loader.ts
+  s_c91465b44f3cf6::t_aeb1f9d07940d9 166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "50cdf960e6d30502455680cf49dd2591bc98b286",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
