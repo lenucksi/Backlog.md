@@ -573,18 +573,16 @@ export class FilterHeader {
 		});
 
 		button.key(["right"], () => {
-			if (this.suppressHorizontalCycle) {
-				return false;
+			if (!this.suppressHorizontalCycle) {
+				this.cycleNext();
 			}
-			this.cycleNext();
 			return false;
 		});
 
 		button.key(["left"], () => {
-			if (this.suppressHorizontalCycle) {
-				return false;
+			if (!this.suppressHorizontalCycle) {
+				this.cyclePrev();
 			}
-			this.cyclePrev();
 			return false;
 		});
 
