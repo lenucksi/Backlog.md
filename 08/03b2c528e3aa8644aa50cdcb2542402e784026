@@ -1,0 +1,11 @@
+"backlog/tasks/back-494 - Backlog-Guard-PreToolUse-hook-to-enforce-MCP-CLI-access-to-backlog-directories.md"
+  ai_agent 10,66-69,161-174
+"backlog/tasks/back-508 - Enforce-SonarQube-quality-gate-in-fork-CI.md"
+  ai_agent 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "0803b2c528e3aa8644aa50cdcb2542402e784026",
+  "prompts": {}
+}
