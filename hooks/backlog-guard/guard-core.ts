@@ -104,7 +104,7 @@ export function isProtected(filePath: string, protectedDirs: string[]): string |
 	const abs = resolve(filePath).replace(/\\/g, "/")
 	for (const d of protectedDirs) {
 		const nd = d.replace(/\\/g, "/")
-		if (abs === nd || abs.startsWith(nd + "/")) return nd
+		if (abs === nd || abs.startsWith(nd + "/")) return d
 	}
 	return null
 }
@@ -137,7 +137,8 @@ export function bashTargetsProtected(
 	firstSegment: string,
 	protectedDirs: string[],
 ): string | null {
-	const tokens = (parseShell(firstSegment) as (string | ShellToken)[]).filter(Boolean)
+	const normalized = firstSegment.replace(/\\/g, "/")
+	const tokens = (parseShell(normalized) as (string | ShellToken)[]).filter(Boolean)
 	if (tokens.length === 0) return null
 
 	const first = tokens[0]

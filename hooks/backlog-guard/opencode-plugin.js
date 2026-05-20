@@ -7288,7 +7288,7 @@ function isProtected(filePath, protectedDirs) {
   for (const d of protectedDirs) {
     const nd = d.replace(/\\/g, "/");
     if (abs === nd || abs.startsWith(nd + "/"))
-      return nd;
+      return d;
   }
   return null;
 }
@@ -7313,7 +7313,8 @@ function classifyPath(pathStr) {
   return "other";
 }
 function bashTargetsProtected(firstSegment, protectedDirs) {
-  const tokens = $parse2(firstSegment).filter(Boolean);
+  const normalized = firstSegment.replace(/\\/g, "/");
+  const tokens = $parse2(normalized).filter(Boolean);
   if (tokens.length === 0)
     return null;
   const first = tokens[0];
