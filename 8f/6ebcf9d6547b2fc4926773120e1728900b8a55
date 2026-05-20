@@ -1,0 +1,27 @@
+hooks/backlog-guard/opencode-plugin.js
+  s_c91465b44f3cf6::t_53e116d345678d 7400-7401,7405-7417,7419-7426,7428-7436,7444,7476-7481,7483
+hooks/backlog-guard/guard-core.ts
+  s_c91465b44f3cf6::t_f8b58ca22fd0c8 256
+  s_c91465b44f3cf6::t_e1af8bc77b0053 295-300,302
+  s_c91465b44f3cf6::t_97c4831dcdd85d 217-218,221-233,235-248
+hooks/backlog-guard/guard-core.test.ts
+  s_c91465b44f3cf6::t_5b01ec704f34ed 220,227-293
+hooks/backlog-guard/claude-hook.js
+  s_c91465b44f3cf6::t_53e116d345678d 191-192,196-208,210-217,219-227,235,267-272,274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "8f6ebcf9d6547b2fc4926773120e1728900b8a55",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
