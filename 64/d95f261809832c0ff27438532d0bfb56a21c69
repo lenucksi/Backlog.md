@@ -1,0 +1,26 @@
+src/test/cross-branch-tasks.test.ts
+  s_c91465b44f3cf6::t_ea8be25e13bac5 1-2,5-35,46-53,64-80,91-97
+  s_c91465b44f3cf6::t_5ef3c66cc5db40 3-4,36-45,54-63,81-90
+src/readme.ts
+  s_c91465b44f3cf6::t_d610964f0e310e 8
+src/utils/clipboard.ts
+  s_c91465b44f3cf6::t_154996ad398dfd 5
+src/commands/overview.ts
+  s_c91465b44f3cf6::t_fa8eba42dfb715 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "64d95f261809832c0ff27438532d0bfb56a21c69",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
