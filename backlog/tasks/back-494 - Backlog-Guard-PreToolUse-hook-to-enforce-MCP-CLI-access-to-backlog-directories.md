@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@lenucksi'
 created_date: '2026-05-13 11:12'
-updated_date: '2026-05-13 11:22'
+updated_date: '2026-05-20 16:35'
 labels:
   - tooling
   - hooks
@@ -50,6 +50,19 @@ The hook ships inside the Backlog.md repo under `hooks/backlog-guard/` so it is 
 - [x] #10 Setup skill offers to add mcp__backlog__* tool permissions to the settings allowlist
 - [x] #11 At least 6 Python tests covering: block task/doc, allow non-backlog, bash cat block, auto-detect, no-config clean exit
 - [x] #12 All changes on feature branch rebased on upstream-master, clean PR
+- [x] #13 #13 Ported from Python/legacy JS to shared TypeScript: guard-core.ts replaces check.py + opencode-plugin.js
+- [x] #14 #14 26 bun tests pass (was 12 pytest tests); Biome check clean; tsc --noEmit clean
+- [x] #15 #15 guard.sh supports bun -> npx tsx -> node fallback runtime
+- [x] #16 #16 MCP tool names shown in dual format: mcp__backlog__* (Claude Code) and backlog_* (OpenCode)
+- [x] #17 #17 .claude-plugin/plugin.json + hooks/hooks.json for Claude Code plugin marketplace install
+- [x] #18 #18 skills/use-backlog-mcp and skills/create-backlog-task shipped with plugin
+- [x] #19 #19 opencode-plugin.ts uses new export const format with @opencode-ai/plugin conventions
+- [x] #20 #20 interactive install.sh script creates .backlog-guard, registers hooks, sets up OpenCode
+- [x] #21 #21 dev.sh pipeline: biome check -> ts check -> tests -> build -> copy to package directory
+- [x] #22 #22 npm package @lenucksi/backlog-guard created at packages/backlog-guard/ for GitHub Packages
+- [x] #23 #23 GitHub Actions publish workflow (.github/workflows/publish-backlog-guard.yml)
+- [x] #24 #24 .claude-plugin/marketplace.json for one-liner install via /plugin marketplace add .
+- [x] #25 #25 Worktree branch rebased on main, ready for upstream PR
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -122,29 +135,25 @@ Branch: feature/back-494-backlog-guard-hook
 Commit: 59308c6
 PR: https://github.com/MrLesk/Backlog.md/pull/649
 
-### OpenCode support (added post-initial-implementation)
+=== TypeScript Refactor (2026-05-20) ===
 
-OpenCode does NOT have Claude Code-style declarative shell-script hooks. Verified
-against https://opencode.ai/docs. The equivalent mechanism is a JS plugin with a
-`tool.execute.before` handler that throws an Error to hard-block a tool call.
+Ported from Python check.py + legacy JS to unified TypeScript guard-core.ts shared by Claude Code + OpenCode. Uses yaml@2 + shell-quote (zero deps).
 
-Added `hooks/backlog-guard/opencode-plugin.js`:
-- Mirrors check.py logic entirely in JavaScript (no external deps — YAML parsed
-  with a targeted regex since the format is self-authored)
-- Config discovery uses the same 4-step order as check.py (git root → CWD walk →
-  auto-detect → no-op)
-- Cache (`_cache` sentinel) avoids re-running `git rev-parse` + FS walk on every
-  tool call within a long OpenCode session
-- Block method: `throw new Error(message)` vs check.py's JSON stdout protocol
+26 bun tests replace 12 pytest tests. guard.sh uses bun -> npx tsx -> node fallback.
 
-Updated README.md and SKILL.md to cover both tools:
-- README: global/per-project install matrix for both Claude Code and OpenCode,
-  mechanism comparison table
-- SKILL.md: added Steps 7–8 for OpenCode (global symlink to
-  `~/.config/opencode/plugins/` or per-project `plugin` array in opencode.json)
+Dual MCP naming: mcp__backlog__* (Claude Code) + backlog_* (OpenCode).
 
-Also added `opencode.json` at repo root for use when developing Backlog.md itself
-with OpenCode (MCP server + plugin wired up together).
+Claude Code plugin: .claude-plugin/ + hooks/hooks.json + marketplace.json for one-liner install.
+
+Shipped skills: use-backlog-mcp, create-backlog-task.
+
+npm package @lenucksi/backlog-guard for GitHub Packages.
+
+GitHub Actions publish workflow (.github/workflows/publish-backlog-guard.yml).
+
+Deleted old files: check.py, opencode-plugin.js (old format), test_check.py.
+
+3 commits on feature/back-494-backlog-guard-hook, rebased on main.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
@@ -163,6 +172,8 @@ Notable: serena-guard blocked direct Write on .py/.sh files during implementatio
 
 Commit: 59308c6
 PR: https://github.com/MrLesk/Backlog.md/pull/649
+
+TypeScript Refactor (2026-05-20): Replaced Python check.py + legacy JS opencode-plugin.js with unified TypeScript guard-core.ts. Shared core for Claude Code + OpenCode. Uses yaml@2 + shell-quote (zero deps). 26 bun tests. Dual MCP naming. Claude Code plugin structure with marketplace. Backlog skills included. npm package @lenucksi/backlog-guard for GitHub Packages with Actions publish workflow. Interactive install.sh + dev.sh pipeline. 3 commits on feature/back-494-backlog-guard-hook, rebased on main.
 <!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
