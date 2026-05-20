@@ -72,6 +72,227 @@ async function runMcpClientCommand(label: string, command: string, args: string[
 	}
 }
 
+const MCP_CLIENT_CONFIGS: Record<
+	string,
+	{ label: string; command: string; args: string[]; guidelinesFile: AgentInstructionFile } | { isGuide: true }
+> = {
+	claude: {
+		label: "Claude Code",
+		command: "claude",
+		args: ["mcp", "add", "-s", "user", MCP_SERVER_NAME, "--", "backlog", "mcp", "start"],
+		guidelinesFile: "CLAUDE.md",
+	},
+	codex: {
+		label: "OpenAI Codex",
+		command: "codex",
+		args: ["mcp", "add", MCP_SERVER_NAME, "backlog", "mcp", "start"],
+		guidelinesFile: "AGENTS.md",
+	},
+	gemini: {
+		label: "Gemini CLI",
+		command: "gemini",
+		args: ["mcp", "add", "-s", "user", MCP_SERVER_NAME, "--", "backlog", "mcp", "start"],
+		guidelinesFile: "GEMINI.md",
+	},
+	kiro: {
+		label: "Kiro",
+		command: "kiro-cli",
+		args: ["mcp", "add", "--scope", "global", "--name", MCP_SERVER_NAME, "--command", "backlog", "--args", "mcp,start"],
+		guidelinesFile: "AGENTS.md",
+	},
+	guide: { isGuide: true },
+};
+
+async function handleMcpClient(client: string, projectRoot: string): Promise<string> {
+	const config = MCP_CLIENT_CONFIGS[client];
+	if (!config) {
+		throw new Error(`Unknown MCP client: ${client}`);
+	}
+	if ("isGuide" in config) {
+		return `Setup guide: ${MCP_GUIDE_URL}`;
+	}
+	const result = await runMcpClientCommand(config.label, config.command, config.args);
+	await ensureMcpGuidelines(projectRoot, config.guidelinesFile);
+	return result;
+}
+
+async function setupMcpIntegration(mcpClients: McpClient[], projectRoot: string): Promise<Record<string, string>> {
+	const results: Record<string, string> = {};
+	for (const client of mcpClients) {
+		try {
+			results[client] = await handleMcpClient(client, projectRoot);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			results[client] = `Failed: ${message}`;
+		}
+	}
+	return results;
+}
+
+function buildInitConfig(
+	projectName: string,
+	existingConfig: BacklogConfig | null | undefined,
+	normalizedAdvancedConfig: Record<string, unknown>,
+	effectiveFilesystemOnly: boolean,
+): BacklogConfig {
+	const hasDefaultEditorOverride = Object.hasOwn(normalizedAdvancedConfig, "defaultEditor");
+	const hasZeroPaddedIdsOverride = Object.hasOwn(normalizedAdvancedConfig, "zeroPaddedIds");
+	const hasDefinitionOfDoneOverride = Object.hasOwn(normalizedAdvancedConfig, "definitionOfDone");
+
+	const d = DEFAULT_INIT_CONFIG;
+	const baseConfig: BacklogConfig = {
+		projectName,
+		statuses: ["To Do", "In Progress", "Done"],
+		labels: [],
+		defaultStatus: "To Do",
+		dateFormat: "yyyy-mm-dd",
+		maxColumnWidth: 20,
+		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
+		autoCommit:
+			(normalizedAdvancedConfig.autoCommit as boolean | undefined) ?? existingConfig?.autoCommit ?? d.autoCommit,
+		remoteOperations:
+			(normalizedAdvancedConfig.remoteOperations as boolean | undefined) ??
+			existingConfig?.remoteOperations ??
+			d.remoteOperations,
+		bypassGitHooks:
+			(normalizedAdvancedConfig.bypassGitHooks as boolean | undefined) ??
+			existingConfig?.bypassGitHooks ??
+			d.bypassGitHooks,
+		checkActiveBranches:
+			(normalizedAdvancedConfig.checkActiveBranches as boolean | undefined) ??
+			existingConfig?.checkActiveBranches ??
+			d.checkActiveBranches,
+		activeBranchDays:
+			(normalizedAdvancedConfig.activeBranchDays as number | undefined) ??
+			existingConfig?.activeBranchDays ??
+			d.activeBranchDays,
+		defaultPort:
+			(normalizedAdvancedConfig.defaultPort as number | undefined) ?? existingConfig?.defaultPort ?? d.defaultPort,
+		autoOpenBrowser:
+			(normalizedAdvancedConfig.autoOpenBrowser as boolean | undefined) ??
+			existingConfig?.autoOpenBrowser ??
+			d.autoOpenBrowser,
+		taskResolutionStrategy: existingConfig?.taskResolutionStrategy || "most_recent",
+		prefixes: existingConfig?.prefixes || {
+			task: (normalizedAdvancedConfig.taskPrefix as string | undefined) || "task",
+		},
+	};
+
+	const config: BacklogConfig = {
+		...baseConfig,
+		...(existingConfig ?? {}),
+		projectName,
+		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
+		autoCommit:
+			(normalizedAdvancedConfig.autoCommit as boolean | undefined) ?? existingConfig?.autoCommit ?? d.autoCommit,
+		remoteOperations:
+			(normalizedAdvancedConfig.remoteOperations as boolean | undefined) ??
+			existingConfig?.remoteOperations ??
+			d.remoteOperations,
+		bypassGitHooks:
+			(normalizedAdvancedConfig.bypassGitHooks as boolean | undefined) ??
+			existingConfig?.bypassGitHooks ??
+			d.bypassGitHooks,
+		checkActiveBranches:
+			(normalizedAdvancedConfig.checkActiveBranches as boolean | undefined) ??
+			existingConfig?.checkActiveBranches ??
+			d.checkActiveBranches,
+		activeBranchDays:
+			(normalizedAdvancedConfig.activeBranchDays as number | undefined) ??
+			existingConfig?.activeBranchDays ??
+			d.activeBranchDays,
+		defaultPort:
+			(normalizedAdvancedConfig.defaultPort as number | undefined) ?? existingConfig?.defaultPort ?? d.defaultPort,
+		autoOpenBrowser:
+			(normalizedAdvancedConfig.autoOpenBrowser as boolean | undefined) ??
+			existingConfig?.autoOpenBrowser ??
+			d.autoOpenBrowser,
+		prefixes: existingConfig?.prefixes || {
+			task: (normalizedAdvancedConfig.taskPrefix as string | undefined) || "task",
+		},
+		...(hasDefaultEditorOverride && normalizedAdvancedConfig.defaultEditor
+			? { defaultEditor: normalizedAdvancedConfig.defaultEditor as string }
+			: {}),
+		...(hasZeroPaddedIdsOverride &&
+		typeof normalizedAdvancedConfig.zeroPaddedIds === "number" &&
+		normalizedAdvancedConfig.zeroPaddedIds > 0
+			? { zeroPaddedIds: normalizedAdvancedConfig.zeroPaddedIds as number }
+			: {}),
+		...(hasDefinitionOfDoneOverride && Array.isArray(normalizedAdvancedConfig.definitionOfDone)
+			? { definitionOfDone: [...(normalizedAdvancedConfig.definitionOfDone as string[])] }
+			: {}),
+	};
+
+	if (hasDefaultEditorOverride && !normalizedAdvancedConfig.defaultEditor) {
+		delete config.defaultEditor;
+	}
+	if (
+		hasZeroPaddedIdsOverride &&
+		!(
+			typeof normalizedAdvancedConfig.zeroPaddedIds === "number" &&
+			(normalizedAdvancedConfig.zeroPaddedIds as number) > 0
+		)
+	) {
+		delete config.zeroPaddedIds;
+	}
+	if (hasDefinitionOfDoneOverride && !Array.isArray(normalizedAdvancedConfig.definitionOfDone)) {
+		delete config.definitionOfDone;
+	}
+
+	return config;
+}
+
+async function setupBacklogStructure(
+	core: Core,
+	options: InitializeProjectOptions,
+	config: BacklogConfig,
+	isReInitialization: boolean,
+): Promise<void> {
+	if (isReInitialization) {
+		await core.filesystem.saveConfig(config);
+		return;
+	}
+
+	const normalizedBacklogDirectory = normalizeProjectBacklogDirectory(options.backlogDirectory);
+	const inferredBacklogDirectorySource = normalizedBacklogDirectory
+		? normalizedBacklogDirectory === ".backlog"
+			? ".backlog"
+			: normalizedBacklogDirectory === "backlog"
+				? "backlog"
+				: "custom"
+		: undefined;
+
+	if (
+		options.backlogDirectorySource &&
+		inferredBacklogDirectorySource &&
+		options.backlogDirectorySource !== inferredBacklogDirectorySource
+	) {
+		throw new Error("Backlog directory source and backlog directory value must agree.");
+	}
+
+	const effectiveBacklogDirectorySource = options.backlogDirectorySource ?? inferredBacklogDirectorySource;
+
+	if (effectiveBacklogDirectorySource === "custom" && !normalizedBacklogDirectory) {
+		throw new Error("Backlog directory must be a valid project-relative path.");
+	}
+
+	const effectiveConfigLocation =
+		options.configLocation ?? (effectiveBacklogDirectorySource === "custom" ? "root" : "folder");
+
+	if (effectiveBacklogDirectorySource === "custom" && effectiveConfigLocation !== "root") {
+		throw new Error("Custom backlog directories require root config discovery.");
+	}
+
+	const selectedBacklogDirectory =
+		normalizedBacklogDirectory ?? (effectiveBacklogDirectorySource === ".backlog" ? ".backlog" : "backlog");
+
+	core.filesystem.setBacklogDirectory(selectedBacklogDirectory);
+	core.filesystem.setConfigLocation(effectiveConfigLocation);
+	await core.filesystem.ensureBacklogStructure();
+	await core.filesystem.saveConfig(config);
+	await core.ensureConfigLoaded();
+}
+
 /**
  * Core initialization logic shared between CLI and browser.
  * Both CLI and browser validate input before calling this function.
@@ -103,193 +324,16 @@ export async function initializeProject(
 				autoCommit: false,
 			}
 		: advancedConfig;
-	const hasDefaultEditorOverride = Object.hasOwn(normalizedAdvancedConfig, "defaultEditor");
-	const hasZeroPaddedIdsOverride = Object.hasOwn(normalizedAdvancedConfig, "zeroPaddedIds");
-	const hasDefinitionOfDoneOverride = Object.hasOwn(normalizedAdvancedConfig, "definitionOfDone");
 
-	// Build config, preserving existing values for re-initialization.
-	// Re-init should be idempotent for fields that init does not explicitly manage.
-	const d = DEFAULT_INIT_CONFIG;
-	const baseConfig: BacklogConfig = {
-		projectName,
-		statuses: ["To Do", "In Progress", "Done"],
-		labels: [],
-		defaultStatus: "To Do",
-		dateFormat: "yyyy-mm-dd",
-		maxColumnWidth: 20,
-		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
-		autoCommit: normalizedAdvancedConfig.autoCommit ?? existingConfig?.autoCommit ?? d.autoCommit,
-		remoteOperations:
-			normalizedAdvancedConfig.remoteOperations ?? existingConfig?.remoteOperations ?? d.remoteOperations,
-		bypassGitHooks: normalizedAdvancedConfig.bypassGitHooks ?? existingConfig?.bypassGitHooks ?? d.bypassGitHooks,
-		checkActiveBranches:
-			normalizedAdvancedConfig.checkActiveBranches ?? existingConfig?.checkActiveBranches ?? d.checkActiveBranches,
-		activeBranchDays:
-			normalizedAdvancedConfig.activeBranchDays ?? existingConfig?.activeBranchDays ?? d.activeBranchDays,
-		defaultPort: normalizedAdvancedConfig.defaultPort ?? existingConfig?.defaultPort ?? d.defaultPort,
-		autoOpenBrowser: normalizedAdvancedConfig.autoOpenBrowser ?? existingConfig?.autoOpenBrowser ?? d.autoOpenBrowser,
-		taskResolutionStrategy: existingConfig?.taskResolutionStrategy || "most_recent",
-		// Preserve existing prefixes on re-init, or use custom prefix if provided during first init
-		prefixes: existingConfig?.prefixes || {
-			task: normalizedAdvancedConfig.taskPrefix || "task",
-		},
-	};
-	const config: BacklogConfig = {
-		...baseConfig,
-		...(existingConfig ?? {}),
-		projectName,
-		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
-		autoCommit: normalizedAdvancedConfig.autoCommit ?? existingConfig?.autoCommit ?? d.autoCommit,
-		remoteOperations:
-			normalizedAdvancedConfig.remoteOperations ?? existingConfig?.remoteOperations ?? d.remoteOperations,
-		bypassGitHooks: normalizedAdvancedConfig.bypassGitHooks ?? existingConfig?.bypassGitHooks ?? d.bypassGitHooks,
-		checkActiveBranches:
-			normalizedAdvancedConfig.checkActiveBranches ?? existingConfig?.checkActiveBranches ?? d.checkActiveBranches,
-		activeBranchDays:
-			normalizedAdvancedConfig.activeBranchDays ?? existingConfig?.activeBranchDays ?? d.activeBranchDays,
-		defaultPort: normalizedAdvancedConfig.defaultPort ?? existingConfig?.defaultPort ?? d.defaultPort,
-		autoOpenBrowser: normalizedAdvancedConfig.autoOpenBrowser ?? existingConfig?.autoOpenBrowser ?? d.autoOpenBrowser,
-		prefixes: existingConfig?.prefixes || {
-			task: normalizedAdvancedConfig.taskPrefix || "task",
-		},
-		...(hasDefaultEditorOverride && normalizedAdvancedConfig.defaultEditor
-			? { defaultEditor: normalizedAdvancedConfig.defaultEditor }
-			: {}),
-		...(hasZeroPaddedIdsOverride &&
-		typeof normalizedAdvancedConfig.zeroPaddedIds === "number" &&
-		normalizedAdvancedConfig.zeroPaddedIds > 0
-			? { zeroPaddedIds: normalizedAdvancedConfig.zeroPaddedIds }
-			: {}),
-		...(hasDefinitionOfDoneOverride && Array.isArray(normalizedAdvancedConfig.definitionOfDone)
-			? { definitionOfDone: [...normalizedAdvancedConfig.definitionOfDone] }
-			: {}),
-	};
-	// Preserve all non-init-managed fields, but allow init-managed optional fields to be explicitly cleared.
-	if (hasDefaultEditorOverride && !normalizedAdvancedConfig.defaultEditor) {
-		delete config.defaultEditor;
-	}
-	if (
-		hasZeroPaddedIdsOverride &&
-		!(typeof normalizedAdvancedConfig.zeroPaddedIds === "number" && normalizedAdvancedConfig.zeroPaddedIds > 0)
-	) {
-		delete config.zeroPaddedIds;
-	}
-	if (hasDefinitionOfDoneOverride && !Array.isArray(normalizedAdvancedConfig.definitionOfDone)) {
-		delete config.definitionOfDone;
-	}
-
-	// Create structure and save config
-	if (isReInitialization) {
-		await core.filesystem.saveConfig(config);
-	} else {
-		const normalizedBacklogDirectory = normalizeProjectBacklogDirectory(options.backlogDirectory);
-		const inferredBacklogDirectorySource = normalizedBacklogDirectory
-			? normalizedBacklogDirectory === ".backlog"
-				? ".backlog"
-				: normalizedBacklogDirectory === "backlog"
-					? "backlog"
-					: "custom"
-			: undefined;
-		if (
-			options.backlogDirectorySource &&
-			inferredBacklogDirectorySource &&
-			options.backlogDirectorySource !== inferredBacklogDirectorySource
-		) {
-			throw new Error("Backlog directory source and backlog directory value must agree.");
-		}
-		const effectiveBacklogDirectorySource = options.backlogDirectorySource ?? inferredBacklogDirectorySource;
-		if (effectiveBacklogDirectorySource === "custom" && !normalizedBacklogDirectory) {
-			throw new Error("Backlog directory must be a valid project-relative path.");
-		}
-		const effectiveConfigLocation =
-			options.configLocation ?? (effectiveBacklogDirectorySource === "custom" ? "root" : "folder");
-		if (effectiveBacklogDirectorySource === "custom" && effectiveConfigLocation !== "root") {
-			throw new Error("Custom backlog directories require root config discovery.");
-		}
-		const selectedBacklogDirectory =
-			normalizedBacklogDirectory ??
-			(effectiveBacklogDirectorySource === ".backlog"
-				? ".backlog"
-				: effectiveBacklogDirectorySource === "backlog"
-					? "backlog"
-					: "backlog");
-		core.filesystem.setBacklogDirectory(selectedBacklogDirectory);
-		core.filesystem.setConfigLocation(effectiveConfigLocation);
-		await core.filesystem.ensureBacklogStructure();
-		await core.filesystem.saveConfig(config);
-		await core.ensureConfigLoaded();
-	}
+	const config = buildInitConfig(projectName, existingConfig, normalizedAdvancedConfig, effectiveFilesystemOnly);
+	await setupBacklogStructure(core, options, config, isReInitialization);
 
 	const mcpResults: Record<string, string> = {};
 
-	// Handle MCP integration
 	if (integrationMode === "mcp" && mcpClients.length > 0) {
-		for (const client of mcpClients) {
-			try {
-				if (client === "claude") {
-					const result = await runMcpClientCommand("Claude Code", "claude", [
-						"mcp",
-						"add",
-						"-s",
-						"user",
-						MCP_SERVER_NAME,
-						"--",
-						"backlog",
-						"mcp",
-						"start",
-					]);
-					mcpResults.claude = result;
-					await ensureMcpGuidelines(projectRoot, "CLAUDE.md");
-				} else if (client === "codex") {
-					const result = await runMcpClientCommand("OpenAI Codex", "codex", [
-						"mcp",
-						"add",
-						MCP_SERVER_NAME,
-						"backlog",
-						"mcp",
-						"start",
-					]);
-					mcpResults.codex = result;
-					await ensureMcpGuidelines(projectRoot, "AGENTS.md");
-				} else if (client === "gemini") {
-					const result = await runMcpClientCommand("Gemini CLI", "gemini", [
-						"mcp",
-						"add",
-						"-s",
-						"user",
-						MCP_SERVER_NAME,
-						"backlog",
-						"mcp",
-						"start",
-					]);
-					mcpResults.gemini = result;
-					await ensureMcpGuidelines(projectRoot, "GEMINI.md");
-				} else if (client === "kiro") {
-					const result = await runMcpClientCommand("Kiro", "kiro-cli", [
-						"mcp",
-						"add",
-						"--scope",
-						"global",
-						"--name",
-						MCP_SERVER_NAME,
-						"--command",
-						"backlog",
-						"--args",
-						"mcp,start",
-					]);
-					mcpResults.kiro = result;
-					await ensureMcpGuidelines(projectRoot, "AGENTS.md");
-				} else if (client === "guide") {
-					mcpResults.guide = `Setup guide: ${MCP_GUIDE_URL}`;
-				}
-			} catch (error) {
-				const message = error instanceof Error ? error.message : String(error);
-				mcpResults[client] = `Failed: ${message}`;
-			}
-		}
+		Object.assign(mcpResults, await setupMcpIntegration(mcpClients, projectRoot));
 	}
 
-	// Handle CLI integration - agent instruction files
 	if (integrationMode === "cli" && agentInstructions.length > 0) {
 		try {
 			await addAgentInstructions(projectRoot, core.gitOps, agentInstructions, config.autoCommit);
@@ -300,7 +344,6 @@ export async function initializeProject(
 		}
 	}
 
-	// Handle Claude agent installation
 	if (integrationMode === "cli" && installClaudeAgentFlag) {
 		try {
 			await installClaudeAgent(projectRoot);

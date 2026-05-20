@@ -170,6 +170,442 @@ function getActiveAndCompletedIdsFromStateMap(latestState: Map<string, BranchTas
 	return ids;
 }
 
+function applyStringField(
+	value: string | undefined,
+	current: string | undefined,
+	assign: (next: string) => void,
+): boolean {
+	if (typeof value === "string") {
+		const next = value;
+		if ((current ?? "") !== next) {
+			assign(next);
+			return true;
+		}
+	}
+	return false;
+}
+
+function resolveLabelsFromInput(task: Task, input: TaskUpdateInput): boolean {
+	let mutated = false;
+	let currentLabels = [...(task.labels ?? [])];
+
+	if (input.labels !== undefined) {
+		const sanitizedLabels = normalizeStringList(input.labels) ?? [];
+		if (!stringArraysEqual(sanitizedLabels, currentLabels)) {
+			task.labels = sanitizedLabels;
+			mutated = true;
+		}
+		currentLabels = sanitizedLabels;
+	}
+
+	const labelsToAdd = normalizeStringList(input.addLabels) ?? [];
+	if (labelsToAdd.length > 0) {
+		const labelSet = new Set(currentLabels.map((label) => label.toLowerCase()));
+		for (const label of labelsToAdd) {
+			if (!labelSet.has(label.toLowerCase())) {
+				currentLabels.push(label);
+				labelSet.add(label.toLowerCase());
+				mutated = true;
+			}
+		}
+		task.labels = currentLabels;
+	}
+
+	const labelsToRemove = normalizeStringList(input.removeLabels) ?? [];
+	if (labelsToRemove.length > 0) {
+		const removalSet = new Set(labelsToRemove.map((label) => label.toLowerCase()));
+		const filtered = currentLabels.filter((label) => !removalSet.has(label.toLowerCase()));
+		if (!stringArraysEqual(filtered, currentLabels)) {
+			task.labels = filtered;
+			mutated = true;
+		}
+	}
+
+	return mutated;
+}
+
+async function resolveDependenciesFromInput(task: Task, input: TaskUpdateInput, core: Core): Promise<boolean> {
+	let mutated = false;
+	let currentDependencies = [...(task.dependencies ?? [])];
+
+	if (input.dependencies !== undefined) {
+		const normalized = normalizeDependencies(input.dependencies);
+		const { valid, invalid } = await validateDependencies(normalized, core);
+		if (invalid.length > 0) {
+			throw new Error(
+				`The following dependencies do not exist: ${invalid.join(", ")}. Please create these tasks first or verify the IDs.`,
+			);
+		}
+		if (!stringArraysEqual(valid, currentDependencies)) {
+			currentDependencies = valid;
+			mutated = true;
+		}
+	}
+
+	if (input.addDependencies && input.addDependencies.length > 0) {
+		const additions = normalizeDependencies(input.addDependencies);
+		const { valid, invalid } = await validateDependencies(additions, core);
+		if (invalid.length > 0) {
+			throw new Error(
+				`The following dependencies do not exist: ${invalid.join(", ")}. Please create these tasks first or verify the IDs.`,
+			);
+		}
+		const depSet = new Set(currentDependencies);
+		for (const dep of valid) {
+			if (!depSet.has(dep)) {
+				currentDependencies.push(dep);
+				depSet.add(dep);
+				mutated = true;
+			}
+		}
+	}
+
+	if (input.removeDependencies && input.removeDependencies.length > 0) {
+		const removals = new Set(normalizeDependencies(input.removeDependencies));
+		const filtered = currentDependencies.filter((dep) => !removals.has(dep));
+		if (!stringArraysEqual(filtered, currentDependencies)) {
+			currentDependencies = filtered;
+			mutated = true;
+		}
+	}
+
+	task.dependencies = currentDependencies;
+	return mutated;
+}
+
+function resolveReferencesFromInput(task: Task, input: TaskUpdateInput): boolean {
+	let mutated = false;
+	let currentReferences = [...(task.references ?? [])];
+
+	if (input.references !== undefined) {
+		const sanitizedReferences = normalizeStringList(input.references) ?? [];
+		if (!stringArraysEqual(sanitizedReferences, currentReferences)) {
+			task.references = sanitizedReferences;
+			mutated = true;
+		}
+		currentReferences = sanitizedReferences;
+	}
+
+	const referencesToAdd = normalizeStringList(input.addReferences) ?? [];
+	if (referencesToAdd.length > 0) {
+		const refSet = new Set(currentReferences);
+		for (const ref of referencesToAdd) {
+			if (!refSet.has(ref)) {
+				currentReferences.push(ref);
+				refSet.add(ref);
+				mutated = true;
+			}
+		}
+		task.references = currentReferences;
+	}
+
+	const referencesToRemove = normalizeStringList(input.removeReferences) ?? [];
+	if (referencesToRemove.length > 0) {
+		const removalSet = new Set(referencesToRemove);
+		const filtered = currentReferences.filter((ref) => !removalSet.has(ref));
+		if (!stringArraysEqual(filtered, currentReferences)) {
+			task.references = filtered;
+			mutated = true;
+		}
+	}
+
+	return mutated;
+}
+
+function resolveDocumentationFromInput(task: Task, input: TaskUpdateInput): boolean {
+	let mutated = false;
+	let currentDocumentation = [...(task.documentation ?? [])];
+
+	if (input.documentation !== undefined) {
+		const sanitizedDocumentation = normalizeStringList(input.documentation) ?? [];
+		if (!stringArraysEqual(sanitizedDocumentation, currentDocumentation)) {
+			task.documentation = sanitizedDocumentation;
+			mutated = true;
+		}
+		currentDocumentation = sanitizedDocumentation;
+	}
+
+	const documentationToAdd = normalizeStringList(input.addDocumentation) ?? [];
+	if (documentationToAdd.length > 0) {
+		const docSet = new Set(currentDocumentation);
+		for (const doc of documentationToAdd) {
+			if (!docSet.has(doc)) {
+				currentDocumentation.push(doc);
+				docSet.add(doc);
+				mutated = true;
+			}
+		}
+		task.documentation = currentDocumentation;
+	}
+
+	const documentationToRemove = normalizeStringList(input.removeDocumentation) ?? [];
+	if (documentationToRemove.length > 0) {
+		const removalSet = new Set(documentationToRemove);
+		const filtered = currentDocumentation.filter((doc) => !removalSet.has(doc));
+		if (!stringArraysEqual(filtered, currentDocumentation)) {
+			task.documentation = filtered;
+			mutated = true;
+		}
+	}
+
+	return mutated;
+}
+
+function resolveModifiedFilesFromInput(task: Task, input: TaskUpdateInput): boolean {
+	if (input.modifiedFiles === undefined) {
+		return false;
+	}
+	const sanitizedModifiedFiles = normalizeStringList(input.modifiedFiles) ?? [];
+	if (!stringArraysEqual(sanitizedModifiedFiles, task.modifiedFiles ?? [])) {
+		task.modifiedFiles = sanitizedModifiedFiles;
+		return true;
+	}
+	return false;
+}
+
+function sanitizeAppendInput(values: string[] | undefined): string[] {
+	if (!values) return [];
+	return values.map((value) => String(value).trim()).filter((value) => value.length > 0);
+}
+
+function appendBlock(
+	existing: string | undefined,
+	additions: string[] | undefined,
+): { value?: string; changed: boolean } {
+	const sanitizedAdditions = (additions ?? []).map((value) => String(value).trim()).filter((value) => value.length > 0);
+	if (sanitizedAdditions.length === 0) {
+		return { value: existing, changed: false };
+	}
+	const current = (existing ?? "").trim();
+	const additionBlock = sanitizedAdditions.join("\n\n");
+	if (current.length === 0) {
+		return { value: additionBlock, changed: true };
+	}
+	return { value: `${current}\n\n${additionBlock}`, changed: true };
+}
+
+function resolveAcceptanceCriteriaFromInput(task: Task, input: TaskUpdateInput): boolean {
+	let mutated = false;
+	let acceptanceCriteria = Array.isArray(task.acceptanceCriteriaItems)
+		? task.acceptanceCriteriaItems.map((criterion) => ({ ...criterion }))
+		: [];
+
+	const rebuildIndices = () => {
+		acceptanceCriteria = acceptanceCriteria.map((criterion, index) => ({
+			...criterion,
+			index: index + 1,
+		}));
+	};
+
+	if (input.acceptanceCriteria !== undefined) {
+		const sanitized = input.acceptanceCriteria
+			.map((criterion) => ({
+				text: String(criterion.text ?? "").trim(),
+				checked: Boolean(criterion.checked),
+			}))
+			.filter((criterion) => criterion.text.length > 0)
+			.map((criterion, index) => ({
+				index: index + 1,
+				text: criterion.text,
+				checked: criterion.checked,
+			}));
+		acceptanceCriteria = sanitized;
+		mutated = true;
+	}
+
+	if (input.addAcceptanceCriteria && input.addAcceptanceCriteria.length > 0) {
+		const additions = input.addAcceptanceCriteria
+			.map((criterion) => (typeof criterion === "string" ? criterion.trim() : String(criterion.text ?? "").trim()))
+			.filter((text) => text.length > 0);
+		let index =
+			acceptanceCriteria.length > 0 ? Math.max(...acceptanceCriteria.map((criterion) => criterion.index)) + 1 : 1;
+		for (const text of additions) {
+			acceptanceCriteria.push({ index: index++, text, checked: false });
+			mutated = true;
+		}
+	}
+
+	if (input.removeAcceptanceCriteria && input.removeAcceptanceCriteria.length > 0) {
+		const removalSet = new Set(input.removeAcceptanceCriteria);
+		const beforeLength = acceptanceCriteria.length;
+		acceptanceCriteria = acceptanceCriteria.filter((criterion) => !removalSet.has(criterion.index));
+		if (acceptanceCriteria.length === beforeLength) {
+			throw new Error(
+				`Acceptance criterion ${Array.from(removalSet)
+					.map((index) => `#${index}`)
+					.join(", ")} not found`,
+			);
+		}
+		mutated = true;
+		rebuildIndices();
+	}
+
+	const toggleCriteria = (indices: number[] | undefined, checked: boolean) => {
+		if (!indices || indices.length === 0) return;
+		const missing: number[] = [];
+		for (const index of indices) {
+			const criterion = acceptanceCriteria.find((item) => item.index === index);
+			if (!criterion) {
+				missing.push(index);
+				continue;
+			}
+			if (criterion.checked !== checked) {
+				criterion.checked = checked;
+				mutated = true;
+			}
+		}
+		if (missing.length > 0) {
+			const label = missing.map((index) => `#${index}`).join(", ");
+			throw new Error(`Acceptance criterion ${label} not found`);
+		}
+	};
+
+	toggleCriteria(input.checkAcceptanceCriteria, true);
+	toggleCriteria(input.uncheckAcceptanceCriteria, false);
+
+	task.acceptanceCriteriaItems = acceptanceCriteria;
+	return mutated;
+}
+
+function resolveDefinitionOfDoneFromInput(task: Task, input: TaskUpdateInput): boolean {
+	let mutated = false;
+	let definitionOfDone = Array.isArray(task.definitionOfDoneItems)
+		? task.definitionOfDoneItems.map((criterion) => ({ ...criterion }))
+		: [];
+
+	const rebuildDefinitionIndices = () => {
+		definitionOfDone = definitionOfDone.map((criterion, index) => ({
+			...criterion,
+			index: index + 1,
+		}));
+	};
+
+	if (input.addDefinitionOfDone && input.addDefinitionOfDone.length > 0) {
+		const additions = input.addDefinitionOfDone
+			.map((criterion) => (typeof criterion === "string" ? criterion.trim() : String(criterion.text ?? "").trim()))
+			.filter((text) => text.length > 0);
+		let index = definitionOfDone.length > 0 ? Math.max(...definitionOfDone.map((criterion) => criterion.index)) + 1 : 1;
+		for (const text of additions) {
+			definitionOfDone.push({ index: index++, text, checked: false });
+			mutated = true;
+		}
+	}
+
+	const toggleDefinitionItems = (indices: number[] | undefined, checked: boolean) => {
+		if (!indices || indices.length === 0) return;
+		const missing: number[] = [];
+		for (const index of indices) {
+			const criterion = definitionOfDone.find((item) => item.index === index);
+			if (!criterion) {
+				missing.push(index);
+				continue;
+			}
+			if (criterion.checked !== checked) {
+				criterion.checked = checked;
+				mutated = true;
+			}
+		}
+		if (missing.length > 0) {
+			const label = missing.map((index) => `#${index}`).join(", ");
+			throw new Error(`Definition of Done item ${label} not found`);
+		}
+	};
+
+	toggleDefinitionItems(input.checkDefinitionOfDone, true);
+	toggleDefinitionItems(input.uncheckDefinitionOfDone, false);
+
+	if (input.removeDefinitionOfDone && input.removeDefinitionOfDone.length > 0) {
+		const removalSet = new Set(input.removeDefinitionOfDone);
+		const beforeLength = definitionOfDone.length;
+		definitionOfDone = definitionOfDone.filter((criterion) => !removalSet.has(criterion.index));
+		if (definitionOfDone.length === beforeLength) {
+			throw new Error(
+				`Definition of Done item ${Array.from(removalSet)
+					.map((index) => `#${index}`)
+					.join(", ")} not found`,
+			);
+		}
+		mutated = true;
+		rebuildDefinitionIndices();
+	}
+
+	task.definitionOfDoneItems = definitionOfDone;
+	return mutated;
+}
+
+function mergeTaskArray(
+	tasksById: Map<string, Task>,
+	incomingTasks: Task[],
+	abortSignal: AbortSignal | undefined,
+	statuses: string[],
+	resolutionStrategy: "most_recent" | "most_progressed",
+): void {
+	for (const incoming of incomingTasks) {
+		if (abortSignal?.aborted) {
+			throw new Error("Loading cancelled");
+		}
+
+		const existing = tasksById.get(incoming.id);
+		if (!existing) {
+			tasksById.set(incoming.id, incoming);
+		} else {
+			const resolved = resolveTaskConflict(existing, incoming, statuses, resolutionStrategy);
+			tasksById.set(incoming.id, resolved);
+		}
+	}
+}
+
+function filterTasksWithCompleted(
+	tasks: Task[],
+	branchStateEntries: BranchTaskStateEntry[] | undefined,
+	localTasks: Array<Task & { lastModified?: Date; updatedDate?: string }>,
+	completedTasks: Task[],
+	abortSignal: AbortSignal | undefined,
+	includeCompleted: boolean,
+): Task[] {
+	if (abortSignal?.aborted) {
+		throw new Error("Loading cancelled");
+	}
+
+	if (!includeCompleted) {
+		return filterTasksByStateSnapshots(tasks, buildLatestStateMap(branchStateEntries || [], localTasks));
+	}
+
+	const stateEntries = branchStateEntries || [];
+	for (const completedTask of completedTasks) {
+		if (!completedTask.id) continue;
+		const lastModified = completedTask.updatedDate ? new Date(completedTask.updatedDate) : new Date(0);
+		stateEntries.push({
+			id: completedTask.id,
+			type: "completed",
+			branch: "local",
+			path: "",
+			lastModified,
+		});
+	}
+
+	const latestState = buildLatestStateMap(stateEntries, localTasks);
+	const completedIds = new Set<string>();
+	for (const [id, entry] of latestState) {
+		if (entry.type === "completed") {
+			completedIds.add(id);
+		}
+	}
+
+	return tasks
+		.filter((task) => {
+			const latest = latestState.get(task.id);
+			if (!latest) return true;
+			return latest.type === "task" || latest.type === "completed";
+		})
+		.map((task) => {
+			if (!completedIds.has(task.id)) {
+				return task;
+			}
+			return { ...task, source: "completed" };
+		});
+}
+
 export class Core {
 	public fs: FileSystem;
 	public git: GitOperations;
@@ -1115,20 +1551,6 @@ export class Core {
 	): Promise<{ task: Task; mutated: boolean }> {
 		let mutated = false;
 
-		const applyStringField = (
-			value: string | undefined,
-			current: string | undefined,
-			assign: (next: string) => void,
-		) => {
-			if (typeof value === "string") {
-				const next = value;
-				if ((current ?? "") !== next) {
-					assign(next);
-					mutated = true;
-				}
-			}
-		};
-
 		if (input.title !== undefined) {
 			const trimmed = input.title.trim();
 			if (trimmed.length === 0) {
@@ -1140,9 +1562,10 @@ export class Core {
 			}
 		}
 
-		applyStringField(input.description, task.description, (next) => {
-			task.description = next;
-		});
+		mutated =
+			applyStringField(input.description, task.description, (next) => {
+				task.description = next;
+			}) || mutated;
 
 		if (input.status !== undefined) {
 			const canonicalStatus = await statusResolver(input.status);
@@ -1191,201 +1614,11 @@ export class Core {
 			}
 		}
 
-		const resolveLabelChanges = (): void => {
-			let currentLabels = [...(task.labels ?? [])];
-			if (input.labels !== undefined) {
-				const sanitizedLabels = normalizeStringList(input.labels) ?? [];
-				if (!stringArraysEqual(sanitizedLabels, currentLabels)) {
-					task.labels = sanitizedLabels;
-					mutated = true;
-				}
-				currentLabels = sanitizedLabels;
-			}
-
-			const labelsToAdd = normalizeStringList(input.addLabels) ?? [];
-			if (labelsToAdd.length > 0) {
-				const labelSet = new Set(currentLabels.map((label) => label.toLowerCase()));
-				for (const label of labelsToAdd) {
-					if (!labelSet.has(label.toLowerCase())) {
-						currentLabels.push(label);
-						labelSet.add(label.toLowerCase());
-						mutated = true;
-					}
-				}
-				task.labels = currentLabels;
-			}
-
-			const labelsToRemove = normalizeStringList(input.removeLabels) ?? [];
-			if (labelsToRemove.length > 0) {
-				const removalSet = new Set(labelsToRemove.map((label) => label.toLowerCase()));
-				const filtered = currentLabels.filter((label) => !removalSet.has(label.toLowerCase()));
-				if (!stringArraysEqual(filtered, currentLabels)) {
-					task.labels = filtered;
-					mutated = true;
-				}
-			}
-		};
-
-		resolveLabelChanges();
-
-		const resolveDependencies = async (): Promise<void> => {
-			let currentDependencies = [...(task.dependencies ?? [])];
-
-			if (input.dependencies !== undefined) {
-				const normalized = normalizeDependencies(input.dependencies);
-				const { valid, invalid } = await validateDependencies(normalized, this);
-				if (invalid.length > 0) {
-					throw new Error(
-						`The following dependencies do not exist: ${invalid.join(", ")}. Please create these tasks first or verify the IDs.`,
-					);
-				}
-				if (!stringArraysEqual(valid, currentDependencies)) {
-					currentDependencies = valid;
-					mutated = true;
-				}
-			}
-
-			if (input.addDependencies && input.addDependencies.length > 0) {
-				const additions = normalizeDependencies(input.addDependencies);
-				const { valid, invalid } = await validateDependencies(additions, this);
-				if (invalid.length > 0) {
-					throw new Error(
-						`The following dependencies do not exist: ${invalid.join(", ")}. Please create these tasks first or verify the IDs.`,
-					);
-				}
-				const depSet = new Set(currentDependencies);
-				for (const dep of valid) {
-					if (!depSet.has(dep)) {
-						currentDependencies.push(dep);
-						depSet.add(dep);
-						mutated = true;
-					}
-				}
-			}
-
-			if (input.removeDependencies && input.removeDependencies.length > 0) {
-				const removals = new Set(normalizeDependencies(input.removeDependencies));
-				const filtered = currentDependencies.filter((dep) => !removals.has(dep));
-				if (!stringArraysEqual(filtered, currentDependencies)) {
-					currentDependencies = filtered;
-					mutated = true;
-				}
-			}
-
-			task.dependencies = currentDependencies;
-		};
-
-		await resolveDependencies();
-
-		const resolveReferences = (): void => {
-			let currentReferences = [...(task.references ?? [])];
-			if (input.references !== undefined) {
-				const sanitizedReferences = normalizeStringList(input.references) ?? [];
-				if (!stringArraysEqual(sanitizedReferences, currentReferences)) {
-					task.references = sanitizedReferences;
-					mutated = true;
-				}
-				currentReferences = sanitizedReferences;
-			}
-
-			const referencesToAdd = normalizeStringList(input.addReferences) ?? [];
-			if (referencesToAdd.length > 0) {
-				const refSet = new Set(currentReferences);
-				for (const ref of referencesToAdd) {
-					if (!refSet.has(ref)) {
-						currentReferences.push(ref);
-						refSet.add(ref);
-						mutated = true;
-					}
-				}
-				task.references = currentReferences;
-			}
-
-			const referencesToRemove = normalizeStringList(input.removeReferences) ?? [];
-			if (referencesToRemove.length > 0) {
-				const removalSet = new Set(referencesToRemove);
-				const filtered = currentReferences.filter((ref) => !removalSet.has(ref));
-				if (!stringArraysEqual(filtered, currentReferences)) {
-					task.references = filtered;
-					mutated = true;
-				}
-			}
-		};
-
-		resolveReferences();
-
-		const resolveDocumentation = (): void => {
-			let currentDocumentation = [...(task.documentation ?? [])];
-			if (input.documentation !== undefined) {
-				const sanitizedDocumentation = normalizeStringList(input.documentation) ?? [];
-				if (!stringArraysEqual(sanitizedDocumentation, currentDocumentation)) {
-					task.documentation = sanitizedDocumentation;
-					mutated = true;
-				}
-				currentDocumentation = sanitizedDocumentation;
-			}
-
-			const documentationToAdd = normalizeStringList(input.addDocumentation) ?? [];
-			if (documentationToAdd.length > 0) {
-				const docSet = new Set(currentDocumentation);
-				for (const doc of documentationToAdd) {
-					if (!docSet.has(doc)) {
-						currentDocumentation.push(doc);
-						docSet.add(doc);
-						mutated = true;
-					}
-				}
-				task.documentation = currentDocumentation;
-			}
-
-			const documentationToRemove = normalizeStringList(input.removeDocumentation) ?? [];
-			if (documentationToRemove.length > 0) {
-				const removalSet = new Set(documentationToRemove);
-				const filtered = currentDocumentation.filter((doc) => !removalSet.has(doc));
-				if (!stringArraysEqual(filtered, currentDocumentation)) {
-					task.documentation = filtered;
-					mutated = true;
-				}
-			}
-		};
-
-		resolveDocumentation();
-
-		const resolveModifiedFiles = (): void => {
-			if (input.modifiedFiles === undefined) {
-				return;
-			}
-			const sanitizedModifiedFiles = normalizeStringList(input.modifiedFiles) ?? [];
-			if (!stringArraysEqual(sanitizedModifiedFiles, task.modifiedFiles ?? [])) {
-				task.modifiedFiles = sanitizedModifiedFiles;
-				mutated = true;
-			}
-		};
-
-		resolveModifiedFiles();
-
-		const sanitizeAppendInput = (values: string[] | undefined): string[] => {
-			if (!values) return [];
-			return values.map((value) => String(value).trim()).filter((value) => value.length > 0);
-		};
-
-		const appendBlock = (
-			existing: string | undefined,
-			additions: string[] | undefined,
-		): { value?: string; changed: boolean } => {
-			const sanitizedAdditions = (additions ?? [])
-				.map((value) => String(value).trim())
-				.filter((value) => value.length > 0);
-			if (sanitizedAdditions.length === 0) {
-				return { value: existing, changed: false };
-			}
-			const current = (existing ?? "").trim();
-			const additionBlock = sanitizedAdditions.join("\n\n");
-			if (current.length === 0) {
-				return { value: additionBlock, changed: true };
-			}
-			return { value: `${current}\n\n${additionBlock}`, changed: true };
-		};
+		mutated = resolveLabelsFromInput(task, input) || mutated;
+		mutated = (await resolveDependenciesFromInput(task, input, this)) || mutated;
+		mutated = resolveReferencesFromInput(task, input) || mutated;
+		mutated = resolveDocumentationFromInput(task, input) || mutated;
+		mutated = resolveModifiedFilesFromInput(task, input) || mutated;
 
 		if (input.clearImplementationPlan) {
 			if (task.implementationPlan !== undefined) {
@@ -1393,11 +1626,10 @@ export class Core {
 				mutated = true;
 			}
 		}
-
-		applyStringField(input.implementationPlan, task.implementationPlan, (next) => {
-			task.implementationPlan = next;
-		});
-
+		mutated =
+			applyStringField(input.implementationPlan, task.implementationPlan, (next) => {
+				task.implementationPlan = next;
+			}) || mutated;
 		const planAppends = sanitizeAppendInput(input.appendImplementationPlan);
 		if (planAppends.length > 0) {
 			const { value, changed } = appendBlock(task.implementationPlan, planAppends);
@@ -1413,11 +1645,10 @@ export class Core {
 				mutated = true;
 			}
 		}
-
-		applyStringField(input.implementationNotes, task.implementationNotes, (next) => {
-			task.implementationNotes = next;
-		});
-
+		mutated =
+			applyStringField(input.implementationNotes, task.implementationNotes, (next) => {
+				task.implementationNotes = next;
+			}) || mutated;
 		const notesAppends = sanitizeAppendInput(input.appendImplementationNotes);
 		if (notesAppends.length > 0) {
 			const { value, changed } = appendBlock(task.implementationNotes, notesAppends);
@@ -1433,11 +1664,10 @@ export class Core {
 				mutated = true;
 			}
 		}
-
-		applyStringField(input.finalSummary, task.finalSummary, (next) => {
-			task.finalSummary = next;
-		});
-
+		mutated =
+			applyStringField(input.finalSummary, task.finalSummary, (next) => {
+				task.finalSummary = next;
+			}) || mutated;
 		const finalSummaryAppends = sanitizeAppendInput(input.appendFinalSummary);
 		if (finalSummaryAppends.length > 0) {
 			const { value, changed } = appendBlock(task.finalSummary, finalSummaryAppends);
@@ -1447,147 +1677,8 @@ export class Core {
 			}
 		}
 
-		let acceptanceCriteria = Array.isArray(task.acceptanceCriteriaItems)
-			? task.acceptanceCriteriaItems.map((criterion) => ({ ...criterion }))
-			: [];
-
-		const rebuildIndices = () => {
-			acceptanceCriteria = acceptanceCriteria.map((criterion, index) => ({
-				...criterion,
-				index: index + 1,
-			}));
-		};
-
-		if (input.acceptanceCriteria !== undefined) {
-			const sanitized = input.acceptanceCriteria
-				.map((criterion) => ({
-					text: String(criterion.text ?? "").trim(),
-					checked: Boolean(criterion.checked),
-				}))
-				.filter((criterion) => criterion.text.length > 0)
-				.map((criterion, index) => ({
-					index: index + 1,
-					text: criterion.text,
-					checked: criterion.checked,
-				}));
-			acceptanceCriteria = sanitized;
-			mutated = true;
-		}
-
-		if (input.addAcceptanceCriteria && input.addAcceptanceCriteria.length > 0) {
-			const additions = input.addAcceptanceCriteria
-				.map((criterion) => (typeof criterion === "string" ? criterion.trim() : String(criterion.text ?? "").trim()))
-				.filter((text) => text.length > 0);
-			let index =
-				acceptanceCriteria.length > 0 ? Math.max(...acceptanceCriteria.map((criterion) => criterion.index)) + 1 : 1;
-			for (const text of additions) {
-				acceptanceCriteria.push({ index: index++, text, checked: false });
-				mutated = true;
-			}
-		}
-
-		if (input.removeAcceptanceCriteria && input.removeAcceptanceCriteria.length > 0) {
-			const removalSet = new Set(input.removeAcceptanceCriteria);
-			const beforeLength = acceptanceCriteria.length;
-			acceptanceCriteria = acceptanceCriteria.filter((criterion) => !removalSet.has(criterion.index));
-			if (acceptanceCriteria.length === beforeLength) {
-				throw new Error(
-					`Acceptance criterion ${Array.from(removalSet)
-						.map((index) => `#${index}`)
-						.join(", ")} not found`,
-				);
-			}
-			mutated = true;
-			rebuildIndices();
-		}
-
-		const toggleCriteria = (indices: number[] | undefined, checked: boolean) => {
-			if (!indices || indices.length === 0) return;
-			const missing: number[] = [];
-			for (const index of indices) {
-				const criterion = acceptanceCriteria.find((item) => item.index === index);
-				if (!criterion) {
-					missing.push(index);
-					continue;
-				}
-				if (criterion.checked !== checked) {
-					criterion.checked = checked;
-					mutated = true;
-				}
-			}
-			if (missing.length > 0) {
-				const label = missing.map((index) => `#${index}`).join(", ");
-				throw new Error(`Acceptance criterion ${label} not found`);
-			}
-		};
-
-		toggleCriteria(input.checkAcceptanceCriteria, true);
-		toggleCriteria(input.uncheckAcceptanceCriteria, false);
-
-		task.acceptanceCriteriaItems = acceptanceCriteria;
-
-		let definitionOfDone = Array.isArray(task.definitionOfDoneItems)
-			? task.definitionOfDoneItems.map((criterion) => ({ ...criterion }))
-			: [];
-
-		const rebuildDefinitionIndices = () => {
-			definitionOfDone = definitionOfDone.map((criterion, index) => ({
-				...criterion,
-				index: index + 1,
-			}));
-		};
-
-		if (input.addDefinitionOfDone && input.addDefinitionOfDone.length > 0) {
-			const additions = input.addDefinitionOfDone
-				.map((criterion) => (typeof criterion === "string" ? criterion.trim() : String(criterion.text ?? "").trim()))
-				.filter((text) => text.length > 0);
-			let index =
-				definitionOfDone.length > 0 ? Math.max(...definitionOfDone.map((criterion) => criterion.index)) + 1 : 1;
-			for (const text of additions) {
-				definitionOfDone.push({ index: index++, text, checked: false });
-				mutated = true;
-			}
-		}
-
-		const toggleDefinitionItems = (indices: number[] | undefined, checked: boolean) => {
-			if (!indices || indices.length === 0) return;
-			const missing: number[] = [];
-			for (const index of indices) {
-				const criterion = definitionOfDone.find((item) => item.index === index);
-				if (!criterion) {
-					missing.push(index);
-					continue;
-				}
-				if (criterion.checked !== checked) {
-					criterion.checked = checked;
-					mutated = true;
-				}
-			}
-			if (missing.length > 0) {
-				const label = missing.map((index) => `#${index}`).join(", ");
-				throw new Error(`Definition of Done item ${label} not found`);
-			}
-		};
-
-		toggleDefinitionItems(input.checkDefinitionOfDone, true);
-		toggleDefinitionItems(input.uncheckDefinitionOfDone, false);
-
-		if (input.removeDefinitionOfDone && input.removeDefinitionOfDone.length > 0) {
-			const removalSet = new Set(input.removeDefinitionOfDone);
-			const beforeLength = definitionOfDone.length;
-			definitionOfDone = definitionOfDone.filter((criterion) => !removalSet.has(criterion.index));
-			if (definitionOfDone.length === beforeLength) {
-				throw new Error(
-					`Definition of Done item ${Array.from(removalSet)
-						.map((index) => `#${index}`)
-						.join(", ")} not found`,
-				);
-			}
-			mutated = true;
-			rebuildDefinitionIndices();
-		}
-
-		task.definitionOfDoneItems = definitionOfDone;
+		mutated = resolveAcceptanceCriteriaFromInput(task, input) || mutated;
+		mutated = resolveDefinitionOfDoneFromInput(task, input) || mutated;
 
 		return { task, mutated };
 	}
@@ -2685,27 +2776,23 @@ export class Core {
 	): Promise<Task[]> {
 		const config = await this.fs.loadConfig();
 		const statuses = config?.statuses || [...DEFAULT_STATUSES];
-		const resolutionStrategy = config?.taskResolutionStrategy || "most_progressed";
+		const resolutionStrategy: "most_recent" | "most_progressed" =
+			(config?.taskResolutionStrategy as "most_recent" | "most_progressed") || "most_progressed";
 		const includeCompleted = options?.includeCompleted ?? false;
 
-		// Check for cancellation
 		if (abortSignal?.aborted) {
 			throw new Error("Loading cancelled");
 		}
 
-		// Load local filesystem tasks first (needed for optimization)
 		const [localTasks, completedTasks] = await Promise.all([
 			this.listTasksWithMetadata(),
 			includeCompleted ? this.fs.listCompletedTasks() : Promise.resolve([]),
 		]);
 
-		// Check for cancellation
 		if (abortSignal?.aborted) {
 			throw new Error("Loading cancelled");
 		}
 
-		// Load tasks from remote branches and other local branches in parallel
-		// Skip entirely when cross-branch scanning is disabled
 		let remoteTasks: Task[] = [];
 		let localBranchTasks: Task[] = [];
 		let branchStateEntries: BranchTaskStateEntry[] | undefined;
@@ -2736,58 +2823,25 @@ export class Core {
 			]);
 		}
 
-		// Check for cancellation after loading
 		if (abortSignal?.aborted) {
 			throw new Error("Loading cancelled");
 		}
 
-		// Create map with local tasks (current branch filesystem)
 		const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
 
-		// Add local completed tasks when requested
 		if (includeCompleted) {
 			for (const completedTask of completedTasks) {
 				tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
 			}
 		}
 
-		// Merge tasks from other local branches
-		for (const branchTask of localBranchTasks) {
-			if (abortSignal?.aborted) {
-				throw new Error("Loading cancelled");
-			}
+		mergeTaskArray(tasksById, localBranchTasks, abortSignal, statuses, resolutionStrategy);
+		mergeTaskArray(tasksById, remoteTasks, abortSignal, statuses, resolutionStrategy);
 
-			const existing = tasksById.get(branchTask.id);
-			if (!existing) {
-				tasksById.set(branchTask.id, branchTask);
-			} else {
-				const resolved = resolveTaskConflict(existing, branchTask, statuses, resolutionStrategy);
-				tasksById.set(branchTask.id, resolved);
-			}
-		}
-
-		// Merge remote tasks with local tasks
-		for (const remoteTask of remoteTasks) {
-			// Check for cancellation during merge
-			if (abortSignal?.aborted) {
-				throw new Error("Loading cancelled");
-			}
-
-			const existing = tasksById.get(remoteTask.id);
-			if (!existing) {
-				tasksById.set(remoteTask.id, remoteTask);
-			} else {
-				const resolved = resolveTaskConflict(existing, remoteTask, statuses, resolutionStrategy);
-				tasksById.set(remoteTask.id, resolved);
-			}
-		}
-
-		// Check for cancellation before cross-branch checking
 		if (abortSignal?.aborted) {
 			throw new Error("Loading cancelled");
 		}
 
-		// Get the latest directory location of each task across all branches
 		const tasks = Array.from(tasksById.values());
 
 		if (abortSignal?.aborted) {
@@ -2800,43 +2854,14 @@ export class Core {
 			filteredTasks = tasks;
 		} else {
 			progressCallback?.("Applying latest task states from branch scans...");
-			if (!includeCompleted) {
-				filteredTasks = filterTasksByStateSnapshots(tasks, buildLatestStateMap(branchStateEntries || [], localTasks));
-			} else {
-				const stateEntries = branchStateEntries || [];
-				for (const completedTask of completedTasks) {
-					if (!completedTask.id) continue;
-					const lastModified = completedTask.updatedDate ? new Date(completedTask.updatedDate) : new Date(0);
-					stateEntries.push({
-						id: completedTask.id,
-						type: "completed",
-						branch: "local",
-						path: "",
-						lastModified,
-					});
-				}
-
-				const latestState = buildLatestStateMap(stateEntries, localTasks);
-				const completedIds = new Set<string>();
-				for (const [id, entry] of latestState) {
-					if (entry.type === "completed") {
-						completedIds.add(id);
-					}
-				}
-
-				filteredTasks = tasks
-					.filter((task) => {
-						const latest = latestState.get(task.id);
-						if (!latest) return true;
-						return latest.type === "task" || latest.type === "completed";
-					})
-					.map((task) => {
-						if (!completedIds.has(task.id)) {
-							return task;
-						}
-						return { ...task, source: "completed" };
-					});
-			}
+			filteredTasks = filterTasksWithCompleted(
+				tasks,
+				branchStateEntries,
+				localTasks,
+				completedTasks,
+				abortSignal,
+				includeCompleted,
+			);
 		}
 
 		return filteredTasks;
