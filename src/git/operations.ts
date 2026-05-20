@@ -554,6 +554,18 @@ export class GitOperations {
 	 * Much more efficient than individual getFileLastModifiedTime calls
 	 * Returns a Map of filePath -> Date
 	 */
+	private processTimestampFiles(parts: string[], startIndex: number, date: Date, out: Map<string, Date>): number {
+		let i = startIndex;
+		while (i < parts.length && parts[i] && !/^\d+$/.test(parts[i]?.trim() || "")) {
+			const file = parts[i]?.trim();
+			if (file && !out.has(file)) {
+				out.set(file, date);
+			}
+			i++;
+		}
+		return i;
+	}
+
 	async getBranchLastModifiedMap(ref: string, dir: string, sinceDays?: number): Promise<Map<string, Date>> {
 		const out = new Map<string, Date>();
 		if (!(await this.isRepository())) {
@@ -591,16 +603,7 @@ export class GitOperations {
 					const date = new Date(epoch * 1000);
 					i++;
 
-					// Process files until we hit another timestamp or end
-					// Check if next part looks like a timestamp (digits only)
-					while (i < parts.length && parts[i] && !/^\d+$/.test(parts[i]?.trim() || "")) {
-						const file = parts[i]?.trim();
-						// First time we see a file is its last modification
-						if (file && !out.has(file)) {
-							out.set(file, date);
-						}
-						i++;
-					}
+					i = this.processTimestampFiles(parts, i, date, out);
 				} else {
 					// Skip unexpected content
 					i++;

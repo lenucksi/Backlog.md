@@ -143,14 +143,16 @@ export function parseMarkdown(content: string): ParsedMarkdown {
 	};
 }
 
+function validatePriority(raw?: string): "high" | "medium" | "low" | undefined {
+	const priority = raw ? String(raw).toLowerCase() : undefined;
+	if (priority && ["high", "medium", "low"].includes(priority)) return priority as "high" | "medium" | "low";
+	return undefined;
+}
+
 export function parseTask(content: string): Task {
 	const { frontmatter, content: rawContent } = parseMarkdown(content);
 
-	// Validate priority field
-	const priority = frontmatter.priority ? String(frontmatter.priority).toLowerCase() : undefined;
-	const validPriorities = ["high", "medium", "low"];
-	const validatedPriority =
-		priority && validPriorities.includes(priority) ? (priority as "high" | "medium" | "low") : undefined;
+	const validatedPriority = validatePriority(frontmatter.priority);
 
 	// Parse structured acceptance criteria (checked/text/index) from all sections
 	const structuredCriteria: AcceptanceCriterion[] = AcceptanceCriteriaManager.parseAllCriteria(rawContent);
