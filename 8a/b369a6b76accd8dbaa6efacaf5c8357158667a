@@ -1,0 +1,19 @@
+src/ui/components/filter-header.ts
+  s_c91465b44f3cf6::t_792199a961e415 576-577,583-584
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "8ab369a6b76accd8dbaa6efacaf5c8357158667a",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
