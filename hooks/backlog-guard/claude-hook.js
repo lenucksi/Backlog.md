@@ -188,22 +188,43 @@ CLI:  backlog doc create "Title"`;
   return `${both("document_update")}(path="${name}", content="...")
 CLI:  backlog doc update ${name}`;
 }
-function genericSuggestions(kind) {
-  if (kind === "milestone") {
+function milestoneSuggestions(op) {
+  if (op === "read" || op === "Read") {
     return `${both("milestone_list")}()
 CLI:  backlog milestones`;
   }
-  if (kind === "config")
-    return `CLI:  backlog config list
-CLI:  backlog config get <key>`;
-  if (kind === "decision") {
-    return [
-      `${both("task_search")}(query="<keyword>")`,
-      `  or  ${both("document_view")}(path="<name>")`,
-      'CLI:  backlog search "<keyword>"'
-    ].join(`
-`);
+  if (op === "write" || op === "Write") {
+    return `${both("milestone_add")}(name="...", description="...")
+CLI:  backlog milestone add "Name"`;
   }
+  return [
+    `${both("milestone_rename")}(from="...", to="...")
+CLI:  backlog milestone rename "Old" "New"`,
+    `${both("milestone_remove")}(name="...")
+CLI:  backlog milestone remove "Name"`,
+    `${both("milestone_archive")}(name="...")
+CLI:  backlog milestone archive "Name"`
+  ].join(`
+
+`);
+}
+function decisionSuggestions(op) {
+  if (op === "read" || op === "Read") {
+    return `Search:  backlog search "<keyword>" --type decision
+CLI:  backlog search "<keyword>" --type decision`;
+  }
+  if (op === "write" || op === "Write") {
+    return 'CLI:  backlog decision create "Title" --status proposed';
+  }
+  return `CLI:  backlog decision create "Title" --status proposed
+` + 'Note: Decisions have no dedicated edit or view tool. To review: backlog search "<keyword>" --type decision';
+}
+function configSuggestions() {
+  return `CLI:  backlog config list
+CLI:  backlog config get <key>
+CLI:  backlog config set <key> <value>`;
+}
+function genericSuggestions() {
   return [
     `${both("task_list")}()  or  ${both("task_search")}(query="...")`,
     'CLI:  backlog task list  or  backlog search "..."'
@@ -211,7 +232,7 @@ CLI:  backlog config get <key>`;
 `);
 }
 function grepSuggestions(pattern, kind) {
-  if (kind === "doc") {
+  if (kind === "doc" || kind === "decision") {
     return `${both("document_search")}(query="${pattern}")
 CLI:  backlog search "${pattern}"`;
   }
@@ -243,8 +264,14 @@ function buildErrorMessage(tool, kind, taskId, blockedPath, matchedDir, configSo
     suggestion = taskSuggestions(op, taskId);
   } else if (kind === "doc") {
     suggestion = docSuggestions(op, blockedPath);
+  } else if (kind === "milestone") {
+    suggestion = milestoneSuggestions(op);
+  } else if (kind === "decision") {
+    suggestion = decisionSuggestions(op);
+  } else if (kind === "config") {
+    suggestion = configSuggestions();
   } else {
-    suggestion = genericSuggestions(kind);
+    suggestion = genericSuggestions();
   }
   const matchedStr = matchedDir || "unknown";
   return [

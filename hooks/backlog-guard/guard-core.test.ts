@@ -217,14 +217,80 @@ describe("evaluate", () => {
 		expect(result.blocked).toBe(false)
 	})
 
-	test("Read on decision file is blocked with search suggestion", () => {
+	test("Read on decision file is blocked with search --type decision", () => {
 		const decisions = join(tmpDir, "backlog", "decisions")
 		mkdirSync(decisions)
 		const adr = join(decisions, "adr-001-use-markdown.md")
 		writeFileSync(adr, "# ADR 001\n")
 		const result = evaluate({ tool: "Read", filePath: adr }, guardConfig)
 		expect(result.blocked).toBe(true)
-		expect(result.errorMessage).toContain("backlog search")
+		expect(result.errorMessage).toContain("--type decision")
+	})
+
+	test("Write on decision file suggests backlog decision create", () => {
+		const decisions = join(tmpDir, "backlog", "decisions")
+		mkdirSync(decisions)
+		const newDecision = join(decisions, "new-architecture-choice.md")
+		const result = evaluate({ tool: "Write", filePath: newDecision }, guardConfig)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("backlog decision create")
+		expect(result.errorMessage).toContain("--status proposed")
+	})
+
+	test("Read on milestone file suggests milestone_list", () => {
+		const msDir = join(tmpDir, "backlog", "milestones")
+		mkdirSync(msDir)
+		const ms = join(msDir, "m-1 - release.md")
+		writeFileSync(ms, "# Milestone\n")
+		const result = evaluate({ tool: "Read", filePath: ms }, guardConfig)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("mcp__backlog__milestone_list")
+		expect(result.errorMessage).toContain("backlog_milestone_list")
+	})
+
+	test("Write on milestone file suggests milestone_add", () => {
+		const msDir = join(tmpDir, "backlog", "milestones")
+		mkdirSync(msDir)
+		const newMs = join(msDir, "new-milestone.md")
+		const result = evaluate({ tool: "Write", filePath: newMs }, guardConfig)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("mcp__backlog__milestone_add")
+		expect(result.errorMessage).toContain("backlog_milestone_add")
+	})
+
+	test("Edit on milestone file suggests milestone_rename", () => {
+		const msDir = join(tmpDir, "backlog", "milestones")
+		mkdirSync(msDir)
+		const ms = join(msDir, "m-1 - release.md")
+		writeFileSync(ms, "# Milestone\n")
+		const result = evaluate({ tool: "Edit", filePath: ms }, guardConfig)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("mcp__backlog__milestone_rename")
+	})
+
+	test("Grep on decisions directory suggests document_search", () => {
+		const decisionsDir = join(tmpDir, "backlog", "decisions")
+		mkdirSync(decisionsDir)
+		const result = evaluate(
+			{ tool: "Grep", grepPath: decisionsDir, grepPattern: "architecture" },
+			guardConfig,
+		)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("mcp__backlog__document_search")
+	})
+
+	test("Read on config file suggests config CLI", () => {
+		const cfg = join(tmpDir, "backlog", "config.yml")
+		const result = evaluate({ tool: "Read", filePath: cfg }, guardConfig)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("backlog config get")
+	})
+
+	test("Write on config file suggests config set", () => {
+		const cfg = join(tmpDir, "backlog", "config.yml")
+		const result = evaluate({ tool: "Write", filePath: cfg }, guardConfig)
+		expect(result.blocked).toBe(true)
+		expect(result.errorMessage).toContain("backlog config set")
 	})
 })
 

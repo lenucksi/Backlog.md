@@ -214,18 +214,38 @@ function docSuggestions(op: string, blockedPath: string): string {
 	return `${both("document_update")}(path="${name}", content="...")\nCLI:  backlog doc update ${name}`
 }
 
-function genericSuggestions(kind: string): string {
-	if (kind === "milestone") {
+function milestoneSuggestions(op: string): string {
+	if (op === "read" || op === "Read") {
 		return `${both("milestone_list")}()\nCLI:  backlog milestones`
 	}
-	if (kind === "config") return "CLI:  backlog config list\nCLI:  backlog config get <key>"
-	if (kind === "decision") {
-		return [
-			`${both("task_search")}(query="<keyword>")`,
-			`  or  ${both("document_view")}(path="<name>")`,
-			'CLI:  backlog search "<keyword>"',
-		].join("\n")
+	if (op === "write" || op === "Write") {
+		return `${both("milestone_add")}(name="...", description="...")\nCLI:  backlog milestone add "Name"`
 	}
+	return [
+		`${both("milestone_rename")}(from="...", to="...")\nCLI:  backlog milestone rename "Old" "New"`,
+		`${both("milestone_remove")}(name="...")\nCLI:  backlog milestone remove "Name"`,
+		`${both("milestone_archive")}(name="...")\nCLI:  backlog milestone archive "Name"`,
+	].join("\n\n")
+}
+
+function decisionSuggestions(op: string): string {
+	if (op === "read" || op === "Read") {
+		return 'Search:  backlog search "<keyword>" --type decision\nCLI:  backlog search "<keyword>" --type decision'
+	}
+	if (op === "write" || op === "Write") {
+		return 'CLI:  backlog decision create "Title" --status proposed'
+	}
+	return (
+		'CLI:  backlog decision create "Title" --status proposed\n'
+		+ "Note: Decisions have no dedicated edit or view tool. To review: backlog search \"<keyword>\" --type decision"
+	)
+}
+
+function configSuggestions(): string {
+	return "CLI:  backlog config list\nCLI:  backlog config get <key>\nCLI:  backlog config set <key> <value>"
+}
+
+function genericSuggestions(): string {
 	return [
 		`${both("task_list")}()  or  ${both("task_search")}(query="...")`,
 		'CLI:  backlog task list  or  backlog search "..."',
@@ -233,7 +253,7 @@ function genericSuggestions(kind: string): string {
 }
 
 function grepSuggestions(pattern: string, kind: string): string {
-	if (kind === "doc") {
+	if (kind === "doc" || kind === "decision") {
 		return `${both("document_search")}(query="${pattern}")\nCLI:  backlog search "${pattern}"`
 	}
 	if (kind === "task" || kind === "other") {
@@ -272,8 +292,14 @@ function buildErrorMessage(
 		suggestion = taskSuggestions(op, taskId)
 	} else if (kind === "doc") {
 		suggestion = docSuggestions(op, blockedPath)
+	} else if (kind === "milestone") {
+		suggestion = milestoneSuggestions(op)
+	} else if (kind === "decision") {
+		suggestion = decisionSuggestions(op)
+	} else if (kind === "config") {
+		suggestion = configSuggestions()
 	} else {
-		suggestion = genericSuggestions(kind)
+		suggestion = genericSuggestions()
 	}
 
 	const matchedStr = matchedDir || "unknown"
