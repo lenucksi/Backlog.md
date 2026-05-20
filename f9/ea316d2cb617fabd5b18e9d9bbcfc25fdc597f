@@ -1,0 +1,42 @@
+src/utils/backlog-directory.ts
+  s_e584a7c102f2fa::t_b122d4c727077e 156-161
+  s_e584a7c102f2fa::t_f2d1c66e0dda12 171
+src/git/operations.ts
+  s_e584a7c102f2fa::t_e8b18210903cbf 558-568
+  s_e584a7c102f2fa::t_3d786e3cd10340 606
+  s_e584a7c102f2fa::t_274cf2d2449cf6 557
+src/markdown/parser.ts
+  s_e584a7c102f2fa::t_610ffb395fe095 155
+  s_e584a7c102f2fa::t_7f62f5cea56fcf 146-151
+src/web/components/DocumentationDetail.tsx
+  s_e584a7c102f2fa::t_2776476e4eca8b 214-215
+  s_e584a7c102f2fa::t_865f82b09e01ab 12-15
+src/file-system/operations.ts
+  s_e584a7c102f2fa::t_f3258926945808 83
+  s_e584a7c102f2fa::t_40aa56b75c71d5 347-352
+  s_e584a7c102f2fa::t_cba67d71ebc8bb 59-82,84-94
+  s_e584a7c102f2fa::t_5842951c381f3c 818
+  s_e584a7c102f2fa::t_8761a976653692 838
+src/ui/utils/strip-tags.ts
+  s_e584a7c102f2fa::t_2c22426a2fa79c 39
+  s_e584a7c102f2fa::t_67c6cef6af2a94 66,71
+  s_e584a7c102f2fa::t_a227959ffd7cee 47
+  s_e584a7c102f2fa::t_0f601b73049765 30-38,40-46,48-49
+  s_e584a7c102f2fa::t_232e28ed1e9d19 67-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "f9ea316d2cb617fabd5b18e9d9bbcfc25fdc597f",
+  "prompts": {},
+  "sessions": {
+    "s_e584a7c102f2fa": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b85b2cceffevSYTzPFseBCtxq",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
