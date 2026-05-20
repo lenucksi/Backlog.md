@@ -1,0 +1,71 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": [
+		"config:recommended",
+		"helpers:pinGitHubActionDigests",
+		":dependencyDashboard",
+		":semanticCommits",
+		":preserveSemverRanges"
+	],
+	"assignees": ["@lenucksi"],
+	"labels": ["dependencies"],
+	"schedule": ["every weekend"],
+	"timezone": "Europe/Berlin",
+	"platformAutomerge": true,
+	"configMigration": true,
+	"dependencyDashboard": true,
+	"dependencyDashboardTitle": "Dependency Dashboard 🤖",
+	"dependencyDashboardHeader": "This dashboard tracks pending dependency updates and provides an overview of the repository's dependency status.",
+	"dependencyDashboardOSVVulnerabilitySummary": "all",
+	"prConcurrentLimit": 5,
+	"prCreation": "immediate",
+	"prHourlyLimit": 0,
+	"rangeStrategy": "bump",
+	"lockFileMaintenance": { "enabled": true },
+	"minimumReleaseAge": "3 days",
+	"commitMessagePrefix": "chore(deps):",
+	"commitMessageAction": "update",
+	"commitMessageTopic": "{{depName}}",
+	"commitMessageExtra": "to {{#if isPinDigest}}{{{newDigestShort}}}{{else}}{{#if isMajor}}{{prettyNewMajor}}{{else}}{{#if isSingleVersion}}{{prettyNewVersion}}{{else}}{{#if newValue}}{{{newValue}}}{{else}}{{{newDigestShort}}}{{/if}}{{/if}}{{/if}}{{/if}}",
+	"packageRules": [
+		{
+			"description": "Automerge non-major npm dependency updates",
+			"matchManagers": ["npm"],
+			"matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+			"automerge": true
+		},
+		{
+			"description": "Automerge non-major GitHub Actions updates",
+			"matchManagers": ["github-actions"],
+			"matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+			"automerge": true,
+			"labels": ["dependencies", "github-actions"]
+		},
+		{
+			"description": "Group Biome packages",
+			"groupName": "Biome packages",
+			"matchPackageNames": ["@biomejs/{/,}**"]
+		},
+		{
+			"description": "Group Clack packages",
+			"groupName": "Clack packages",
+			"matchPackageNames": ["@clack/{/,}**"]
+		},
+		{
+			"description": "Group React ecosystem",
+			"groupName": "React packages",
+			"matchPackageNames": ["react{/,}**", "@types/react{/,}**", "@uiw/{/,}**"]
+		},
+		{
+			"description": "Require manual review for major version bumps",
+			"matchUpdateTypes": ["major"],
+			"labels": ["dependencies", "major-update"],
+			"automerge": false,
+			"dependencyDashboardApproval": true
+		}
+	],
+	"vulnerabilityAlerts": {
+		"enabled": true,
+		"labels": ["security"]
+	}
+}
