@@ -3,7 +3,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
-import { clearProjectRootCache, findBacklogRoot } from "../utils/find-backlog-root.ts";
+import { clearProjectRootCache, findBacklogRoot, getProjectRoot } from "../utils/find-backlog-root.ts";
 
 describe("findBacklogRoot", () => {
 	let testDir: string;
@@ -180,5 +180,48 @@ describe("findBacklogRoot", () => {
 		const nestedStart = join(testDir, "planning", "backlog", "tasks");
 		const result = await findBacklogRoot(nestedStart);
 		expect(result).toBe(testDir);
+	});
+});
+
+describe("getProjectRoot", () => {
+	let testDir: string;
+
+	beforeEach(async () => {
+		testDir = join(tmpdir(), `project-root-test-${Date.now()}`);
+		await mkdir(testDir, { recursive: true });
+		clearProjectRootCache();
+	});
+
+	afterEach(async () => {
+		clearProjectRootCache();
+		try {
+			await rm(testDir, { recursive: true, force: true });
+		} catch {
+			// Ignore cleanup errors
+		}
+	});
+
+	it("should cache result after first call", async () => {
+		await mkdir(join(testDir, "backlog", "tasks"), { recursive: true });
+		await writeFile(join(testDir, "backlog", "config.yml"), "project_name: Test\n");
+
+		const first = await getProjectRoot(testDir);
+		expect(first).toBe(testDir);
+
+		// Second call hits cache
+		const second = await getProjectRoot(testDir);
+		expect(second).toBe(testDir);
+	});
+
+	it("should cache null result and return it on subsequent calls", async () => {
+		const first = await getProjectRoot(testDir);
+		expect(first).toBeNull();
+
+		// After caching null, creating a backlog setup won't be picked up
+		await mkdir(join(testDir, "backlog", "tasks"), { recursive: true });
+		await writeFile(join(testDir, "backlog", "config.yml"), "project_name: Test\n");
+
+		const second = await getProjectRoot(testDir);
+		expect(second).toBeNull();
 	});
 });

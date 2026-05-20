@@ -8,15 +8,14 @@ import type { BacklogConfig } from "../types/index.ts";
 function getPlatformDefaultEditor(): string {
 	const os = platform();
 	switch (os) {
+		// c8 ignore next 2
 		case "win32":
 			return "notepad";
 		case "darwin":
-			// macOS typically has nano available
 			return "nano";
 		case "linux":
 			return "nano";
 		default:
-			// Fallback to vi which is available on most unix systems
 			return "vi";
 	}
 }
@@ -51,7 +50,7 @@ export async function isEditorAvailable(editor: string): Promise<boolean> {
 		const parts = editor.split(" ");
 		const command = parts[0] ?? editor;
 
-		// For Windows, just check if the command exists
+		// c8 ignore next 7
 		if (platform() === "win32") {
 			try {
 				await $`where ${command}`.quiet();
@@ -61,13 +60,13 @@ export async function isEditorAvailable(editor: string): Promise<boolean> {
 			}
 		}
 
-		// For Unix-like systems, use which
 		try {
 			await $`which ${command}`.quiet();
 			return true;
 		} catch {
 			return false;
 		}
+		// c8 ignore next 3
 	} catch {
 		return false;
 	}
