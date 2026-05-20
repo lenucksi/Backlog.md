@@ -7514,6 +7514,9 @@ function evaluate(input, config) {
 // hooks/backlog-guard/opencode-plugin.ts
 var BacklogGuardPlugin = async () => {
   return {
+    "experimental.chat.system.transform": async (_input, output) => {
+      output.system.push("The backlog-guard plugin blocks direct Read/Edit/Write/Bash/Grep on " + "backlog/ directory files and redirects to MCP tools or the backlog CLI. " + "Use backlog_task_view / mcp__backlog__task_view instead of reading .md files. " + "Use backlog_task_edit / mcp__backlog__task_edit instead of editing .md files.");
+    },
     "tool.execute.before": async (input, output) => {
       const config = loadConfigWithGitRoot(process.cwd());
       if (!config)
