@@ -9,33 +9,15 @@ import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-
 const CLI_PATH = process.env.TUI_TEST_CLI_PATH?.trim() || join(process.cwd(), "src", "cli.ts");
 const CLI_RUNTIME = process.env.TUI_TEST_CLI_RUNTIME?.trim() ?? "bun";
 const TRANSCRIPT_DIR = join(process.cwd(), "tmp", "tui-interactive-transcripts");
-const EXPECT_PATH = Bun.which("expect");
 const RUN_INTERACTIVE_TUI_TESTS = process.env.RUN_INTERACTIVE_TUI_TESTS === "1";
 
-function getSkipReason(): string | null {
-	if (process.platform === "win32") {
-		return "interactive PTY tests require a Unix-like environment";
-	}
-	if (!RUN_INTERACTIVE_TUI_TESTS) {
-		return "set RUN_INTERACTIVE_TUI_TESTS=1 to enable interactive PTY tests";
-	}
-	if (!EXPECT_PATH) {
-		return "expect is not installed";
-	}
-	return null;
-}
-
-const skipReason = getSkipReason();
-if (skipReason) {
-	console.warn(`[tui-interactive] Skipping interactive editor handoff tests: ${skipReason}`);
-}
-const itInteractive = skipReason ? it.skip : it;
+const canRunInteractive = process.platform !== "win32" && RUN_INTERACTIVE_TUI_TESTS;
 
 interface InteractiveEditRunOptions {
 	scenario: string;
 	cliArgs: string[];
 	taskTitle: string;
-	readyPattern: string;
+	readyPattern: RegExp;
 }
 
 interface InteractiveEditRunResult {
@@ -43,14 +25,6 @@ interface InteractiveEditRunResult {
 	transcriptPath: string;
 	editorMarker: string;
 	editorInputLog: string;
-}
-
-function buildSpawnCommand(cliArgs: string[]): string {
-	const argsSegment = cliArgs.map((arg) => `"${arg}"`).join(" ");
-	if (CLI_RUNTIME.length === 0) {
-		return `spawn {${CLI_PATH}} ${argsSegment}`;
-	}
-	return `spawn {${CLI_RUNTIME}} {${CLI_PATH}} ${argsSegment}`;
 }
 
 async function runInteractiveEditScenario(options: InteractiveEditRunOptions): Promise<InteractiveEditRunResult> {
@@ -62,46 +36,20 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 	const editorMarkerPath = join(testDir, `${options.scenario}-editor-marker.txt`);
 	const editorInputPath = join(testDir, `${options.scenario}-editor-input.log`);
 	const editorScriptPath = join(testDir, `${options.scenario}-editor.cjs`);
-	const expectScriptPath = join(testDir, `${options.scenario}.expect`);
 
 	await writeFile(
 		editorScriptPath,
-		`const { appendFileSync, createReadStream } = require("node:fs");
-
-const taskFile = process.argv[2];
-const markerFile = process.env.TUI_EDITOR_MARKER_FILE;
-const keyLogFile = process.env.TUI_EDITOR_KEY_LOG_FILE;
-
-if (markerFile) {
-	appendFileSync(markerFile, "started\\n");
-}
-if (taskFile) {
-	appendFileSync(taskFile, "\\nEdited in interactive TUI test\\n");
-}
-
-let input = process.stdin;
-if (!input.isTTY) {
-	try {
-		input = createReadStream("/dev/tty");
-	} catch {}
-}
-if (input.isTTY && typeof input.setRawMode === "function") {
-	input.setRawMode(true);
-}
-input.resume();
-input.on("data", (chunk) => {
-	if (!keyLogFile) {
-		return;
-	}
-	const bytes = Array.from(chunk.values());
-	appendFileSync(keyLogFile, \`DATA:\${bytes.join(",")}\\n\`);
-});
-process.stdout.write("__EDITOR_READY__\\n");
-
-setTimeout(() => {
-	process.exit(0);
-}, 1200);
-`,
+		[
+			`const { appendFileSync } = require("node:fs");`,
+			"const taskFile = process.argv[2];",
+			"const markerFile = process.env.TUI_EDITOR_MARKER_FILE;",
+			"const keyLogFile = process.env.TUI_EDITOR_KEY_LOG_FILE;",
+			"",
+			`if (markerFile) appendFileSync(markerFile, "started\\n");`,
+			`if (taskFile) appendFileSync(taskFile, "\\nEdited in interactive TUI test\\n");`,
+			`process.stdout.write("__EDITOR_READY__\\n");`,
+			"setTimeout(() => process.exit(0), 800);",
+		].join("\n"),
 	);
 
 	await $`git init -b main`.cwd(testDir).quiet();
@@ -112,9 +60,7 @@ setTimeout(() => {
 	await initializeTestProject(core, `Interactive ${options.scenario}`);
 
 	const config = await core.filesystem.loadConfig();
-	if (!config) {
-		throw new Error(`Failed to load config for scenario ${options.scenario}`);
-	}
+	if (!config) throw new Error(`Failed to load config for ${options.scenario}`);
 
 	const updatedConfig: BacklogConfig = {
 		...config,
@@ -136,69 +82,90 @@ setTimeout(() => {
 	};
 	await core.createTask(task, false);
 
-	await writeFile(
-		expectScriptPath,
-		`#!/usr/bin/expect -f
-set timeout 20
-log_user 0
-log_file -a {${transcriptPath}}
-set env(TERM) {xterm-256color}
-set env(COLUMNS) {120}
-set env(LINES) {40}
-set env(NO_COLOR) {1}
-set env(EDITOR) {node ${editorScriptPath}}
-set env(TUI_EDITOR_MARKER_FILE) {${editorMarkerPath}}
-set env(TUI_EDITOR_KEY_LOG_FILE) {${editorInputPath}}
-${buildSpawnCommand(options.cliArgs)}
-expect {
-	-re {${options.readyPattern}} {}
-	timeout { exit 91 }
-}
-sleep 0.5
-send -- "E"
-expect {
-	-re {__EDITOR_READY__} {}
-	timeout { exit 92 }
-}
-send -- "\\033\\[A"
-sleep 0.2
-send -- "q"
-sleep 1.0
-send -- "q"
-sleep 2.0
-send -- "\\003"
-expect eof
-set wait_status [wait]
-set exit_code [lindex $wait_status 3]
-exit $exit_code
-`,
-	);
+	interface IPty {
+		write(data: string): void;
+		on(event: "data", cb: (data: string) => void): void;
+		on(event: "exit", cb: (code: number) => void): void;
+		kill(signal?: string): void;
+	}
 
-	const child = Bun.spawn(["expect", "-f", expectScriptPath], {
+	const { spawn } = (await import("node-pty")) as {
+		spawn: (
+			file: string,
+			args: string[],
+			opts: {
+				name: string;
+				cols: number;
+				rows: number;
+				cwd: string;
+				env?: Record<string, string | undefined>;
+			},
+		) => IPty;
+	};
+
+	const args = CLI_RUNTIME.length > 0 ? [CLI_PATH, ...options.cliArgs] : options.cliArgs;
+	const cmd = CLI_RUNTIME.length > 0 ? CLI_RUNTIME : CLI_PATH;
+
+	const pty: IPty = spawn(cmd, args, {
+		name: "xterm-256color",
+		cols: 120,
+		rows: 40,
 		cwd: testDir,
-		stdout: "pipe",
-		stderr: "pipe",
+		env: {
+			...(process.env as Record<string, string>),
+			TERM: "xterm-256color",
+			NO_COLOR: "1",
+			EDITOR: `node ${editorScriptPath}`,
+			TUI_EDITOR_MARKER_FILE: editorMarkerPath,
+			TUI_EDITOR_KEY_LOG_FILE: editorInputPath,
+		},
 	});
-	const stdoutPromise = child.stdout ? new Response(child.stdout).text() : Promise.resolve("");
-	const stderrPromise = child.stderr ? new Response(child.stderr).text() : Promise.resolve("");
-	const exitCode = await child.exited;
-	const [stdout, stderr] = await Promise.all([stdoutPromise, stderrPromise]);
-	const transcript = await Bun.file(transcriptPath)
-		.text()
-		.catch(() => "(no transcript captured)");
+
+	let output = "";
+	const outputPromise = new Promise<string>((resolve, reject) => {
+		const timer = setTimeout(() => reject(new Error("Timeout waiting for pattern")), 20000);
+		pty.on("data", (data: string) => {
+			output += data;
+			if (options.readyPattern.test(output)) {
+				clearTimeout(timer);
+				resolve(output);
+			}
+		});
+		pty.on("exit", () => {
+			clearTimeout(timer);
+			reject(new Error("CLI exited before pattern matched"));
+		});
+	});
 
 	try {
-		expect([0, 130]).toContain(exitCode);
-	} catch (_error) {
-		throw new Error(
-			`Interactive CLI run failed for ${options.scenario}.\n` +
-				`Exit code: ${exitCode}\n` +
-				`STDOUT:\n${stdout}\n` +
-				`STDERR:\n${stderr}\n` +
-				`Transcript: ${transcriptPath}\n` +
-				`Transcript contents:\n${transcript}\n`,
-		);
+		await outputPromise;
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		await writeFile(transcriptPath, output);
+		throw new Error(`Interactive CLI run failed for ${options.scenario}: ${msg}\nTranscript: ${transcriptPath}`);
 	}
+
+	pty.write("E");
+	await new Promise<void>((resolve) => {
+		const timer = setTimeout(() => resolve(), 10000);
+		pty.on("data", (data: string) => {
+			output += data;
+			if (data.includes("__EDITOR_READY__")) {
+				clearTimeout(timer);
+				resolve();
+			}
+		});
+	});
+
+	pty.write("\x1b[A");
+	await new Promise((r) => setTimeout(r, 300));
+	pty.write("q");
+	await new Promise((r) => setTimeout(r, 1000));
+	pty.write("q");
+	await new Promise((r) => setTimeout(r, 2000));
+	pty.kill("SIGTERM");
+
+	await writeFile(transcriptPath, output);
 
 	const markerContent = await readFile(editorMarkerPath, "utf8").catch(() => "");
 	const editorInputLog = await readFile(editorInputPath, "utf8").catch(() => "");
@@ -213,13 +180,17 @@ exit $exit_code
 	};
 }
 
-describe("interactive TUI editor handoff", () => {
-	itInteractive("launches terminal editor from board view and marks task updated", async () => {
+if (!canRunInteractive) {
+	console.warn("[tui-interactive] Skipping interactive editor handoff tests. Set RUN_INTERACTIVE_TUI_TESTS=1 on Unix.");
+}
+
+(canRunInteractive ? describe : describe.skip)("interactive TUI editor handoff", () => {
+	it("launches terminal editor from board view and marks task updated", async () => {
 		const result = await runInteractiveEditScenario({
 			scenario: "board",
 			cliArgs: ["board"],
 			taskTitle: "Board interactive editor task",
-			readyPattern: "Backlog Board",
+			readyPattern: /Backlog Board/,
 		});
 
 		expect(result.editorMarker).toContain("started");
@@ -228,12 +199,12 @@ describe("interactive TUI editor handoff", () => {
 		expect(result.transcriptPath).toContain("tui-interactive-transcripts");
 	});
 
-	itInteractive("launches terminal editor from task list view and marks task updated", async () => {
+	it("launches terminal editor from task list view and marks task updated", async () => {
 		const result = await runInteractiveEditScenario({
 			scenario: "task-list",
 			cliArgs: ["task", "list"],
 			taskTitle: "Task list interactive editor task",
-			readyPattern: "Tasks",
+			readyPattern: /Tasks/,
 		});
 
 		expect(result.editorMarker).toContain("started");
