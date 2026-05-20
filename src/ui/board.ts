@@ -423,7 +423,8 @@ export async function renderBoardTui(
 		const createColumnViews = (data: ColumnData[]) => {
 			clearColumns();
 			const widthPercent = columnWidthFor(data.length);
-			data.forEach((columnData, idx) => {
+			for (let idx = 0; idx < data.length; idx++) {
+				const columnData = data[idx];
 				const left = idx * widthPercent;
 				const isLast = idx === data.length - 1;
 				const width = isLast ? `${Math.max(0, 100 - left)}%` : `${widthPercent}%`;
@@ -462,7 +463,7 @@ export async function renderBoardTui(
 					plainItems: renderedItems.plain,
 				});
 
-				taskList.on("select item", (_item: unknown, selected: unknown) => {
+				const onItemSelect = (_item: unknown, selected: unknown) => {
 					if (programmaticColumnSelection || popupOpen || filterPopupOpen || modalOpen) return;
 					const column = columns[idx];
 					if (!column) return;
@@ -476,9 +477,10 @@ export async function renderBoardTui(
 					filterHeader?.setBorderColor("cyan");
 					updateFooter();
 					screen.render();
-				});
+				};
+				taskList.on("select item", onItemSelect);
 
-				taskList.on("focus", () => {
+				const onColumnFocus = () => {
 					if (popupOpen || filterPopupOpen || modalOpen) return;
 					if (currentCol !== idx) {
 						setColumnActiveState(columns[currentCol], false);
@@ -489,8 +491,9 @@ export async function renderBoardTui(
 					filterHeader?.setBorderColor("cyan");
 					updateFooter();
 					screen.render();
-				});
-			});
+				};
+				taskList.on("focus", onColumnFocus);
+			}
 		};
 
 		const setColumnActiveState = (column: ColumnView | undefined, active: boolean) => {
@@ -1052,6 +1055,22 @@ export async function renderBoardTui(
 			}
 
 			const { contentArea, close } = popup;
+			const confirmComplete = () =>
+				openConfirmPopup({
+					screen,
+					title: "Complete Task",
+					message: `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`,
+				});
+
+			const confirmArchive = () =>
+				openConfirmPopup({
+					screen,
+					title: "Archive Task",
+					message: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
+				});
+
+			const notThisTask = (t: Task) => t.id !== task.id;
+
 			contentArea.key(["escape", "q"], () => {
 				popupOpen = false;
 				close();
@@ -1077,13 +1096,7 @@ export async function renderBoardTui(
 					return;
 				}
 
-				const confirmed = await runWithModalGuard(() =>
-					openConfirmPopup({
-						screen,
-						title: "Complete Task",
-						message: `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`,
-					}),
-				);
+				const confirmed = await runWithModalGuard(confirmComplete);
 
 				if (confirmed) {
 					try {
@@ -1092,7 +1105,7 @@ export async function renderBoardTui(
 						const success = await core.completeTask(task.id, config?.autoCommit ?? false);
 
 						if (success) {
-							currentTasks = currentTasks.filter((t) => t.id !== task.id);
+							currentTasks = currentTasks.filter(notThisTask);
 							showTransientFooter(` {green-fg}Completed ${task.id}{/}`);
 							close();
 							popupOpen = false;
@@ -1114,13 +1127,7 @@ export async function renderBoardTui(
 					return;
 				}
 
-				const confirmed = await runWithModalGuard(() =>
-					openConfirmPopup({
-						screen,
-						title: "Archive Task",
-						message: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
-					}),
-				);
+				const confirmed = await runWithModalGuard(confirmArchive);
 
 				if (confirmed) {
 					try {
@@ -1129,7 +1136,7 @@ export async function renderBoardTui(
 						const success = await core.archiveTask(task.id, config?.autoCommit ?? false);
 
 						if (success) {
-							currentTasks = currentTasks.filter((t) => t.id !== task.id);
+							currentTasks = currentTasks.filter(notThisTask);
 							showTransientFooter(` {green-fg}Archived ${task.id}{/}`);
 							close();
 							popupOpen = false;
