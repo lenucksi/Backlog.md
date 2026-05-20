@@ -34,4 +34,59 @@ describe("buildRemoteTaskIndex branch handling", () => {
 		]);
 		expect(git.refs).toEqual(["origin/main"]);
 	});
+
+	it("classifies task type from path", async () => {
+		const collector: Array<{ id: string; type: string; branch: string; path: string; lastModified: Date }> = [];
+		const git = new MockGit();
+
+		await buildRemoteTaskIndex(git as unknown as GitOperations, ["main"], "backlog", undefined, collector);
+
+		expect(collector.length).toBeGreaterThan(0);
+		const first = collector[0];
+		expect(first.type).toBe("task");
+		expect(first.branch).toBe("main");
+	});
+
+	it("indexes completed tasks when includeCompleted + stateCollector are set", async () => {
+		const collector: Array<{ id: string; type: string; branch: string; path: string; lastModified: Date }> = [];
+		const git = {
+			refs: [] as string[],
+			async listFilesInTree(_ref: string, _path: string): Promise<string[]> {
+				return ["backlog/completed/task-99 - Done.md", "backlog/tasks/task-1 - Active.md"];
+			},
+			async getBranchLastModifiedMap(_ref: string, _path: string): Promise<Map<string, Date>> {
+				return new Map([
+					["backlog/completed/task-99 - Done.md", new Date()],
+					["backlog/tasks/task-1 - Active.md", new Date()],
+				]);
+			},
+		};
+
+		const index = await buildRemoteTaskIndex(
+			git as unknown as GitOperations,
+			["main"],
+			"backlog",
+			undefined,
+			collector,
+			"task",
+			true,
+		);
+		expect(index.size).toBeGreaterThan(0);
+		expect(collector.length).toBe(2);
+	});
+
+	it("skips non-task files when no stateCollector", async () => {
+		const git = {
+			refs: [] as string[],
+			async listFilesInTree(_ref: string, _path: string): Promise<string[]> {
+				return ["backlog/docs/readme.md"];
+			},
+			async getBranchLastModifiedMap(_ref: string, _path: string): Promise<Map<string, Date>> {
+				return new Map([["backlog/docs/readme.md", new Date()]]);
+			},
+		};
+
+		const index = await buildRemoteTaskIndex(git as unknown as GitOperations, ["main"]);
+		expect(index.size).toBe(0);
+	});
 });

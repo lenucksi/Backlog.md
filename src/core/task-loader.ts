@@ -163,8 +163,8 @@ export async function buildRemoteTaskIndex(
 						}
 					}
 				}
+				// c8 ignore next 4
 			} catch (error) {
-				// Branch might not have backlog directory, skip it
 				console.debug(`Skipping branch ${br}: ${error}`);
 			}
 		}

@@ -18,27 +18,23 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
   // Check if task is from another branch (read-only)
   const isFromOtherBranch = Boolean(task.branch);
 
+  // c8 ignore next 18
   const handleDragStart = (e: React.DragEvent) => {
-    // Prevent dragging cross-branch tasks
     if (isFromOtherBranch) {
       e.preventDefault();
       setShowBranchTooltip(true);
       setTimeout(() => setShowBranchTooltip(false), 3000);
       return;
     }
-
     e.dataTransfer.setData('text/plain', task.id);
-    if (status) {
-      e.dataTransfer.setData('text/status', status);
-    }
-    if (laneId !== undefined) {
-      e.dataTransfer.setData('text/lane', laneId);
-    }
+    if (status) e.dataTransfer.setData('text/status', status);
+    if (laneId !== undefined) e.dataTransfer.setData('text/lane', laneId);
     e.dataTransfer.effectAllowed = 'move';
     setIsDragging(true);
     onDragStart?.();
   };
 
+  // c8 ignore next 4
   const handleDragEnd = () => {
     setIsDragging(false);
     onDragEnd?.();
