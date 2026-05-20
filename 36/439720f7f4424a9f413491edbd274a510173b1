@@ -1,0 +1,19 @@
+src/test/build.test.ts
+  s_c91465b44f3cf6::t_fa467b977b70ed 28-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "36439720f7f4424a9f413491edbd274a510173b1",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
