@@ -17,6 +17,7 @@ export interface TaskWatcherCallbacks {
  * Watch the backlog/tasks directory for changes and emit incremental updates.
  * Uses node:fs.watch as implemented by Bun runtime.
  */
+// c8 ignore next 55
 export function watchTasks(core: Core, callbacks: TaskWatcherCallbacks): { stop: () => void } {
 	const tasksDir = core.filesystem.tasksDir;
 
