@@ -1,0 +1,25 @@
+.github/workflows/publish-backlog-guard.yml
+  s_c91465b44f3cf6::t_58c846fe606321 34
+.github/workflows/actionlint.yml
+  s_c91465b44f3cf6::t_7646af0badc92c 18-22
+.github/workflows/release.yml
+  s_c91465b44f3cf6::t_a2d680d0abd2cf 35
+.github/workflows/ci.yml
+  s_c91465b44f3cf6::t_b3cb41060eb34e 50,97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "086fdfeb33f229dd40a868ff3c53883423edb846",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
