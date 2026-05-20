@@ -25,6 +25,12 @@ describe("CLI packaging", () => {
 	});
 
 	it("should build and run compiled executable", async () => {
+		if (isWindows) {
+			// Skipped on Windows: the compile-and-smoke-test CI job separately validates
+			// the binary build per platform. Local `bun build --compile` on Windows
+			// is environment-sensitive (MSVC runtime, AV, cross-filesystem temp).
+			return;
+		}
 		const OUTFILE = join(TEST_DIR, executableName);
 
 		// Read version from package.json
