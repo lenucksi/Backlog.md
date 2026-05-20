@@ -13,6 +13,7 @@ import { MilestoneHandlers } from "../mcp/tools/milestones/handlers.ts";
 import {
 	DOCUMENT_TYPE_VALUES,
 	type Document,
+	type SearchFilters,
 	type SearchPriorityFilter,
 	type SearchResultType,
 	type Task,
@@ -201,6 +202,179 @@ export async function findNextAvailablePort(startPort: number): Promise<number> 
 	let port = startPort;
 	while (!(await isPortAvailable(port))) port++;
 	return port;
+}
+
+function collectSearchParam(searchParams: URLSearchParams, singular: string, plural: string): string[] {
+	const values = [...searchParams.getAll(singular), ...searchParams.getAll(plural)];
+	const csv = searchParams.get(plural);
+	if (csv) {
+		values.push(...csv.split(","));
+	}
+	return values;
+}
+
+function buildSearchFilters(
+	statusParams: string[],
+	priorityParamsRaw: string[],
+	assigneeParamsRaw: string[],
+	labelParamsRaw: string[],
+	modifiedFileParamsRaw: string[],
+): { error?: Response; filters: SearchFilters } {
+	const filters: SearchFilters = {};
+
+	if (statusParams.length === 1) {
+		filters.status = statusParams[0];
+	} else if (statusParams.length > 1) {
+		filters.status = statusParams;
+	}
+
+	if (priorityParamsRaw.length > 0) {
+		const allowedPriorities: SearchPriorityFilter[] = ["high", "medium", "low"];
+		const normalizedPriorities = priorityParamsRaw.map((value) => value.toLowerCase());
+		const invalidPriority = normalizedPriorities.find(
+			(value) => !allowedPriorities.includes(value as SearchPriorityFilter),
+		);
+		if (invalidPriority) {
+			return {
+				error: Response.json(
+					{ error: `Unsupported priority '${invalidPriority}'. Use high, medium, or low.` },
+					{ status: 400 },
+				),
+				filters,
+			};
+		}
+		const casted = normalizedPriorities as SearchPriorityFilter[];
+		filters.priority = casted.length === 1 ? casted[0] : casted;
+	}
+
+	if (assigneeParamsRaw.length > 0) {
+		const normalizedAssignees = assigneeParamsRaw.map((value) => value.trim()).filter((value) => value.length > 0);
+		if (normalizedAssignees.length > 0) {
+			filters.assignee = normalizedAssignees.length === 1 ? normalizedAssignees[0] : normalizedAssignees;
+		}
+	}
+
+	if (labelParamsRaw.length > 0) {
+		const normalizedLabels = labelParamsRaw.map((value) => value.trim()).filter((value) => value.length > 0);
+		if (normalizedLabels.length > 0) {
+			filters.labels = normalizedLabels.length === 1 ? normalizedLabels[0] : normalizedLabels;
+		}
+	}
+
+	if (modifiedFileParamsRaw.length > 0) {
+		const normalizedModifiedFiles = modifiedFileParamsRaw
+			.map((value) => value.trim())
+			.filter((value) => value.length > 0);
+		if (normalizedModifiedFiles.length > 0) {
+			filters.modifiedFiles =
+				normalizedModifiedFiles.length === 1 ? normalizedModifiedFiles[0] : normalizedModifiedFiles;
+		}
+	}
+
+	return { filters };
+}
+
+function buildTaskUpdateInputFromBody(updates: Record<string, unknown>): TaskUpdateInput {
+	const updateInput: TaskUpdateInput = {};
+
+	if ("title" in updates && typeof updates.title === "string") {
+		updateInput.title = updates.title;
+	}
+
+	if ("description" in updates && typeof updates.description === "string") {
+		updateInput.description = updates.description;
+	}
+
+	if ("status" in updates && typeof updates.status === "string") {
+		updateInput.status = updates.status;
+	}
+
+	if ("priority" in updates && typeof updates.priority === "string") {
+		updateInput.priority = updates.priority as "high" | "medium" | "low";
+	}
+
+	if ("labels" in updates && Array.isArray(updates.labels)) {
+		updateInput.labels = updates.labels as string[];
+	}
+
+	if ("assignee" in updates && Array.isArray(updates.assignee)) {
+		updateInput.assignee = updates.assignee as string[];
+	}
+
+	if ("dependencies" in updates && Array.isArray(updates.dependencies)) {
+		updateInput.dependencies = updates.dependencies;
+	}
+
+	if ("references" in updates && Array.isArray(updates.references)) {
+		updateInput.references = updates.references;
+	}
+
+	if ("modifiedFiles" in updates && Array.isArray(updates.modifiedFiles)) {
+		updateInput.modifiedFiles = updates.modifiedFiles;
+	}
+
+	if ("implementationPlan" in updates && typeof updates.implementationPlan === "string") {
+		updateInput.implementationPlan = updates.implementationPlan;
+	}
+
+	if ("implementationNotes" in updates && typeof updates.implementationNotes === "string") {
+		updateInput.implementationNotes = updates.implementationNotes;
+	}
+
+	if ("finalSummary" in updates && typeof updates.finalSummary === "string") {
+		updateInput.finalSummary = updates.finalSummary;
+	}
+
+	if ("acceptanceCriteriaItems" in updates && Array.isArray(updates.acceptanceCriteriaItems)) {
+		updateInput.acceptanceCriteria = updates.acceptanceCriteriaItems
+			.map((item: unknown) => ({
+				text: String((item as Record<string, unknown>)?.text ?? "").trim(),
+				checked: Boolean((item as Record<string, unknown>)?.checked),
+			}))
+			.filter((item: { text: string }) => item.text.length > 0);
+	}
+
+	if ("definitionOfDoneAdd" in updates && Array.isArray(updates.definitionOfDoneAdd)) {
+		updateInput.addDefinitionOfDone = updates.definitionOfDoneAdd
+			.map((item: unknown) => ({ text: String(item ?? "").trim(), checked: false }))
+			.filter((item: { text: string }) => item.text.length > 0);
+	}
+
+	if ("definitionOfDoneRemove" in updates && Array.isArray(updates.definitionOfDoneRemove)) {
+		updateInput.removeDefinitionOfDone = updates.definitionOfDoneRemove.filter(
+			(value: unknown) => typeof value === "number" && Number.isFinite(value),
+		);
+	}
+
+	if ("definitionOfDoneCheck" in updates && Array.isArray(updates.definitionOfDoneCheck)) {
+		updateInput.checkDefinitionOfDone = updates.definitionOfDoneCheck.filter(
+			(value: unknown) => typeof value === "number" && Number.isFinite(value),
+		);
+	}
+
+	if ("definitionOfDoneUncheck" in updates && Array.isArray(updates.definitionOfDoneUncheck)) {
+		updateInput.uncheckDefinitionOfDone = updates.definitionOfDoneUncheck.filter(
+			(value: unknown) => typeof value === "number" && Number.isFinite(value),
+		);
+	}
+
+	return updateInput;
+}
+
+function handleDocumentUpdateError(error: unknown): Response {
+	if (error instanceof SyntaxError) {
+		return Response.json({ error: "Invalid request payload" }, { status: 400 });
+	}
+	if (error instanceof Error) {
+		if (error.message.startsWith("Document not found")) {
+			return Response.json({ error: error.message }, { status: 404 });
+		}
+		if (isDocumentValidationError(error)) {
+			return Response.json({ error: error.message }, { status: 400 });
+		}
+	}
+	console.error("Error updating document:", error);
+	return Response.json({ error: "Failed to update document" }, { status: 500 });
 }
 
 export class BacklogServer {
@@ -696,29 +870,8 @@ export class BacklogServer {
 			const searchService = await this.getSearchServiceInstance();
 			const url = new URL(req.url);
 			const query = url.searchParams.get("query") ?? undefined;
-			const limitParam = url.searchParams.get("limit");
-			const typeParams = [...url.searchParams.getAll("type"), ...url.searchParams.getAll("types")];
-			const statusParams = url.searchParams.getAll("status");
-			const priorityParamsRaw = url.searchParams.getAll("priority");
-			const assigneeParamsRaw = [...url.searchParams.getAll("assignee"), ...url.searchParams.getAll("assignees")];
-			const labelParamsRaw = [...url.searchParams.getAll("label"), ...url.searchParams.getAll("labels")];
-			const modifiedFileParamsRaw = [
-				...url.searchParams.getAll("modifiedFile"),
-				...url.searchParams.getAll("modifiedFiles"),
-			];
-			const assigneesCsv = url.searchParams.get("assignees");
-			if (assigneesCsv) {
-				assigneeParamsRaw.push(...assigneesCsv.split(","));
-			}
-			const labelsCsv = url.searchParams.get("labels");
-			if (labelsCsv) {
-				labelParamsRaw.push(...labelsCsv.split(","));
-			}
-			const modifiedFilesCsv = url.searchParams.get("modifiedFiles");
-			if (modifiedFilesCsv) {
-				modifiedFileParamsRaw.push(...modifiedFilesCsv.split(","));
-			}
 
+			const limitParam = url.searchParams.get("limit");
 			let limit: number | undefined;
 			if (limitParam) {
 				const parsed = Number.parseInt(limitParam, 10);
@@ -728,6 +881,7 @@ export class BacklogServer {
 				limit = parsed;
 			}
 
+			const typeParams = [...url.searchParams.getAll("type"), ...url.searchParams.getAll("types")];
 			let types: SearchResultType[] | undefined;
 			if (typeParams.length > 0) {
 				const allowed: SearchResultType[] = ["task", "document", "decision"];
@@ -742,61 +896,27 @@ export class BacklogServer {
 				types = normalizedTypes;
 			}
 
-			const filters: {
-				status?: string | string[];
-				priority?: SearchPriorityFilter | SearchPriorityFilter[];
-				assignee?: string | string[];
-				labels?: string | string[];
-				modifiedFiles?: string | string[];
-			} = {};
+			const assigneeParamsRaw = collectSearchParam(url.searchParams, "assignee", "assignees");
+			const labelParamsRaw = collectSearchParam(url.searchParams, "label", "labels");
+			const modifiedFileParamsRaw = collectSearchParam(url.searchParams, "modifiedFile", "modifiedFiles");
+			const statusParams = url.searchParams.getAll("status");
+			const priorityParamsRaw = url.searchParams.getAll("priority");
 
-			if (statusParams.length === 1) {
-				filters.status = statusParams[0];
-			} else if (statusParams.length > 1) {
-				filters.status = statusParams;
-			}
+			const filterResult = buildSearchFilters(
+				statusParams,
+				priorityParamsRaw,
+				assigneeParamsRaw,
+				labelParamsRaw,
+				modifiedFileParamsRaw,
+			);
+			if (filterResult.error) return filterResult.error;
 
-			if (priorityParamsRaw.length > 0) {
-				const allowedPriorities: SearchPriorityFilter[] = ["high", "medium", "low"];
-				const normalizedPriorities = priorityParamsRaw.map((value) => value.toLowerCase());
-				const invalidPriority = normalizedPriorities.find(
-					(value) => !allowedPriorities.includes(value as SearchPriorityFilter),
-				);
-				if (invalidPriority) {
-					return Response.json(
-						{ error: `Unsupported priority '${invalidPriority}'. Use high, medium, or low.` },
-						{ status: 400 },
-					);
-				}
-				const casted = normalizedPriorities as SearchPriorityFilter[];
-				filters.priority = casted.length === 1 ? casted[0] : casted;
-			}
-
-			if (assigneeParamsRaw.length > 0) {
-				const normalizedAssignees = assigneeParamsRaw.map((value) => value.trim()).filter((value) => value.length > 0);
-				if (normalizedAssignees.length > 0) {
-					filters.assignee = normalizedAssignees.length === 1 ? normalizedAssignees[0] : normalizedAssignees;
-				}
-			}
-
-			if (labelParamsRaw.length > 0) {
-				const normalizedLabels = labelParamsRaw.map((value) => value.trim()).filter((value) => value.length > 0);
-				if (normalizedLabels.length > 0) {
-					filters.labels = normalizedLabels.length === 1 ? normalizedLabels[0] : normalizedLabels;
-				}
-			}
-
-			if (modifiedFileParamsRaw.length > 0) {
-				const normalizedModifiedFiles = modifiedFileParamsRaw
-					.map((value) => value.trim())
-					.filter((value) => value.length > 0);
-				if (normalizedModifiedFiles.length > 0) {
-					filters.modifiedFiles =
-						normalizedModifiedFiles.length === 1 ? normalizedModifiedFiles[0] : normalizedModifiedFiles;
-				}
-			}
-
-			const results = searchService.search({ query, limit, types, filters });
+			const results = searchService.search({
+				query,
+				limit,
+				types,
+				filters: filterResult.filters,
+			});
 			return Response.json(results);
 		} catch (error) {
 			console.error("Error performing search:", error);
@@ -884,23 +1004,7 @@ export class BacklogServer {
 			return Response.json({ error: "Task not found" }, { status: 404 });
 		}
 
-		const updateInput: TaskUpdateInput = {};
-
-		if ("title" in updates && typeof updates.title === "string") {
-			updateInput.title = updates.title;
-		}
-
-		if ("description" in updates && typeof updates.description === "string") {
-			updateInput.description = updates.description;
-		}
-
-		if ("status" in updates && typeof updates.status === "string") {
-			updateInput.status = updates.status;
-		}
-
-		if ("priority" in updates && typeof updates.priority === "string") {
-			updateInput.priority = updates.priority;
-		}
+		const updateInput = buildTaskUpdateInputFromBody(updates);
 
 		if ("milestone" in updates && (typeof updates.milestone === "string" || updates.milestone === null)) {
 			if (typeof updates.milestone === "string") {
@@ -908,71 +1012,6 @@ export class BacklogServer {
 			} else {
 				updateInput.milestone = updates.milestone;
 			}
-		}
-
-		if ("labels" in updates && Array.isArray(updates.labels)) {
-			updateInput.labels = updates.labels;
-		}
-
-		if ("assignee" in updates && Array.isArray(updates.assignee)) {
-			updateInput.assignee = updates.assignee;
-		}
-
-		if ("dependencies" in updates && Array.isArray(updates.dependencies)) {
-			updateInput.dependencies = updates.dependencies;
-		}
-
-		if ("references" in updates && Array.isArray(updates.references)) {
-			updateInput.references = updates.references;
-		}
-
-		if ("modifiedFiles" in updates && Array.isArray(updates.modifiedFiles)) {
-			updateInput.modifiedFiles = updates.modifiedFiles;
-		}
-
-		if ("implementationPlan" in updates && typeof updates.implementationPlan === "string") {
-			updateInput.implementationPlan = updates.implementationPlan;
-		}
-
-		if ("implementationNotes" in updates && typeof updates.implementationNotes === "string") {
-			updateInput.implementationNotes = updates.implementationNotes;
-		}
-
-		if ("finalSummary" in updates && typeof updates.finalSummary === "string") {
-			updateInput.finalSummary = updates.finalSummary;
-		}
-
-		if ("acceptanceCriteriaItems" in updates && Array.isArray(updates.acceptanceCriteriaItems)) {
-			updateInput.acceptanceCriteria = updates.acceptanceCriteriaItems
-				.map((item: { text?: string; checked?: boolean }) => ({
-					text: String(item?.text ?? "").trim(),
-					checked: Boolean(item?.checked),
-				}))
-				.filter((item: { text: string }) => item.text.length > 0);
-		}
-
-		if ("definitionOfDoneAdd" in updates && Array.isArray(updates.definitionOfDoneAdd)) {
-			updateInput.addDefinitionOfDone = updates.definitionOfDoneAdd
-				.map((item: unknown) => ({ text: String(item ?? "").trim(), checked: false }))
-				.filter((item: { text: string }) => item.text.length > 0);
-		}
-
-		if ("definitionOfDoneRemove" in updates && Array.isArray(updates.definitionOfDoneRemove)) {
-			updateInput.removeDefinitionOfDone = updates.definitionOfDoneRemove.filter(
-				(value: unknown) => typeof value === "number" && Number.isFinite(value),
-			);
-		}
-
-		if ("definitionOfDoneCheck" in updates && Array.isArray(updates.definitionOfDoneCheck)) {
-			updateInput.checkDefinitionOfDone = updates.definitionOfDoneCheck.filter(
-				(value: unknown) => typeof value === "number" && Number.isFinite(value),
-			);
-		}
-
-		if ("definitionOfDoneUncheck" in updates && Array.isArray(updates.definitionOfDoneUncheck)) {
-			updateInput.uncheckDefinitionOfDone = updates.definitionOfDoneUncheck.filter(
-				(value: unknown) => typeof value === "number" && Number.isFinite(value),
-			);
 		}
 
 		try {
@@ -1120,19 +1159,7 @@ export class BacklogServer {
 			});
 			return Response.json({ success: true, ...document });
 		} catch (error) {
-			if (error instanceof SyntaxError) {
-				return Response.json({ error: "Invalid request payload" }, { status: 400 });
-			}
-			if (error instanceof Error) {
-				if (error.message.startsWith("Document not found")) {
-					return Response.json({ error: error.message }, { status: 404 });
-				}
-				if (isDocumentValidationError(error)) {
-					return Response.json({ error: error.message }, { status: 400 });
-				}
-			}
-			console.error("Error updating document:", error);
-			return Response.json({ error: "Failed to update document" }, { status: 500 });
+			return handleDocumentUpdateError(error);
 		}
 	}
 
