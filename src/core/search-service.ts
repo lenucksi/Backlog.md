@@ -317,41 +317,44 @@ export class SearchService {
 
 	private applyTaskFilters(tasks: TaskSearchEntity[], filters: NormalizedFilters): TaskSearchEntity[] {
 		let filtered = tasks;
+
 		if (filters.statuses && filters.statuses.length > 0) {
 			const allowedStatuses = new Set(filters.statuses);
-			filtered = filtered.filter((task) => allowedStatuses.has(task.statusLower));
+			filtered = filtered.filter((task) => this.matchesStatus(task, allowedStatuses));
 		}
 		if (filters.priorities && filters.priorities.length > 0) {
 			const allowedPriorities = new Set(filters.priorities);
-			filtered = filtered.filter((task) => {
-				if (!task.priorityLower) {
-					return false;
-				}
-				return allowedPriorities.has(task.priorityLower);
-			});
+			filtered = filtered.filter((task) => this.matchesPriority(task, allowedPriorities));
 		}
 		if (filters.assignees && filters.assignees.length > 0) {
 			const requiredAssignees = new Set(filters.assignees);
-			filtered = filtered.filter((task) => {
-				if (!task.assigneesLower || task.assigneesLower.length === 0) {
-					return false;
-				}
-				return task.assigneesLower.some((assignee) => requiredAssignees.has(assignee));
-			});
+			filtered = filtered.filter((task) => this.matchesAssignees(task, requiredAssignees));
 		}
 		if (filters.labels && filters.labels.length > 0) {
 			const requiredLabels = new Set(filters.labels);
-			filtered = filtered.filter((task) => {
-				if (!task.labelsLower || task.labelsLower.length === 0) {
-					return false;
-				}
-				return task.labelsLower.some((label) => requiredLabels.has(label));
-			});
+			filtered = filtered.filter((task) => this.matchesLabels(task, requiredLabels));
 		}
 		if (filters.modifiedFiles && filters.modifiedFiles.length > 0) {
 			filtered = filtered.filter((task) => matchesModifiedFileFilters(task.modifiedFiles, filters.modifiedFiles));
 		}
+
 		return filtered;
+	}
+
+	private matchesStatus(task: TaskSearchEntity, allowedStatuses: Set<string>): boolean {
+		return allowedStatuses.has(task.statusLower);
+	}
+
+	private matchesPriority(task: TaskSearchEntity, allowedPriorities: Set<string>): boolean {
+		return !!task.priorityLower && allowedPriorities.has(task.priorityLower);
+	}
+
+	private matchesAssignees(task: TaskSearchEntity, requiredAssignees: Set<string>): boolean {
+		return task.assigneesLower?.some((assignee) => requiredAssignees.has(assignee)) ?? false;
+	}
+
+	private matchesLabels(task: TaskSearchEntity, requiredLabels: Set<string>): boolean {
+		return task.labelsLower?.some((label) => requiredLabels.has(label)) ?? false;
 	}
 
 	private matchesTaskFilters(task: TaskSearchEntity, filters: NormalizedFilters): boolean {

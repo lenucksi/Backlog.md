@@ -139,82 +139,39 @@ export class TaskHandlers {
 
 	async listTasks(args: TaskListArgs = {}): Promise<CallToolResult> {
 		if (this.isDraftStatus(args.status)) {
-			let drafts = await this.core.filesystem.listDrafts();
-			if (args.search) {
-				const draftSearch = createTaskSearchIndex(drafts);
-				drafts = draftSearch.search({ query: args.search, status: "Draft" });
-			}
+			return await this.listDrafts(args);
+		}
+		return await this.listRegularTasks(args);
+	}
 
-			if (args.assignee) {
-				drafts = drafts.filter((draft) => (draft.assignee ?? []).includes(args.assignee ?? ""));
-			}
-			if (args.milestone) {
-				const [activeMilestones, archivedMilestones] = await Promise.all([
-					this.core.filesystem.listMilestones(),
-					this.core.filesystem.listArchivedMilestones(),
-				]);
-				const resolveMilestoneFilterValue = createMilestoneFilterValueResolver([
-					...activeMilestones,
-					...archivedMilestones,
-				]);
-				const milestoneFilter = resolveClosestMilestoneFilterValue(
-					args.milestone,
-					drafts.map((draft) => resolveMilestoneFilterValue(draft.milestone ?? "")),
-				);
-				drafts = drafts.filter(
-					(draft) =>
-						normalizeMilestoneFilterValue(resolveMilestoneFilterValue(draft.milestone ?? "")) === milestoneFilter,
-				);
-			}
+	private async listDrafts(args: TaskListArgs): Promise<CallToolResult> {
+		let drafts = await this.core.filesystem.listDrafts();
+		drafts = await this.filterDraftsBySearch(drafts, args.search);
+		drafts = await this.filterDraftsByAssignee(drafts, args.assignee);
+		drafts = await this.filterDraftsByMilestone(drafts, args.milestone);
+		drafts = this.filterTasksByLabels(drafts, args.labels);
 
-			const labelFilters = args.labels ?? [];
-			if (labelFilters.length > 0) {
-				drafts = drafts.filter((draft) => {
-					const draftLabels = draft.labels ?? [];
-					return labelFilters.every((label) => draftLabels.includes(label));
-				});
-			}
-
-			if (drafts.length === 0) {
-				return {
-					content: [
-						{
-							type: "text",
-							text: "No tasks found.",
-						},
-					],
-				};
-			}
-
-			let sortedDrafts = sortByOrdinalAndPriority(drafts);
-			if (typeof args.limit === "number" && args.limit >= 0) {
-				sortedDrafts = sortedDrafts.slice(0, args.limit);
-			}
-			const lines = ["Draft:"];
-			for (const draft of sortedDrafts) {
-				lines.push(this.formatTaskSummaryLine(draft));
-			}
-
-			return {
-				content: [
-					{
-						type: "text",
-						text: lines.join("\n"),
-					},
-				],
-			};
+		if (drafts.length === 0) {
+			return { content: [{ type: "text", text: "No tasks found." }] };
 		}
 
+		let sortedDrafts = sortByOrdinalAndPriority(drafts);
+		if (typeof args.limit === "number" && args.limit >= 0) {
+			sortedDrafts = sortedDrafts.slice(0, args.limit);
+		}
+		const lines = ["Draft:"];
+		for (const draft of sortedDrafts) {
+			lines.push(this.formatTaskSummaryLine(draft));
+		}
+
+		return { content: [{ type: "text", text: lines.join("\n") }] };
+	}
+
+	private async listRegularTasks(args: TaskListArgs): Promise<CallToolResult> {
 		const filters: TaskListFilter = {};
-		if (args.status) {
-			filters.status = args.status;
-		}
-		if (args.assignee) {
-			filters.assignee = args.assignee;
-		}
-		if (args.milestone) {
-			filters.milestone = args.milestone;
-		}
+		if (args.status) filters.status = args.status;
+		if (args.assignee) filters.assignee = args.assignee;
+		if (args.milestone) filters.milestone = args.milestone;
 
 		const tasks = await this.core.queryTasks({
 			query: args.search,
@@ -222,36 +179,75 @@ export class TaskHandlers {
 			includeCrossBranch: false,
 		});
 
-		let filteredByLabels = tasks.filter((task) => isLocalEditableTask(task));
-		const labelFilters = args.labels ?? [];
-		if (labelFilters.length > 0) {
-			filteredByLabels = filteredByLabels.filter((task) => {
-				const taskLabels = task.labels ?? [];
-				return labelFilters.every((label) => taskLabels.includes(label));
-			});
-		}
+		const editable = tasks.filter((task) => isLocalEditableTask(task));
+		const filteredByLabels = this.filterTasksByLabels(editable, args.labels);
 
 		if (filteredByLabels.length === 0) {
-			return {
-				content: [
-					{
-						type: "text",
-						text: "No tasks found.",
-					},
-				],
-			};
+			return { content: [{ type: "text", text: "No tasks found." }] };
 		}
 
 		const config = await this.core.filesystem.loadConfig();
 		const statuses = config?.statuses ?? [];
+		const contentItems = this.buildGroupedTaskOutput(filteredByLabels, statuses, args.limit);
 
+		if (contentItems.length === 0) {
+			contentItems.push({ type: "text", text: "No tasks found." });
+		}
+
+		return { content: contentItems };
+	}
+
+	private async filterDraftsBySearch(drafts: Task[], search?: string): Promise<Task[]> {
+		if (!search) return drafts;
+		const draftSearch = createTaskSearchIndex(drafts);
+		return draftSearch.search({ query: search, status: "Draft" });
+	}
+
+	private async filterDraftsByAssignee(drafts: Task[], assignee?: string): Promise<Task[]> {
+		if (!assignee) return drafts;
+		return drafts.filter((draft) => (draft.assignee ?? []).includes(assignee));
+	}
+
+	private async filterDraftsByMilestone(drafts: Task[], milestone?: string): Promise<Task[]> {
+		if (!milestone) return drafts;
+		const [activeMilestones, archivedMilestones] = await Promise.all([
+			this.core.filesystem.listMilestones(),
+			this.core.filesystem.listArchivedMilestones(),
+		]);
+		const resolveMilestoneFilterValue = createMilestoneFilterValueResolver([
+			...activeMilestones,
+			...archivedMilestones,
+		]);
+		const milestoneFilter = resolveClosestMilestoneFilterValue(
+			milestone,
+			drafts.map((draft) => resolveMilestoneFilterValue(draft.milestone ?? "")),
+		);
+		return drafts.filter(
+			(draft) => normalizeMilestoneFilterValue(resolveMilestoneFilterValue(draft.milestone ?? "")) === milestoneFilter,
+		);
+	}
+
+	private filterTasksByLabels(tasks: Task[], labels?: string[]): Task[] {
+		const labelFilters = labels ?? [];
+		if (labelFilters.length === 0) return tasks;
+		return tasks.filter((task) => {
+			const taskLabels = task.labels ?? [];
+			return labelFilters.every((label) => taskLabels.includes(label));
+		});
+	}
+
+	private buildGroupedTaskOutput(
+		tasks: Task[],
+		statuses: string[],
+		limit?: number,
+	): Array<{ type: "text"; text: string }> {
 		const canonicalByLower = new Map<string, string>();
 		for (const status of statuses) {
 			canonicalByLower.set(status.toLowerCase(), status);
 		}
 
 		const grouped = new Map<string, Task[]>();
-		for (const task of filteredByLabels) {
+		for (const task of tasks) {
 			const rawStatus = (task.status ?? "").trim();
 			const canonicalStatus = canonicalByLower.get(rawStatus.toLowerCase()) ?? rawStatus;
 			const bucketKey = canonicalStatus || "";
@@ -266,7 +262,7 @@ export class TaskHandlers {
 		];
 
 		const contentItems: Array<{ type: "text"; text: string }> = [];
-		let remaining = typeof args.limit === "number" && args.limit >= 0 ? args.limit : undefined;
+		let remaining = typeof limit === "number" && limit >= 0 ? limit : undefined;
 		for (const status of orderedStatuses) {
 			const bucket = grouped.get(status) ?? [];
 			const sortedBucket = sortByOrdinalAndPriority(bucket);
@@ -274,29 +270,15 @@ export class TaskHandlers {
 			if (remaining !== undefined) {
 				remaining -= limitedBucket.length;
 			}
-			if (limitedBucket.length === 0) {
-				continue;
-			}
+			if (limitedBucket.length === 0) continue;
 			const sectionLines: string[] = [`${status || "No Status"}:`];
 			for (const task of limitedBucket) {
 				sectionLines.push(this.formatTaskSummaryLine(task));
 			}
-			contentItems.push({
-				type: "text",
-				text: sectionLines.join("\n"),
-			});
+			contentItems.push({ type: "text", text: sectionLines.join("\n") });
 		}
 
-		if (contentItems.length === 0) {
-			contentItems.push({
-				type: "text",
-				text: "No tasks found.",
-			});
-		}
-
-		return {
-			content: contentItems,
-		};
+		return contentItems;
 	}
 
 	async searchTasks(args: TaskSearchArgs): Promise<CallToolResult> {
