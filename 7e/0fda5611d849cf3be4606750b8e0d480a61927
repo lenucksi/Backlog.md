@@ -1,0 +1,26 @@
+.github/workflows/ci.yml
+  s_c91465b44f3cf6::t_106e6fb5a3a787 108-110
+hooks/backlog-guard/guard-core.ts
+  s_c91465b44f3cf6::t_f8798d0e93cb3c 107
+  s_c91465b44f3cf6::t_e943eb3bfe1215 140-141
+hooks/backlog-guard/claude-hook.js
+  s_c91465b44f3cf6::t_5368627b129ce6 82,107-108
+hooks/backlog-guard/opencode-plugin.js
+  s_c91465b44f3cf6::t_5368627b129ce6 7291,7316-7317
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "7e0fda5611d849cf3be4606750b8e0d480a61927",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
