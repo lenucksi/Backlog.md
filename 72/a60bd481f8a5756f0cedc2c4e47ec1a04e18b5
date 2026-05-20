@@ -1,0 +1,26 @@
+src/test/find-backlog-root.test.ts
+  s_c91465b44f3cf6::t_106114a468c9b8 185-227
+  s_c91465b44f3cf6::t_ca0a9baac01eff 6
+src/utils/editor.ts
+  s_c91465b44f3cf6::t_d4bc8da8c0c80b 11
+  s_c91465b44f3cf6::t_76b1a86a2ce5ea 53
+  s_c91465b44f3cf6::t_e2a334bfd82598 69
+src/test/assignee.test.ts
+  s_c91465b44f3cf6::t_a87ba3170cb04d 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "72a60bd481f8a5756f0cedc2c4e47ec1a04e18b5",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
