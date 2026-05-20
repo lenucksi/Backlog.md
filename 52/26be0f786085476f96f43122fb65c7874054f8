@@ -1,0 +1,28 @@
+packages/backlog-guard/README.md
+  s_c91465b44f3cf6::t_db9ca1119bc585 1-39
+hooks/backlog-guard/dev.sh
+  s_c91465b44f3cf6::t_0b6535ca17766e 16-17
+packages/backlog-guard/opencode-plugin.js
+  s_c91465b44f3cf6::t_9c458fed795eb1 1-7538
+.github/workflows/publish-backlog-guard.yml
+  s_c91465b44f3cf6::t_c07ff45646968d 1-67
+packages/backlog-guard/package.json
+  s_c91465b44f3cf6::t_2e06392c93083d 1,28
+  s_c91465b44f3cf6::t_d982e34e8b4891 2-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "5226be0f786085476f96f43122fb65c7874054f8",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
