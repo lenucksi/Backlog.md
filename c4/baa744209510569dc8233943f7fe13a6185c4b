@@ -1,0 +1,24 @@
+hooks/backlog-guard/opencode-plugin.js
+  s_c91465b44f3cf6::t_e7cefcb8498beb 7287,7289-7291,7300
+hooks/backlog-guard/guard-core.ts
+  s_c91465b44f3cf6::t_a6d45a2edf82b1 118
+  s_c91465b44f3cf6::t_42e03a166982e6 104,106-107
+hooks/backlog-guard/claude-hook.js
+  s_c91465b44f3cf6::t_e7cefcb8498beb 78,80-82,91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "c4baa744209510569dc8233943f7fe13a6185c4b",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
