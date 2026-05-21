@@ -221,14 +221,20 @@ export async function runSequencesView(
 		// No top/bottom overlays
 	}
 
+	function getMoveSuffix(tgt: MoveTarget): string {
+		switch (tgt.kind) {
+			case "unsequenced":
+				return " · Target: Unsequenced";
+			case "sequence":
+				return ` · Target: Sequence ${tgt.seqIndex}`;
+			case "between":
+				return ` · Target: Between Sequence ${tgt.k} and ${tgt.k + 1}`;
+		}
+	}
+
 	function moveFooterText(): string {
 		const tgt = moveTargets[targetPos];
-		let suffix = "";
-		if (tgt) {
-			if (tgt.kind === "unsequenced") suffix = " · Target: Unsequenced";
-			else if (tgt.kind === "sequence") suffix = ` · Target: Sequence ${tgt.seqIndex}`;
-			else if (tgt.kind === "between") suffix = ` · Target: Between Sequence ${tgt.k} and ${tgt.k + 1}`;
-		}
+		const suffix = tgt ? getMoveSuffix(tgt) : "";
 		return ` Move mode: ↑/↓ choose target · Enter apply · Esc cancel${suffix} `;
 	}
 	function refreshHighlight() {

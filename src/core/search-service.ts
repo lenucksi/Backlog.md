@@ -312,45 +312,19 @@ export class SearchService {
 	}
 
 	private matchesTaskFilters(task: TaskSearchEntity, filters: NormalizedFilters): boolean {
-		if (filters.statuses && filters.statuses.length > 0) {
-			if (!filters.statuses.includes(task.statusLower)) {
-				return false;
-			}
-		}
+		const hasStatuses = filters.statuses && filters.statuses.length > 0;
+		const hasPriorities = filters.priorities && filters.priorities.length > 0;
+		const hasAssignees = filters.assignees && filters.assignees.length > 0;
+		const hasLabels = filters.labels && filters.labels.length > 0;
+		const hasModifiedFiles = filters.modifiedFiles && filters.modifiedFiles.length > 0;
 
-		if (filters.priorities && filters.priorities.length > 0) {
-			if (!task.priorityLower || !filters.priorities.includes(task.priorityLower)) {
-				return false;
-			}
-		}
-
-		if (filters.assignees && filters.assignees.length > 0) {
-			if (!task.assigneesLower || task.assigneesLower.length === 0) {
-				return false;
-			}
-			const assigneeSet = new Set(task.assigneesLower);
-			const anyMatch = filters.assignees.some((assignee) => assigneeSet.has(assignee));
-			if (!anyMatch) {
-				return false;
-			}
-		}
-
-		if (filters.labels && filters.labels.length > 0) {
-			if (!task.labelsLower || task.labelsLower.length === 0) {
-				return false;
-			}
-			const labelSet = new Set(task.labelsLower);
-			const anyMatch = filters.labels.some((label) => labelSet.has(label));
-			if (!anyMatch) {
-				return false;
-			}
-		}
-
-		if (filters.modifiedFiles && !matchesModifiedFileFilters(task.modifiedFiles, filters.modifiedFiles)) {
-			return false;
-		}
-
-		return true;
+		return (
+			(!hasStatuses || this.matchesStatus(task, new Set(filters.statuses))) &&
+			(!hasPriorities || this.matchesPriority(task, new Set(filters.priorities))) &&
+			(!hasAssignees || this.matchesAssignees(task, new Set(filters.assignees))) &&
+			(!hasLabels || this.matchesLabels(task, new Set(filters.labels))) &&
+			(!hasModifiedFiles || matchesModifiedFileFilters(task.modifiedFiles, filters.modifiedFiles!))
+		);
 	}
 
 	private normalizeFilters(filters?: SearchFilters): NormalizedFilters {

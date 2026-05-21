@@ -215,71 +215,81 @@ export async function renderOverviewTui(statistics: TaskStatistics, projectName:
 	});
 }
 
+function printPercentage(count: number, total: number): string {
+	const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+	return `${count} tasks (${pct}%)`;
+}
+
+function formatPriorityLabel(priority: string): string {
+	return priority === "none" ? "No Priority" : priority.charAt(0).toUpperCase() + priority.slice(1);
+}
+
+function printTaskListLine(task: { id: string; title: string }): void {
+	console.log(`    ${task.id} - ${task.title}`);
+}
+
+function printTaskList(
+	tasks: Array<{ id: string; title: string }>,
+	emptyMessage: string,
+): void {
+	if (tasks.length > 0) {
+		for (const task of tasks) {
+			printTaskListLine(task);
+		}
+	} else {
+		console.log(`    ${emptyMessage}`);
+	}
+}
+
+function printStatusOverview(s: TaskStatistics): void {
+	console.log("Status Overview:");
+	for (const [status, count] of s.statusCounts) {
+		console.log(`  ${status}: ${printPercentage(count, s.totalTasks)}`);
+	}
+	console.log(`\n  Total Tasks: ${s.totalTasks}`);
+	console.log(`  Completion: ${s.completionPercentage}%`);
+	if (s.draftCount > 0) {
+		console.log(`  Drafts: ${s.draftCount}`);
+	}
+}
+
+function printPriorityBreakdown(s: TaskStatistics): void {
+	console.log("\nPriority Breakdown:");
+	for (const [priority, count] of s.priorityCounts) {
+		if (count > 0) {
+			console.log(`  ${formatPriorityLabel(priority)}: ${printPercentage(count, s.totalTasks)}`);
+		}
+	}
+}
+
+function printRecentActivity(s: TaskStatistics): void {
+	console.log("\nRecent Activity:");
+	console.log("  Recently Created:");
+	printTaskList(s.recentActivity.created, "No tasks created in the last 7 days");
+	console.log("\n  Recently Updated:");
+	printTaskList(s.recentActivity.updated, "No tasks updated in the last 7 days");
+}
+
+function printProjectHealth(s: TaskStatistics): void {
+	console.log("\nProject Health:");
+	console.log(`  Average Task Age: ${s.projectHealth.averageTaskAge} days`);
+
+	console.log("\n  Stale Tasks (>30 days without updates):");
+	printTaskList(s.projectHealth.staleTasks, "No stale tasks");
+
+	console.log("\n  Blocked Tasks (waiting on dependencies):");
+	printTaskList(s.projectHealth.blockedTasks, "No blocked tasks");
+}
+
 /**
  * Render plain text overview for non-TTY environments
  */
 function renderPlainTextOverview(statistics: TaskStatistics, projectName: string): void {
 	console.log(`\n${projectName} - Project Overview\n${"=".repeat(40)}\n`);
 
-	console.log("Status Overview:");
-	for (const [status, count] of statistics.statusCounts) {
-		const percentage = statistics.totalTasks > 0 ? Math.round((count / statistics.totalTasks) * 100) : 0;
-		console.log(`  ${status}: ${count} tasks (${percentage}%)`);
-	}
-	console.log(`\n  Total Tasks: ${statistics.totalTasks}`);
-	console.log(`  Completion: ${statistics.completionPercentage}%`);
-	if (statistics.draftCount > 0) {
-		console.log(`  Drafts: ${statistics.draftCount}`);
-	}
-
-	console.log("\nPriority Breakdown:");
-	for (const [priority, count] of statistics.priorityCounts) {
-		if (count > 0) {
-			const percentage = statistics.totalTasks > 0 ? Math.round((count / statistics.totalTasks) * 100) : 0;
-			const displayPriority =
-				priority === "none" ? "No Priority" : priority.charAt(0).toUpperCase() + priority.slice(1);
-			console.log(`  ${displayPriority}: ${count} tasks (${percentage}%)`);
-		}
-	}
-
-	console.log("\nRecent Activity:");
-	console.log("  Recently Created:");
-	if (statistics.recentActivity.created.length > 0) {
-		for (const task of statistics.recentActivity.created) {
-			console.log(`    ${task.id} - ${task.title}`);
-		}
-	} else {
-		console.log("    No tasks created in the last 7 days");
-	}
-
-	console.log("\n  Recently Updated:");
-	if (statistics.recentActivity.updated.length > 0) {
-		for (const task of statistics.recentActivity.updated) {
-			console.log(`    ${task.id} - ${task.title}`);
-		}
-	} else {
-		console.log("    No tasks updated in the last 7 days");
-	}
-
-	console.log("\nProject Health:");
-	console.log(`  Average Task Age: ${statistics.projectHealth.averageTaskAge} days`);
-
-	console.log("\n  Stale Tasks (>30 days without updates):");
-	if (statistics.projectHealth.staleTasks.length > 0) {
-		for (const task of statistics.projectHealth.staleTasks) {
-			console.log(`    ${task.id} - ${task.title}`);
-		}
-	} else {
-		console.log("    No stale tasks");
-	}
-
-	console.log("\n  Blocked Tasks (waiting on dependencies):");
-	if (statistics.projectHealth.blockedTasks.length > 0) {
-		for (const task of statistics.projectHealth.blockedTasks) {
-			console.log(`    ${task.id} - ${task.title}`);
-		}
-	} else {
-		console.log("    No blocked tasks");
-	}
+	printStatusOverview(statistics);
+	printPriorityBreakdown(statistics);
+	printRecentActivity(statistics);
+	printProjectHealth(statistics);
 	console.log("");
 }

@@ -242,6 +242,56 @@ function buildInitConfig(
 	return config;
 }
 
+function inferBacklogDirectorySource(
+	directory: string | null | undefined,
+): ".backlog" | "backlog" | "custom" | undefined {
+	if (!directory) return undefined;
+	if (directory === ".backlog") return ".backlog";
+	if (directory === "backlog") return "backlog";
+	return "custom";
+}
+
+function validateDirectoryCompatibility(
+	source: string | undefined,
+	inferred: string | undefined,
+): void {
+	if (source && inferred && source !== inferred) {
+		throw new Error("Backlog directory source and backlog directory value must agree.");
+	}
+}
+
+function validateDirectoryExists(
+	source: string | undefined,
+	directory: string | null | undefined,
+): void {
+	if (source === "custom" && !directory) {
+		throw new Error("Backlog directory must be a valid project-relative path.");
+	}
+}
+
+function validateCustomConfigLocation(
+	source: string | undefined,
+	configLocation: string | undefined,
+): void {
+	if (source === "custom" && configLocation !== "root") {
+		throw new Error("Custom backlog directories require root config discovery.");
+	}
+}
+
+function resolveConfigLocation(
+	source: string | undefined,
+	configOption: string | undefined,
+): "folder" | "root" {
+	return configOption ?? (source === "custom" ? "root" : "folder");
+}
+
+function resolveBacklogDirectory(
+	directory: string | null | undefined,
+	source: string | undefined,
+): string {
+	return directory ?? (source === ".backlog" ? ".backlog" : "backlog");
+}
+
 async function setupBacklogStructure(
 	core: Core,
 	options: InitializeProjectOptions,
@@ -254,37 +304,19 @@ async function setupBacklogStructure(
 	}
 
 	const normalizedBacklogDirectory = normalizeProjectBacklogDirectory(options.backlogDirectory);
-	const inferredBacklogDirectorySource = normalizedBacklogDirectory
-		? normalizedBacklogDirectory === ".backlog"
-			? ".backlog"
-			: normalizedBacklogDirectory === "backlog"
-				? "backlog"
-				: "custom"
-		: undefined;
+	const inferredSource = inferBacklogDirectorySource(normalizedBacklogDirectory);
 
-	if (
-		options.backlogDirectorySource &&
-		inferredBacklogDirectorySource &&
-		options.backlogDirectorySource !== inferredBacklogDirectorySource
-	) {
-		throw new Error("Backlog directory source and backlog directory value must agree.");
-	}
+	validateDirectoryCompatibility(options.backlogDirectorySource, inferredSource);
 
-	const effectiveBacklogDirectorySource = options.backlogDirectorySource ?? inferredBacklogDirectorySource;
+	const effectiveSource = options.backlogDirectorySource ?? inferredSource;
 
-	if (effectiveBacklogDirectorySource === "custom" && !normalizedBacklogDirectory) {
-		throw new Error("Backlog directory must be a valid project-relative path.");
-	}
+	validateDirectoryExists(effectiveSource, normalizedBacklogDirectory);
 
-	const effectiveConfigLocation =
-		options.configLocation ?? (effectiveBacklogDirectorySource === "custom" ? "root" : "folder");
+	const effectiveConfigLocation = resolveConfigLocation(effectiveSource, options.configLocation);
 
-	if (effectiveBacklogDirectorySource === "custom" && effectiveConfigLocation !== "root") {
-		throw new Error("Custom backlog directories require root config discovery.");
-	}
+	validateCustomConfigLocation(effectiveSource, effectiveConfigLocation);
 
-	const selectedBacklogDirectory =
-		normalizedBacklogDirectory ?? (effectiveBacklogDirectorySource === ".backlog" ? ".backlog" : "backlog");
+	const selectedBacklogDirectory = resolveBacklogDirectory(normalizedBacklogDirectory, effectiveSource);
 
 	core.filesystem.setBacklogDirectory(selectedBacklogDirectory);
 	core.filesystem.setConfigLocation(effectiveConfigLocation);

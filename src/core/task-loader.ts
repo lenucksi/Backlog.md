@@ -89,6 +89,76 @@ function normalizeLocalBranch(branch: string, currentBranch: string): string | n
 }
 
 /**
+ * Shared worker for indexing tasks across branches
+ * Used by both buildRemoteTaskIndex and buildLocalBranchTaskIndex
+ */
+async function runIndexWorkers(
+	git: GitOperations,
+	branches: string[],
+	backlogDir: string,
+	sinceDays: number | undefined,
+	prefix: string,
+	stateCollector: BranchTaskStateEntry[] | undefined,
+	includeCompleted: boolean,
+	out: Map<string, RemoteIndexEntry[]>,
+	getRef: (branch: string) => string,
+	options: { silent?: boolean } = {},
+): Promise<void> {
+	const CONCURRENCY = 4;
+	const queue = [...branches];
+
+	const workers = Array.from({ length: Math.min(CONCURRENCY, queue.length) }, async () => {
+		while (queue.length) {
+			const br = queue.pop();
+			if (!br) break;
+
+			const ref = getRef(br);
+
+			try {
+				const listPath = stateCollector ? backlogDir : `${backlogDir}/tasks`;
+
+				const files = await git.listFilesInTree(ref, listPath);
+				if (files.length === 0) continue;
+
+				const lm = await git.getBranchLastModifiedMap(ref, listPath, sinceDays);
+				const idRegex = buildPathIdRegex(prefix);
+
+				for (const f of files) {
+					const m = f.match(idRegex);
+					if (!m?.[1]) continue;
+
+					const id = normalizeId(m[1], prefix);
+					const lastModified = lm.get(f) ?? new Date(0);
+					const entry: RemoteIndexEntry = { id, branch: br, path: f, lastModified };
+
+					const type = getTaskTypeFromPath(f, backlogDir);
+					if (!stateCollector && type !== "task") {
+						continue;
+					}
+					if (type && stateCollector) {
+						stateCollector.push({ id, type, branch: br, path: f, lastModified });
+					}
+
+					if (type === "task" || (includeCompleted && type === "completed")) {
+						const arr = out.get(id);
+						if (arr) {
+							arr.push(entry);
+						} else {
+							out.set(id, [entry]);
+						}
+					}
+				}
+			} catch (error) {
+				const msg = options.silent && !process.env.DEBUG ? null : `Skipping ${ref}: ${error}`;
+				if (msg) console.debug(msg);
+			}
+		}
+	});
+
+	await Promise.all(workers);
+}
+
+/**
  * Build a cheap index of remote tasks without fetching content
  * This is VERY fast as it only lists files and gets modification times in batch
  */
@@ -105,72 +175,7 @@ export async function buildRemoteTaskIndex(
 
 	const normalized = branches.map(normalizeRemoteBranch).filter((b): b is string => Boolean(b));
 
-	// Do branches in parallel but not unbounded
-	const CONCURRENCY = 4;
-	const queue = [...normalized];
-
-	const workers = Array.from({ length: Math.min(CONCURRENCY, queue.length) }, async () => {
-		while (queue.length) {
-			const br = queue.pop();
-			if (!br) break;
-
-			const ref = `origin/${br}`;
-
-			try {
-				const listPath = stateCollector ? backlogDir : `${backlogDir}/tasks`;
-
-				// Get backlog files for this branch
-				const files = await git.listFilesInTree(ref, listPath);
-				if (files.length === 0) continue;
-
-				// Get last modified times for all files in one pass
-				const lm = await git.getBranchLastModifiedMap(ref, listPath, sinceDays);
-
-				// Build regex for configured prefix (no ^ anchor for path matching)
-				const idRegex = buildPathIdRegex(prefix);
-
-				for (const f of files) {
-					// Extract task ID from filename using configured prefix
-					const m = f.match(idRegex);
-					if (!m?.[1]) continue;
-
-					const id = normalizeId(m[1], prefix);
-					const lastModified = lm.get(f) ?? new Date(0);
-					const entry: RemoteIndexEntry = { id, branch: br, path: f, lastModified };
-
-					// Collect full state info when requested
-					const type = getTaskTypeFromPath(f, backlogDir);
-					if (!stateCollector && type !== "task") {
-						continue;
-					}
-					if (type && stateCollector) {
-						stateCollector.push({
-							id,
-							type,
-							branch: br,
-							path: f,
-							lastModified,
-						});
-					}
-
-					// Only index active tasks for hydration selection (optionally include completed)
-					if (type === "task" || (includeCompleted && type === "completed")) {
-						const arr = out.get(id);
-						if (arr) {
-							arr.push(entry);
-						} else {
-							out.set(id, [entry]);
-						}
-					}
-				}
-				// c8 ignore next 4
-			} catch (error) {
-				console.debug(`Skipping branch ${br}: ${error}`);
-			}
-		}
-	});
-
-	await Promise.all(workers);
+	await runIndexWorkers(git, normalized, backlogDir, sinceDays, prefix, stateCollector, includeCompleted, out, (br) => `origin/${br}`);
 	return out;
 }
 
@@ -236,72 +241,7 @@ export async function buildLocalBranchTaskIndex(
 		return out;
 	}
 
-	// Do branches in parallel but not unbounded
-	const CONCURRENCY = 4;
-	const queue = [...normalized];
-
-	const workers = Array.from({ length: Math.min(CONCURRENCY, queue.length) }, async () => {
-		while (queue.length) {
-			const br = queue.pop();
-			if (!br) break;
-
-			try {
-				const listPath = stateCollector ? backlogDir : `${backlogDir}/tasks`;
-
-				// Get backlog files in this branch
-				const files = await git.listFilesInTree(br, listPath);
-				if (files.length === 0) continue;
-
-				// Get last modified times for all files in one pass
-				const lm = await git.getBranchLastModifiedMap(br, listPath, sinceDays);
-
-				// Build regex for configured prefix (no ^ anchor for path matching)
-				const idRegex = buildPathIdRegex(prefix);
-
-				for (const f of files) {
-					// Extract task ID from filename using configured prefix
-					const m = f.match(idRegex);
-					if (!m?.[1]) continue;
-
-					const id = normalizeId(m[1], prefix);
-					const lastModified = lm.get(f) ?? new Date(0);
-					const entry: RemoteIndexEntry = { id, branch: br, path: f, lastModified };
-
-					// Collect full state info when requested
-					const type = getTaskTypeFromPath(f, backlogDir);
-					if (!stateCollector && type !== "task") {
-						continue;
-					}
-					if (type && stateCollector) {
-						stateCollector.push({
-							id,
-							type,
-							branch: br,
-							path: f,
-							lastModified,
-						});
-					}
-
-					// Only index active tasks for hydration selection (optionally include completed)
-					if (type === "task" || (includeCompleted && type === "completed")) {
-						const arr = out.get(id);
-						if (arr) {
-							arr.push(entry);
-						} else {
-							out.set(id, [entry]);
-						}
-					}
-				}
-			} catch (error) {
-				// Branch might not have backlog directory, skip it
-				if (process.env.DEBUG) {
-					console.debug(`Skipping local branch ${br}: ${error}`);
-				}
-			}
-		}
-	});
-
-	await Promise.all(workers);
+	await runIndexWorkers(git, normalized, backlogDir, sinceDays, prefix, stateCollector, includeCompleted, out, (br) => br, { silent: true });
 	return out;
 }
 

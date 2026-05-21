@@ -29,7 +29,6 @@ export interface InitializationStatus {
 	rootConfigPath?: string | null;
 }
 
-// Enhanced error types for better error handling
 export class ApiError extends Error {
 	constructor(
 		message: string,
@@ -54,14 +53,12 @@ export class NetworkError extends Error {
 	}
 }
 
-// Request configuration interface
 interface RequestConfig {
 	retries?: number;
 	timeout?: number;
 	Headers?: Record<string, string>;
 }
 
-// Default configuration
 const DEFAULT_CONFIG: RequestConfig = {
 	retries: 3,
 	timeout: 10000,
@@ -74,14 +71,12 @@ export class ApiClient {
 		this.config = { ...DEFAULT_CONFIG, ...config };
 	}
 
-	// Enhanced fetch with retry logic and better error handling
 	private async fetchWithRetry(url: string, options: RequestInit = {}): Promise<Response> {
 		const { retries = 3, timeout = 10000 } = this.config;
 		let lastError: Error | undefined;
 
 		for (let attempt = 0; attempt <= retries; attempt++) {
 			try {
-				// Add timeout to the request
 				const controller = new AbortController();
 				const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -110,12 +105,10 @@ export class ApiClient {
 			} catch (error) {
 				lastError = error as Error;
 
-				// Don't retry on client errors (4xx) or specific cases
 				if (error instanceof ApiError && error.status && error.status >= 400 && error.status < 500) {
 					throw error;
 				}
 
-				// For network errors or server errors, retry with exponential backoff
 				if (attempt < retries) {
 					const delay = Math.min(1000 * 2 ** attempt, 10000);
 					await new Promise((resolve) => setTimeout(resolve, delay));
@@ -123,18 +116,38 @@ export class ApiClient {
 			}
 		}
 
-		// If we get here, all retries failed
 		if (lastError instanceof ApiError) {
 			throw lastError;
 		}
 		throw new NetworkError(`Request failed after ${retries + 1} attempts: ${lastError?.message}`);
 	}
 
-	// Helper method for JSON responses
 	private async fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> {
 		const response = await this.fetchWithRetry(url, options);
 		return response.json();
 	}
+
+	private async getJson<T>(url: string, errorMessage: string): Promise<T> {
+		const response = await fetch(url);
+		if (!response.ok) throw new Error(errorMessage);
+		return response.json();
+	}
+
+	private async sendJson<T>(
+		url: string,
+		method: string,
+		body: unknown,
+		errorMessage: string,
+	): Promise<T> {
+		const response = await fetch(url, {
+			method,
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(body),
+		});
+		if (!response.ok) throw new Error(errorMessage);
+		return response.json();
+	}
+
 	async fetchTasks(options?: {
 		status?: string;
 		assignee?: string;
@@ -155,7 +168,6 @@ export class ApiClient {
 				}
 			}
 		}
-		// Default to true for cross-branch loading to match TUI behavior
 		if (options?.crossBranch !== false) params.append("crossBranch", "true");
 
 		const url = `${API_BASE}/tasks${params.toString() ? `?${params.toString()}` : ""}`;
@@ -254,15 +266,11 @@ export class ApiClient {
 	}
 
 	async archiveTask(id: string): Promise<void> {
-		await this.fetchWithRetry(`${API_BASE}/tasks/${id}`, {
-			method: "DELETE",
-		});
+		await this.fetchWithRetry(`${API_BASE}/tasks/${id}`, { method: "DELETE" });
 	}
 
 	async completeTask(id: string): Promise<void> {
-		await this.fetchWithRetry(`${API_BASE}/tasks/${id}/complete`, {
-			method: "POST",
-		});
+		await this.fetchWithRetry(`${API_BASE}/tasks/${id}/complete`, { method: "POST" });
 	}
 
 	async getCleanupPreview(age: number): Promise<{
@@ -295,117 +303,81 @@ export class ApiClient {
 	}
 
 	async fetchStatuses(): Promise<string[]> {
-		const response = await fetch(`${API_BASE}/statuses`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch statuses");
-		}
-		return response.json();
+		return this.getJson<string[]>(`${API_BASE}/statuses`, "Failed to fetch statuses");
 	}
 
 	async fetchConfig(): Promise<BacklogConfig> {
-		const response = await fetch(`${API_BASE}/config`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch config");
-		}
-		return response.json();
+		return this.getJson<BacklogConfig>(`${API_BASE}/config`, "Failed to fetch config");
 	}
 
 	async updateConfig(config: BacklogConfig): Promise<BacklogConfig> {
-		const response = await fetch(`${API_BASE}/config`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(config),
-		});
-		if (!response.ok) {
-			throw new Error("Failed to update config");
-		}
-		return response.json();
+		return this.sendJson<BacklogConfig>(`${API_BASE}/config`, "PUT", config, "Failed to update config");
 	}
 
 	async fetchDocs(): Promise<Document[]> {
-		const response = await fetch(`${API_BASE}/docs`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch documentation");
-		}
-		return response.json();
+		return this.getJson<Document[]>(`${API_BASE}/docs`, "Failed to fetch documentation");
 	}
 
 	async fetchDoc(filename: string): Promise<Document> {
-		const response = await fetch(`${API_BASE}/docs/${encodeURIComponent(filename)}`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch document");
-		}
-		return response.json();
+		return this.getJson<Document>(
+			`${API_BASE}/docs/${encodeURIComponent(filename)}`,
+			"Failed to fetch document",
+		);
 	}
 
 	async fetchDocument(id: string): Promise<Document> {
-		const response = await fetch(`${API_BASE}/doc/${encodeURIComponent(id)}`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch document");
-		}
-		return response.json();
+		return this.getJson<Document>(
+			`${API_BASE}/doc/${encodeURIComponent(id)}`,
+			"Failed to fetch document",
+		);
 	}
 
-	async updateDoc(filename: string, content: string, title?: string, path?: string | null): Promise<Document> {
+	async updateDoc(
+		filename: string,
+		content: string,
+		title?: string,
+		path?: string | null,
+	): Promise<Document> {
 		const payload: Record<string, unknown> = { content };
-		if (typeof title === "string") {
-			payload.title = title;
-		}
-		if (path !== undefined) {
-			payload.path = path;
-		}
-
-		const response = await fetch(`${API_BASE}/docs/${encodeURIComponent(filename)}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(payload),
-		});
-		if (!response.ok) {
-			throw new Error("Failed to update document");
-		}
-		return response.json();
+		if (typeof title === "string") payload.title = title;
+		if (path !== undefined) payload.path = path;
+		return this.sendJson<Document>(
+			`${API_BASE}/docs/${encodeURIComponent(filename)}`,
+			"PUT",
+			payload,
+			"Failed to update document",
+		);
 	}
 
-	async createDoc(filename: string, content: string, path?: string): Promise<Document & { success?: boolean }> {
-		const response = await fetch(`${API_BASE}/docs`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ filename, content, path }),
-		});
-		if (!response.ok) {
-			throw new Error("Failed to create document");
-		}
-		return response.json();
+	async createDoc(
+		filename: string,
+		content: string,
+		path?: string,
+	): Promise<Document & { success?: boolean }> {
+		return this.sendJson<Document & { success?: boolean }>(
+			`${API_BASE}/docs`,
+			"POST",
+			{ filename, content, path },
+			"Failed to create document",
+		);
 	}
 
 	async fetchDecisions(): Promise<Decision[]> {
-		const response = await fetch(`${API_BASE}/decisions`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch decisions");
-		}
-		return response.json();
+		return this.getJson<Decision[]>(`${API_BASE}/decisions`, "Failed to fetch decisions");
 	}
 
 	async fetchDecision(id: string): Promise<Decision> {
-		const response = await fetch(`${API_BASE}/decisions/${encodeURIComponent(id)}`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch decision");
-		}
-		return response.json();
+		return this.getJson<Decision>(
+			`${API_BASE}/decisions/${encodeURIComponent(id)}`,
+			"Failed to fetch decision",
+		);
 	}
 
 	async fetchDecisionData(id: string): Promise<Decision> {
-		const response = await fetch(`${API_BASE}/decision/${encodeURIComponent(id)}`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch decision");
-		}
-		return response.json();
+		return this.getJson<Decision>(
+			`${API_BASE}/decision/${encodeURIComponent(id)}`,
+			"Failed to fetch decision",
+		);
 	}
 
 	async updateDecision(id: string, content: string): Promise<void> {
@@ -422,41 +394,30 @@ export class ApiClient {
 	}
 
 	async createDecision(title: string): Promise<Decision> {
-		const response = await fetch(`${API_BASE}/decisions`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ title }),
-		});
-		if (!response.ok) {
-			throw new Error("Failed to create decision");
-		}
-		return response.json();
+		return this.sendJson<Decision>(
+			`${API_BASE}/decisions`,
+			"POST",
+			{ title },
+			"Failed to create decision",
+		);
 	}
 
 	async fetchMilestones(): Promise<Milestone[]> {
-		const response = await fetch(`${API_BASE}/milestones`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch milestones");
-		}
-		return response.json();
+		return this.getJson<Milestone[]>(`${API_BASE}/milestones`, "Failed to fetch milestones");
 	}
 
 	async fetchArchivedMilestones(): Promise<Milestone[]> {
-		const response = await fetch(`${API_BASE}/milestones/archived`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch archived milestones");
-		}
-		return response.json();
+		return this.getJson<Milestone[]>(
+			`${API_BASE}/milestones/archived`,
+			"Failed to fetch archived milestones",
+		);
 	}
 
 	async fetchMilestone(id: string): Promise<Milestone> {
-		const response = await fetch(`${API_BASE}/milestones/${encodeURIComponent(id)}`);
-		if (!response.ok) {
-			throw new Error("Failed to fetch milestone");
-		}
-		return response.json();
+		return this.getJson<Milestone>(
+			`${API_BASE}/milestones/${encodeURIComponent(id)}`,
+			"Failed to fetch milestone",
+		);
 	}
 
 	async createMilestone(title: string, description?: string): Promise<Milestone> {
