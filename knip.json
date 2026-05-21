@@ -1,12 +1,5 @@
 {
-	"entry": [
-		"src/cli.ts",
-		"src/server/index.ts",
-		"src/mcp/index.ts",
-		"src/core/index.ts",
-		"src/web/main.tsx",
-		"scripts/**/*.cjs"
-	],
+	"entry": ["src/cli.ts", "src/server/index.ts", "src/mcp/server.ts", "src/web/main.tsx", "scripts/**/*.cjs"],
 	"project": ["src/**/*.ts"],
 	"ignore": ["src/test/**", "src/completions/**", "src/ui/enhanced-views.ts", "src/ui/simple-unified-view.ts"],
 	"ignoreDependencies": [

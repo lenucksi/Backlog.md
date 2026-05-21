@@ -36,6 +36,7 @@
     "@uiw/react-markdown-preview": "5.2.0",
     "@uiw/react-md-editor": "4.1.0",
     "commander": "14.0.3",
+    "dependency-cruiser": "^17.4.0",
     "fuse.js": "7.3.0",
     "gray-matter": "4.0.3",
     "husky": "9.1.7",
