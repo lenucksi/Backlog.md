@@ -1,9 +1,10 @@
 ---
 id: BACK-492.13
 title: 'TechDebt: Reduce complexity in MCP task handlers and search-service'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
+updated_date: '2026-05-21 21:40'
 labels:
   - tech-debt
   - refactoring

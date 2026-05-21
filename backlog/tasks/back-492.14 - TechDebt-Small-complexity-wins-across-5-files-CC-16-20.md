@@ -1,9 +1,10 @@
 ---
 id: BACK-492.14
 title: 'TechDebt: Small complexity wins across 5 files (CC 16-20)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
+updated_date: '2026-05-21 21:40'
 labels:
   - tech-debt
   - refactoring

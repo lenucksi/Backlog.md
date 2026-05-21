@@ -1,9 +1,10 @@
 ---
 id: BACK-492.17
 title: 'TechDebt: Reduce duplication in cli.ts and board.ts'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:43'
+updated_date: '2026-05-21 22:58'
 labels:
   - tech-debt
   - refactoring

@@ -1,9 +1,10 @@
 ---
 id: BACK-492.15
 title: 'TechDebt: Reduce complexity in web/lib/api.ts and core/statistics.ts'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:43'
+updated_date: '2026-05-21 21:40'
 labels:
   - tech-debt
   - refactoring

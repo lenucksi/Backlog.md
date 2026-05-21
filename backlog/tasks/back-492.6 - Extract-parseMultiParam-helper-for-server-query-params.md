@@ -1,9 +1,10 @@
 ---
 id: BACK-492.6
 title: Extract parseMultiParam helper for server query params
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
+updated_date: '2026-05-21 22:58'
 labels:
   - tech-debt
   - refactoring

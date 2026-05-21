@@ -1,9 +1,10 @@
 ---
 id: BACK-492.12
 title: 'TechDebt: Reduce function nesting depth in board.ts (S2004)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
+updated_date: '2026-05-21 22:58'
 labels:
   - tech-debt
   - refactoring

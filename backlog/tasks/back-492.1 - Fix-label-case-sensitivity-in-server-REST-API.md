@@ -1,9 +1,10 @@
 ---
 id: BACK-492.1
 title: Fix label case-sensitivity in server REST API
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
+updated_date: '2026-05-21 22:59'
 labels:
   - bug
   - tech-debt

@@ -1,9 +1,10 @@
 ---
 id: BACK-492.3
 title: Remove duplicate singular/plural API route aliases
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
+updated_date: '2026-05-21 22:58'
 labels:
   - tech-debt
 milestone: m-13

@@ -1,9 +1,10 @@
 ---
 id: BACK-492.11
 title: 'TechDebt: Simplify task-edit-builder and task-plain-text formatters'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
+updated_date: '2026-05-21 21:40'
 labels:
   - tech-debt
   - refactoring

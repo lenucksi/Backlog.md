@@ -1,9 +1,10 @@
 ---
 id: BACK-492.4
 title: Add knip dead-export detection to CI
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
+updated_date: '2026-05-21 22:26'
 labels:
   - tooling
   - ci
