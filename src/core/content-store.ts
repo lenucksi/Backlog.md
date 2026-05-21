@@ -4,6 +4,7 @@ import { basename, join, relative, sep } from "node:path";
 import type { FileSystem } from "../file-system/operations.ts";
 import { parseDecision, parseDocument, parseTask } from "../markdown/parser.ts";
 import type { Decision, Document, Task, TaskListFilter } from "../types/index.ts";
+import { AsyncInitializer } from "../utils/async-initializer.ts";
 import { normalizeDocumentRelativePath } from "../utils/document-path.ts";
 import { normalizeTaskId, normalizeTaskIdentity, taskIdsEqual } from "../utils/task-path.ts";
 import { sortByTaskId } from "../utils/task-sorting.ts";
@@ -29,8 +30,7 @@ interface WatchHandle {
 }
 
 export class ContentStore {
-	private initialized = false;
-	private initializing: Promise<void> | null = null;
+	private readonly initializer = new AsyncInitializer<ContentSnapshot>(() => this.initializeContent());
 	private version = 0;
 
 	private readonly tasks = new Map<string, Task>();
@@ -67,7 +67,7 @@ export class ContentStore {
 	subscribe(listener: ContentStoreListener): () => void {
 		this.listeners.add(listener);
 
-		if (this.initialized) {
+		if (this.initializer.isInitialized) {
 			listener({ type: "ready", snapshot: this.getSnapshot(), version: this.version });
 		} else {
 			void this.ensureInitialized();
@@ -79,23 +79,11 @@ export class ContentStore {
 	}
 
 	async ensureInitialized(): Promise<ContentSnapshot> {
-		if (this.initialized) {
-			return this.getSnapshot();
-		}
-
-		if (!this.initializing) {
-			this.initializing = this.loadInitialData().catch((error) => {
-				this.initializing = null;
-				throw error;
-			});
-		}
-
-		await this.initializing;
-		return this.getSnapshot();
+		return this.initializer.ensure();
 	}
 
 	getTasks(filter?: TaskListFilter): Task[] {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			throw new Error("ContentStore not initialized. Call ensureInitialized() first.");
 		}
 
@@ -121,7 +109,7 @@ export class ContentStore {
 	}
 
 	upsertTask(task: Task): void {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			return;
 		}
 		this.tasks.set(task.id, task);
@@ -130,14 +118,14 @@ export class ContentStore {
 	}
 
 	getDocuments(): Document[] {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			throw new Error("ContentStore not initialized. Call ensureInitialized() first.");
 		}
 		return this.cachedDocuments.slice();
 	}
 
 	getDecisions(): Decision[] {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			throw new Error("ContentStore not initialized. Call ensureInitialized() first.");
 		}
 		return this.cachedDecisions.slice();
@@ -195,7 +183,7 @@ export class ContentStore {
 		this.emit({ type: "ready", snapshot, version: this.version });
 	}
 
-	private async loadInitialData(): Promise<void> {
+	private async initializeContent(): Promise<ContentSnapshot> {
 		await this.filesystem.ensureBacklogStructure();
 
 		// Use custom task loader if provided (e.g., loadTasks for cross-branch support)
@@ -210,11 +198,11 @@ export class ContentStore {
 		this.replaceDocuments(documents);
 		this.replaceDecisions(decisions);
 
-		this.initialized = true;
 		if (this.enableWatchers) {
 			await this.setupWatchers();
 		}
 		this.notify("ready");
+		return this.getSnapshot();
 	}
 
 	private async setupWatchers(): Promise<void> {
@@ -637,14 +625,14 @@ export class ContentStore {
 	}
 
 	private async handleTaskWrite(taskId: string): Promise<void> {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			return;
 		}
 		await this.updateTaskFromDisk(taskId);
 	}
 
 	private async handleDocumentWrite(documentId: string): Promise<void> {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			return;
 		}
 		await this.refreshDocumentsFromDisk(documentId, this.documents.get(documentId));
@@ -735,7 +723,7 @@ export class ContentStore {
 	}
 
 	private async handleDecisionWrite(decisionId: string): Promise<void> {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			return;
 		}
 		await this.updateDecisionFromDisk(decisionId);
