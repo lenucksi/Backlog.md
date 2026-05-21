@@ -1,0 +1,21 @@
+src/web/lib/api.ts
+  s_a9d63fba3d5bc9::t_be78fc4ea74c1e 129-150,269,273,306,310,314,318,322-325,329-340,342-362,366,370-373,377-380,397-402,406,410-413,417-420
+src/core/statistics.ts
+  s_a9d63fba3d5bc9::t_99c22ed1f6b03a 22-55,67-72,76-77,87,89,91-92,95,98,101,105-106,109-110,116,118,122,126-127,141-142,146-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "52c35e3bf67eb28a370b05c6d97df8f0f26bc0b4",
+  "prompts": {},
+  "sessions": {
+    "s_a9d63fba3d5bc9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b389336dffe52RvWiP5Tma8Tc",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
