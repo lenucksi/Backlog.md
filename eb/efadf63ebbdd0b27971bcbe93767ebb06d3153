@@ -1,0 +1,70 @@
+src/mcp/validation/tool-wrapper.ts
+  s_86d270afc6211e::t_6c091a3636d06d 1
+  s_86d270afc6211e::t_11cdd75854b9ba 43
+src/mcp/tools/documents/handlers.ts
+  s_86d270afc6211e::t_dec5e64f9b690b 68
+  s_86d270afc6211e::t_60521038e9b2a7 153,155
+  s_86d270afc6211e::t_6a17cba57e1401 2
+  s_86d270afc6211e::t_4df1e5caef72dd 130,132
+src/mcp/tools/milestones/handlers.ts
+  s_86d270afc6211e::t_2ed420ffb0c574 386
+  s_86d270afc6211e::t_17fe9255b664b3 4
+  s_86d270afc6211e::t_8836c30295cd15 565
+  s_86d270afc6211e::t_db5b929edde448 427
+  s_86d270afc6211e::t_7eae097ef00365 410
+  s_86d270afc6211e::t_a35ccd8fbed476 477,580,604
+  s_86d270afc6211e::t_0da681c883d22c 455
+  s_86d270afc6211e::t_88704004ca40b9 529,535
+  s_86d270afc6211e::t_8d813b024d951a 514,638
+  s_86d270afc6211e::t_fdc660c6cd2ec4 532
+  s_86d270afc6211e::t_ce2a004bae2f80 357
+  s_86d270afc6211e::t_de85ea9c482524 346,507,633
+  s_86d270afc6211e::t_becf83a547942d 379
+src/server/index.ts
+  s_86d270afc6211e::t_6731ea35dc15eb 1277-1279
+  s_86d270afc6211e::t_6868d83af46199 1322,1326
+  s_86d270afc6211e::t_df17dabb6a2a97 1340-1341,1343-1344
+  s_86d270afc6211e::t_a35ccd8fbed476 21,1345
+src/mcp/errors/mcp-errors.ts
+  s_86d270afc6211e::t_337d0818463ed8 1,4,7-8
+src/cli.ts
+  s_86d270afc6211e::t_e0148fb50299cd 2475
+  s_86d270afc6211e::t_a35ccd8fbed476 53
+  s_86d270afc6211e::t_0edbbb986610af 1502
+  s_86d270afc6211e::t_2a43919cf3a1f1 134,151,275,943,1087,1120,1687,2065,2131,2562,2660,2776,3723
+  s_86d270afc6211e::t_30c25c958d6d5d 2466
+src/utils/app-error.ts
+  s_86d270afc6211e::t_5420509041f97f 1-71,73-77,88-101
+  s_86d270afc6211e::t_83f596d320d82b 78-87
+  s_86d270afc6211e::t_a35ccd8fbed476 72
+src/mcp/tools/definition-of-done/handlers.ts
+  s_86d270afc6211e::t_687d73d610514f 1
+  s_86d270afc6211e::t_66871b9c6054e7 29
+src/mcp/tools/tasks/handlers.ts
+  s_86d270afc6211e::t_91f3ce92ea4380 87
+  s_86d270afc6211e::t_27a8f8eebaa30c 387,396,404,411
+  s_86d270afc6211e::t_63c952ce4337f7 482,484
+  s_86d270afc6211e::t_ca1a37fb2e19f8 20
+  s_86d270afc6211e::t_81d4f8b5385e8c 377
+  s_86d270afc6211e::t_88f2d16e211dd8 131,134,136
+  s_86d270afc6211e::t_bd81ea9d5129d6 422,430,440
+  s_86d270afc6211e::t_ebb25bd1c2ddad 96,471
+  s_86d270afc6211e::t_e8e52058ec8295 288
+  s_86d270afc6211e::t_f210c7f9f5517e 455,460
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "ebefadf63ebbdd0b27971bcbe93767ebb06d3153",
+  "prompts": {},
+  "sessions": {
+    "s_86d270afc6211e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b35a169effecd21rS6gBCjFSB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
