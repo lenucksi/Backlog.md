@@ -161,7 +161,7 @@ export async function loadTasksForUnifiedView(
 			statuses: result.statuses,
 		};
 	} finally {
-		await loadingScreen?.close();
+		loadingScreen?.close();
 	}
 }
 

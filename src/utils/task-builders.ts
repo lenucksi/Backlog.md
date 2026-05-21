@@ -1,5 +1,6 @@
 import type { Core } from "../core/backlog.ts";
 import type { AcceptanceCriterion } from "../types/index.ts";
+import { warnShellInjection } from "./input-sanitizer.ts";
 import { normalizeTaskId, taskIdsEqual } from "./task-path.ts";
 
 /**
@@ -69,17 +70,21 @@ export function processAcceptanceCriteriaOptions(options: {
 	acceptanceCriteria?: string | string[];
 }): string[] {
 	const criteria: string[] = [];
-	// Process --ac options
+	const checkAndPush = (value: string) => {
+		const trimmed = String(value).trim();
+		if (!trimmed) return;
+		warnShellInjection(trimmed, "acceptance criteria");
+		criteria.push(trimmed);
+	};
 	if (options.ac) {
 		const acCriteria = Array.isArray(options.ac) ? options.ac : [options.ac];
-		criteria.push(...acCriteria.map((c) => String(c).trim()).filter(Boolean));
+		acCriteria.forEach(checkAndPush);
 	}
-	// Process --acceptance-criteria options
 	if (options.acceptanceCriteria) {
 		const accCriteria = Array.isArray(options.acceptanceCriteria)
 			? options.acceptanceCriteria
 			: [options.acceptanceCriteria];
-		criteria.push(...accCriteria.map((c) => String(c).trim()).filter(Boolean));
+		accCriteria.forEach(checkAndPush);
 	}
 	return criteria;
 }
