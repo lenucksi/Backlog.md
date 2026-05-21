@@ -1,0 +1,20 @@
+sonar-project.properties
+  s_c91465b44f3cf6::t_35cf8a7997415b 1-2,5
+  s_c91465b44f3cf6::t_35c2786dce133f 3-4,6-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "9182edf1133285dfcbf62bb1b496bbddc23496bc",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
