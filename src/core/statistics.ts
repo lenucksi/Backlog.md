@@ -19,9 +19,40 @@ export interface TaskStatistics {
 	};
 }
 
-/**
- * Calculate comprehensive task statistics for the overview
- */
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const ONE_WEEK_MS = 7 * MS_PER_DAY;
+const ONE_MONTH_MS = 30 * MS_PER_DAY;
+
+function toDate(value: string | undefined | null, fallback = 0): Date {
+	return new Date(value ?? fallback);
+}
+
+function sortByDateDesc(tasks: Task[], field: "createdDate" | "updatedDate"): Task[] {
+	return tasks.sort((a, b) => toDate(b[field]).getTime() - toDate(a[field]).getTime());
+}
+
+function getAgeInDays(
+	createdDate: string,
+	now: Date,
+	isTerminal: boolean,
+	updatedDate?: string,
+): number {
+	const start = new Date(createdDate).getTime();
+	const end = isTerminal && updatedDate ? new Date(updatedDate).getTime() : now.getTime();
+	return Math.floor((end - start) / MS_PER_DAY);
+}
+
+function isStaleTask(
+	task: Task,
+	oneMonthAgo: Date,
+	isTerminal: boolean,
+): boolean {
+	if (isTerminal) return false;
+	const lastDate = task.updatedDate || task.createdDate;
+	if (!lastDate) return false;
+	return new Date(lastDate) < oneMonthAgo;
+}
+
 export function getTaskStatistics(
 	tasks: Task[],
 	drafts: Task[],
@@ -29,23 +60,21 @@ export function getTaskStatistics(
 	terminalStatuses?: string[],
 ): TaskStatistics {
 	const statusCounts = new Map<string, number>();
-	const priorityCounts = new Map<string, number>();
-
-	// Initialize status counts
 	for (const status of statuses) {
 		statusCounts.set(status, 0);
 	}
 
-	// Initialize priority counts
-	priorityCounts.set("high", 0);
-	priorityCounts.set("medium", 0);
-	priorityCounts.set("low", 0);
-	priorityCounts.set("none", 0);
+	const priorityCounts = new Map<string, number>([
+		["high", 0],
+		["medium", 0],
+		["low", 0],
+		["none", 0],
+	]);
 
 	let completedTasks = 0;
 	const now = new Date();
-	const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-	const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+	const oneWeekAgo = new Date(now.getTime() - ONE_WEEK_MS);
+	const oneMonthAgo = new Date(now.getTime() - ONE_MONTH_MS);
 
 	const recentlyCreated: Task[] = [];
 	const recentlyUpdated: Task[] = [];
@@ -54,101 +83,50 @@ export function getTaskStatistics(
 	let totalAge = 0;
 	let taskCount = 0;
 
-	// Process each task
 	for (const task of tasks) {
-		// Skip tasks with empty or undefined status
-		if (!task.status || task.status === "") {
-			continue;
-		}
+		if (!task.status || task.status === "") continue;
 
-		// Count by status
-		const currentCount = statusCounts.get(task.status) || 0;
-		statusCounts.set(task.status, currentCount + 1);
+		statusCounts.set(task.status, (statusCounts.get(task.status) || 0) + 1);
 
-		// Count completed tasks
-		if (isTerminalStatus(task.status, statuses, terminalStatuses)) {
-			completedTasks++;
-		}
+		const terminal = isTerminalStatus(task.status, statuses, terminalStatuses);
+		if (terminal) completedTasks++;
 
-		// Count by priority
 		const priority = task.priority || "none";
-		const priorityCount = priorityCounts.get(priority) || 0;
-		priorityCounts.set(priority, priorityCount + 1);
+		priorityCounts.set(priority, (priorityCounts.get(priority) || 0) + 1);
 
-		// Track recent activity
 		if (task.createdDate) {
-			const createdDate = new Date(task.createdDate);
-			if (createdDate >= oneWeekAgo) {
+			if (new Date(task.createdDate) >= oneWeekAgo) {
 				recentlyCreated.push(task);
 			}
-
-			// Calculate task age
-			// For completed tasks, use the time from creation to completion
-			// For active tasks, use the time from creation to now
-			let ageInDays: number;
-			if (isTerminalStatus(task.status, statuses, terminalStatuses) && task.updatedDate) {
-				const updatedDate = new Date(task.updatedDate);
-				ageInDays = Math.floor((updatedDate.getTime() - createdDate.getTime()) / (24 * 60 * 60 * 1000));
-			} else {
-				ageInDays = Math.floor((now.getTime() - createdDate.getTime()) / (24 * 60 * 60 * 1000));
-			}
-			totalAge += ageInDays;
+			totalAge += getAgeInDays(task.createdDate, now, terminal, task.updatedDate);
 			taskCount++;
 		}
 
-		if (task.updatedDate) {
-			const updatedDate = new Date(task.updatedDate);
-			if (updatedDate >= oneWeekAgo) {
-				recentlyUpdated.push(task);
-			}
+		if (task.updatedDate && new Date(task.updatedDate) >= oneWeekAgo) {
+			recentlyUpdated.push(task);
 		}
 
-		// Identify stale tasks (not updated in 30 days and not done)
-		if (!isTerminalStatus(task.status, statuses, terminalStatuses)) {
-			const lastDate = task.updatedDate || task.createdDate;
-			if (lastDate) {
-				const date = new Date(lastDate);
-				if (date < oneMonthAgo) {
-					staleTasks.push(task);
-				}
-			}
+		if (isStaleTask(task, oneMonthAgo, terminal)) {
+			staleTasks.push(task);
 		}
 
-		// Identify blocked tasks (has dependencies that are not done)
 		if (
 			task.dependencies &&
 			task.dependencies.length > 0 &&
-			!isTerminalStatus(task.status, statuses, terminalStatuses)
+			!terminal
 		) {
-			// Check if any dependency is not done
-			const hasBlockingDependency = task.dependencies.some((depId) => {
+			const hasBlocking = task.dependencies.some((depId) => {
 				const dep = tasks.find((t) => t.id === depId);
 				return dep && !isTerminalStatus(dep.status, statuses, terminalStatuses);
 			});
-
-			if (hasBlockingDependency) {
-				blockedTasks.push(task);
-			}
+			if (hasBlocking) blockedTasks.push(task);
 		}
 	}
 
-	// Sort recent activity by date
-	recentlyCreated.sort((a, b) => {
-		const dateA = new Date(a.createdDate || 0);
-		const dateB = new Date(b.createdDate || 0);
-		return dateB.getTime() - dateA.getTime();
-	});
+	sortByDateDesc(recentlyCreated, "createdDate");
+	sortByDateDesc(recentlyUpdated, "updatedDate");
 
-	recentlyUpdated.sort((a, b) => {
-		const dateA = new Date(a.updatedDate || 0);
-		const dateB = new Date(b.updatedDate || 0);
-		return dateB.getTime() - dateA.getTime();
-	});
-
-	// Calculate average task age
 	const averageTaskAge = taskCount > 0 ? Math.round(totalAge / taskCount) : 0;
-
-	// Calculate completion percentage (only count tasks with valid status)
 	const totalTasks = Array.from(statusCounts.values()).reduce((sum, count) => sum + count, 0);
 	const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
@@ -160,13 +138,13 @@ export function getTaskStatistics(
 		completionPercentage,
 		draftCount: drafts.length,
 		recentActivity: {
-			created: recentlyCreated.slice(0, 5), // Top 5 most recent
-			updated: recentlyUpdated.slice(0, 5), // Top 5 most recent
+			created: recentlyCreated.slice(0, 5),
+			updated: recentlyUpdated.slice(0, 5),
 		},
 		projectHealth: {
 			averageTaskAge,
-			staleTasks: staleTasks.slice(0, 5), // Top 5 stale tasks
-			blockedTasks: blockedTasks.slice(0, 5), // Top 5 blocked tasks
+			staleTasks: staleTasks.slice(0, 5),
+			blockedTasks: blockedTasks.slice(0, 5),
 		},
 	};
 }
