@@ -10,6 +10,7 @@ import type {
 	SearchResultType,
 	Task,
 } from "../types/index.ts";
+import { AsyncInitializer } from "../utils/async-initializer.ts";
 import { matchesModifiedFileFilters, normalizeModifiedFileFilters } from "../utils/modified-files.ts";
 import type { ContentStore, ContentStoreEvent } from "./content-store.ts";
 
@@ -111,8 +112,7 @@ function createTaskIdVariants(id: string): string[] {
 }
 
 export class SearchService {
-	private initialized = false;
-	private initializing: Promise<void> | null = null;
+	private readonly initializer = new AsyncInitializer<void>(() => this.initialize());
 	private unsubscribe?: () => void;
 	private fuse: Fuse<SearchEntity> | null = null;
 	private tasks: TaskSearchEntity[] = [];
@@ -124,18 +124,7 @@ export class SearchService {
 	constructor(private readonly store: ContentStore) {}
 
 	async ensureInitialized(): Promise<void> {
-		if (this.initialized) {
-			return;
-		}
-
-		if (!this.initializing) {
-			this.initializing = this.initialize().catch((error) => {
-				this.initializing = null;
-				throw error;
-			});
-		}
-
-		await this.initializing;
+		return this.initializer.ensure();
 	}
 
 	dispose(): void {
@@ -148,12 +137,11 @@ export class SearchService {
 		this.tasks = [];
 		this.documents = [];
 		this.decisions = [];
-		this.initialized = false;
-		this.initializing = null;
+		this.initializer.reset();
 	}
 
 	search(options: SearchOptions = {}): SearchResult[] {
-		if (!this.initialized) {
+		if (!this.initializer.isInitialized) {
 			throw new Error("SearchService not initialized. Call ensureInitialized() first.");
 		}
 
@@ -205,9 +193,6 @@ export class SearchService {
 				this.handleStoreEvent(event);
 			});
 		}
-
-		this.initialized = true;
-		this.initializing = null;
 	}
 
 	private handleStoreEvent(event: ContentStoreEvent): void {
