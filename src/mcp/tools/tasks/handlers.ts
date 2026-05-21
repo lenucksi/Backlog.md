@@ -17,7 +17,7 @@ import { buildTaskUpdateInput } from "../../../utils/task-edit-builder.ts";
 import { createTaskSearchIndex } from "../../../utils/task-search.ts";
 import { sortByOrdinalAndPriority } from "../../../utils/task-sorting.ts";
 import { getTerminalStatus, isTerminalStatus } from "../../../utils/terminal-status.ts";
-import { BacklogToolError } from "../../errors/mcp-errors.ts";
+import { AppError } from "../../errors/mcp-errors.ts";
 import type { McpServer } from "../../server.ts";
 import type { CallToolResult } from "../../types.ts";
 import { formatTaskCallResult } from "../../utils/task-response.ts";
@@ -81,7 +81,7 @@ export class TaskHandlers {
 	private async loadTaskOrThrow(id: string): Promise<Task> {
 		const task = await this.core.getTask(id);
 		if (!task) {
-			throw new BacklogToolError(`Task not found: ${id}`, "TASK_NOT_FOUND");
+			throw AppError.notFound(`Task not found: ${id}`);
 		}
 		return task;
 	}
@@ -104,7 +104,7 @@ export class TaskHandlers {
 		try {
 			const rawOrdinal = (args as { ordinal?: unknown }).ordinal;
 			if (rawOrdinal === null) {
-				throw new BacklogToolError("Ordinal must be a non-negative number.", "VALIDATION_ERROR");
+				throw AppError.validation("Ordinal must be a non-negative number.");
 			}
 
 			const acceptanceCriteria =
@@ -139,12 +139,12 @@ export class TaskHandlers {
 			return await formatTaskCallResult(createdTask);
 		} catch (error) {
 			if (isCreateLockError(error)) {
-				throw new BacklogToolError(error.message, "OPERATION_FAILED");
+				throw AppError.internal(error.message);
 			}
 			if (error instanceof Error) {
-				throw new BacklogToolError(error.message, "VALIDATION_ERROR");
+				throw AppError.validation(error.message);
 			}
-			throw new BacklogToolError(String(error), "VALIDATION_ERROR");
+			throw AppError.validation(String(error));
 		}
 	}
 
@@ -293,7 +293,7 @@ export class TaskHandlers {
 		const query = args.query?.trim() ?? "";
 		const modifiedFiles = args.modifiedFiles?.map((file) => file.trim()).filter((file) => file.length > 0);
 		if (!query && (!modifiedFiles || modifiedFiles.length === 0)) {
-			throw new BacklogToolError("Search query or modifiedFiles filter is required", "VALIDATION_ERROR");
+			throw AppError.validation("Search query or modifiedFiles filter is required");
 		}
 
 		if (this.isDraftStatus(args.status)) {
@@ -329,7 +329,7 @@ export class TaskHandlers {
 
 		const task = await this.core.getTaskWithSubtasks(args.id);
 		if (!task) {
-			throw new BacklogToolError(`Task not found: ${args.id}`, "TASK_NOT_FOUND");
+			throw AppError.notFound(`Task not found: ${args.id}`);
 		}
 		return await formatTaskCallResult(task);
 	}
@@ -339,7 +339,7 @@ export class TaskHandlers {
 		if (draft) {
 			const success = await this.core.archiveDraft(draft.id);
 			if (!success) {
-				throw new BacklogToolError(`Failed to archive task: ${args.id}`, "OPERATION_FAILED");
+				throw AppError.internal(`Failed to archive task: ${args.id}`);
 			}
 
 			return await formatTaskCallResult(draft, [`Archived draft ${draft.id}.`]);
@@ -348,7 +348,7 @@ export class TaskHandlers {
 		const task = await this.loadTaskOrThrow(args.id);
 
 		if (!isLocalEditableTask(task)) {
-			throw new BacklogToolError(`Cannot archive task from another branch: ${task.id}`, "VALIDATION_ERROR");
+			throw AppError.validation(`Cannot archive task from another branch: ${task.id}`);
 		}
 
 		const config = await this.core.filesystem.loadConfig();
@@ -356,15 +356,14 @@ export class TaskHandlers {
 		const terminalStatuses = config?.terminalStatuses;
 		const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
 		if (isTerminalStatus(task.status, statuses, terminalStatuses)) {
-			throw new BacklogToolError(
+			throw AppError.validation(
 				`Task ${task.id} is ${terminalStatus ?? "Done"}. ${terminalStatus ?? "Done"} tasks should be completed (moved to the completed folder), not archived. Use task_complete instead.`,
-				"VALIDATION_ERROR",
 			);
 		}
 
 		const success = await this.core.archiveTask(task.id);
 		if (!success) {
-			throw new BacklogToolError(`Failed to archive task: ${args.id}`, "OPERATION_FAILED");
+			throw AppError.internal(`Failed to archive task: ${args.id}`);
 		}
 
 		const refreshed = (await this.core.getTask(task.id)) ?? task;
@@ -375,7 +374,7 @@ export class TaskHandlers {
 		const task = await this.loadTaskOrThrow(args.id);
 
 		if (!isLocalEditableTask(task)) {
-			throw new BacklogToolError(`Cannot complete task from another branch: ${task.id}`, "VALIDATION_ERROR");
+			throw AppError.validation(`Cannot complete task from another branch: ${task.id}`);
 		}
 
 		const config = await this.core.filesystem.loadConfig();
@@ -383,9 +382,8 @@ export class TaskHandlers {
 		const terminalStatuses = config?.terminalStatuses;
 		const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
 		if (!isTerminalStatus(task.status, statuses, terminalStatuses)) {
-			throw new BacklogToolError(
+			throw AppError.validation(
 				`Task ${task.id} is not ${terminalStatus ?? "Done"}. Set status to "${terminalStatus ?? "Done"}" with task_edit before completing it.`,
-				"VALIDATION_ERROR",
 			);
 		}
 
@@ -394,7 +392,7 @@ export class TaskHandlers {
 
 		const success = await this.core.completeTask(task.id);
 		if (!success) {
-			throw new BacklogToolError(`Failed to complete task: ${args.id}`, "OPERATION_FAILED");
+			throw AppError.internal(`Failed to complete task: ${args.id}`);
 		}
 
 		return await formatTaskCallResult(task, [`Completed task ${task.id}.`], {
@@ -409,12 +407,12 @@ export class TaskHandlers {
 			success = await this.core.demoteTask(task.id, false);
 		} catch (error) {
 			if (isCreateLockError(error)) {
-				throw new BacklogToolError(error.message, "OPERATION_FAILED");
+				throw AppError.internal(error.message);
 			}
 			throw error;
 		}
 		if (!success) {
-			throw new BacklogToolError(`Failed to demote task: ${args.id}`, "OPERATION_FAILED");
+			throw AppError.internal(`Failed to demote task: ${args.id}`);
 		}
 
 		const refreshed = (await this.core.getTask(task.id)) ?? task;
@@ -425,7 +423,7 @@ export class TaskHandlers {
 		try {
 			const rawOrdinal = (args as { ordinal?: unknown }).ordinal;
 			if (rawOrdinal === null) {
-				throw new BacklogToolError("Ordinal must be a non-negative number.", "VALIDATION_ERROR");
+				throw AppError.validation("Ordinal must be a non-negative number.");
 			}
 
 			const updateInput = buildTaskUpdateInput(args);
@@ -436,9 +434,9 @@ export class TaskHandlers {
 			return await formatTaskCallResult(updatedTask);
 		} catch (error) {
 			if (error instanceof Error) {
-				throw new BacklogToolError(error.message, "VALIDATION_ERROR");
+				throw AppError.validation(error.message);
 			}
-			throw new BacklogToolError(String(error), "VALIDATION_ERROR");
+			throw AppError.validation(String(error));
 		}
 	}
 }

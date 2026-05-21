@@ -8,7 +8,6 @@ import { initializeProject } from "../core/init.ts";
 import type { SearchService } from "../core/search-service.ts";
 import { getTaskStatistics } from "../core/statistics.ts";
 import { isCreateLockError } from "../file-system/operations.ts";
-import { BacklogToolError } from "../mcp/errors/mcp-errors.ts";
 import { MilestoneHandlers } from "../mcp/tools/milestones/handlers.ts";
 import {
 	DOCUMENT_TYPE_VALUES,
@@ -19,6 +18,7 @@ import {
 	type Task,
 	type TaskUpdateInput,
 } from "../types/index.ts";
+import { AppError } from "../utils/app-error.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
 import { getVersion } from "../utils/version.ts";
@@ -1271,6 +1271,9 @@ export class BacklogServer {
 	}
 
 	private handleError(error: Error): Response {
+		if (error instanceof AppError) {
+			return error.formatForServer();
+		}
 		console.error("Server Error:", error);
 		return new Response("Internal Server Error", { status: 500 });
 	}
@@ -1313,11 +1316,11 @@ export class BacklogServer {
 		try {
 			body = JSON.parse(text);
 		} catch {
-			throw new BacklogToolError("Request body must be valid JSON.", "VALIDATION_ERROR");
+			throw AppError.validation("Request body must be valid JSON.");
 		}
 
 		if (!body || typeof body !== "object" || Array.isArray(body)) {
-			throw new BacklogToolError("Request body must be a JSON object.", "VALIDATION_ERROR");
+			throw AppError.validation("Request body must be a JSON object.");
 		}
 
 		return body as Record<string, unknown>;
@@ -1331,22 +1334,12 @@ export class BacklogServer {
 	}
 
 	private milestoneMutationErrorResponse(error: unknown, context: string): Response {
-		const status =
-			error instanceof BacklogToolError
-				? error.code === "NOT_FOUND"
-					? 404
-					: error.code === "VALIDATION_ERROR"
-						? 400
-						: 500
-				: 500;
-		const message = error instanceof Error ? error.message : context;
-		if (status === 500) {
-			console.error(context, error);
+		if (error instanceof AppError) {
+			return error.formatForServer();
 		}
-		return Response.json(
-			{ error: message, code: error instanceof BacklogToolError ? error.code : "INTERNAL_ERROR" },
-			{ status },
-		);
+		const message = error instanceof Error ? error.message : context;
+		console.error(context, error);
+		return Response.json({ error: message, code: "INTERNAL_ERROR" }, { status: 500 });
 	}
 
 	private async handleListMilestones(): Promise<Response> {

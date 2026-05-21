@@ -1,4 +1,4 @@
-import { handleBacklogToolError, McpValidationError } from "../errors/mcp-errors.ts";
+import { AppError, handleBacklogToolError } from "../errors/mcp-errors.ts";
 import type { CallToolResult, McpToolHandler } from "../types.ts";
 import type { JsonSchema, ValidationResult } from "./validators.ts";
 import { validateInput } from "./validators.ts";
@@ -40,7 +40,7 @@ export function createValidatedTool<T extends Record<string, unknown>>(
 				const validationResult = await validator(request, context);
 
 				if (!validationResult.isValid) {
-					throw new McpValidationError(
+					throw AppError.validation(
 						`Validation failed: ${validationResult.errors.join(", ")}`,
 						validationResult.errors,
 					);

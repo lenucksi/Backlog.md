@@ -50,6 +50,7 @@ import { createLoadingScreen } from "./ui/loading.ts";
 import { viewTaskEnhanced } from "./ui/task-viewer-with-search.ts";
 import { scrollableViewer } from "./ui/tui.ts";
 import { type AgentSelectionValue, processAgentSelection } from "./utils/agent-selection.ts";
+import { AppError } from "./utils/app-error.ts";
 import { normalizeProjectBacklogDirectory } from "./utils/backlog-directory.ts";
 import { findBacklogRoot } from "./utils/find-backlog-root.ts";
 import { createMilestoneFilterValueResolver, resolveClosestMilestoneFilterValue } from "./utils/milestone-filter.ts";
@@ -130,7 +131,7 @@ async function openUrlInBrowser(url: string): Promise<void> {
 	try {
 		await $`${cmd}`.quiet();
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message = AppError.formatCLIError(error);
 		console.warn(`  ⚠️  Unable to open browser automatically (${message}). Please visit ${url}`);
 	}
 }
@@ -147,7 +148,7 @@ async function runMcpClientCommand(label: string, command: string, args: string[
 		console.log(`    ✓ Added Backlog MCP server to ${label}`);
 		return label;
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message = AppError.formatCLIError(error);
 		console.warn(`    ⚠️ Unable to configure ${label} automatically (${message}).`);
 		console.warn(`       Run manually: ${command} ${args.join(" ")}`);
 		return `${label} (manual setup required)`;
@@ -268,7 +269,7 @@ async function requireProjectRoot(): Promise<string> {
 	try {
 		runtimeCwd = await resolveRuntimeCwd();
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message = AppError.formatCLIError(error);
 		console.error(message);
 		process.exit(1);
 	}
@@ -910,7 +911,7 @@ taskCmd
 				console.error(`Task ${taskId} not found.`);
 			}
 		} catch (error) {
-			console.error(error instanceof Error ? error.message : String(error));
+			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
 		}
 	});
@@ -1054,7 +1055,7 @@ draftCmd
 			console.log(`Created draft ${task.id}`);
 			console.log(`File: ${filePath}`);
 		} catch (error) {
-			console.error(error instanceof Error ? error.message : String(error));
+			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
 		}
 	});
@@ -1087,7 +1088,7 @@ draftCmd
 				console.error(`Draft ${taskId} not found.`);
 			}
 		} catch (error) {
-			console.error(error instanceof Error ? error.message : String(error));
+			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
 		}
 	});
@@ -1469,7 +1470,7 @@ docCmd
 		const core = new Core(cwd);
 		const existingDocument = await core.getDocument(docId);
 		if (!existingDocument) {
-			throw new Error(`Document not found: ${docId}`);
+			throw AppError.notFound(`Document not found: ${docId}`);
 		}
 
 		const document = await core.updateDocumentFromInput({
@@ -1654,7 +1655,7 @@ const configCmd = program
 				try {
 					completionResult = await installCompletion();
 				} catch (error) {
-					completionError = error instanceof Error ? error.message : String(error);
+					completionError = AppError.formatCLIError(error);
 				}
 			}
 
@@ -2032,7 +2033,7 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 				console.log(`File: ${filePath}`);
 			}
 		} catch (error) {
-			console.error(error instanceof Error ? error.message : String(error));
+			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
 		}
 		return;
@@ -2098,7 +2099,7 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 		console.log(`Created task ${task.id}`);
 		console.log(`File: ${filePath}`);
 	} catch (error) {
-		console.error(error instanceof Error ? error.message : String(error));
+		console.error(AppError.formatCLIError(error));
 		process.exitCode = 1;
 	}
 }
@@ -2433,7 +2434,7 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 			if (parentId && allTasksForParentCheck) {
 				const parentExists = allTasksForParentCheck.some((task) => taskIdsEqual(parentId, task.id));
 				if (!parentExists) {
-					throw new Error(`Parent task ${parentId} not found.`);
+					throw AppError.notFound(`Parent task ${parentId} not found.`);
 				}
 			}
 
@@ -2442,7 +2443,7 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 				const validSortFields = ["priority", "id", "ordinal"];
 				const sortField = String(options.sort).toLowerCase();
 				if (!validSortFields.includes(sortField)) {
-					throw new Error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal`);
+					throw AppError.validation(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal`);
 				}
 				sortedTasks = sortTasks(tasks, sortField);
 			} else {
@@ -2529,7 +2530,7 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 			const updatedTask = await core.editTask(existingTaskForWizard.id, wizardInput);
 			console.log(`Updated task ${updatedTask.id}`);
 		} catch (error) {
-			console.error(error instanceof Error ? error.message : String(error));
+			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
 		}
 		return;
@@ -2627,7 +2628,7 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 			uncheckDod = dodUnchecks;
 		}
 	} catch (error) {
-		console.error(error instanceof Error ? error.message : String(error));
+		console.error(AppError.formatCLIError(error));
 		process.exitCode = 1;
 		return;
 	}
@@ -2743,7 +2744,7 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 		const updateInput = buildTaskUpdateInput(editArgs);
 		updatedTask = await core.editTask(canonicalId, updateInput);
 	} catch (error) {
-		console.error(error instanceof Error ? error.message : String(error));
+		console.error(AppError.formatCLIError(error));
 		process.exitCode = 1;
 		return;
 	}
@@ -3690,7 +3691,7 @@ async function handleInitCommand(projectName: string | undefined, options: InitC
 					try {
 						completionInstallResult = await installCompletion();
 					} catch (error) {
-						completionInstallError = error instanceof Error ? error.message : String(error);
+						completionInstallError = AppError.formatCLIError(error);
 					}
 				}
 				advancedConfigured = true;
