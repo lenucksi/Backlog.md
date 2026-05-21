@@ -226,7 +226,7 @@ export class ApiClient {
 	}
 
 	async fetchTask(id: string): Promise<Task> {
-		return this.fetchJson<Task>(`${API_BASE}/task/${id}`);
+		return this.fetchJson<Task>(`${API_BASE}/tasks/${id}`);
 	}
 
 	async createTask(task: Omit<Task, "id" | "createdDate">): Promise<Task> {
@@ -341,7 +341,7 @@ export class ApiClient {
 	}
 
 	async fetchDocument(id: string): Promise<Document> {
-		const response = await fetch(`${API_BASE}/doc/${encodeURIComponent(id)}`);
+		const response = await fetch(`${API_BASE}/docs/${encodeURIComponent(id)}`);
 		if (!response.ok) {
 			throw new Error("Failed to fetch document");
 		}
@@ -401,7 +401,7 @@ export class ApiClient {
 	}
 
 	async fetchDecisionData(id: string): Promise<Decision> {
-		const response = await fetch(`${API_BASE}/decision/${encodeURIComponent(id)}`);
+		const response = await fetch(`${API_BASE}/decisions/${encodeURIComponent(id)}`);
 		if (!response.ok) {
 			throw new Error("Failed to fetch decision");
 		}

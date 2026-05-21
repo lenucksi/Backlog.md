@@ -513,9 +513,6 @@ export class BacklogServer {
 						GET: async (req: Request) => await this.handleListTasks(req),
 						POST: async (req: Request) => await this.handleCreateTask(req),
 					},
-					"/api/task/:id": {
-						GET: async (req: Request & { params: { id: string } }) => await this.handleGetTask(req.params.id),
-					},
 					"/api/tasks/:id": {
 						GET: async (req: Request & { params: { id: string } }) => await this.handleGetTask(req.params.id),
 						PUT: async (req: Request & { params: { id: string } }) => await this.handleUpdateTask(req, req.params.id),
@@ -535,9 +532,6 @@ export class BacklogServer {
 						GET: async () => await this.handleListDocs(),
 						POST: async (req: Request) => await this.handleCreateDoc(req),
 					},
-					"/api/doc/:id": {
-						GET: async (req: Request & { params: { id: string } }) => await this.handleGetDoc(req.params.id),
-					},
 					"/api/docs/:id": {
 						GET: async (req: Request & { params: { id: string } }) => await this.handleGetDoc(req.params.id),
 						PUT: async (req: Request & { params: { id: string } }) => await this.handleUpdateDoc(req, req.params.id),
@@ -545,9 +539,6 @@ export class BacklogServer {
 					"/api/decisions": {
 						GET: async () => await this.handleListDecisions(),
 						POST: async (req: Request) => await this.handleCreateDecision(req),
-					},
-					"/api/decision/:id": {
-						GET: async (req: Request & { params: { id: string } }) => await this.handleGetDecision(req.params.id),
 					},
 					"/api/decisions/:id": {
 						GET: async (req: Request & { params: { id: string } }) => await this.handleGetDecision(req.params.id),
@@ -600,12 +591,6 @@ export class BacklogServer {
 					},
 					"/api/search": {
 						GET: async (req: Request) => await this.handleSearch(req),
-					},
-					"/sequences": {
-						GET: async () => await this.handleGetSequences(),
-					},
-					"/sequences/move": {
-						POST: async (req: Request) => await this.handleMoveSequence(req),
 					},
 					"/api/sequences": {
 						GET: async () => await this.handleGetSequences(),

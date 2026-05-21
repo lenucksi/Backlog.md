@@ -151,7 +151,7 @@ describe("BacklogServer search endpoint", () => {
 	});
 
 	it("supports zero-padded ids and dependency-aware search", async () => {
-		const viaLooseId = await fetchJson<Task>("/api/task/7");
+		const viaLooseId = await fetchJson<Task>("/api/tasks/7");
 		expect(viaLooseId.id).toBe(baseTask.id);
 
 		const paddedViaSearch = await fetchJson<Array<{ type: string; task?: Task }>>("/api/search?type=task&query=task-7");
@@ -200,7 +200,7 @@ describe("BacklogServer search endpoint", () => {
 		const created = (await createResponse.json()) as Task;
 		expect(created.title).toBe("Immediate fetch");
 		const shortId = created.id.replace(/^task-/i, "");
-		const fetched = await fetchJson<Task>(`/api/task/${shortId}`);
+		const fetched = await fetchJson<Task>(`/api/tasks/${shortId}`);
 		expect(fetched.id).toBe(created.id);
 		expect(fetched.title).toBe("Immediate fetch");
 	});
@@ -220,7 +220,7 @@ describe("BacklogServer search endpoint", () => {
 		expect(created.milestone).toBe("m-2");
 
 		const shortId = created.id.replace(/^task-/i, "");
-		const fetched = await fetchJson<Task>(`/api/task/${shortId}`);
+		const fetched = await fetchJson<Task>(`/api/tasks/${shortId}`);
 		expect(fetched.milestone).toBe("m-2");
 
 		const milestoneCreate = await fetch(`http://127.0.0.1:${serverPort}/api/milestones`, {
@@ -471,7 +471,7 @@ Milestone: m-0
 		expect(renamed.milestone?.title).toBe("Release Source Prime");
 		expect(renamed.message).toContain("Renamed milestone");
 
-		const fetchedTask = await fetchJson<Task>(`/api/task/${task.id}`);
+		const fetchedTask = await fetchJson<Task>(`/api/tasks/${task.id}`);
 		expect(fetchedTask.milestone).toBe(source.id);
 
 		const titleAliasRenameResponse = await fetch(
@@ -523,7 +523,7 @@ Milestone: m-0
 			body: JSON.stringify({ taskHandling: "clear" }),
 		});
 		expect(clearResponse.status).toBe(200);
-		const clearedTask = await fetchJson<Task>(`/api/task/${clearTask.id}`);
+		const clearedTask = await fetchJson<Task>(`/api/tasks/${clearTask.id}`);
 		expect(clearedTask.milestone).toBeUndefined();
 
 		const reassignSource = await createMilestone("Reassign Source");
@@ -535,7 +535,7 @@ Milestone: m-0
 			body: JSON.stringify({ taskHandling: "reassign", reassignTo: reassignTarget.id }),
 		});
 		expect(reassignResponse.status).toBe(200);
-		const reassignedTask = await fetchJson<Task>(`/api/task/${reassignTask.id}`);
+		const reassignedTask = await fetchJson<Task>(`/api/tasks/${reassignTask.id}`);
 		expect(reassignedTask.milestone).toBe(reassignTarget.id);
 
 		const removedMilestone = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/${reassignSource.id}`);
@@ -558,7 +558,7 @@ Milestone: m-0
 
 		const afterMalformedMilestone = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/${source.id}`);
 		expect(afterMalformedMilestone.status).toBe(200);
-		const afterMalformedTask = await fetchJson<Task>(`/api/task/${task.id}`);
+		const afterMalformedTask = await fetchJson<Task>(`/api/tasks/${task.id}`);
 		expect(afterMalformedTask.milestone).toBe(source.id);
 
 		const arrayResponse = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/${source.id}`, {
@@ -573,7 +573,7 @@ Milestone: m-0
 
 		const afterArrayMilestone = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/${source.id}`);
 		expect(afterArrayMilestone.status).toBe(200);
-		const afterArrayTask = await fetchJson<Task>(`/api/task/${task.id}`);
+		const afterArrayTask = await fetchJson<Task>(`/api/tasks/${task.id}`);
 		expect(afterArrayTask.milestone).toBe(source.id);
 	});
 
