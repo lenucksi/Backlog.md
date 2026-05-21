@@ -1,0 +1,75 @@
+"backlog/tasks/back-492.1 - Fix-label-case-sensitivity-in-server-REST-API.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 4,7
+"backlog/tasks/back-515 - Decisions-CLI-MCP-parity-supersede-pattern.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-50
+"backlog/tasks/back-492.11 - TechDebt-Simplify-task-edit-builder-and-task-plain-text-formatters.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-492.22 - TechDebt-Add-listAllMilestones-helper-to-eliminate-repeated-Promise.all-pairs.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-64
+"backlog/tasks/back-492.14 - TechDebt-Small-complexity-wins-across-5-files-CC-16-20.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-515.4 - Decisions-WebUI-supersede-links.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-49
+"backlog/tasks/back-513 - Research-TUI-interactive-editor-handoff-test-reliability.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-52
+"backlog/tasks/back-492.5 - Extend-Biome-rule-set-noUnusedImports-noUnusedVariables.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-492.19 - TechDebt-Replace-core.fs-with-core.filesystem-getter-across-all-call-sites.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-55
+"backlog/tasks/back-492.3 - Remove-duplicate-singular-plural-API-route-aliases.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 4,7
+package.json
+  s_5010281c16dec7::t_edf71db678ea48 111
+"backlog/tasks/back-516 - Feature-Parity-Tool-parity-gaps-doc-005-follow-up.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-35
+"backlog/tasks/back-492.6 - Extract-parseMultiParam-helper-for-server-query-params.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 4,7
+"backlog/tasks/back-515.3 - Decisions-MCP-domain-tools-list-view-supersede.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-56
+"backlog/tasks/back-492.4 - Add-knip-dead-export-detection-to-CI.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-492.13 - TechDebt-Reduce-complexity-in-MCP-task-handlers-and-search-service.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-516.1 - Parity-CLI-task-complete-command.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-52
+"backlog/tasks/back-492.15 - TechDebt-Reduce-complexity-in-web-lib-api.ts-and-core-statistics.ts.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-492.16 - TechDebt-Reduce-complexity-in-markdown-serializer.ts-and-search-command-query.ts.md"
+  s_5010281c16dec7::t_edf71db678ea48 6,9
+"backlog/tasks/back-492.7 - Add-dependency-cruiser-architecture-rules.md"
+  s_5010281c16dec7::t_edf71db678ea48 4,7
+"backlog/tasks/back-492.21 - TechDebt-Unify-error-surface-with-shared-AppError-type-across-all-modalities.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-63
+"backlog/tasks/back-516.3 - Parity-CLI-MCP-document-archive-delete.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-58
+"backlog/tasks/back-515.1 - Decisions-Add-supersedes-supersededBy-fields-to-model-serializer.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-53
+"backlog/tasks/back-492.20 - TechDebt-Extract-shared-AsyncInitializer-utility-for-ContentStore-and-SearchService.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-66
+"backlog/tasks/back-492.17 - TechDebt-Reduce-duplication-in-cli.ts-and-board.ts.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 4,7
+"backlog/tasks/back-492.12 - TechDebt-Reduce-function-nesting-depth-in-board.ts-S2004.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 4,7
+bun.lock
+  ai_agent 8,138-139,326-345,458-459,494-495,528-529,542-553,560-561,596-597,604-605,610-611,724-727,754-755,784-785,792-793,806-807,826-827,834-835,850-851,864-865,942-943,1040-1041,1158-1159,1162-1163,1170-1171,1176-1177,1196-1203,1248-1249,1256-1257,1266-1267,1270-1271,1282-1283,1380-1381,1398-1403,1420-1421,1456-1463,1498-1499,1532-1533,1616-1619,1666-1667,1672-1679,1686-1691,1730-1731,1733-1734
+"backlog/tasks/back-516.2 - Parity-CLI-backlog-stats-command.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-52
+"backlog/tasks/back-515.2 - Decisions-CLI-list-view-supersede-commands.md"
+  s_5010281c16dec7::t_3fa362f4e1691c 1-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "c38d810f657e607ea7264f6cd27ab4769faa4875",
+  "prompts": {},
+  "sessions": {
+    "s_5010281c16dec7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b4ec4ad4ffe8mg1dFrmwrQtgB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
