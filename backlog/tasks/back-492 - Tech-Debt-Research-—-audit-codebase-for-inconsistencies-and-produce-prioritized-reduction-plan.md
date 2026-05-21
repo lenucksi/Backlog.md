@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-17 21:12'
+updated_date: '2026-05-20 23:30'
 labels:
   - tech-debt
   - research
@@ -57,6 +57,26 @@ The codebase has grown organically across multiple contributors and sessions. Be
 
 <!-- SECTION:NOTES:BEGIN -->
 Pre-existing biome error on package.json (2-space vs tab indent) exists on upstream-master before changes. My changes introduce only docs/tech-debt-audit.md (a markdown file, not covered by biome includes). tsc --noEmit passes cleanly (no TypeScript touched). Biome error is unrelated to this task.
+
+=== SonarQube Complexity Refactor (2026-05-20) ===
+
+7 Subtasks (492.8-492.14) in parallelen Worktrees abgearbeitet.
+
+492.8: cli.ts — 7 Command-Handler extrahiert (CC 268→~40)
+
+492.9: backlog.ts + init.ts — 13 Helfer extrahiert, config-driven MCP setup
+
+492.10: server/index.ts — search/update-Doc/update-Task aufgespalten
+
+492.11: task-edit-builder (8 Helfer) + task-plain-text (9 Helfer)
+
+492.12: board.ts — 8x S2004 durch Extraktion von Callback-Funktionen
+
+492.13: MCP handlers + search-service — Filter-Prädikate extrahiert
+
+492.14: 6 Files (CC 16-20 → ≤15) — kleine Extraktionen
+
+Alle 7 Branches gemerged, gepusht, Worktrees entfernt.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
