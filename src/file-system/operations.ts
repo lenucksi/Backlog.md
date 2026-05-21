@@ -1078,6 +1078,11 @@ ${rawContent.trim()}
 		}
 	}
 
+	async listAllMilestones(): Promise<{ active: Milestone[]; archived: Milestone[] }> {
+		const [active, archived] = await Promise.all([this.listMilestones(), this.listArchivedMilestones()]);
+		return { active, archived };
+	}
+
 	async listArchivedMilestones(): Promise<Milestone[]> {
 		try {
 			const milestonesDir = await this.getArchiveMilestonesDir();

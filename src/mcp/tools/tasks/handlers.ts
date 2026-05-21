@@ -63,10 +63,7 @@ export class TaskHandlers {
 	constructor(private readonly core: McpServer) {}
 
 	private async resolveMilestoneInput(milestone: string): Promise<string> {
-		const [activeMilestones, archivedMilestones] = await Promise.all([
-			this.core.filesystem.listMilestones(),
-			this.core.filesystem.listArchivedMilestones(),
-		]);
+		const { active: activeMilestones, archived: archivedMilestones } = await this.core.filesystem.listAllMilestones();
 		return resolveMilestoneInputForStorage(milestone, activeMilestones, archivedMilestones);
 	}
 
@@ -210,10 +207,7 @@ export class TaskHandlers {
 
 	private async filterDraftsByMilestone(drafts: Task[], milestone?: string): Promise<Task[]> {
 		if (!milestone) return drafts;
-		const [activeMilestones, archivedMilestones] = await Promise.all([
-			this.core.filesystem.listMilestones(),
-			this.core.filesystem.listArchivedMilestones(),
-		]);
+		const { active: activeMilestones, archived: archivedMilestones } = await this.core.filesystem.listAllMilestones();
 		const resolveMilestoneFilterValue = createMilestoneFilterValueResolver([
 			...activeMilestones,
 			...archivedMilestones,

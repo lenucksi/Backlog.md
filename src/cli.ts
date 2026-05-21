@@ -234,10 +234,7 @@ function hasEditFieldFlags(options: Record<string, unknown>): boolean {
 }
 
 async function resolveCliMilestoneInput(core: Core, milestone: string): Promise<string> {
-	const [activeMilestones, archivedMilestones] = await Promise.all([
-		core.filesystem.listMilestones(),
-		core.filesystem.listArchivedMilestones(),
-	]);
+	const { active: activeMilestones, archived: archivedMilestones } = await core.filesystem.listAllMilestones();
 	return resolveMilestoneInputForStorage(milestone, activeMilestones, archivedMilestones);
 }
 
