@@ -5,7 +5,6 @@ import type { Task } from "./types/index.ts";
 const BOARD_START = "<!-- BOARD_START -->";
 const BOARD_END = "<!-- BOARD_END -->";
 
-// c8 ignore next 67
 export async function updateReadmeWithBoard(tasks: Task[], statuses: string[], projectName: string, version?: string) {
 	const readmePath = join(process.cwd(), "README.md");
 	let readmeContent = "";

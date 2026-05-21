@@ -3,12 +3,11 @@ import { getTaskStatistics } from "../core/statistics.ts";
 import { createLoadingScreen } from "../ui/loading.ts";
 import { renderOverviewTui } from "../ui/overview-tui.ts";
 
-function formatTime(ms: number): string {
+export function formatTime(ms: number): string {
 	if (ms < 1000) return `${Math.round(ms)}ms`;
 	return `${(ms / 1000).toFixed(1)}s`;
 }
 
-// c8 ignore next 35
 export async function runOverviewCommand(core: Core): Promise<void> {
 	const startTime = performance.now();
 
