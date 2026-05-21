@@ -425,6 +425,7 @@ export async function renderBoardTui(
 			const widthPercent = columnWidthFor(data.length);
 			for (let idx = 0; idx < data.length; idx++) {
 				const columnData = data[idx];
+				if (!columnData) continue;
 				const left = idx * widthPercent;
 				const isLast = idx === data.length - 1;
 				const width = isLast ? `${Math.max(0, 100 - left)}%` : `${widthPercent}%`;
@@ -741,6 +742,19 @@ export async function renderBoardTui(
 			focusColumn(currentCol, targetIndex);
 			updateFooter();
 		});
+		const doConfirmComplete = (t: Task) =>
+			openConfirmPopup({
+				screen,
+				title: "Complete Task",
+				message: `Mark task {bold}${t.id}{/bold} as completed?\n{gray-fg}${t.title}{/}`,
+			});
+		const doConfirmArchive = (t: Task) =>
+			openConfirmPopup({
+				screen,
+				title: "Archive Task",
+				message: `Archive task {bold}${t.id}{/bold}?\n{gray-fg}${t.title}{/}`,
+			});
+
 		const syncBoardAreaLayout = () => {
 			const headerHeight = filterHeader?.getHeight() ?? 0;
 			boardArea.top = headerHeight;
@@ -1031,6 +1045,87 @@ export async function renderBoardTui(
 			}
 		};
 
+		const handleContentAreaComplete = (t: Task, closeFn: () => void) => {
+			return async () => {
+				if (t.branch) {
+					showTransientFooter(` {red-fg}Cannot complete task from branch "${t.branch}".{/}`);
+					return;
+				}
+				const confirmed = await runWithModalGuard(() => doConfirmComplete(t));
+				if (confirmed) {
+					try {
+						const core = new Core(process.cwd(), { enableWatchers: true });
+						const config = await core.fs.loadConfig();
+						const success = await core.completeTask(t.id, config?.autoCommit ?? false);
+						if (success) {
+							currentTasks = currentTasks.filter((task) => task.id !== t.id);
+							showTransientFooter(` {green-fg}Completed ${t.id}{/}`);
+							closeFn();
+							popupOpen = false;
+							renderView();
+						} else {
+							showTransientFooter(` {red-fg}Failed to complete ${t.id}{/}`);
+						}
+					} catch (error) {
+						showTransientFooter(
+							` {red-fg}Error completing task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
+						);
+					}
+				}
+			};
+		};
+
+		const handleContentAreaArchive = (t: Task, closeFn: () => void) => {
+			return async () => {
+				if (t.branch) {
+					showTransientFooter(` {red-fg}Cannot archive task from branch "${t.branch}".{/}`);
+					return;
+				}
+				const confirmed = await runWithModalGuard(() => doConfirmArchive(t));
+				if (confirmed) {
+					try {
+						const core = new Core(process.cwd(), { enableWatchers: true });
+						const config = await core.fs.loadConfig();
+						const success = await core.archiveTask(t.id, config?.autoCommit ?? false);
+						if (success) {
+							currentTasks = currentTasks.filter((task) => task.id !== t.id);
+							showTransientFooter(` {green-fg}Archived ${t.id}{/}`);
+							closeFn();
+							popupOpen = false;
+							renderView();
+						} else {
+							showTransientFooter(` {red-fg}Failed to archive ${t.id}{/}`);
+						}
+					} catch (error) {
+						showTransientFooter(
+							` {red-fg}Error archiving task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
+						);
+					}
+				}
+			};
+		};
+
+		const setupContentAreaHandlers = (contentArea: BoxInterface, t: Task, closeFn: () => void) => {
+			contentArea.key(["escape", "q"], () => {
+				popupOpen = false;
+				closeFn();
+				focusColumn(currentCol);
+			});
+			contentArea.key(["e", "E", "S-e"], async () => {
+				await openTaskEditor(t);
+			});
+			contentArea.key(["y", "Y"], async () => {
+				const success = await copyToClipboard(t.id);
+				if (success) {
+					showTransientFooter(` {green-fg}Copied ${t.id} to clipboard{/}`);
+				} else {
+					showTransientFooter(" {red-fg}Failed to copy to clipboard{/}");
+				}
+			});
+			contentArea.key(["c", "C"], handleContentAreaComplete(t, closeFn));
+			contentArea.key(["a", "A"], handleContentAreaArchive(t, closeFn));
+		};
+
 		screen.key(["enter"], async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters") return;
 
@@ -1055,103 +1150,7 @@ export async function renderBoardTui(
 			}
 
 			const { contentArea, close } = popup;
-			const confirmComplete = () =>
-				openConfirmPopup({
-					screen,
-					title: "Complete Task",
-					message: `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`,
-				});
-
-			const confirmArchive = () =>
-				openConfirmPopup({
-					screen,
-					title: "Archive Task",
-					message: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
-				});
-
-			const notThisTask = (t: Task) => t.id !== task.id;
-
-			contentArea.key(["escape", "q"], () => {
-				popupOpen = false;
-				close();
-				focusColumn(currentCol);
-			});
-
-			contentArea.key(["e", "E", "S-e"], async () => {
-				await openTaskEditor(task);
-			});
-
-			contentArea.key(["y", "Y"], async () => {
-				const success = await copyToClipboard(task.id);
-				if (success) {
-					showTransientFooter(` {green-fg}Copied ${task.id} to clipboard{/}`);
-				} else {
-					showTransientFooter(" {red-fg}Failed to copy to clipboard{/}");
-				}
-			});
-
-			contentArea.key(["c", "C"], async () => {
-				if (task.branch) {
-					showTransientFooter(` {red-fg}Cannot complete task from branch "${task.branch}".{/}`);
-					return;
-				}
-
-				const confirmed = await runWithModalGuard(confirmComplete);
-
-				if (confirmed) {
-					try {
-						const core = new Core(process.cwd(), { enableWatchers: true });
-						const config = await core.fs.loadConfig();
-						const success = await core.completeTask(task.id, config?.autoCommit ?? false);
-
-						if (success) {
-							currentTasks = currentTasks.filter(notThisTask);
-							showTransientFooter(` {green-fg}Completed ${task.id}{/}`);
-							close();
-							popupOpen = false;
-							renderView();
-						} else {
-							showTransientFooter(` {red-fg}Failed to complete ${task.id}{/}`);
-						}
-					} catch (error) {
-						showTransientFooter(
-							` {red-fg}Error completing task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
-						);
-					}
-				}
-			});
-
-			contentArea.key(["a", "A"], async () => {
-				if (task.branch) {
-					showTransientFooter(` {red-fg}Cannot archive task from branch "${task.branch}".{/}`);
-					return;
-				}
-
-				const confirmed = await runWithModalGuard(confirmArchive);
-
-				if (confirmed) {
-					try {
-						const core = new Core(process.cwd(), { enableWatchers: true });
-						const config = await core.fs.loadConfig();
-						const success = await core.archiveTask(task.id, config?.autoCommit ?? false);
-
-						if (success) {
-							currentTasks = currentTasks.filter(notThisTask);
-							showTransientFooter(` {green-fg}Archived ${task.id}{/}`);
-							close();
-							popupOpen = false;
-							renderView();
-						} else {
-							showTransientFooter(` {red-fg}Failed to archive ${task.id}{/}`);
-						}
-					} catch (error) {
-						showTransientFooter(
-							` {red-fg}Error archiving task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
-						);
-					}
-				}
-			});
-
+			setupContentAreaHandlers(contentArea, task, close);
 			screen.render();
 		});
 
@@ -1294,9 +1293,11 @@ export async function renderBoardTui(
 			}
 		});
 
+		const doOpenHelp = () => openHelpPopup(screen);
+
 		screen.key(["?"], async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || moveOp) return;
-			await runWithModalGuard(() => openHelpPopup(screen));
+			await runWithModalGuard(doOpenHelp);
 		});
 
 		screen.key(["y", "Y"], async () => {
@@ -1315,7 +1316,7 @@ export async function renderBoardTui(
 			}
 		});
 
-		screen.key(["c", "C"], async () => {
+		const handleGlobalComplete = async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
 			const column = columns[currentCol];
 			if (!column) return;
@@ -1328,13 +1329,7 @@ export async function renderBoardTui(
 				return;
 			}
 
-			const confirmed = await runWithModalGuard(() =>
-				openConfirmPopup({
-					screen,
-					title: "Complete Task",
-					message: `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`,
-				}),
-			);
+			const confirmed = await runWithModalGuard(() => doConfirmComplete(task));
 
 			if (confirmed) {
 				try {
@@ -1355,9 +1350,9 @@ export async function renderBoardTui(
 					);
 				}
 			}
-		});
+		};
 
-		screen.key(["a", "A"], async () => {
+		const handleGlobalArchive = async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
 			const column = columns[currentCol];
 			if (!column) return;
@@ -1370,13 +1365,7 @@ export async function renderBoardTui(
 				return;
 			}
 
-			const confirmed = await runWithModalGuard(() =>
-				openConfirmPopup({
-					screen,
-					title: "Archive Task",
-					message: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
-				}),
-			);
+			const confirmed = await runWithModalGuard(() => doConfirmArchive(task));
 
 			if (confirmed) {
 				try {
@@ -1397,7 +1386,10 @@ export async function renderBoardTui(
 					);
 				}
 			}
-		});
+		};
+
+		screen.key(["c", "C"], handleGlobalComplete);
+		screen.key(["a", "A"], handleGlobalArchive);
 
 		screen.key(["q", "C-c"], () => {
 			if (popupOpen || filterPopupOpen || modalOpen) return;
