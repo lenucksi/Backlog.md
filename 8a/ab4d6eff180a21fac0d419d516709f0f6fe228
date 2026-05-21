@@ -1,0 +1,23 @@
+src/web/components/TaskList.tsx
+  s_869c916d6b217d::t_0cf2af34285d5b 567
+src/ui/unified-view.ts
+  s_869c916d6b217d::t_cb128b083b7f3a 164
+src/ui/task-viewer-with-search.ts
+  s_869c916d6b217d::t_1e1b9e9d6ed2df 233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "8aab4d6eff180a21fac0d419d516709f0f6fe228",
+  "prompts": {},
+  "sessions": {
+    "s_869c916d6b217d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b31ead7fffe4CRs3ky1b3fjKN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
