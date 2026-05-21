@@ -1,0 +1,23 @@
+src/server/index.ts
+  s_5010281c16dec7::t_63f523232dc85b 23,208-212,214-219,809,882-884
+src/web/lib/api.ts
+  ai_agent 136,236,317,321,324,336,350,354,371,379,383
+src/test/server-search-endpoint.test.ts
+  s_5010281c16dec7::t_63f523232dc85b 154,203,223,474,526,538,561,576
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "0429f06970b99ccf6cb18b21dcaf8f138b8fa86c",
+  "prompts": {},
+  "sessions": {
+    "s_5010281c16dec7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b4ec4ad4ffe8mg1dFrmwrQtgB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
