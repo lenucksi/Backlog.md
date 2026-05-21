@@ -111,6 +111,7 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 			`set env(TUI_EDITOR_KEY_LOG_FILE) {${editorInputPath}}`,
 			`spawn {${cliCmd}} {*}{${options.cliArgs.join("} {")}}`,
 			"expect {",
+			"	-re {Backlog Board|Tasks} {}",
 			"	timeout { exit 91 }",
 			"}",
 			"sleep 0.5",
