@@ -20,6 +20,7 @@ import {
 	type TaskUpdateInput,
 } from "../types/index.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
+import { labelsToLower } from "../utils/label-filter.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
 import { getVersion } from "../utils/version.ts";
 
@@ -204,13 +205,18 @@ export async function findNextAvailablePort(startPort: number): Promise<number> 
 	return port;
 }
 
-function collectSearchParam(searchParams: URLSearchParams, singular: string, plural: string): string[] {
-	const values = [...searchParams.getAll(singular), ...searchParams.getAll(plural)];
-	const csv = searchParams.get(plural);
-	if (csv) {
-		values.push(...csv.split(","));
+function parseMultiParam(url: URL, ...keys: string[]): string[] {
+	const searchParams = url.searchParams;
+	const values: string[] = [];
+	for (const key of keys) {
+		values.push(...searchParams.getAll(key));
 	}
-	return values;
+	const lastKey = keys.at(-1);
+	const csvValue = lastKey ? searchParams.get(lastKey) : null;
+	if (csvValue) {
+		values.push(...csvValue.split(","));
+	}
+	return values.map((v) => v.trim()).filter((v) => v.length > 0);
 }
 
 function buildSearchFilters(
@@ -818,12 +824,7 @@ export class BacklogServer {
 		const parent = url.searchParams.get("parent") || undefined;
 		const priorityParam = url.searchParams.get("priority") || undefined;
 		const crossBranch = url.searchParams.get("crossBranch") === "true";
-		const labelParams = [...url.searchParams.getAll("label"), ...url.searchParams.getAll("labels")];
-		const labelsCsv = url.searchParams.get("labels");
-		if (labelsCsv) {
-			labelParams.push(...labelsCsv.split(","));
-		}
-		const labels = labelParams.map((label) => label.trim()).filter((label) => label.length > 0);
+		const labels = labelsToLower(parseMultiParam(url, "label", "labels"));
 
 		let priority: "high" | "medium" | "low" | undefined;
 		if (priorityParam) {
@@ -896,9 +897,9 @@ export class BacklogServer {
 				types = normalizedTypes;
 			}
 
-			const assigneeParamsRaw = collectSearchParam(url.searchParams, "assignee", "assignees");
-			const labelParamsRaw = collectSearchParam(url.searchParams, "label", "labels");
-			const modifiedFileParamsRaw = collectSearchParam(url.searchParams, "modifiedFile", "modifiedFiles");
+			const assigneeParamsRaw = parseMultiParam(url, "assignee", "assignees");
+			const labelParamsRaw = labelsToLower(parseMultiParam(url, "label", "labels"));
+			const modifiedFileParamsRaw = parseMultiParam(url, "modifiedFile", "modifiedFiles");
 			const statusParams = url.searchParams.getAll("status");
 			const priorityParamsRaw = url.searchParams.getAll("priority");
 
