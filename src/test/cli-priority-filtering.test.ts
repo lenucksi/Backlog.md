@@ -8,7 +8,7 @@ describe("CLI Priority Filtering", () => {
 
 		// Should only show high priority tasks
 		const output = result.stdout.toString();
-		if (output.includes("task-")) {
+		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
 			// If tasks exist, check they have HIGH priority indicators
 			expect(output).toMatch(/\[HIGH\]/);
 			// Should not contain other priority indicators
@@ -22,7 +22,7 @@ describe("CLI Priority Filtering", () => {
 		expect(result.exitCode).toBe(0);
 
 		const output = result.stdout.toString();
-		if (output.includes("task-")) {
+		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
 			expect(output).toMatch(/\[MEDIUM\]/);
 			expect(output).not.toMatch(/\[HIGH\]/);
 			expect(output).not.toMatch(/\[LOW\]/);
@@ -34,7 +34,7 @@ describe("CLI Priority Filtering", () => {
 		expect(result.exitCode).toBe(0);
 
 		const output = result.stdout.toString();
-		if (output.includes("task-")) {
+		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
 			expect(output).toMatch(/\[LOW\]/);
 			expect(output).not.toMatch(/\[HIGH\]/);
 			expect(output).not.toMatch(/\[MEDIUM\]/);
@@ -84,7 +84,7 @@ describe("CLI Priority Filtering", () => {
 		expect(result.exitCode).toBe(0);
 
 		const output = result.stdout.toString();
-		if (output.includes("task-")) {
+		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
 			// Should only show high priority tasks in "To Do" status
 			expect(output).toMatch(/\[HIGH\]/);
 			expect(output).toMatch(/To Do:/);
@@ -110,16 +110,20 @@ describe("CLI Priority Filtering", () => {
 
 		const output = result.stdout.toString();
 		// If any priority tasks exist, they should have proper indicators
-		if (output.includes("task-")) {
+		if (output.includes("task-") || output.includes("BACK-")) {
 			// Should have proper format with optional priority indicators
-			expect(output).toMatch(/^\s*(\[HIGH\]|\[MEDIUM\]|\[LOW\])?\s*task-\d+\s+-\s+/m);
+			expect(output).toMatch(/^\s*(\[HIGH\]|\[MEDIUM\]|\[LOW\])?\s*\S+\s+-\s+/m);
 		}
 	});
 
 	test("case insensitive priority filtering", async () => {
-		const upperResult = await $`bun run cli task list --priority HIGH --plain`.quiet();
-		const lowerResult = await $`bun run cli task list --priority high --plain`.quiet();
-		const mixedResult = await $`bun run cli task list --priority High --plain`.quiet();
+		const results = await Promise.all([
+			$`bun run cli task list --priority HIGH --plain`.quiet(),
+			$`bun run cli task list --priority high --plain`.quiet(),
+			$`bun run cli task list --priority High --plain`.quiet(),
+		]);
+
+		const [upperResult, lowerResult, mixedResult] = results as typeof results;
 
 		expect(upperResult.exitCode).toBe(0);
 		expect(lowerResult.exitCode).toBe(0);
@@ -130,16 +134,16 @@ describe("CLI Priority Filtering", () => {
 			lowerResult.stdout.toString(),
 			mixedResult.stdout.toString(),
 		];
-		const listUpper = upperOutput.split("\n").filter((line) => line.includes("task-"));
-		const listLower = lowerOutput.split("\n").filter((line) => line.includes("task-"));
-		const listMixed = mixedOutput.split("\n").filter((line) => line.includes("task-"));
+		const listUpper = upperOutput.split("\n").filter((line) => /\b(BACK-\d+|task-\d+)/i.test(line));
+		const listLower = lowerOutput.split("\n").filter((line) => /\b(BACK-\d+|task-\d+)/i.test(line));
+		const listMixed = mixedOutput.split("\n").filter((line) => /\b(BACK-\d+|task-\d+)/i.test(line));
 		if (listLower.length > 0) {
 			expect(listUpper).toEqual(listLower);
 			expect(listMixed).toEqual(listLower);
 		}
 
 		for (const output of [upperOutput, lowerOutput, mixedOutput]) {
-			if (output.includes("task-")) {
+			if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
 				expect(output).toMatch(/\[HIGH\]/);
 				expect(output).not.toMatch(/\[MEDIUM\]/);
 				expect(output).not.toMatch(/\[LOW\]/);
