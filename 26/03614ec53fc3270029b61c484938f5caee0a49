@@ -1,0 +1,29 @@
+src/ui/sequences.ts
+  s_7c24653d5978f6::t_fb51509e810230 224-234,237
+src/core/init.ts
+  s_7c24653d5978f6::t_4ad3c0bae4968e 245-294,307,309,311,313,315,317,319
+src/core/search-service.ts
+  s_7c24653d5978f6::t_41dea8100aaa94 361-373
+src/core/task-loader.ts
+  s_7c24653d5978f6::t_13f9e21dd5841b 244
+  s_7c24653d5978f6::t_3ffd2b25c44aa8 178
+  s_7c24653d5978f6::t_5ef9a9f4625b10 92-93,95,98-106,108,115,139,152-153,159-161
+src/ui/overview-tui.ts
+  s_7c24653d5978f6::t_e228f9b919a668 218-229,231-244,246-247,249-252,254,256,258,260,263,265,268,270-271,273,275,278,281-293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "2603614ec53fc3270029b61c484938f5caee0a49",
+  "prompts": {},
+  "sessions": {
+    "s_7c24653d5978f6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b4b0d11fffeywpBbzcYggv29M",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
