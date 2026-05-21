@@ -89,6 +89,20 @@ export class TaskHandlers {
 		return task;
 	}
 
+	private noTasksFoundMessage(query: string, modifiedFiles?: string[]): CallToolResult {
+		return {
+			content: [{ type: "text", text: `No tasks found for "${query || modifiedFiles?.join(", ")}".` }],
+		};
+	}
+
+	private formatSearchResults(tasks: Task[]): CallToolResult {
+		const lines: string[] = ["Tasks:"];
+		for (const task of tasks) {
+			lines.push(this.formatTaskSummaryLine(task, { includeStatus: true }));
+		}
+		return { content: [{ type: "text", text: lines.join("\n") }] };
+	}
+
 	async createTask(args: TaskCreateArgs): Promise<CallToolResult> {
 		try {
 			const rawOrdinal = (args as { ordinal?: unknown }).ordinal;
@@ -291,79 +305,26 @@ export class TaskHandlers {
 		if (this.isDraftStatus(args.status)) {
 			const drafts = await this.core.filesystem.listDrafts();
 			const searchIndex = createTaskSearchIndex(drafts);
-			let draftMatches = searchIndex.search({
-				query,
-				status: "Draft",
-				priority: args.priority,
-				modifiedFiles,
-			});
+			let matches = searchIndex.search({ query, status: "Draft", priority: args.priority, modifiedFiles });
 			if (typeof args.limit === "number" && args.limit >= 0) {
-				draftMatches = draftMatches.slice(0, args.limit);
+				matches = matches.slice(0, args.limit);
 			}
-
-			if (draftMatches.length === 0) {
-				return {
-					content: [
-						{
-							type: "text",
-							text: `No tasks found for "${query || modifiedFiles?.join(", ")}".`,
-						},
-					],
-				};
-			}
-
-			const lines: string[] = ["Tasks:"];
-			for (const draft of draftMatches) {
-				lines.push(this.formatTaskSummaryLine(draft, { includeStatus: true }));
-			}
-
-			return {
-				content: [
-					{
-						type: "text",
-						text: lines.join("\n"),
-					},
-				],
-			};
+			return matches.length === 0
+				? this.noTasksFoundMessage(query, modifiedFiles)
+				: this.formatSearchResults(matches);
 		}
 
 		const tasks = await this.core.loadTasks(undefined, undefined, { includeCompleted: true });
 		const searchIndex = createTaskSearchIndex(tasks);
-		let taskMatches = searchIndex.search({
-			query,
-			status: args.status,
-			priority: args.priority,
-			modifiedFiles,
-		});
+		let matches = searchIndex.search({ query, status: args.status, priority: args.priority, modifiedFiles });
 		if (typeof args.limit === "number" && args.limit >= 0) {
-			taskMatches = taskMatches.slice(0, args.limit);
+			matches = matches.slice(0, args.limit);
 		}
 
-		const taskResults = taskMatches.filter((task) => isLocalEditableTask(task));
-		if (taskResults.length === 0) {
-			return {
-				content: [
-					{
-						type: "text",
-						text: `No tasks found for "${query || modifiedFiles?.join(", ")}".`,
-					},
-				],
-			};
-		}
-
-		const lines: string[] = ["Tasks:"];
-		for (const task of taskResults) {
-			lines.push(this.formatTaskSummaryLine(task, { includeStatus: true }));
-		}
-
-		return {
-			content: [
-				{
-					type: "text",
-					text: lines.join("\n"),
-				},
-			],
-		};
+		const taskResults = matches.filter((task) => isLocalEditableTask(task));
+		return taskResults.length === 0
+			? this.noTasksFoundMessage(query, modifiedFiles)
+			: this.formatSearchResults(taskResults);
 	}
 
 	async viewTask(args: { id: string }): Promise<CallToolResult> {

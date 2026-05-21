@@ -284,77 +284,31 @@ export class SearchService {
 	): SearchResult[] {
 		const results: SearchResult[] = [];
 
-		if (allowedTypes.has("task")) {
-			const tasks = this.applyTaskFilters(this.tasks, filters);
-			for (const entity of tasks) {
+		const addUntilLimit = (entities: SearchEntity[]): boolean => {
+			for (const entity of entities) {
 				results.push(this.mapEntityToResult(entity));
-				if (limit && results.length >= limit) {
-					return results;
-				}
+				if (limit && results.length >= limit) return true;
 			}
+			return false;
+		};
+
+		if (allowedTypes.has("task") && addUntilLimit(this.applyTaskFilters(this.tasks, filters))) {
+			return results;
 		}
 
-		if (allowedTypes.has("document")) {
-			for (const entity of this.documents) {
-				results.push(this.mapEntityToResult(entity));
-				if (limit && results.length >= limit) {
-					return results;
-				}
-			}
+		if (allowedTypes.has("document") && addUntilLimit(this.documents)) {
+			return results;
 		}
 
-		if (allowedTypes.has("decision")) {
-			for (const entity of this.decisions) {
-				results.push(this.mapEntityToResult(entity));
-				if (limit && results.length >= limit) {
-					return results;
-				}
-			}
+		if (allowedTypes.has("decision") && addUntilLimit(this.decisions)) {
+			return results;
 		}
 
 		return results;
 	}
 
 	private applyTaskFilters(tasks: TaskSearchEntity[], filters: NormalizedFilters): TaskSearchEntity[] {
-		let filtered = tasks;
-
-		if (filters.statuses && filters.statuses.length > 0) {
-			const allowedStatuses = new Set(filters.statuses);
-			filtered = filtered.filter((task) => this.matchesStatus(task, allowedStatuses));
-		}
-		if (filters.priorities && filters.priorities.length > 0) {
-			const allowedPriorities = new Set(filters.priorities);
-			filtered = filtered.filter((task) => this.matchesPriority(task, allowedPriorities));
-		}
-		if (filters.assignees && filters.assignees.length > 0) {
-			const requiredAssignees = new Set(filters.assignees);
-			filtered = filtered.filter((task) => this.matchesAssignees(task, requiredAssignees));
-		}
-		if (filters.labels && filters.labels.length > 0) {
-			const requiredLabels = new Set(filters.labels);
-			filtered = filtered.filter((task) => this.matchesLabels(task, requiredLabels));
-		}
-		if (filters.modifiedFiles && filters.modifiedFiles.length > 0) {
-			filtered = filtered.filter((task) => matchesModifiedFileFilters(task.modifiedFiles, filters.modifiedFiles));
-		}
-
-		return filtered;
-	}
-
-	private matchesStatus(task: TaskSearchEntity, allowedStatuses: Set<string>): boolean {
-		return allowedStatuses.has(task.statusLower);
-	}
-
-	private matchesPriority(task: TaskSearchEntity, allowedPriorities: Set<string>): boolean {
-		return !!task.priorityLower && allowedPriorities.has(task.priorityLower);
-	}
-
-	private matchesAssignees(task: TaskSearchEntity, requiredAssignees: Set<string>): boolean {
-		return task.assigneesLower?.some((assignee) => requiredAssignees.has(assignee)) ?? false;
-	}
-
-	private matchesLabels(task: TaskSearchEntity, requiredLabels: Set<string>): boolean {
-		return task.labelsLower?.some((label) => requiredLabels.has(label)) ?? false;
+		return tasks.filter((task) => this.matchesTaskFilters(task, filters));
 	}
 
 	private matchesTaskFilters(task: TaskSearchEntity, filters: NormalizedFilters): boolean {
@@ -407,7 +361,7 @@ export class SearchService {
 		const statuses = this.normalizeStringArray(filters.status);
 		const priorities = this.normalizePriorityArray(filters.priority);
 		const assignees = this.normalizeStringArray(filters.assignee);
-		const labels = this.normalizeLabelsArray(filters.labels);
+		const labels = this.normalizeStringArray(filters.labels);
 		const modifiedFiles = normalizeModifiedFileFilters(filters.modifiedFiles);
 
 		return {
@@ -420,17 +374,6 @@ export class SearchService {
 	}
 
 	private normalizeStringArray(value?: string | string[]): string[] | undefined {
-		if (!value) {
-			return undefined;
-		}
-
-		const values = Array.isArray(value) ? value : [value];
-		const normalized = values.map((item) => item.trim().toLowerCase()).filter((item) => item.length > 0);
-
-		return normalized.length > 0 ? normalized : undefined;
-	}
-
-	private normalizeLabelsArray(value?: string | string[]): string[] | undefined {
 		if (!value) {
 			return undefined;
 		}
