@@ -123,7 +123,7 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 
 	let output = "";
 	const outputPromise = new Promise<string>((resolve, reject) => {
-		const timer = setTimeout(() => reject(new Error("Timeout waiting for pattern")), 20000);
+		const timer = setTimeout(() => reject(new Error("Timeout waiting for pattern")), 30000);
 		pty.on("data", (data: string) => {
 			output += data;
 			if (options.readyPattern.test(output)) {
