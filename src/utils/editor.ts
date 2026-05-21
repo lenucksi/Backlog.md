@@ -5,10 +5,9 @@ import type { BacklogConfig } from "../types/index.ts";
 /**
  * Get the default editor based on the operating system
  */
-function getPlatformDefaultEditor(): string {
-	const os = platform();
-	switch (os) {
-		// c8 ignore next 2
+export function getPlatformDefaultEditor(os?: string): string {
+	const currentOs = os ?? platform();
+	switch (currentOs) {
 		case "win32":
 			return "notepad";
 		case "darwin":
@@ -43,15 +42,14 @@ export function resolveEditor(config?: BacklogConfig | null): string {
 /**
  * Check if an editor command is available on the system
  */
-export async function isEditorAvailable(editor: string): Promise<boolean> {
+export async function isEditorAvailable(editor: string, os?: string): Promise<boolean> {
 	try {
-		// Try to run the editor with --version or --help to check if it exists
 		// Split the editor command in case it has arguments
 		const parts = editor.split(" ");
 		const command = parts[0] ?? editor;
+		const currentOs = os ?? platform();
 
-		// c8 ignore next 7
-		if (platform() === "win32") {
+		if (currentOs === "win32") {
 			try {
 				await $`where ${command}`.quiet();
 				return true;
@@ -66,7 +64,6 @@ export async function isEditorAvailable(editor: string): Promise<boolean> {
 		} catch {
 			return false;
 		}
-		// c8 ignore next 3
 	} catch {
 		return false;
 	}

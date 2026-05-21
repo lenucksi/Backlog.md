@@ -2,8 +2,26 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { BacklogConfig } from "../types/index.ts";
-import { isEditorAvailable, openInEditor, resolveEditor } from "../utils/editor.ts";
+import { getPlatformDefaultEditor, isEditorAvailable, openInEditor, resolveEditor } from "../utils/editor.ts";
 import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
+
+describe("getPlatformDefaultEditor", () => {
+	it("should return notepad on win32", () => {
+		expect(getPlatformDefaultEditor("win32")).toBe("notepad");
+	});
+
+	it("should return nano on darwin", () => {
+		expect(getPlatformDefaultEditor("darwin")).toBe("nano");
+	});
+
+	it("should return nano on linux", () => {
+		expect(getPlatformDefaultEditor("linux")).toBe("nano");
+	});
+
+	it("should return vi on unknown platform", () => {
+		expect(getPlatformDefaultEditor("freebsd")).toBe("vi");
+	});
+});
 
 describe("Editor utilities", () => {
 	let originalEditor: string | undefined;
@@ -109,6 +127,11 @@ describe("Editor utilities", () => {
 			const editor = process.platform === "win32" ? "notepad.exe" : "echo test";
 			const available = await isEditorAvailable(editor);
 			expect(available).toBe(true);
+		});
+
+		it("should use where on win32 and fail when command not found", async () => {
+			const available = await isEditorAvailable("nope-nonexistent", "win32");
+			expect(available).toBe(false);
 		});
 	});
 
