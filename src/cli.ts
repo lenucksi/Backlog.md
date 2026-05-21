@@ -597,10 +597,14 @@ taskCmd
 	.option("-l, --labels <labels>")
 	.option("--priority <priority>", "set task priority (high, medium, low)")
 	.option("--plain", "use plain text output after creating")
-	.option("--ac <criteria>", "add acceptance criteria (can be used multiple times)", createMultiValueAccumulator())
+	.option(
+		"--ac <criteria>",
+		"add acceptance criteria (can be used multiple times); use single quotes to prevent shell expansion of backticks",
+		createMultiValueAccumulator(),
+	)
 	.option(
 		"--acceptance-criteria <criteria>",
-		"add acceptance criteria (can be used multiple times)",
+		"add acceptance criteria (can be used multiple times); use single quotes to prevent shell expansion of backticks",
 		createMultiValueAccumulator(),
 	)
 	.option("--dod <item>", "add Definition of Done item (can be used multiple times)", createMultiValueAccumulator())
@@ -788,7 +792,11 @@ taskCmd
 	.option("--plain", "use plain text output after editing")
 	.option("--add-label <label>")
 	.option("--remove-label <label>")
-	.option("--ac <criteria>", "add acceptance criteria (can be used multiple times)", createMultiValueAccumulator())
+	.option(
+		"--ac <criteria>",
+		"add acceptance criteria (can be used multiple times); use single quotes to prevent shell expansion of backticks",
+		createMultiValueAccumulator(),
+	)
 	.option("--dod <item>", "add Definition of Done item (can be used multiple times)", createMultiValueAccumulator())
 	.option(
 		"--remove-ac <index>",
@@ -820,7 +828,10 @@ taskCmd
 		"uncheck Definition of Done item by index (1-based, can be used multiple times)",
 		createMultiValueAccumulator(),
 	)
-	.option("--acceptance-criteria <criteria>", "set acceptance criteria (comma-separated or use multiple times)")
+	.option(
+		"--acceptance-criteria <criteria>",
+		"set acceptance criteria (comma-separated or use multiple times); use single quotes to prevent shell expansion of backticks",
+	)
 	.option("--plan <text>", "set implementation plan")
 	.option("--notes <text>", "set implementation notes (replaces existing)")
 	.option("--final-summary <text>", "set final summary (replaces existing)")
