@@ -1,7 +1,7 @@
 import { rename as moveFile } from "node:fs/promises";
 import type { Core } from "../../../core/backlog.ts";
 import type { Milestone, Task } from "../../../types/index.ts";
-import { BacklogToolError } from "../../errors/mcp-errors.ts";
+import { AppError } from "../../errors/mcp-errors.ts";
 import type { CallToolResult } from "../../types.ts";
 import {
 	buildMilestoneMatchKeys,
@@ -343,7 +343,7 @@ export class MilestoneHandlers {
 	async addMilestone(args: MilestoneAddArgs): Promise<CallToolResult> {
 		const name = normalizeMilestoneName(args.name);
 		if (!name) {
-			throw new BacklogToolError("Milestone name cannot be empty.", "VALIDATION_ERROR");
+			throw AppError.validation("Milestone name cannot be empty.");
 		}
 
 		// Check for duplicates in existing milestone files
@@ -354,9 +354,8 @@ export class MilestoneHandlers {
 			return keySetsIntersect(requestedKeys, milestoneKeys);
 		});
 		if (duplicate) {
-			throw new BacklogToolError(
+			throw AppError.validation(
 				`Milestone alias conflict: "${name}" matches existing milestone "${duplicate.title}" (${duplicate.id}).`,
-				"VALIDATION_ERROR",
 			);
 		}
 
@@ -377,14 +376,14 @@ export class MilestoneHandlers {
 		const fromName = normalizeMilestoneName(args.from);
 		const toName = normalizeMilestoneName(args.to);
 		if (!fromName || !toName) {
-			throw new BacklogToolError("Both 'from' and 'to' milestone names are required.", "VALIDATION_ERROR");
+			throw AppError.validation("Both 'from' and 'to' milestone names are required.");
 		}
 
 		const fileMilestones = await this.listFileMilestones();
 		const archivedMilestones = await this.listArchivedMilestones();
 		const sourceMilestone = findActiveMilestoneByAlias(fromName, fileMilestones);
 		if (!sourceMilestone) {
-			throw new BacklogToolError(`Milestone not found: "${fromName}"`, "NOT_FOUND");
+			throw AppError.notFound(`Milestone not found: "${fromName}"`);
 		}
 		if (toName === sourceMilestone.title.trim()) {
 			return {
@@ -408,9 +407,8 @@ export class MilestoneHandlers {
 				keySetsIntersect(targetKeys, buildMilestoneRecordMatchKeys(milestone)),
 		);
 		if (aliasConflict) {
-			throw new BacklogToolError(
+			throw AppError.validation(
 				`Milestone alias conflict: "${toName}" matches existing milestone "${aliasConflict.title}" (${aliasConflict.id}).`,
-				"VALIDATION_ERROR",
 			);
 		}
 
@@ -426,7 +424,7 @@ export class MilestoneHandlers {
 
 		const renameResult = await this.core.renameMilestone(sourceMilestone.id, toName, false);
 		if (!renameResult.success || !renameResult.milestone) {
-			throw new BacklogToolError(`Failed to rename milestone "${sourceMilestone.title}".`, "INTERNAL_ERROR");
+			throw AppError.internal(`Failed to rename milestone "${sourceMilestone.title}".`);
 		}
 
 		const renamedMilestone = renameResult.milestone;
@@ -454,9 +452,8 @@ export class MilestoneHandlers {
 					rollbackDetails.push(`failed to rollback task milestones for: ${rollbackTaskFailures.join(", ")}`);
 				}
 				const detailSuffix = rollbackDetails.length > 0 ? ` (${rollbackDetails.join("; ")})` : "";
-				throw new BacklogToolError(
+				throw AppError.internal(
 					`Failed to update task milestones after renaming "${sourceMilestone.title}"${detailSuffix}.`,
-					"INTERNAL_ERROR",
 				);
 			}
 		}
@@ -477,10 +474,7 @@ export class MilestoneHandlers {
 				rollbackDetails.push(`failed to rollback task milestones for: ${rollbackTaskFailures.join(", ")}`);
 			}
 			const detailSuffix = rollbackDetails.length > 0 ? ` (${rollbackDetails.join("; ")})` : "";
-			throw new BacklogToolError(
-				`Failed while finalizing milestone rename "${sourceMilestone.title}"${detailSuffix}.`,
-				"INTERNAL_ERROR",
-			);
+			throw AppError.internal(`Failed while finalizing milestone rename "${sourceMilestone.title}"${detailSuffix}.`);
 		}
 
 		const summaryLines: string[] = [
@@ -510,14 +504,14 @@ export class MilestoneHandlers {
 	async removeMilestone(args: MilestoneRemoveArgs): Promise<CallToolResult> {
 		const name = normalizeMilestoneName(args.name);
 		if (!name) {
-			throw new BacklogToolError("Milestone name cannot be empty.", "VALIDATION_ERROR");
+			throw AppError.validation("Milestone name cannot be empty.");
 		}
 
 		const fileMilestones = await this.listFileMilestones();
 		const archivedMilestones = await this.listArchivedMilestones();
 		const sourceMilestone = findActiveMilestoneByAlias(name, fileMilestones);
 		if (!sourceMilestone) {
-			throw new BacklogToolError(`Milestone not found: "${name}"`, "NOT_FOUND");
+			throw AppError.notFound(`Milestone not found: "${name}"`);
 		}
 		const hasTitleCollision = hasMilestoneTitleAliasCollision(sourceMilestone, [
 			...fileMilestones,
@@ -532,13 +526,13 @@ export class MilestoneHandlers {
 
 		if (taskHandling === "reassign") {
 			if (!reassignTo) {
-				throw new BacklogToolError("reassignTo is required when taskHandling is reassign.", "VALIDATION_ERROR");
+				throw AppError.validation("reassignTo is required when taskHandling is reassign.");
 			}
 			if (!targetMilestone) {
-				throw new BacklogToolError(`Target milestone not found: "${reassignTo}"`, "VALIDATION_ERROR");
+				throw AppError.validation(`Target milestone not found: "${reassignTo}"`);
 			}
 			if (milestoneKey(targetMilestone.id) === milestoneKey(sourceMilestone.id)) {
-				throw new BacklogToolError("reassignTo must be different from the removed milestone.", "VALIDATION_ERROR");
+				throw AppError.validation("reassignTo must be different from the removed milestone.");
 			}
 		}
 
@@ -568,9 +562,8 @@ export class MilestoneHandlers {
 				const rollbackFailures = await this.rollbackTaskMilestones(previousMilestones);
 				const detailSuffix =
 					rollbackFailures.length > 0 ? ` (failed rollback for: ${rollbackFailures.join(", ")})` : "";
-				throw new BacklogToolError(
+				throw AppError.internal(
 					`Failed while updating tasks for milestone removal "${sourceMilestone.title}"${detailSuffix}.`,
-					"INTERNAL_ERROR",
 				);
 			}
 		}
@@ -584,10 +577,7 @@ export class MilestoneHandlers {
 					detailSuffix = ` (failed rollback for: ${rollbackFailures.join(", ")})`;
 				}
 			}
-			throw new BacklogToolError(
-				`Failed to archive milestone "${sourceMilestone.title}" before removal.${detailSuffix}`,
-				"INTERNAL_ERROR",
-			);
+			throw AppError.internal(`Failed to archive milestone "${sourceMilestone.title}" before removal.${detailSuffix}`);
 		}
 		try {
 			await this.commitMilestoneMutation(`backlog: Remove milestone ${sourceMilestone.id}`, {
@@ -611,10 +601,7 @@ export class MilestoneHandlers {
 				}
 			}
 			const detailSuffix = rollbackDetails.length > 0 ? ` (${rollbackDetails.join("; ")})` : "";
-			throw new BacklogToolError(
-				`Failed while finalizing milestone removal "${sourceMilestone.title}"${detailSuffix}.`,
-				"INTERNAL_ERROR",
-			);
+			throw AppError.internal(`Failed while finalizing milestone removal "${sourceMilestone.title}"${detailSuffix}.`);
 		}
 
 		const summaryLines: string[] = [`Removed milestone "${sourceMilestone.title}" (${sourceMilestone.id}).`];
@@ -643,12 +630,12 @@ export class MilestoneHandlers {
 	async archiveMilestone(args: MilestoneArchiveArgs): Promise<CallToolResult> {
 		const name = normalizeMilestoneName(args.name);
 		if (!name) {
-			throw new BacklogToolError("Milestone name cannot be empty.", "VALIDATION_ERROR");
+			throw AppError.validation("Milestone name cannot be empty.");
 		}
 
 		const result = await this.core.archiveMilestone(name);
 		if (!result.success) {
-			throw new BacklogToolError(`Milestone not found: "${name}"`, "NOT_FOUND");
+			throw AppError.notFound(`Milestone not found: "${name}"`);
 		}
 
 		const label = result.milestone?.title ?? name;

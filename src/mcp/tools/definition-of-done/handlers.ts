@@ -1,4 +1,4 @@
-import { BacklogToolError } from "../../errors/mcp-errors.ts";
+import { AppError } from "../../errors/mcp-errors.ts";
 import type { McpServer } from "../../server.ts";
 import type { CallToolResult } from "../../types.ts";
 
@@ -26,7 +26,7 @@ export class DefinitionOfDoneHandlers {
 	private async loadConfigOrThrow() {
 		const config = await this.core.filesystem.loadConfig();
 		if (!config) {
-			throw new BacklogToolError("Backlog config not found. Initialize Backlog.md first.", "NOT_FOUND");
+			throw AppError.notFound("Backlog config not found. Initialize Backlog.md first.");
 		}
 		return config;
 	}
