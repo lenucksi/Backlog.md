@@ -1,0 +1,27 @@
+src/web/App.tsx
+  s_6afa9ac45f71bc::t_0c1a4c82896294 549
+  s_6afa9ac45f71bc::t_761cabfde5182e 540-548
+src/cli.ts
+  s_6afa9ac45f71bc::t_2f5ee9ee5ed151 845-846,852
+  ai_agent 620-621,623-626,631,636,843,850
+  s_6afa9ac45f71bc::t_e2de94d954be93 622
+src/web/components/Board.tsx
+  s_6afa9ac45f71bc::t_e17a92721cb114 434-461
+  s_6afa9ac45f71bc::t_5565bfb8b71cbc 618,633
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "e99816b05bbd1f2078348c71a92938a338ec1a36",
+  "prompts": {},
+  "sessions": {
+    "s_6afa9ac45f71bc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b35a1e91ffebp9IwPjvIG0Hu7",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
