@@ -1,0 +1,23 @@
+src/formatters/task-plain-text.ts
+  s_0505b0f0dcc275::t_fad1c4ffc29975 12
+src/utils/task-edit-builder.ts
+  s_0505b0f0dcc275::t_47d836489f5c38 86,92,97
+  s_0505b0f0dcc275::t_9dfbb5728ffa64 20-30
+  s_0505b0f0dcc275::t_e971a4763fd897 106-107,109-110,112-113,115-116,120-121,123-124,126-127,129-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "f637b8369911c5fbd25fd2edadc9ed03893822d5",
+  "prompts": {},
+  "sessions": {
+    "s_0505b0f0dcc275": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b4b0decdffe5g6krDatxO2sce",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
