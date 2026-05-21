@@ -1,0 +1,9 @@
+src/test/tui-interactive-editor-handoff.test.ts
+  ai_agent 114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "cf408538d70bdb513fc2446ba133807c7927f9ab",
+  "prompts": {}
+}
