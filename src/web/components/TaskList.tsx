@@ -564,7 +564,7 @@ const TaskList: React.FC<TaskListProps> = ({
 					const createdA = parseStoredUtcDate(a.createdDate)?.getTime();
 					const createdB = parseStoredUtcDate(b.createdDate)?.getTime();
 					if (createdA === undefined && createdB === undefined) {
-						result = 0;
+						// result already 0 from initialization
 					} else if (createdA === undefined) {
 						result = 1;
 					} else if (createdB === undefined) {

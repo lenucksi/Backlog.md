@@ -230,7 +230,7 @@ export async function viewTaskEnhanced(
 			const tasks = await core.queryTasks();
 			allTasks = tasks.filter((t) => t.id && t.id.trim() !== "" && hasAnyPrefix(t.id));
 		} finally {
-			await loadingScreen?.close();
+			loadingScreen?.close();
 		}
 	}
 
