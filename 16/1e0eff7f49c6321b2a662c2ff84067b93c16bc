@@ -1,0 +1,27 @@
+.dependency-cruiser.cjs
+  s_5010281c16dec7::t_842586d969ec68 34,37
+  s_5010281c16dec7::t_1fa0963eaeb75b 1-33,35-36,38-47
+package.json
+  s_5010281c16dec7::t_fc3871806534ba 39
+.github/workflows/ci.yml
+  s_5010281c16dec7::t_b6f85fcede7bd0 71
+  s_5010281c16dec7::t_bf4590182bfa65 67-70
+knip.json
+  s_5010281c16dec7::t_82d8c0561563b7 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "161e0eff7f49c6321b2a662c2ff84067b93c16bc",
+  "prompts": {},
+  "sessions": {
+    "s_5010281c16dec7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b4ec4ad4ffe8mg1dFrmwrQtgB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
