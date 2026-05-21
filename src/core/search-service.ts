@@ -296,6 +296,22 @@ export class SearchService {
 		return tasks.filter((task) => this.matchesTaskFilters(task, filters));
 	}
 
+	private matchesStatus(task: TaskSearchEntity, statuses: Set<string>): boolean {
+		return statuses.has(task.statusLower);
+	}
+
+	private matchesPriority(task: TaskSearchEntity, priorities: Set<string>): boolean {
+		return task.priorityLower !== undefined && priorities.has(task.priorityLower);
+	}
+
+	private matchesAssignees(task: TaskSearchEntity, assignees: Set<string>): boolean {
+		return task.assigneesLower.some((a) => assignees.has(a));
+	}
+
+	private matchesLabels(task: TaskSearchEntity, labels: Set<string>): boolean {
+		return task.labelsLower.some((l) => labels.has(l));
+	}
+
 	private matchesTaskFilters(task: TaskSearchEntity, filters: NormalizedFilters): boolean {
 		const hasStatuses = filters.statuses && filters.statuses.length > 0;
 		const hasPriorities = filters.priorities && filters.priorities.length > 0;
