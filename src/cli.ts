@@ -617,34 +617,23 @@ taskCmd
 	.option(
 		"--depends-on <taskIds>",
 		"specify task dependencies (comma-separated or use multiple times)",
-		(value, previous) => {
-			const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-			return [...soFar, value];
-		},
+		createMultiValueAccumulator(),
 	)
-	.option("--dep <taskIds>", "specify task dependencies (shortcut for --depends-on)", (value, previous) => {
-		const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-		return [...soFar, value];
-	})
-	.option("--ref <reference>", "add reference URL or file path (can be used multiple times)", (value, previous) => {
-		const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-		return [...soFar, value];
-	})
+	.option("--dep <taskIds>", "specify task dependencies (shortcut for --depends-on)", createMultiValueAccumulator())
+	.option(
+		"--ref <reference>",
+		"add reference URL or file path (can be used multiple times)",
+		createMultiValueAccumulator(),
+	)
 	.option(
 		"--modified-file <path>",
 		"add modified file path from project root (can be used multiple times)",
-		(value, previous) => {
-			const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-			return [...soFar, value];
-		},
+		createMultiValueAccumulator(),
 	)
 	.option(
 		"--doc <documentation>",
 		"add documentation URL or file path (can be used multiple times)",
-		(value, previous) => {
-			const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-			return [...soFar, value];
-		},
+		createMultiValueAccumulator(),
 	)
 	.action(async (title: string | undefined, options) => {
 		await handleTaskCreateCommand(title, options);
@@ -851,31 +840,16 @@ taskCmd
 	.option(
 		"--depends-on <taskIds>",
 		"set task dependencies (comma-separated or use multiple times)",
-		(value, previous) => {
-			const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-			return [...soFar, value];
-		},
+		createMultiValueAccumulator(),
 	)
-	.option("--dep <taskIds>", "set task dependencies (shortcut for --depends-on)", (value, previous) => {
-		const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-		return [...soFar, value];
-	})
-	.option("--ref <reference>", "set references (can be used multiple times)", (value, previous) => {
-		const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-		return [...soFar, value];
-	})
+	.option("--dep <taskIds>", "set task dependencies (shortcut for --depends-on)", createMultiValueAccumulator())
+	.option("--ref <reference>", "set references (can be used multiple times)", createMultiValueAccumulator())
 	.option(
 		"--modified-file <path>",
 		"set modified file paths from project root (can be used multiple times)",
-		(value, previous) => {
-			const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-			return [...soFar, value];
-		},
+		createMultiValueAccumulator(),
 	)
-	.option("--doc <documentation>", "set documentation (can be used multiple times)", (value, previous) => {
-		const soFar = Array.isArray(previous) ? previous : previous ? [previous] : [];
-		return [...soFar, value];
-	})
+	.option("--doc <documentation>", "set documentation (can be used multiple times)", createMultiValueAccumulator())
 	.action(async (taskId: string | undefined, options) => {
 		await handleTaskEditCommand(taskId, options);
 	});

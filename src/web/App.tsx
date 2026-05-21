@@ -537,12 +537,16 @@ function App() {
             }
           />
             <Route path="drafts" element={<DraftsList onEditTask={handleEditTask} onNewDraft={handleNewDraft} />} />
-            <Route path="documentation" element={<DocumentationDetail docs={docs} onRefreshData={refreshData} />} />
-            <Route path="documentation/:id" element={<DocumentationDetail docs={docs} onRefreshData={refreshData} />} />
-            <Route path="documentation/:id/:title" element={<DocumentationDetail docs={docs} onRefreshData={refreshData} />} />
-            <Route path="decisions" element={<DecisionDetail decisions={decisions} onRefreshData={refreshData} />} />
-            <Route path="decisions/:id" element={<DecisionDetail decisions={decisions} onRefreshData={refreshData} />} />
-            <Route path="decisions/:id/:title" element={<DecisionDetail decisions={decisions} onRefreshData={refreshData} />} />
+            {[
+              { path: "documentation", Component: DocumentationDetail, props: { docs } },
+              { path: "documentation/:id", Component: DocumentationDetail, props: { docs } },
+              { path: "documentation/:id/:title", Component: DocumentationDetail, props: { docs } },
+              { path: "decisions", Component: DecisionDetail, props: { decisions } },
+              { path: "decisions/:id", Component: DecisionDetail, props: { decisions } },
+              { path: "decisions/:id/:title", Component: DecisionDetail, props: { decisions } },
+            ].map(({ path, Component, props }) => (
+              <Route key={path} path={path} element={<Component {...props} onRefreshData={refreshData} />} />
+            ))}
             <Route path="statistics" element={<Statistics tasks={tasks} isLoading={isLoading} onEditTask={handleEditTask} projectName={projectName} />} />
             <Route path="settings" element={<Settings />} />
           </Route>

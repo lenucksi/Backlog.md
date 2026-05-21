@@ -431,6 +431,34 @@ const Board: React.FC<BoardProps> = ({
     }));
   };
 
+  const handleDragStart = ({ status: draggedStatus, laneId }: { status: string; laneId?: string | null }) => {
+    setDragSourceStatus(draggedStatus);
+    setDragSourceLane(laneId ?? null);
+  };
+
+  const handleDragEnd = () => {
+    setDragSourceStatus(null);
+    setDragSourceLane(null);
+  };
+
+  const renderTaskColumn = (laneKey: string, status: string, targetMilestone?: string | null) => (
+    <TaskColumn
+      title={status}
+      tasks={getTasksForLane(laneKey, status)}
+      onTaskUpdate={handleTaskUpdate}
+      onEditTask={onEditTask}
+      onTaskReorder={handleTaskReorder}
+      dragSourceStatus={dragSourceStatus}
+      dragSourceLane={dragSourceLane}
+      laneId={laneKey}
+      targetMilestone={targetMilestone ?? null}
+      blockedStatuses={blockedStatuses}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onCleanup={status === terminalStatus ? () => setShowCleanupModal(true) : undefined}
+    />
+  );
+
   if (isLoading && statuses.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -547,7 +575,6 @@ const Board: React.FC<BoardProps> = ({
 
             return (
               <div key={lane.key} className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20 overflow-hidden">
-                {/* Lane header inside the box */}
                 {shouldShowLaneHeaders && (
                   <button
                     type="button"
@@ -570,8 +597,6 @@ const Board: React.FC<BoardProps> = ({
                         {taskCount}
                       </span>
                     </div>
-
-                    {/* Mini progress bar */}
                     <div className="flex items-center gap-2 shrink-0">
                       <div className="w-20 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                         <div
@@ -585,34 +610,12 @@ const Board: React.FC<BoardProps> = ({
                     </div>
                   </button>
                 )}
-
-                {/* Lane content - columns */}
                 {!isCollapsed && (
                   <div className="p-4">
                     <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${statuses.length}, minmax(0, 1fr))` }}>
                       {statuses.map((status) => (
                         <div key={`${lane.key}-${status}`} className="min-w-0">
-                          <TaskColumn
-                            title={status}
-                            tasks={getTasksForLane(lane.key, status)}
-                            onTaskUpdate={handleTaskUpdate}
-                            onEditTask={onEditTask}
-                            onTaskReorder={handleTaskReorder}
-                            dragSourceStatus={dragSourceStatus}
-                            dragSourceLane={dragSourceLane}
-                            laneId={lane.key}
-                            targetMilestone={lane.milestone ?? null}
-                            blockedStatuses={blockedStatuses}
-                            onDragStart={({ status: draggedStatus, laneId }) => {
-                              setDragSourceStatus(draggedStatus);
-                              setDragSourceLane(laneId ?? null);
-                            }}
-                            onDragEnd={() => {
-                              setDragSourceStatus(null);
-                              setDragSourceLane(null);
-                            }}
-                            onCleanup={status === terminalStatus ? () => setShowCleanupModal(true) : undefined}
-                          />
+                          {renderTaskColumn(lane.key, status, lane.milestone)}
                         </div>
                       ))}
                     </div>
@@ -627,26 +630,7 @@ const Board: React.FC<BoardProps> = ({
           <div className="flex flex-row flex-nowrap gap-4 w-full">
             {statuses.map((status) => (
               <div key={status} className="flex-1 min-w-[16rem]">
-                <TaskColumn
-                  title={status}
-                  tasks={getTasksForLane(DEFAULT_LANE_KEY, status)}
-                  onTaskUpdate={handleTaskUpdate}
-                  onEditTask={onEditTask}
-                  onTaskReorder={handleTaskReorder}
-                  dragSourceStatus={dragSourceStatus}
-                  dragSourceLane={dragSourceLane}
-                  laneId={DEFAULT_LANE_KEY}
-                  blockedStatuses={blockedStatuses}
-                  onDragStart={({ status: draggedStatus, laneId }) => {
-                    setDragSourceStatus(draggedStatus);
-                    setDragSourceLane(laneId ?? null);
-                  }}
-                  onDragEnd={() => {
-                    setDragSourceStatus(null);
-                    setDragSourceLane(null);
-                  }}
-                  onCleanup={status === terminalStatus ? () => setShowCleanupModal(true) : undefined}
-                />
+                {renderTaskColumn(DEFAULT_LANE_KEY, status)}
               </div>
             ))}
           </div>
