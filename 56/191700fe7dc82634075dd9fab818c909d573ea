@@ -1,0 +1,24 @@
+src/test/editor.test.ts
+  s_196820e383802a::t_a5ec002e6df402 5
+  s_196820e383802a::t_5ceab965d9e799 131-135
+  s_196820e383802a::t_8753d7e3ba4c6e 8-25
+src/utils/editor.ts
+  s_196820e383802a::t_75cef90572be3b 45,50,52
+  s_196820e383802a::t_3046d41a76ae55 8-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "56191700fe7dc82634075dd9fab818c909d573ea",
+  "prompts": {},
+  "sessions": {
+    "s_196820e383802a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b31ec33cffe5iaIbSFNxeaS0B",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
