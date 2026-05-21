@@ -135,12 +135,12 @@ describe("classifyPath", () => {
 describe("bashTargetsProtected", () => {
 	test("blocks cat on task file", () => {
 		const p = mkTaskFile("back-123-title.md")
-		expect(bashTargetsProtected(`cat ${p}`, guardConfig.dirs)).toBe(p)
+		expect(bashTargetsProtected(`cat ${p}`, guardConfig.dirs)).toBe(p.replace(/\\/g, "/"))
 	})
 
 	test("blocks grep on task directory", () => {
 		const tasksDir = join(tmpDir, "backlog", "tasks")
-		expect(bashTargetsProtected(`grep -r "status" ${tasksDir}`, guardConfig.dirs)).toBe(tasksDir)
+		expect(bashTargetsProtected(`grep -r "status" ${tasksDir}`, guardConfig.dirs)).toBe(tasksDir.replace(/\\/g, "/"))
 	})
 
 	test("does not block pipeline grep", () => {
@@ -150,7 +150,7 @@ describe("bashTargetsProtected", () => {
 
 	test("blocks find on backlog directory", () => {
 		const backlog = join(tmpDir, "backlog")
-		expect(bashTargetsProtected(`find ${backlog} -name "*.md"`, guardConfig.dirs)).toBe(backlog)
+		expect(bashTargetsProtected(`find ${backlog} -name "*.md"`, guardConfig.dirs)).toBe(backlog.replace(/\\/g, "/"))
 	})
 })
 
