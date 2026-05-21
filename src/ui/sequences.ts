@@ -419,7 +419,7 @@ export async function runSequencesView(
 		}
 		// Reload and rerender
 		const tasksNew = await core.queryTasks();
-		const cfg = await core.fs.loadConfig();
+		const cfg = await core.filesystem.loadConfig();
 		const seqStatuses = cfg?.statuses ?? [...DEFAULT_STATUSES];
 		const active = tasksNew.filter((t) => !isTerminalStatus(t.status, seqStatuses, cfg?.terminalStatuses));
 		const { computeSequences: recompute } = await import("../core/sequences.ts");

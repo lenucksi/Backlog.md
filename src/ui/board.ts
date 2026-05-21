@@ -1055,7 +1055,7 @@ export async function renderBoardTui(
 				if (confirmed) {
 					try {
 						const core = new Core(process.cwd(), { enableWatchers: true });
-						const config = await core.fs.loadConfig();
+						const config = await core.filesystem.loadConfig();
 						const success = await core.completeTask(t.id, config?.autoCommit ?? false);
 						if (success) {
 							currentTasks = currentTasks.filter((task) => task.id !== t.id);
@@ -1085,7 +1085,7 @@ export async function renderBoardTui(
 				if (confirmed) {
 					try {
 						const core = new Core(process.cwd(), { enableWatchers: true });
-						const config = await core.fs.loadConfig();
+						const config = await core.filesystem.loadConfig();
 						const success = await core.archiveTask(t.id, config?.autoCommit ?? false);
 						if (success) {
 							currentTasks = currentTasks.filter((task) => task.id !== t.id);
@@ -1180,7 +1180,7 @@ export async function renderBoardTui(
 
 			try {
 				const core = new Core(process.cwd(), { enableWatchers: true });
-				const config = await core.fs.loadConfig();
+				const config = await core.filesystem.loadConfig();
 
 				// Get the final state from the projection
 				const projectedData = getProjectedColumns(currentTasks, moveOp);
@@ -1334,7 +1334,7 @@ export async function renderBoardTui(
 			if (confirmed) {
 				try {
 					const core = new Core(process.cwd(), { enableWatchers: true });
-					const config = await core.fs.loadConfig();
+					const config = await core.filesystem.loadConfig();
 					const success = await core.completeTask(task.id, config?.autoCommit ?? false);
 
 					if (success) {
@@ -1370,7 +1370,7 @@ export async function renderBoardTui(
 			if (confirmed) {
 				try {
 					const core = new Core(process.cwd(), { enableWatchers: true });
-					const config = await core.fs.loadConfig();
+					const config = await core.filesystem.loadConfig();
 					const success = await core.archiveTask(task.id, config?.autoCommit ?? false);
 
 					if (success) {

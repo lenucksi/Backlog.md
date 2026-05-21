@@ -607,6 +607,9 @@ function filterTasksWithCompleted(
 }
 
 export class Core {
+	/**
+	 * @deprecated Use `core.filesystem` instead. This field will be removed in a future version.
+	 */
 	public fs: FileSystem;
 	public git: GitOperations;
 	private contentStore?: ContentStore;

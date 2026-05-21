@@ -38,7 +38,7 @@ export async function runOverviewCommand(core: Core): Promise<void> {
 		const totalTime = Math.round(performance.now() - startTime);
 		console.log(`\nPerformance summary: Total time ${totalTime}ms (stats calculation: ${statsTime}ms)`);
 
-		const config = await core.fs.loadConfig();
+		const config = await core.filesystem.loadConfig();
 		await renderOverviewTui(statistics, config?.projectName || "Project");
 	} catch (error) {
 		loadingScreen?.close();

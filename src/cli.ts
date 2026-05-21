@@ -863,7 +863,7 @@ taskCmd
 	.action(async (taskId: string, options) => {
 		const cwd = await requireProjectRoot();
 		const core = new Core(cwd);
-		const localTasks = await core.fs.listTasks();
+		const localTasks = await core.filesystem.listTasks();
 		const task = await core.getTaskWithSubtasks(taskId, localTasks);
 		if (!task) {
 			console.error(`Task ${taskId} not found.`);
@@ -939,7 +939,7 @@ taskCmd
 			return;
 		}
 
-		const localTasks = await core.fs.listTasks();
+		const localTasks = await core.filesystem.listTasks();
 		const task = await core.getTaskWithSubtasks(taskId, localTasks);
 		if (!task) {
 			console.error(`Task ${taskId} not found.`);
@@ -1727,7 +1727,7 @@ sequenceCmd
 		const cwd = await requireProjectRoot();
 		const core = new Core(cwd);
 		const tasks = await core.queryTasks();
-		const config = await core.fs.loadConfig();
+		const config = await core.filesystem.loadConfig();
 		const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
 		const activeTasks = tasks.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 		const { unsequenced, sequences } = computeSequences(activeTasks);

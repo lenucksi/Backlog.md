@@ -1129,7 +1129,7 @@ export async function viewTaskEnhanced(
 		}
 
 		try {
-			const config = await core.fs.loadConfig();
+			const config = await core.filesystem.loadConfig();
 			const success =
 				action === "complete"
 					? await core.completeTask(task.id, config?.autoCommit ?? false)
