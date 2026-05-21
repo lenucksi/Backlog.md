@@ -133,12 +133,7 @@ export class ApiClient {
 		return response.json();
 	}
 
-	private async sendJson<T>(
-		url: string,
-		method: string,
-		body: unknown,
-		errorMessage: string,
-	): Promise<T> {
+	private async sendJson<T>(url: string, method: string, body: unknown, errorMessage: string): Promise<T> {
 		const response = await fetch(url, {
 			method,
 			headers: { "Content-Type": "application/json" },
@@ -238,7 +233,7 @@ export class ApiClient {
 	}
 
 	async fetchTask(id: string): Promise<Task> {
-		return this.fetchJson<Task>(`${API_BASE}/task/${id}`);
+		return this.fetchJson<Task>(`${API_BASE}/tasks/${id}`);
 	}
 
 	async createTask(task: Omit<Task, "id" | "createdDate">): Promise<Task> {
@@ -319,25 +314,14 @@ export class ApiClient {
 	}
 
 	async fetchDoc(filename: string): Promise<Document> {
-		return this.getJson<Document>(
-			`${API_BASE}/docs/${encodeURIComponent(filename)}`,
-			"Failed to fetch document",
-		);
+		return this.getJson<Document>(`${API_BASE}/docs/${encodeURIComponent(filename)}`, "Failed to fetch document");
 	}
 
 	async fetchDocument(id: string): Promise<Document> {
-		return this.getJson<Document>(
-			`${API_BASE}/doc/${encodeURIComponent(id)}`,
-			"Failed to fetch document",
-		);
+		return this.getJson<Document>(`${API_BASE}/docs/${encodeURIComponent(id)}`, "Failed to fetch document");
 	}
 
-	async updateDoc(
-		filename: string,
-		content: string,
-		title?: string,
-		path?: string | null,
-	): Promise<Document> {
+	async updateDoc(filename: string, content: string, title?: string, path?: string | null): Promise<Document> {
 		const payload: Record<string, unknown> = { content };
 		if (typeof title === "string") payload.title = title;
 		if (path !== undefined) payload.path = path;
@@ -349,11 +333,7 @@ export class ApiClient {
 		);
 	}
 
-	async createDoc(
-		filename: string,
-		content: string,
-		path?: string,
-	): Promise<Document & { success?: boolean }> {
+	async createDoc(filename: string, content: string, path?: string): Promise<Document & { success?: boolean }> {
 		return this.sendJson<Document & { success?: boolean }>(
 			`${API_BASE}/docs`,
 			"POST",
@@ -367,17 +347,11 @@ export class ApiClient {
 	}
 
 	async fetchDecision(id: string): Promise<Decision> {
-		return this.getJson<Decision>(
-			`${API_BASE}/decisions/${encodeURIComponent(id)}`,
-			"Failed to fetch decision",
-		);
+		return this.getJson<Decision>(`${API_BASE}/decisions/${encodeURIComponent(id)}`, "Failed to fetch decision");
 	}
 
 	async fetchDecisionData(id: string): Promise<Decision> {
-		return this.getJson<Decision>(
-			`${API_BASE}/decision/${encodeURIComponent(id)}`,
-			"Failed to fetch decision",
-		);
+		return this.getJson<Decision>(`${API_BASE}/decisions/${encodeURIComponent(id)}`, "Failed to fetch decision");
 	}
 
 	async updateDecision(id: string, content: string): Promise<void> {
@@ -394,12 +368,7 @@ export class ApiClient {
 	}
 
 	async createDecision(title: string): Promise<Decision> {
-		return this.sendJson<Decision>(
-			`${API_BASE}/decisions`,
-			"POST",
-			{ title },
-			"Failed to create decision",
-		);
+		return this.sendJson<Decision>(`${API_BASE}/decisions`, "POST", { title }, "Failed to create decision");
 	}
 
 	async fetchMilestones(): Promise<Milestone[]> {
@@ -407,17 +376,11 @@ export class ApiClient {
 	}
 
 	async fetchArchivedMilestones(): Promise<Milestone[]> {
-		return this.getJson<Milestone[]>(
-			`${API_BASE}/milestones/archived`,
-			"Failed to fetch archived milestones",
-		);
+		return this.getJson<Milestone[]>(`${API_BASE}/milestones/archived`, "Failed to fetch archived milestones");
 	}
 
 	async fetchMilestone(id: string): Promise<Milestone> {
-		return this.getJson<Milestone>(
-			`${API_BASE}/milestones/${encodeURIComponent(id)}`,
-			"Failed to fetch milestone",
-		);
+		return this.getJson<Milestone>(`${API_BASE}/milestones/${encodeURIComponent(id)}`, "Failed to fetch milestone");
 	}
 
 	async createMilestone(title: string, description?: string): Promise<Milestone> {
