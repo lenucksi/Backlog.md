@@ -16,8 +16,8 @@ interface Token {
 	malformed: boolean;
 }
 
-const PRIORITIES: SearchPriorityFilter[] = ["high", "medium", "low"];
-const RESULT_TYPES: SearchResultType[] = ["task", "document", "decision"];
+const PRIORITIES: readonly SearchPriorityFilter[] = ["high", "medium", "low"];
+const RESULT_TYPES: readonly SearchResultType[] = ["task", "document", "decision"];
 
 export function parseSearchCommandQuery(input: string): ParsedSearchCommandQuery {
 	const result: ParsedSearchCommandQuery = { query: "" };
@@ -31,6 +31,24 @@ export function parseSearchCommandQuery(input: string): ParsedSearchCommandQuery
 
 	result.query = queryParts.join(" ").trim();
 	return result;
+}
+
+function isIn<T extends string>(allowed: readonly T[], value: string): value is T {
+	return allowed.includes(value as T);
+}
+
+function appendFilterValue<T extends string>(current: T | T[] | undefined, value: T): T | T[] {
+	if (!current) {
+		return value;
+	}
+	if (Array.isArray(current)) {
+		return [...current, value];
+	}
+	return [current, value];
+}
+
+function appendToArray<T>(arr: T[] | undefined, value: T): T[] {
+	return [...(arr ?? []), value];
 }
 
 function applyToken(token: Token, result: ParsedSearchCommandQuery): boolean {
@@ -54,36 +72,72 @@ function applyToken(token: Token, result: ParsedSearchCommandQuery): boolean {
 			result.status = appendFilterValue(result.status, value);
 			return true;
 		case "priority": {
-			const priority = value.toLowerCase();
-			if (!isSearchPriority(priority)) {
+			const p = value.toLowerCase();
+			if (!isIn(PRIORITIES, p)) {
 				return false;
 			}
-			result.priority = appendFilterValue(result.priority, priority);
+			result.priority = appendFilterValue(result.priority, p);
 			return true;
 		}
 		case "label":
 		case "labels":
-			result.labels = [...(result.labels ?? []), value];
+			result.labels = appendToArray(result.labels, value);
 			return true;
 		case "assignee":
 			result.assignee = appendFilterValue(result.assignee, value);
 			return true;
 		case "type":
 		case "types": {
-			const type = value.toLowerCase();
-			if (!isSearchResultType(type)) {
+			const t = value.toLowerCase();
+			if (!isIn(RESULT_TYPES, t)) {
 				return false;
 			}
-			result.types = [...(result.types ?? []), type];
+			result.types = appendToArray(result.types, t);
 			return true;
 		}
 		case "modifiedfile":
 		case "modifiedfiles":
-			result.modifiedFiles = [...(result.modifiedFiles ?? []), value];
+			result.modifiedFiles = appendToArray(result.modifiedFiles, value);
 			return true;
 		default:
 			return false;
 	}
+}
+
+function readToken(input: string, start: number): { value: string; endIndex: number; malformed: boolean } {
+	let index = start;
+	let value = "";
+	let malformed = false;
+
+	while (index < input.length && !/\s/.test(input[index] ?? "")) {
+		const char = input[index];
+		if (char === '"') {
+			index += 1;
+			const quotedStart = index;
+			while (index < input.length && input[index] !== '"') {
+				index += 1;
+			}
+
+			if (index >= input.length) {
+				malformed = true;
+				value += input.slice(quotedStart);
+				break;
+			}
+
+			value += input.slice(quotedStart, index);
+			index += 1;
+			continue;
+		}
+
+		value += char;
+		index += 1;
+	}
+
+	if (malformed) {
+		index = input.length;
+	}
+
+	return { value, endIndex: index, malformed };
 }
 
 function tokenize(input: string): Token[] {
@@ -100,61 +154,19 @@ function tokenize(input: string): Token[] {
 		}
 
 		const start = index;
-		let value = "";
-		let malformed = false;
-
-		while (index < input.length && !/\s/.test(input[index] ?? "")) {
-			const char = input[index];
-			if (char === '"') {
-				index += 1;
-				const quotedStart = index;
-				while (index < input.length && input[index] !== '"') {
-					index += 1;
-				}
-
-				if (index >= input.length) {
-					malformed = true;
-					value += input.slice(quotedStart);
-					break;
-				}
-
-				value += input.slice(quotedStart, index);
-				index += 1;
-				continue;
-			}
-
-			value += char;
-			index += 1;
-		}
-
-		if (malformed) {
-			index = input.length;
-		}
+		const { value, endIndex, malformed } = readToken(input, index);
+		index = endIndex;
 
 		tokens.push({
-			raw: input.slice(start, index),
+			raw: input.slice(start, endIndex),
 			value,
 			malformed,
 		});
+
+		if (malformed) {
+			break;
+		}
 	}
 
 	return tokens;
-}
-
-function appendFilterValue<T extends string>(current: T | T[] | undefined, value: T): T | T[] {
-	if (!current) {
-		return value;
-	}
-	if (Array.isArray(current)) {
-		return [...current, value];
-	}
-	return [current, value];
-}
-
-function isSearchPriority(value: string): value is SearchPriorityFilter {
-	return PRIORITIES.includes(value as SearchPriorityFilter);
-}
-
-function isSearchResultType(value: string): value is SearchResultType {
-	return RESULT_TYPES.includes(value as SearchResultType);
 }

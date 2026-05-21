@@ -8,14 +8,6 @@ function sanitizeStringArray(values: string[] | undefined): string[] | undefined
 	return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function sanitizeAppend(values: string[] | undefined): string[] | undefined {
-	const sanitized = sanitizeStringArray(values);
-	if (!sanitized) {
-		return undefined;
-	}
-	return sanitized;
-}
-
 function toAcceptanceCriteriaEntries(values: string[] | undefined) {
 	if (!values) return undefined;
 	const trimmed = values.map((value) => String(value).trim()).filter((value) => value.length > 0);
@@ -23,6 +15,19 @@ function toAcceptanceCriteriaEntries(values: string[] | undefined) {
 		return undefined;
 	}
 	return trimmed.map((text, index) => ({ text, checked: false, index: index + 1 }));
+}
+
+function collectChecklistAdditions(items: string[] | undefined): { text: string; checked: false }[] | undefined {
+	if (!items?.length) return undefined;
+	const additions = items
+		.map((text) => String(text).trim())
+		.filter((text) => text.length > 0)
+		.map((text) => ({ text, checked: false }));
+	return additions.length > 0 ? additions : undefined;
+}
+
+function collectIndexArray(items: number[] | undefined): number[] | undefined {
+	return items?.length ? [...items] : undefined;
 }
 
 function applyScalarFields(args: TaskEditArgs, target: TaskUpdateInput): void {
@@ -78,18 +83,18 @@ function applyStringArrayFields(args: TaskEditArgs, target: TaskUpdateInput): vo
 function applyTextSectionFields(args: TaskEditArgs, target: TaskUpdateInput): void {
 	const planSet = args.planSet ?? args.implementationPlan;
 	if (typeof planSet === "string") target.implementationPlan = planSet;
-	const planAppends = sanitizeAppend(args.planAppend);
+	const planAppends = sanitizeStringArray(args.planAppend);
 	if (planAppends) target.appendImplementationPlan = planAppends;
 	if (args.planClear) target.clearImplementationPlan = true;
 
 	const notesSet = args.notesSet ?? args.implementationNotes;
 	if (typeof notesSet === "string") target.implementationNotes = notesSet;
-	const notesAppends = sanitizeAppend(args.notesAppend);
+	const notesAppends = sanitizeStringArray(args.notesAppend);
 	if (notesAppends) target.appendImplementationNotes = notesAppends;
 	if (args.notesClear) target.clearImplementationNotes = true;
 
 	if (typeof args.finalSummary === "string") target.finalSummary = args.finalSummary;
-	const summaryAppends = sanitizeAppend(args.finalSummaryAppend);
+	const summaryAppends = sanitizeStringArray(args.finalSummaryAppend);
 	if (summaryAppends) target.appendFinalSummary = summaryAppends;
 	if (args.finalSummaryClear) target.clearFinalSummary = true;
 }
@@ -98,47 +103,31 @@ function applyAcceptanceCriteriaFields(args: TaskEditArgs, target: TaskUpdateInp
 	const criteriaSet = toAcceptanceCriteriaEntries(args.acceptanceCriteriaSet);
 	if (criteriaSet) target.acceptanceCriteria = criteriaSet;
 
-	if (Array.isArray(args.acceptanceCriteriaAdd) && args.acceptanceCriteriaAdd.length > 0) {
-		const additions = args.acceptanceCriteriaAdd
-			.map((text) => String(text).trim())
-			.filter((text) => text.length > 0)
-			.map((text) => ({ text, checked: false }));
-		if (additions.length > 0) target.addAcceptanceCriteria = additions;
-	}
+	const addAc = collectChecklistAdditions(args.acceptanceCriteriaAdd);
+	if (addAc) target.addAcceptanceCriteria = addAc;
 
-	if (Array.isArray(args.acceptanceCriteriaRemove) && args.acceptanceCriteriaRemove.length > 0) {
-		target.removeAcceptanceCriteria = [...args.acceptanceCriteriaRemove];
-	}
+	const removeAc = collectIndexArray(args.acceptanceCriteriaRemove);
+	if (removeAc) target.removeAcceptanceCriteria = removeAc;
 
-	if (Array.isArray(args.acceptanceCriteriaCheck) && args.acceptanceCriteriaCheck.length > 0) {
-		target.checkAcceptanceCriteria = [...args.acceptanceCriteriaCheck];
-	}
+	const checkAc = collectIndexArray(args.acceptanceCriteriaCheck);
+	if (checkAc) target.checkAcceptanceCriteria = checkAc;
 
-	if (Array.isArray(args.acceptanceCriteriaUncheck) && args.acceptanceCriteriaUncheck.length > 0) {
-		target.uncheckAcceptanceCriteria = [...args.acceptanceCriteriaUncheck];
-	}
+	const uncheckAc = collectIndexArray(args.acceptanceCriteriaUncheck);
+	if (uncheckAc) target.uncheckAcceptanceCriteria = uncheckAc;
 }
 
 function applyDefinitionOfDoneFields(args: TaskEditArgs, target: TaskUpdateInput): void {
-	if (Array.isArray(args.definitionOfDoneAdd) && args.definitionOfDoneAdd.length > 0) {
-		const additions = args.definitionOfDoneAdd
-			.map((text) => String(text).trim())
-			.filter((text) => text.length > 0)
-			.map((text) => ({ text, checked: false }));
-		if (additions.length > 0) target.addDefinitionOfDone = additions;
-	}
+	const addDod = collectChecklistAdditions(args.definitionOfDoneAdd);
+	if (addDod) target.addDefinitionOfDone = addDod;
 
-	if (Array.isArray(args.definitionOfDoneRemove) && args.definitionOfDoneRemove.length > 0) {
-		target.removeDefinitionOfDone = [...args.definitionOfDoneRemove];
-	}
+	const removeDod = collectIndexArray(args.definitionOfDoneRemove);
+	if (removeDod) target.removeDefinitionOfDone = removeDod;
 
-	if (Array.isArray(args.definitionOfDoneCheck) && args.definitionOfDoneCheck.length > 0) {
-		target.checkDefinitionOfDone = [...args.definitionOfDoneCheck];
-	}
+	const checkDod = collectIndexArray(args.definitionOfDoneCheck);
+	if (checkDod) target.checkDefinitionOfDone = checkDod;
 
-	if (Array.isArray(args.definitionOfDoneUncheck) && args.definitionOfDoneUncheck.length > 0) {
-		target.uncheckDefinitionOfDone = [...args.definitionOfDoneUncheck];
-	}
+	const uncheckDod = collectIndexArray(args.definitionOfDoneUncheck);
+	if (uncheckDod) target.uncheckDefinitionOfDone = uncheckDod;
 }
 
 export function buildTaskUpdateInput(args: TaskEditArgs): TaskUpdateInput {

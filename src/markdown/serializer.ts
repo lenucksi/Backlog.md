@@ -1,6 +1,7 @@
 import matter from "gray-matter";
 import type { AcceptanceCriterion, Decision, Document, Task } from "../types/index.ts";
 import { normalizeAssignee } from "../utils/assignee.ts";
+import type { StructuredSectionValues } from "./structured-sections.ts";
 import {
 	AcceptanceCriteriaManager,
 	DefinitionOfDoneManager,
@@ -13,11 +14,7 @@ function normalizeOptionalText(value: string | undefined): string | undefined {
 	return trimmed ? trimmed : undefined;
 }
 
-function sectionChanged(
-	rawContent: string,
-	key: keyof ReturnType<typeof getStructuredSections>,
-	nextValue: string,
-): boolean {
+function sectionChanged(rawContent: string, key: keyof StructuredSectionValues, nextValue: string): boolean {
 	const existing = normalizeOptionalText(getStructuredSections(rawContent)[key]);
 	return existing !== normalizeOptionalText(nextValue);
 }
@@ -28,6 +25,29 @@ function checklistItemsEqual(left: AcceptanceCriterion[], right: AcceptanceCrite
 		const other = right[index];
 		return other?.index === item.index && other.checked === item.checked && other.text === item.text;
 	});
+}
+
+function updateSection(content: string, overrides: Partial<StructuredSectionValues>): string {
+	const sections = getStructuredSections(content);
+	return updateStructuredSections(content, {
+		description: sections.description ?? "",
+		implementationPlan: sections.implementationPlan ?? "",
+		implementationNotes: sections.implementationNotes ?? "",
+		finalSummary: sections.finalSummary ?? "",
+		...overrides,
+	});
+}
+
+function applyStringSection(
+	content: string,
+	rawContent: string,
+	key: keyof StructuredSectionValues,
+	value: string | undefined,
+	updater: (body: string, value: string) => string,
+): string {
+	if (typeof value !== "string") return content;
+	if (!sectionChanged(rawContent, key, value)) return content;
+	return updater(content, value);
 }
 
 export function serializeTask(task: Task): string {
@@ -82,21 +102,21 @@ export function serializeTask(task: Task): string {
 			contentBody = DefinitionOfDoneManager.updateContent(contentBody, task.definitionOfDoneItems);
 		}
 	}
-	if (
-		typeof task.implementationPlan === "string" &&
-		sectionChanged(rawContent, "implementationPlan", task.implementationPlan)
-	) {
-		contentBody = updateTaskImplementationPlan(contentBody, task.implementationPlan);
-	}
-	if (
-		typeof task.implementationNotes === "string" &&
-		sectionChanged(rawContent, "implementationNotes", task.implementationNotes)
-	) {
-		contentBody = updateTaskImplementationNotes(contentBody, task.implementationNotes);
-	}
-	if (typeof task.finalSummary === "string" && sectionChanged(rawContent, "finalSummary", task.finalSummary)) {
-		contentBody = updateTaskFinalSummary(contentBody, task.finalSummary);
-	}
+	contentBody = applyStringSection(
+		contentBody,
+		rawContent,
+		"implementationPlan",
+		task.implementationPlan,
+		updateTaskImplementationPlan,
+	);
+	contentBody = applyStringSection(
+		contentBody,
+		rawContent,
+		"implementationNotes",
+		task.implementationNotes,
+		updateTaskImplementationNotes,
+	);
+	contentBody = applyStringSection(contentBody, rawContent, "finalSummary", task.finalSummary, updateTaskFinalSummary);
 
 	const serialized = matter.stringify(contentBody, frontmatter);
 	// Ensure there's a blank line between frontmatter and content
@@ -158,33 +178,15 @@ export function updateTaskAcceptanceCriteria(content: string, criteria: string[]
 }
 
 export function updateTaskImplementationPlan(content: string, plan: string): string {
-	const sections = getStructuredSections(content);
-	return updateStructuredSections(content, {
-		description: sections.description ?? "",
-		implementationPlan: plan,
-		implementationNotes: sections.implementationNotes ?? "",
-		finalSummary: sections.finalSummary ?? "",
-	});
+	return updateSection(content, { implementationPlan: plan });
 }
 
 export function updateTaskImplementationNotes(content: string, notes: string): string {
-	const sections = getStructuredSections(content);
-	return updateStructuredSections(content, {
-		description: sections.description ?? "",
-		implementationPlan: sections.implementationPlan ?? "",
-		implementationNotes: notes,
-		finalSummary: sections.finalSummary ?? "",
-	});
+	return updateSection(content, { implementationNotes: notes });
 }
 
 export function updateTaskFinalSummary(content: string, summary: string): string {
-	const sections = getStructuredSections(content);
-	return updateStructuredSections(content, {
-		description: sections.description ?? "",
-		implementationPlan: sections.implementationPlan ?? "",
-		implementationNotes: sections.implementationNotes ?? "",
-		finalSummary: summary,
-	});
+	return updateSection(content, { finalSummary: summary });
 }
 
 export function appendTaskImplementationNotes(content: string, notesChunks: string | string[]): string {
@@ -194,24 +196,12 @@ export function appendTaskImplementationNotes(content: string, notesChunks: stri
 		.map((c) => c.trim())
 		.filter(Boolean);
 
-	const sections = getStructuredSections(content);
 	const appendedBlock = chunks.join("\n\n");
-	const existingNotes = sections.implementationNotes?.trim();
+	const existingNotes = getStructuredSections(content).implementationNotes?.trim();
 	const combined = existingNotes ? `${existingNotes}\n\n${appendedBlock}` : appendedBlock;
-	return updateStructuredSections(content, {
-		description: sections.description ?? "",
-		implementationPlan: sections.implementationPlan ?? "",
-		implementationNotes: combined,
-		finalSummary: sections.finalSummary ?? "",
-	});
+	return updateSection(content, { implementationNotes: combined });
 }
 
 export function updateTaskDescription(content: string, description: string): string {
-	const sections = getStructuredSections(content);
-	return updateStructuredSections(content, {
-		description,
-		implementationPlan: sections.implementationPlan ?? "",
-		implementationNotes: sections.implementationNotes ?? "",
-		finalSummary: sections.finalSummary ?? "",
-	});
+	return updateSection(content, { description });
 }

@@ -9,9 +9,7 @@ export type TaskPlainTextOptions = {
 };
 
 export function formatDateForDisplay(dateStr: string): string {
-	if (!dateStr) return "";
-	const hasTime = dateStr.includes(" ") || dateStr.includes("T");
-	return hasTime ? dateStr : dateStr;
+	return dateStr || "";
 }
 
 function buildChecklistItems(items: Task["acceptanceCriteriaItems"]): ChecklistItem[] {
