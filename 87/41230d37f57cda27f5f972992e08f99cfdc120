@@ -1,0 +1,39 @@
+"backlog/tasks/back-492.13 - TechDebt-Reduce-complexity-in-MCP-task-handlers-and-search-service.md"
+  ai_agent 1-41
+"backlog/tasks/back-492 - Tech-Debt-Research-—-audit-codebase-for-inconsistencies-and-produce-prioritized-reduction-plan.md"
+  ai_agent 10,60-79
+"backlog/tasks/back-509 - Coverage-Push-find-backlog-root.ts-assignee.ts-editor.ts-über-85.md"
+  ai_agent 1-42
+"backlog/tasks/back-492.15 - TechDebt-Reduce-complexity-in-web-lib-api.ts-and-core-statistics.ts.md"
+  ai_agent 1-41
+"backlog/tasks/back-492.14 - TechDebt-Small-complexity-wins-across-5-files-CC-16-20.md"
+  ai_agent 1-47
+"backlog/tasks/back-492.16 - TechDebt-Reduce-complexity-in-markdown-serializer.ts-and-search-command-query.ts.md"
+  ai_agent 1-43
+"backlog/tasks/back-511 - Coverage-Kleine-0-Files-auf-≥60-bringen.md"
+  ai_agent 1-47
+"backlog/tasks/back-492.12 - TechDebt-Reduce-function-nesting-depth-in-board.ts-S2004.md"
+  ai_agent 1-38
+"backlog/tasks/back-492.9 - TechDebt-Reduce-cognitive-complexity-in-backlog.ts-and-init.ts.md"
+  ai_agent 1-43
+"backlog/tasks/back-512 - Coverage-Grosse-0-TUI-Files-initial-testen.md"
+  ai_agent 1-46
+"backlog/tasks/back-492.10 - TechDebt-Refactor-server-index.ts-routing-and-handler-registration.md"
+  ai_agent 1-39
+"backlog/tasks/back-492.17 - TechDebt-Reduce-duplication-in-cli.ts-and-board.ts.md"
+  ai_agent 1-43
+"backlog/tasks/back-492.8 - TechDebt-Extract-CLI-command-handlers-from-cli.ts-into-separate-modules.md"
+  ai_agent 1-41
+"backlog/tasks/back-492.11 - TechDebt-Simplify-task-edit-builder-and-task-plain-text-formatters.md"
+  ai_agent 1-40
+"backlog/tasks/back-492.18 - TechDebt-Fix-23-SonarQube-bugs.md"
+  ai_agent 1-39
+"backlog/tasks/back-510 - Coverage-Push-task-loader.ts-TaskCard.tsx-über-85.md"
+  ai_agent 1-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "8741230d37f57cda27f5f972992e08f99cfdc120",
+  "prompts": {}
+}
