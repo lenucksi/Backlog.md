@@ -46,6 +46,7 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 			"",
 			`if (markerFile) appendFileSync(markerFile, "started\\n");`,
 			`if (taskFile) appendFileSync(taskFile, "\\nEdited by external editor\\n");`,
+			'process.stdout.write("__EDITOR_READY__\\n");',
 			"setTimeout(() => process.exit(0), 200);",
 		].join("\n"),
 	);
@@ -81,18 +82,6 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 	await core.createTask(task, false);
 
 	// Use expect to drive the TUI via a real PTY (node-pty is incompatible with Bun)
-	// expect creates a proper pseudo-terminal that the TUI can render into
-	const editorScript = join(testDir, "test-editor.cjs");
-	await writeFile(
-		editorScript,
-		[
-			`const { appendFileSync } = require("node:fs");`,
-			"const mf = process.env.TUI_EDITOR_MARKER_FILE;",
-			`if (mf) appendFileSync(mf, "started\\n");`,
-			"setTimeout(() => process.exit(0), 200);",
-		].join("\n"),
-	);
-
 	const expectScriptPath = join(testDir, `${options.scenario}.expect`);
 	const cliCmd = CLI_RUNTIME.length > 0 ? `${CLI_RUNTIME} ${CLI_PATH}` : CLI_PATH;
 	await writeFile(
