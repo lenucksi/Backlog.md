@@ -1,0 +1,24 @@
+src/test/cli-priority-filtering.test.ts
+  s_c91465b44f3cf6::t_87604968d560cc 11,25,37
+  s_c91465b44f3cf6::t_a1f5539f7bc1a6 87
+  s_c91465b44f3cf6::t_b403f1bc38d389 120-126
+  s_c91465b44f3cf6::t_9716fdef0e98c8 137-139
+  s_c91465b44f3cf6::t_83be1ab4cb13f2 146
+  s_c91465b44f3cf6::t_49b43c4a5c2ff4 113,115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "243661ce30cd7c51ff15cce7773bb44689d30246",
+  "prompts": {},
+  "sessions": {
+    "s_c91465b44f3cf6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1ba4030dbffeouenQlHSsgMLLy",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
