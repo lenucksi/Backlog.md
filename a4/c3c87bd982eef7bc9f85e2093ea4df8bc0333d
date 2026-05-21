@@ -1,0 +1,25 @@
+src/cli.ts
+  s_869c916d6b217d::t_7d40b1cf0a0cb4 601-604,607
+  s_869c916d6b217d::t_7419273abce9fa 795-799,831-833
+src/utils/input-sanitizer.ts
+  s_869c916d6b217d::t_f5228ad6029ce0 1-18
+src/utils/task-builders.ts
+  s_869c916d6b217d::t_1289b712e090bf 73-78,81,87
+  s_869c916d6b217d::t_ef792baaf4c947 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "a4c3c87bd982eef7bc9f85e2093ea4df8bc0333d",
+  "prompts": {},
+  "sessions": {
+    "s_869c916d6b217d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b31ead7fffe4CRs3ky1b3fjKN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
