@@ -124,12 +124,19 @@ export function serializeTask(task: Task): string {
 }
 
 export function serializeDecision(decision: Decision): string {
-	const frontmatter = {
+	const frontmatter: Record<string, unknown> = {
 		id: decision.id,
 		title: decision.title,
 		date: decision.date,
 		status: decision.status,
 	};
+
+	if (decision.supersedes) {
+		frontmatter.supersedes = decision.supersedes;
+	}
+	if (decision.supersededBy) {
+		frontmatter.supersededBy = decision.supersededBy;
+	}
 
 	let content = `## Context\n\n${decision.context}\n\n`;
 	content += `## Decision\n\n${decision.decision}\n\n`;

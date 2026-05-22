@@ -209,7 +209,9 @@ export function parseDecision(content: string): Decision {
 		decision: extractSection(rawContent, "Decision") || "",
 		consequences: extractSection(rawContent, "Consequences") || "",
 		alternatives: extractSection(rawContent, "Alternatives"),
-		rawContent, // Raw markdown content without frontmatter
+		supersedes: frontmatter.supersedes ? String(frontmatter.supersedes) : undefined,
+		supersededBy: frontmatter.supersededBy ? String(frontmatter.supersededBy) : undefined,
+		rawContent,
 	};
 }
 

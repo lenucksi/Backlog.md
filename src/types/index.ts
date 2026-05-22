@@ -169,6 +169,8 @@ export interface Decision {
 	decision: string;
 	consequences: string;
 	alternatives?: string;
+	supersedes?: string;
+	supersededBy?: string;
 	readonly rawContent: string; // Raw markdown content without frontmatter
 }
 

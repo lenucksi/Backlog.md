@@ -2447,6 +2447,8 @@ export class Core {
 			decision: extractSection(content, "Decision") || existingDecision.decision,
 			consequences: extractSection(content, "Consequences") || existingDecision.consequences,
 			alternatives: extractSection(content, "Alternatives") || existingDecision.alternatives,
+			supersedes: data.supersedes ?? existingDecision.supersedes,
+			supersededBy: data.supersededBy ?? existingDecision.supersededBy,
 		};
 
 		await this.createDecision(updatedDecision, autoCommit);
