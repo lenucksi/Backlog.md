@@ -1,9 +1,10 @@
 ---
 id: BACK-491.2
 title: BACK-529 — --json Output für alle CLI-Kommandos
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-22 15:57'
+updated_date: '2026-05-22 16:06'
 labels:
   - cli
   - json
