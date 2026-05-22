@@ -48,6 +48,7 @@ export type RouteHandlers = {
 		handleGetVersion: () => Promise<Response>;
 		handleGetStatistics: () => Promise<Response>;
 		handleGetStatus: () => Promise<Response>;
+		handleGetDuplicates: () => Promise<Response>;
 		handleInit: (req: Request) => Promise<Response>;
 		handleAssetRequest: (req: Request) => Promise<Response>;
 	};
@@ -147,6 +148,9 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		},
 		"/api/status": {
 			GET: async () => await system.handleGetStatus(),
+		},
+		"/api/duplicates": {
+			GET: async () => await system.handleGetDuplicates(),
 		},
 		"/api/init": {
 			POST: async (req: Request) => await system.handleInit(req),

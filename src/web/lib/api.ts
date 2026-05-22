@@ -1,4 +1,5 @@
 import type { TaskStatistics } from "../../core/statistics.ts";
+import type { DuplicateGroup } from "../../utils/duplicate-detection.ts";
 import type {
 	BacklogConfig,
 	Decision,
@@ -455,6 +456,10 @@ export class ApiClient {
 		return this.fetchJson<
 			TaskStatistics & { statusCounts: Record<string, number>; priorityCounts: Record<string, number> }
 		>(`${API_BASE}/statistics`);
+	}
+
+	async fetchDuplicates(): Promise<DuplicateGroup[]> {
+		return this.fetchJson<DuplicateGroup[]>(`${API_BASE}/duplicates`);
 	}
 
 	async checkStatus(): Promise<InitializationStatus> {
