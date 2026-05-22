@@ -118,4 +118,52 @@ export function registerDocCommand(program: Command): void {
 				console.error(`Document ${docId} not found.`);
 			}
 		});
+
+	docCmd
+		.command("archive <docId>")
+		.description("archive a document")
+		.option("--force", "skip confirmation")
+		.action(async (docId: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const doc = await core.filesystem.loadDocument(docId).catch(() => null);
+			if (!doc) {
+				console.error(`Document ${docId} not found.`);
+				return;
+			}
+			if (!options.force) {
+				console.log(`Archiving document "${doc.title}" (${doc.id})...`);
+			}
+			const success = await core.filesystem.archiveDocument(docId);
+			if (success) {
+				console.log(`Archived document ${docId} — ${doc.title}`);
+			} else {
+				console.error(`Failed to archive document ${docId}.`);
+				process.exitCode = 1;
+			}
+		});
+
+	docCmd
+		.command("delete <docId>")
+		.description("permanently delete a document")
+		.option("--force", "skip confirmation")
+		.action(async (docId: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const doc = await core.filesystem.loadDocument(docId).catch(() => null);
+			if (!doc) {
+				console.error(`Document ${docId} not found.`);
+				return;
+			}
+			if (!options.force) {
+				console.log(`Deleting document "${doc.title}" (${doc.id})...`);
+			}
+			const success = await core.filesystem.deleteDocument(docId);
+			if (success) {
+				console.log(`Deleted document ${docId} — ${doc.title}`);
+			} else {
+				console.error(`Failed to delete document ${docId}.`);
+				process.exitCode = 1;
+			}
+		});
 }
