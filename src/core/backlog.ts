@@ -2422,6 +2422,20 @@ export class Core {
 		}
 	}
 
+	async resolveDecision(decisionId: string, autoCommit?: boolean): Promise<Decision> {
+		const existingDecision = await this.fs.loadDecision(decisionId);
+		if (!existingDecision) {
+			throw new Error(`Decision ${decisionId} not found`);
+		}
+		if (existingDecision.status === "superseded") {
+			throw new Error(`Decision ${decisionId} is already superseded`);
+		}
+
+		existingDecision.status = "superseded";
+		await this.createDecision(existingDecision, autoCommit);
+		return existingDecision;
+	}
+
 	async updateDecisionFromContent(decisionId: string, content: string, autoCommit?: boolean): Promise<void> {
 		const existingDecision = await this.fs.loadDecision(decisionId);
 		if (!existingDecision) {

@@ -54,3 +54,71 @@ export const decisionSupersedeSchema: JsonSchema = {
 	required: ["id", "title"],
 	additionalProperties: false,
 };
+
+export const decisionCreateSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		title: {
+			type: "string",
+			minLength: 1,
+			maxLength: 200,
+		},
+		status: {
+			type: "string",
+			maxLength: 100,
+		},
+		context: {
+			type: "string",
+			maxLength: 5000,
+		},
+		decision: {
+			type: "string",
+			maxLength: 5000,
+		},
+		consequences: {
+			type: "string",
+			maxLength: 5000,
+		},
+		alternatives: {
+			type: "string",
+			maxLength: 5000,
+		},
+	},
+	required: ["title"],
+	additionalProperties: false,
+};
+
+export const decisionSearchSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		query: {
+			type: "string",
+			minLength: 1,
+			maxLength: 200,
+		},
+		limit: {
+			type: "number",
+			minimum: 1,
+			maximum: 100,
+		},
+	},
+	required: ["query"],
+	additionalProperties: false,
+};
+
+export const decisionResolveSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		id: {
+			type: "string",
+			minLength: 1,
+			maxLength: 100,
+		},
+		title: {
+			type: "string",
+			maxLength: 200,
+		},
+	},
+	required: ["id"],
+	additionalProperties: false,
+};

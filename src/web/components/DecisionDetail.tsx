@@ -88,6 +88,8 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 	const [isNewDecision, setIsNewDecision] = useState(false);
 	const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 	const [showEditGuardModal, setShowEditGuardModal] = useState(false);
+	const [showResolveConfirmModal, setShowResolveConfirmModal] = useState(false);
+	const [isResolving, setIsResolving] = useState(false);
 
 	useEffect(() => {
 		if (id === 'new') {
@@ -216,6 +218,29 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 			params.set('supersedes', stripIdPrefix(id));
 		}
 		navigate(`/decisions/new?${params.toString()}`);
+	};
+
+	const handleResolve = async () => {
+		if (!id) return;
+		try {
+			setIsResolving(true);
+			const result = await apiClient.resolveDecision(stripIdPrefix(id));
+			setShowResolveConfirmModal(false);
+			setShowSaveSuccess(true);
+			setTimeout(() => setShowSaveSuccess(false), 4000);
+			// Refresh data to reflect the new status
+			await onRefreshData();
+			// Reload the decision to show updated status
+			if (result.decision) {
+				setDecision(result.decision);
+				setDecisionTitle(result.decision.title || '');
+				setOriginalDecisionTitle(result.decision.title || '');
+			}
+		} catch (error) {
+			console.error('Failed to resolve decision:', error);
+		} finally {
+			setIsResolving(false);
+		}
 	};
 
 	const handleEdit = () => {
@@ -365,6 +390,17 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 										Edit
 								</button>
 							) : null}
+							{!isEditing && decision && decision.status !== 'superseded' && (
+								<button
+									onClick={() => setShowResolveConfirmModal(true)}
+									className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+								>
+									<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+									</svg>
+									Resolve
+								</button>
+							)}
 							{isEditing && (
 								<div className="flex items-center space-x-2">
 										<button
@@ -434,6 +470,40 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 						className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
 					>
 						Supersede with diff
+					</button>
+				</div>
+			</div>
+		</Modal>
+
+		{/* Resolve Confirmation Modal */}
+		<Modal
+			isOpen={showResolveConfirmModal}
+			onClose={() => setShowResolveConfirmModal(false)}
+			title="Resolve decision"
+			maxWidthClass="max-w-md"
+		>
+			<div className="space-y-4">
+				<p className="text-sm text-gray-700 dark:text-gray-300">
+					Mark this decision as <strong>superseded</strong>? This will set its status to "superseded"
+					without creating a replacement decision (supersede-to-nirvana).
+				</p>
+				<div className="flex justify-end gap-3">
+					<button
+						onClick={() => setShowResolveConfirmModal(false)}
+						className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+					>
+						Cancel
+					</button>
+					<button
+						onClick={handleResolve}
+						disabled={isResolving}
+						className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors duration-200 ${
+							isResolving
+								? 'bg-gray-400 cursor-not-allowed'
+								: 'bg-blue-600 hover:bg-blue-700'
+						}`}
+					>
+						{isResolving ? 'Resolving...' : 'Resolve'}
 					</button>
 				</div>
 			</div>

@@ -25,6 +25,7 @@ export type RouteHandlers = {
 		handleGetDecision: (decisionId: string) => Promise<Response>;
 		handleCreateDecision: (req: Request) => Promise<Response>;
 		handleUpdateDecision: (req: Request, decisionId: string) => Promise<Response>;
+		handleResolveDecision: (decisionId: string) => Promise<Response>;
 	};
 	drafts: {
 		handleListDrafts: () => Promise<Response>;
@@ -106,6 +107,10 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 			GET: async (req: Request & { params: { id: string } }) => await decisions.handleGetDecision(req.params.id),
 			PUT: async (req: Request & { params: { id: string } }) =>
 				await decisions.handleUpdateDecision(req, req.params.id),
+		},
+		"/api/decisions/:id/resolve": {
+			POST: async (req: Request & { params: { id: string } }) =>
+				await decisions.handleResolveDecision(req.params.id),
 		},
 		"/api/drafts": {
 			GET: async () => await drafts.handleListDrafts(),
