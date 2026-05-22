@@ -34,6 +34,14 @@ export type DocumentSearchArgs = {
 	limit?: number;
 };
 
+export type DocumentArchiveArgs = {
+	id: string;
+};
+
+export type DocumentDeleteArgs = {
+	id: string;
+};
+
 export class DocumentHandlers {
 	constructor(private readonly core: McpServer) {}
 
@@ -154,6 +162,38 @@ export class DocumentHandlers {
 			}
 			throw AppError.internal("Failed to update document.");
 		}
+	}
+
+	async archiveDocument(args: DocumentArchiveArgs): Promise<CallToolResult> {
+		const document = await this.loadDocumentOrThrow(args.id);
+		const success = await this.core.filesystem.archiveDocument(args.id);
+		if (!success) {
+			throw AppError.internal(`Failed to archive document: ${args.id}`);
+		}
+		return {
+			content: [
+				{
+					type: "text",
+					text: `Archived document ${args.id} — ${document.title}`,
+				},
+			],
+		};
+	}
+
+	async deleteDocument(args: DocumentDeleteArgs): Promise<CallToolResult> {
+		const document = await this.loadDocumentOrThrow(args.id);
+		const success = await this.core.filesystem.deleteDocument(args.id);
+		if (!success) {
+			throw AppError.internal(`Failed to delete document: ${args.id}`);
+		}
+		return {
+			content: [
+				{
+					type: "text",
+					text: `Deleted document ${args.id} — ${document.title}`,
+				},
+			],
+		};
 	}
 
 	async searchDocuments(args: DocumentSearchArgs): Promise<CallToolResult> {

@@ -3,7 +3,9 @@ import type { McpServer } from "../../server.ts";
 import type { McpToolHandler } from "../../types.ts";
 import { createSimpleValidatedTool } from "../../validation/tool-wrapper.ts";
 import type {
+	DocumentArchiveArgs,
 	DocumentCreateArgs,
+	DocumentDeleteArgs,
 	DocumentListArgs,
 	DocumentSearchArgs,
 	DocumentUpdateArgs,
@@ -11,7 +13,9 @@ import type {
 } from "./handlers.ts";
 import { DocumentHandlers } from "./handlers.ts";
 import {
+	documentArchiveSchema,
 	documentCreateSchema,
+	documentDeleteSchema,
 	documentListSchema,
 	documentSearchSchema,
 	documentUpdateSchema,
@@ -78,22 +82,50 @@ export function registerDocumentTools(server: McpServer, _config: BacklogConfig)
 		async (input) => handlers.searchDocuments(input as DocumentSearchArgs),
 	);
 
+	const archiveDocumentTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "document_archive",
+			description: "Archive a Backlog.md document by moving it to the archive directory",
+			inputSchema: documentArchiveSchema,
+			annotations: { title: "Archive Document", destructiveHint: true },
+		},
+		documentArchiveSchema,
+		async (input) => handlers.archiveDocument(input as DocumentArchiveArgs),
+	);
+
+	const deleteDocumentTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "document_delete",
+			description: "Permanently delete a Backlog.md document",
+			inputSchema: documentDeleteSchema,
+			annotations: { title: "Delete Document", destructiveHint: true },
+		},
+		documentDeleteSchema,
+		async (input) => handlers.deleteDocument(input as DocumentDeleteArgs),
+	);
+
 	server.addTool(listDocumentsTool);
 	server.addTool(viewDocumentTool);
 	server.addTool(createDocumentTool);
 	server.addTool(updateDocumentTool);
 	server.addTool(searchDocumentTool);
+	server.addTool(archiveDocumentTool);
+	server.addTool(deleteDocumentTool);
 }
 
 export type {
+	DocumentArchiveArgs,
 	DocumentCreateArgs,
+	DocumentDeleteArgs,
 	DocumentListArgs,
 	DocumentSearchArgs,
 	DocumentUpdateArgs,
 	DocumentViewArgs,
 } from "./handlers.ts";
 export {
+	documentArchiveSchema,
 	documentCreateSchema,
+	documentDeleteSchema,
 	documentListSchema,
 	documentSearchSchema,
 	documentUpdateSchema,

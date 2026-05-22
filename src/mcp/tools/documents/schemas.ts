@@ -93,6 +93,32 @@ export const documentUpdateSchema: JsonSchema = {
 	additionalProperties: false,
 };
 
+export const documentArchiveSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		id: {
+			type: "string",
+			minLength: 1,
+			maxLength: 100,
+		},
+	},
+	required: ["id"],
+	additionalProperties: false,
+};
+
+export const documentDeleteSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		id: {
+			type: "string",
+			minLength: 1,
+			maxLength: 100,
+		},
+	},
+	required: ["id"],
+	additionalProperties: false,
+};
+
 export const documentSearchSchema: JsonSchema = {
 	type: "object",
 	properties: {

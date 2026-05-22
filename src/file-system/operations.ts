@@ -145,6 +145,10 @@ export class FileSystem {
 		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.MILESTONES);
 	}
 
+	get archiveDocsDir(): string {
+		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.ARCHIVE_DOCS);
+	}
+
 	get configFilePath(): string {
 		return this.resolvedConfigPath;
 	}
@@ -227,6 +231,11 @@ export class FileSystem {
 		return join(backlogDir, DEFAULT_DIRECTORIES.MILESTONES);
 	}
 
+	private async getArchiveDocsDir(): Promise<string> {
+		const backlogDir = await this.getBacklogDir();
+		return join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DOCS);
+	}
+
 	private async getCompletedDir(): Promise<string> {
 		const backlogDir = await this.getBacklogDir();
 		return join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
@@ -243,6 +252,7 @@ export class FileSystem {
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DRAFTS),
 			join(backlogDir, DEFAULT_DIRECTORIES.MILESTONES),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_MILESTONES),
+			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DOCS),
 			join(backlogDir, DEFAULT_DIRECTORIES.DOCS),
 			join(backlogDir, DEFAULT_DIRECTORIES.DECISIONS),
 		];
@@ -899,6 +909,35 @@ export class FileSystem {
 			throw new Error(`Document not found: ${id}`);
 		}
 		return document;
+	}
+
+	async archiveDocument(id: string): Promise<boolean> {
+		try {
+			const doc = await this.loadDocument(id);
+			const docsDir = await this.getDocsDir();
+			const archiveDir = await this.getArchiveDocsDir();
+			const relativePath = normalizeDocumentRelativePath(doc.path ?? `${doc.id}.md`);
+			const sourcePath = join(docsDir, ...relativePath.split("/"));
+			const targetPath = join(archiveDir, ...relativePath.split("/"));
+			await this.ensureDirectoryExists(dirname(targetPath));
+			await rename(sourcePath, targetPath);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	async deleteDocument(id: string): Promise<boolean> {
+		try {
+			const doc = await this.loadDocument(id);
+			const docsDir = await this.getDocsDir();
+			const relativePath = normalizeDocumentRelativePath(doc.path ?? `${doc.id}.md`);
+			const filePath = join(docsDir, ...relativePath.split("/"));
+			await unlink(filePath);
+			return true;
+		} catch {
+			return false;
+		}
 	}
 
 	private buildMilestoneIdentifierKeys(identifier: string): Set<string> {
