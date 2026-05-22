@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-26 08:41'
-updated_date: '2026-04-26 08:48'
+updated_date: '2026-05-22 15:39'
 labels:
   - tui
   - milestone
   - filter
+milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/81'

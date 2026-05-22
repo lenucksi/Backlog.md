@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-22 12:32'
-updated_date: '2026-04-26 10:10'
+updated_date: '2026-05-22 15:39'
 labels: []
+milestone: m-8
 dependencies: []
 references:
   - src/server/index.ts

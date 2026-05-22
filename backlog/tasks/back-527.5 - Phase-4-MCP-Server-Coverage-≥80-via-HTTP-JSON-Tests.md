@@ -4,7 +4,7 @@ title: 'Phase 4: MCP + Server Coverage ≥80% via HTTP/JSON Tests'
 status: Done
 assignee: []
 created_date: '2026-05-22 14:30'
-updated_date: '2026-05-22 14:43'
+updated_date: '2026-05-22 15:38'
 labels:
   - testing
   - coverage
@@ -12,6 +12,7 @@ labels:
   - mcp
   - server
   - back-527
+milestone: m-13
 dependencies: []
 parent_task_id: BACK-527
 priority: high

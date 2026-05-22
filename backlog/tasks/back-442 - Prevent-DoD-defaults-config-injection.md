@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-25 22:31'
-updated_date: '2026-04-25 22:54'
+updated_date: '2026-05-22 15:39'
 labels:
   - security
   - mcp
   - definition-of-done
+milestone: m-8
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/555'

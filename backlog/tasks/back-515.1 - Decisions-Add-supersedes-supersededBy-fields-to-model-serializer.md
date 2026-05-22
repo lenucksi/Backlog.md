@@ -4,11 +4,12 @@ title: 'Decisions: Add supersedes/supersededBy fields to model + serializer'
 status: Done
 assignee: []
 created_date: '2026-05-21 16:03'
-updated_date: '2026-05-22 01:28'
+updated_date: '2026-05-22 15:40'
 labels:
   - decisions
   - model
   - serialization
+milestone: m-14
 dependencies: []
 modified_files:
   - src/types/index.ts

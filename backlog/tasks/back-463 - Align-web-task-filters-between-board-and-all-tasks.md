@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-05-03 19:15'
-updated_date: '2026-05-03 19:21'
+updated_date: '2026-05-22 15:39'
 labels:
   - web
   - filters
   - bug
+milestone: m-8
 dependencies: []
 modified_files:
   - src/web/components/TaskList.tsx

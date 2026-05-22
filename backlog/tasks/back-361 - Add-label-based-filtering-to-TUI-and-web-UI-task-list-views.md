@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-01-15 20:15'
-updated_date: '2026-04-25 23:39'
+updated_date: '2026-05-22 15:39'
 labels:
   - tui
   - web
   - enhancement
+milestone: m-12
 dependencies: []
 modified_files:
   - src/ui/components/filter-header.ts

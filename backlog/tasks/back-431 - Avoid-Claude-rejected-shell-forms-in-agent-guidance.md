@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-04-25 12:14'
-updated_date: '2026-05-02 15:53'
+updated_date: '2026-05-22 15:40'
 labels:
   - agent-guidelines
   - cli
   - bug
+milestone: m-11
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/595'

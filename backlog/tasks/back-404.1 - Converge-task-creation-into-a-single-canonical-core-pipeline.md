@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@MrLesk'
 created_date: '2026-03-19 23:46'
-updated_date: '2026-03-20 20:02'
+updated_date: '2026-05-22 15:40'
 labels: []
+milestone: m-9
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/565'

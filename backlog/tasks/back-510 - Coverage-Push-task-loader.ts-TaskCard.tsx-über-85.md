@@ -4,12 +4,13 @@ title: 'Coverage: Push task-loader.ts, TaskCard.tsx über 85%'
 status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
-updated_date: '2026-05-22 00:18'
+updated_date: '2026-05-22 15:38'
 labels:
   - coverage
   - testing
   - web-ui
   - core
+milestone: m-13
 dependencies:
   - BACK-509
 priority: high

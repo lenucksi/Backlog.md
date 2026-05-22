@@ -5,12 +5,13 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-19 21:15'
-updated_date: '2026-01-19 21:27'
+updated_date: '2026-05-22 15:40'
 labels:
   - bug
   - markdown
   - parser
   - tui
+milestone: m-9
 dependencies: []
 parent_task_id: BACK-367
 priority: medium

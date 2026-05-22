@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-22 17:22'
-updated_date: '2026-02-22 17:22'
+updated_date: '2026-05-22 15:39'
 labels:
   - bug
   - web-ui
   - kanban
+milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/543'

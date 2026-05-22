@@ -7,12 +7,13 @@ status: Done
 assignee:
   - '@lenucksi'
 created_date: '2026-05-13 11:12'
-updated_date: '2026-05-20 18:12'
+updated_date: '2026-05-22 15:39'
 labels:
   - tooling
   - hooks
   - dx
   - agent
+milestone: m-13
 dependencies: []
 priority: medium
 ordinal: 186000

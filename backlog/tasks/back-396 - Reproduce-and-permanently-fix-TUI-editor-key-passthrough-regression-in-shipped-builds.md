@@ -7,12 +7,13 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-22 12:41'
-updated_date: '2026-02-22 13:24'
+updated_date: '2026-05-22 15:39'
 labels:
   - bug
   - tui
   - release
   - build
+milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/457'

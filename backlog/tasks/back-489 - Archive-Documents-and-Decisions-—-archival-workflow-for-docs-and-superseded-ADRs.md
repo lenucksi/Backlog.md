@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-22 01:34'
+updated_date: '2026-05-22 15:39'
 labels:
   - documents
   - decisions
@@ -15,7 +15,7 @@ labels:
   - cli
   - mcp
   - archive
-milestone: m-13
+milestone: m-8
 dependencies: []
 priority: medium
 ordinal: 176000

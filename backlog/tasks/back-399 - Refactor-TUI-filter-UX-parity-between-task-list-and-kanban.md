@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-03-01 20:09'
-updated_date: '2026-03-01 20:54'
+updated_date: '2026-05-22 15:39'
 labels:
   - cli
   - tui
   - enhancement
+milestone: m-12
 dependencies: []
 references:
   - /Users/alex/projects/Backlog.md/src/ui/task-viewer-with-search.ts

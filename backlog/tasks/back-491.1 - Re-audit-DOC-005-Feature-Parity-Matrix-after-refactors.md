@@ -5,12 +5,13 @@ status: Done
 assignee:
   - '@opencode'
 created_date: '2026-05-22 09:48'
-updated_date: '2026-05-22 09:52'
+updated_date: '2026-05-22 15:39'
 labels:
   - parity
   - research
   - ci
   - documentation
+milestone: m-13
 dependencies:
   - BACK-516
   - BACK-515

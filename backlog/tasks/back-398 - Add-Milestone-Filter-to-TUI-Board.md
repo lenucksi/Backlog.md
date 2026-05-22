@@ -5,12 +5,13 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-25 09:00'
-updated_date: '2026-03-01 20:16'
+updated_date: '2026-05-22 15:39'
 labels:
   - tui
   - filter
   - milestone
   - enhancement
+milestone: m-12
 dependencies: []
 ---
 

@@ -4,11 +4,12 @@ title: 'TechDebt: Simplify task-edit-builder and task-plain-text formatters'
 status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
-updated_date: '2026-05-21 21:40'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
   - refactoring
   - formatters
+milestone: m-15
 dependencies: []
 parent_task_id: BACK-492
 priority: low

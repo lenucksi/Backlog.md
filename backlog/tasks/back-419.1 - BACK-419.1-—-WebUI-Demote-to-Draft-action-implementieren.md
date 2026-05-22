@@ -4,11 +4,12 @@ title: 'BACK-419.1 — WebUI: Demote-to-Draft action implementieren'
 status: Done
 assignee: []
 created_date: '2026-05-22 10:29'
-updated_date: '2026-05-22 15:22'
+updated_date: '2026-05-22 15:39'
 labels:
   - web-ui
   - demote
   - feature
+milestone: m-8
 dependencies: []
 parent_task_id: BACK-419
 priority: medium

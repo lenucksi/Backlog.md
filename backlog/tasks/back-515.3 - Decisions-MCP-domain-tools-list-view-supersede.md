@@ -4,10 +4,11 @@ title: 'Decisions: MCP domain tools (list, view, supersede)'
 status: Done
 assignee: []
 created_date: '2026-05-21 16:03'
-updated_date: '2026-05-22 01:28'
+updated_date: '2026-05-22 15:40'
 labels:
   - decisions
   - mcp
+milestone: m-14
 dependencies:
   - BACK-515.1
 modified_files:

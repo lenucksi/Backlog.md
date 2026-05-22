@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@opencode'
 created_date: '2026-05-22 09:47'
-updated_date: '2026-05-22 09:52'
+updated_date: '2026-05-22 15:39'
 labels:
   - verification
   - refactor
   - bug
+milestone: m-13
 dependencies: []
 priority: low
 ordinal: 214000

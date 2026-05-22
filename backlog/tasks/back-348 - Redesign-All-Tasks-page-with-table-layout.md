@@ -5,12 +5,13 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2025-12-17 19:32'
-updated_date: '2026-02-21 20:18'
+updated_date: '2026-05-22 15:39'
 labels:
   - web-ui
   - design
   - enhancement
   - ux
+milestone: m-8
 dependencies: []
 priority: medium
 ordinal: 21000

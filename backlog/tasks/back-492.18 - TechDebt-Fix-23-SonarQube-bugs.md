@@ -4,10 +4,11 @@ title: 'TechDebt: Fix 23 SonarQube bugs'
 status: Done
 assignee: []
 created_date: '2026-05-20 23:44'
-updated_date: '2026-05-22 01:34'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
   - bugs
+milestone: m-15
 dependencies: []
 parent_task_id: BACK-492
 priority: medium

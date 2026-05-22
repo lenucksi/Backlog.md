@@ -4,10 +4,12 @@ title: Reintegrate SonarQube scan into CI pipeline
 status: Done
 assignee: []
 created_date: '2026-05-21 15:20'
+updated_date: '2026-05-22 15:39'
 labels:
   - ci
   - sonarqube
   - infrastructure
+milestone: m-13
 dependencies: []
 modified_files:
   - .github/workflows/ci.yml

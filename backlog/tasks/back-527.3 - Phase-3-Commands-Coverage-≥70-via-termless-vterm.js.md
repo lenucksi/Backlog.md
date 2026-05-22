@@ -4,13 +4,14 @@ title: 'Phase 3: Commands Coverage ≥70% via termless/vterm.js'
 status: Done
 assignee: []
 created_date: '2026-05-22 13:28'
-updated_date: '2026-05-22 15:00'
+updated_date: '2026-05-22 15:38'
 labels:
   - testing
   - coverage
   - phase-3
   - commands
   - termless
+milestone: m-13
 dependencies: []
 parent_task_id: BACK-527
 priority: high

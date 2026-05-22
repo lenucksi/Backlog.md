@@ -4,12 +4,13 @@ title: 'TechDebt: Reduce complexity in web/lib/api.ts and core/statistics.ts'
 status: Done
 assignee: []
 created_date: '2026-05-20 23:43'
-updated_date: '2026-05-21 21:40'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
   - refactoring
   - web
   - api
+milestone: m-15
 dependencies: []
 parent_task_id: BACK-492
 priority: low

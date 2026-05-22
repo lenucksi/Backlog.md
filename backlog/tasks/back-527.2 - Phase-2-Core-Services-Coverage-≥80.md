@@ -4,12 +4,13 @@ title: 'Phase 2: Core Services Coverage ≥80%'
 status: Done
 assignee: []
 created_date: '2026-05-22 12:59'
-updated_date: '2026-05-22 13:19'
+updated_date: '2026-05-22 15:38'
 labels:
   - testing
   - coverage
   - phase-2
   - back-527
+milestone: m-13
 dependencies: []
 parent_task_id: BACK-527
 priority: high

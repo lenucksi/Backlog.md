@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-05-01 13:28'
-updated_date: '2026-05-01 13:33'
+updated_date: '2026-05-22 15:40'
 labels: []
+milestone: m-9
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/617'

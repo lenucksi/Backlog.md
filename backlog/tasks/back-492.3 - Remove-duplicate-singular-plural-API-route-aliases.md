@@ -4,10 +4,10 @@ title: Remove duplicate singular/plural API route aliases
 status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
-updated_date: '2026-05-21 22:58'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
-milestone: m-13
+milestone: m-15
 dependencies: []
 modified_files:
   - src/server/index.ts

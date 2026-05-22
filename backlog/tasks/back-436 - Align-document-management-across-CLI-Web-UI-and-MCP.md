@@ -5,13 +5,14 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-04-25 21:01'
-updated_date: '2026-04-25 22:53'
+updated_date: '2026-05-22 15:39'
 labels:
   - docs
   - core
   - cli
   - web
   - mcp
+milestone: m-8
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/598'

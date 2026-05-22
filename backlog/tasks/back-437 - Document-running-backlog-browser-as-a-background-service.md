@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@brenoperucchi'
 created_date: '2026-04-22 15:13'
-updated_date: '2026-04-25 23:09'
+updated_date: '2026-05-22 15:40'
 labels:
   - docs
   - browser
+milestone: m-9
 dependencies: []
 ---
 

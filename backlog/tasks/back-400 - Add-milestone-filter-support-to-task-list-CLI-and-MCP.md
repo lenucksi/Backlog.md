@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-03-01 20:26'
-updated_date: '2026-03-01 20:43'
+updated_date: '2026-05-22 15:39'
 labels:
   - cli
   - mcp
   - enhancement
+milestone: m-12
 dependencies: []
 references:
   - /Users/alex/projects/Backlog.md/src/cli.ts

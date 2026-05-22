@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-25 21:55'
-updated_date: '2026-04-25 22:00'
+updated_date: '2026-05-22 15:40'
 labels:
   - bug
   - cli
   - agents
+milestone: m-11
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/192'

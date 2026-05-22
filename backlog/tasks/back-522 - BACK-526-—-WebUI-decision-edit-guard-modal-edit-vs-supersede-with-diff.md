@@ -1,10 +1,11 @@
 ---
 id: BACK-522
 title: 'BACK-526 — WebUI: decision edit guard modal (edit vs supersede with diff)'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:25'
-updated_date: '2026-05-22 11:29'
+updated_date: '2026-05-22 15:37'
 labels:
   - web-ui
   - decisions

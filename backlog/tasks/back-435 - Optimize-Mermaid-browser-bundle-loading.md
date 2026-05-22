@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-25 17:10'
-updated_date: '2026-04-25 17:18'
+updated_date: '2026-05-22 15:39'
 labels:
   - web
   - dependencies
+milestone: m-8
 dependencies: []
 references:
   - >-

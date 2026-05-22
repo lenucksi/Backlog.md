@@ -7,12 +7,13 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-05-11 14:00'
-updated_date: '2026-05-11 20:35'
+updated_date: '2026-05-22 15:39'
 labels:
   - upstream-pr
   - terminal-status
   - config
   - git-hygiene
+milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/635'

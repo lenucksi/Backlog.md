@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-04-01 09:28'
-updated_date: '2026-05-03 12:13'
+updated_date: '2026-05-22 15:39'
 labels:
   - bug
   - tui
+milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/587'

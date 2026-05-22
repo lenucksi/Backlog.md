@@ -4,11 +4,12 @@ title: 'TechDebt: Reduce cognitive complexity in backlog.ts and init.ts'
 status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
-updated_date: '2026-05-22 01:13'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
   - refactoring
   - core
+milestone: m-15
 dependencies: []
 parent_task_id: BACK-492
 priority: medium

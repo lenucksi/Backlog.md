@@ -4,11 +4,12 @@ title: 'Coverage: Push find-backlog-root.ts, assignee.ts, editor.ts über 85%'
 status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
-updated_date: '2026-05-22 01:34'
+updated_date: '2026-05-22 15:38'
 labels:
   - coverage
   - testing
   - tech-debt
+milestone: m-13
 dependencies: []
 priority: high
 ordinal: 1000

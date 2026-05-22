@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-18 12:19'
-updated_date: '2026-01-19 19:16'
+updated_date: '2026-05-22 15:40'
 labels:
   - mcp
   - enhancement
+milestone: m-9
 dependencies:
   - BACK-367
 documentation:

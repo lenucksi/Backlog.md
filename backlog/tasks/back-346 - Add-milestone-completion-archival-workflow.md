@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2025-12-17 19:28'
-updated_date: '2026-01-18 12:28'
+updated_date: '2026-05-22 15:40'
 labels:
   - milestones
   - enhancement
   - ux
+milestone: m-6
 dependencies: []
 priority: medium
 ordinal: 19000

@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-26 13:21'
-updated_date: '2026-05-03 16:01'
+updated_date: '2026-05-22 15:39'
 labels:
   - feature
   - cli
   - documentation
+milestone: m-8
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/610'

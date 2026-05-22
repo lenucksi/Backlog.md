@@ -4,11 +4,12 @@ title: 'TechDebt: Reduce function nesting depth in board.ts (S2004)'
 status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
-updated_date: '2026-05-21 22:58'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
   - refactoring
   - tui
+milestone: m-15
 dependencies: []
 parent_task_id: BACK-492
 priority: low

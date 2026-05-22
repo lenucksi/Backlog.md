@@ -5,9 +5,9 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-17 20:31'
-updated_date: '2026-02-21 20:18'
+updated_date: '2026-05-22 15:39'
 labels: []
-milestone: m-6
+milestone: m-8
 dependencies: []
 priority: medium
 ---

@@ -4,7 +4,7 @@ title: 'Decisions: CLI/MCP parity + supersede pattern'
 status: Done
 assignee: []
 created_date: '2026-05-21 16:02'
-updated_date: '2026-05-22 01:28'
+updated_date: '2026-05-22 15:40'
 labels:
   - decisions
   - parity
@@ -12,6 +12,7 @@ labels:
   - mcp
   - web-ui
   - feature
+milestone: m-14
 dependencies: []
 priority: medium
 ordinal: 205000

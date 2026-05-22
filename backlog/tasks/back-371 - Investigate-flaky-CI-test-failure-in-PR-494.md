@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-21 21:22'
-updated_date: '2026-01-21 21:27'
+updated_date: '2026-05-22 15:39'
 labels: []
+milestone: m-13
 dependencies: []
 references:
   - >-

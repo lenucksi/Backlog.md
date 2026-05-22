@@ -5,9 +5,10 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-05-08 14:29'
-updated_date: '2026-05-13 18:53'
+updated_date: '2026-05-22 15:39'
 labels:
   - webui
+milestone: m-8
 dependencies: []
 ordinal: 166000
 ---

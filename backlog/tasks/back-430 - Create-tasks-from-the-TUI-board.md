@@ -1,11 +1,11 @@
 ---
 id: BACK-430
 title: Create tasks from the TUI board
-status: To Do
+status: In Progress
 assignee:
-  - '@alex-agent'
+  - '@opencode'
 created_date: '2026-04-25 12:14'
-updated_date: '2026-05-22 10:29'
+updated_date: '2026-05-22 15:37'
 labels:
   - tui
   - enhancement

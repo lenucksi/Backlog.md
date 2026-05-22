@@ -1,10 +1,11 @@
 ---
 id: BACK-524
 title: 'CLI: milestone create/rename/remove commands'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 11:29'
+updated_date: '2026-05-22 15:37'
 labels:
   - cli
   - milestone

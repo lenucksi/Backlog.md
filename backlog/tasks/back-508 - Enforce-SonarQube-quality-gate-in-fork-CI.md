@@ -4,11 +4,12 @@ title: Enforce SonarQube quality gate in fork CI
 status: Done
 assignee: []
 created_date: '2026-05-18 12:10'
-updated_date: '2026-05-18 14:05'
+updated_date: '2026-05-22 15:39'
 labels:
   - ci
   - sonarqube
   - fork
+milestone: m-13
 dependencies: []
 priority: low
 ordinal: 199000

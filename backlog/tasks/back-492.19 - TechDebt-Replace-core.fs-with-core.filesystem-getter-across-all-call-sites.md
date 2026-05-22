@@ -4,8 +4,9 @@ title: 'TechDebt: Replace core.fs with core.filesystem getter across all call si
 status: Done
 assignee: []
 created_date: '2026-05-21 16:01'
-updated_date: '2026-05-21 22:58'
+updated_date: '2026-05-22 15:38'
 labels: []
+milestone: m-15
 dependencies: []
 modified_files:
   - src/core/backlog.ts

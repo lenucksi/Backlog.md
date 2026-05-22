@@ -5,12 +5,13 @@ status: Done
 assignee:
   - '@opencode'
 created_date: '2026-05-22 09:47'
-updated_date: '2026-05-22 09:58'
+updated_date: '2026-05-22 15:39'
 labels:
   - research
   - upstream
   - integration
   - planning
+milestone: m-13
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pulls'

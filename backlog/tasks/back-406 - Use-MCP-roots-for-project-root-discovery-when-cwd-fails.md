@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-03-21 11:12'
-updated_date: '2026-03-21 13:34'
+updated_date: '2026-05-22 15:40'
 labels: []
+milestone: m-11
 dependencies: []
 priority: high
 ---

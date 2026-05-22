@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-05-03 19:30'
-updated_date: '2026-05-03 19:34'
+updated_date: '2026-05-22 15:39'
 labels:
   - web
   - filters
   - bug
+milestone: m-8
 dependencies: []
 modified_files:
   - src/web/components/LabelFilterDropdown.tsx

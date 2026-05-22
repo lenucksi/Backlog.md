@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-05-07 10:37'
-updated_date: '2026-05-07 10:57'
+updated_date: '2026-05-22 15:39'
 labels: []
+milestone: m-12
 dependencies:
   - BACK-467
 ordinal: 107000

@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-28 12:53'
-updated_date: '2026-05-03 11:38'
+updated_date: '2026-05-22 15:39'
 labels: []
+milestone: m-12
 dependencies: []
 priority: medium
 ---

@@ -4,11 +4,11 @@ title: Unify task filter logic behind a shared interface
 status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
-updated_date: '2026-05-22 01:13'
+updated_date: '2026-05-22 15:38'
 labels:
   - tech-debt
   - refactoring
-milestone: m-13
+milestone: m-15
 dependencies: []
 modified_files:
   - src/core/backlog.ts

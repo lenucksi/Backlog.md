@@ -4,12 +4,13 @@ title: 'Coverage: Grosse 0%-TUI-Files initial testen'
 status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
-updated_date: '2026-05-22 11:18'
+updated_date: '2026-05-22 15:38'
 labels:
   - coverage
   - testing
   - tech-debt
   - tui
+milestone: m-13
 dependencies:
   - BACK-511
 priority: low

@@ -4,12 +4,13 @@ title: 'Research: TUI interactive editor handoff test reliability'
 status: Done
 assignee: []
 created_date: '2026-05-21 01:39'
-updated_date: '2026-05-22 15:07'
+updated_date: '2026-05-22 15:38'
 labels:
   - research
   - testing
   - tui
   - ci
+milestone: m-13
 dependencies: []
 priority: low
 ordinal: 50000

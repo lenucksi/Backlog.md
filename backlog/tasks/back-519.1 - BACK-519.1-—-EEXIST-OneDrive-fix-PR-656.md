@@ -1,10 +1,11 @@
 ---
 id: BACK-519.1
 title: 'BACK-519.1 — EEXIST OneDrive fix (PR #656)'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 15:12'
+updated_date: '2026-05-22 15:37'
 labels:
   - upstream
   - fix
