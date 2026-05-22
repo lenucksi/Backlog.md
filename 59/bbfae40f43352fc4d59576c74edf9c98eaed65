@@ -1,0 +1,40 @@
+src/server/router.ts
+  s_f75c1d80a6b875::t_c7221ab4766107 28
+  s_f75c1d80a6b875::t_74d01f14ee9a31 111-114
+src/web/components/DecisionDetail.tsx
+  s_f75c1d80a6b875::t_1a616c9005c732 91-92
+  s_f75c1d80a6b875::t_dd6e536dc53cdd 393-403
+  s_f75c1d80a6b875::t_d76d057c3a6244 478-511
+  s_f75c1d80a6b875::t_f587f63730b408 223-245
+src/mcp/tools/decisions/index.ts
+  s_f75c1d80a6b875::t_4292a363cc0c4c 4-11,13-20,48-70,83-94,97-98,100
+src/web/lib/api.ts
+  s_f75c1d80a6b875::t_90476c32c4c5fc 378-386
+src/server/handlers/decisions.ts
+  s_f75c1d80a6b875::t_5518227d07998c 69-85,91
+src/commands/decision.ts
+  s_f75c1d80a6b875::t_37f9e28f54ba56 191-210
+src/core/backlog.ts
+  s_f75c1d80a6b875::t_8593b5a9e0a849 2425-2438
+src/mcp/tools/decisions/schemas.ts
+  s_f75c1d80a6b875::t_d4470a95146106 57-124
+src/mcp/tools/decisions/handlers.ts
+  s_f75c1d80a6b875::t_0bc1ac8ef53518 142-228
+  s_f75c1d80a6b875::t_0bfee263139513 22-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "59bbfae40f43352fc4d59576c74edf9c98eaed65",
+  "prompts": {},
+  "sessions": {
+    "s_f75c1d80a6b875": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af750f1effeWDr180eru7Vw0y",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
