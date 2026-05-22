@@ -129,113 +129,98 @@ async function setupMcpIntegration(mcpClients: McpClient[], projectRoot: string)
 	return results;
 }
 
+function resolveOverrideValue<T>(
+	advanced: Record<string, unknown>,
+	key: string,
+	existing: T | undefined,
+	fallback: T,
+): T {
+	return (advanced[key] as T | undefined) ?? existing ?? fallback;
+}
+
 function buildInitConfig(
 	projectName: string,
 	existingConfig: BacklogConfig | null | undefined,
 	normalizedAdvancedConfig: Record<string, unknown>,
 	effectiveFilesystemOnly: boolean,
 ): BacklogConfig {
-	const hasDefaultEditorOverride = Object.hasOwn(normalizedAdvancedConfig, "defaultEditor");
-	const hasZeroPaddedIdsOverride = Object.hasOwn(normalizedAdvancedConfig, "zeroPaddedIds");
-	const hasDefinitionOfDoneOverride = Object.hasOwn(normalizedAdvancedConfig, "definitionOfDone");
-
 	const d = DEFAULT_INIT_CONFIG;
-	const baseConfig: BacklogConfig = {
-		projectName,
+
+	const config: BacklogConfig = {
 		statuses: ["To Do", "In Progress", "Done"],
 		labels: [],
 		defaultStatus: "To Do",
 		maxColumnWidth: 20,
+		...(existingConfig ?? ({} as BacklogConfig)),
+		projectName,
 		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
-		autoCommit:
-			(normalizedAdvancedConfig.autoCommit as boolean | undefined) ?? existingConfig?.autoCommit ?? d.autoCommit,
-		remoteOperations:
-			(normalizedAdvancedConfig.remoteOperations as boolean | undefined) ??
-			existingConfig?.remoteOperations ??
+		autoCommit: resolveOverrideValue(normalizedAdvancedConfig, "autoCommit", existingConfig?.autoCommit, d.autoCommit),
+		remoteOperations: resolveOverrideValue(
+			normalizedAdvancedConfig,
+			"remoteOperations",
+			existingConfig?.remoteOperations,
 			d.remoteOperations,
-		bypassGitHooks:
-			(normalizedAdvancedConfig.bypassGitHooks as boolean | undefined) ??
-			existingConfig?.bypassGitHooks ??
+		),
+		bypassGitHooks: resolveOverrideValue(
+			normalizedAdvancedConfig,
+			"bypassGitHooks",
+			existingConfig?.bypassGitHooks,
 			d.bypassGitHooks,
-		checkActiveBranches:
-			(normalizedAdvancedConfig.checkActiveBranches as boolean | undefined) ??
-			existingConfig?.checkActiveBranches ??
+		),
+		checkActiveBranches: resolveOverrideValue(
+			normalizedAdvancedConfig,
+			"checkActiveBranches",
+			existingConfig?.checkActiveBranches,
 			d.checkActiveBranches,
-		activeBranchDays:
-			(normalizedAdvancedConfig.activeBranchDays as number | undefined) ??
-			existingConfig?.activeBranchDays ??
+		),
+		activeBranchDays: resolveOverrideValue(
+			normalizedAdvancedConfig,
+			"activeBranchDays",
+			existingConfig?.activeBranchDays,
 			d.activeBranchDays,
-		defaultPort:
-			(normalizedAdvancedConfig.defaultPort as number | undefined) ?? existingConfig?.defaultPort ?? d.defaultPort,
-		autoOpenBrowser:
-			(normalizedAdvancedConfig.autoOpenBrowser as boolean | undefined) ??
-			existingConfig?.autoOpenBrowser ??
+		),
+		defaultPort: resolveOverrideValue(
+			normalizedAdvancedConfig,
+			"defaultPort",
+			existingConfig?.defaultPort,
+			d.defaultPort,
+		),
+		autoOpenBrowser: resolveOverrideValue(
+			normalizedAdvancedConfig,
+			"autoOpenBrowser",
+			existingConfig?.autoOpenBrowser,
 			d.autoOpenBrowser,
+		),
 		taskResolutionStrategy: existingConfig?.taskResolutionStrategy || "most_recent",
 		prefixes: existingConfig?.prefixes || {
 			task: (normalizedAdvancedConfig.taskPrefix as string | undefined) || "task",
 		},
 	};
 
-	const config: BacklogConfig = {
-		...baseConfig,
-		...(existingConfig ?? {}),
-		projectName,
-		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
-		autoCommit:
-			(normalizedAdvancedConfig.autoCommit as boolean | undefined) ?? existingConfig?.autoCommit ?? d.autoCommit,
-		remoteOperations:
-			(normalizedAdvancedConfig.remoteOperations as boolean | undefined) ??
-			existingConfig?.remoteOperations ??
-			d.remoteOperations,
-		bypassGitHooks:
-			(normalizedAdvancedConfig.bypassGitHooks as boolean | undefined) ??
-			existingConfig?.bypassGitHooks ??
-			d.bypassGitHooks,
-		checkActiveBranches:
-			(normalizedAdvancedConfig.checkActiveBranches as boolean | undefined) ??
-			existingConfig?.checkActiveBranches ??
-			d.checkActiveBranches,
-		activeBranchDays:
-			(normalizedAdvancedConfig.activeBranchDays as number | undefined) ??
-			existingConfig?.activeBranchDays ??
-			d.activeBranchDays,
-		defaultPort:
-			(normalizedAdvancedConfig.defaultPort as number | undefined) ?? existingConfig?.defaultPort ?? d.defaultPort,
-		autoOpenBrowser:
-			(normalizedAdvancedConfig.autoOpenBrowser as boolean | undefined) ??
-			existingConfig?.autoOpenBrowser ??
-			d.autoOpenBrowser,
-		prefixes: existingConfig?.prefixes || {
-			task: (normalizedAdvancedConfig.taskPrefix as string | undefined) || "task",
-		},
-		...(hasDefaultEditorOverride && normalizedAdvancedConfig.defaultEditor
-			? { defaultEditor: normalizedAdvancedConfig.defaultEditor as string }
-			: {}),
-		...(hasZeroPaddedIdsOverride &&
-		typeof normalizedAdvancedConfig.zeroPaddedIds === "number" &&
-		normalizedAdvancedConfig.zeroPaddedIds > 0
-			? { zeroPaddedIds: normalizedAdvancedConfig.zeroPaddedIds as number }
-			: {}),
-		...(hasDefinitionOfDoneOverride && Array.isArray(normalizedAdvancedConfig.definitionOfDone)
-			? { definitionOfDone: [...(normalizedAdvancedConfig.definitionOfDone as string[])] }
-			: {}),
-	};
+	const hasDefaultEditorOverride = Object.hasOwn(normalizedAdvancedConfig, "defaultEditor");
+	const hasZeroPaddedIdsOverride = Object.hasOwn(normalizedAdvancedConfig, "zeroPaddedIds");
+	const hasDefinitionOfDoneOverride = Object.hasOwn(normalizedAdvancedConfig, "definitionOfDone");
 
-	if (hasDefaultEditorOverride && !normalizedAdvancedConfig.defaultEditor) {
-		delete config.defaultEditor;
+	if (hasDefaultEditorOverride) {
+		if (normalizedAdvancedConfig.defaultEditor) {
+			config.defaultEditor = normalizedAdvancedConfig.defaultEditor as string;
+		} else {
+			delete config.defaultEditor;
+		}
 	}
-	if (
-		hasZeroPaddedIdsOverride &&
-		!(
-			typeof normalizedAdvancedConfig.zeroPaddedIds === "number" &&
-			(normalizedAdvancedConfig.zeroPaddedIds as number) > 0
-		)
-	) {
-		delete config.zeroPaddedIds;
+	if (hasZeroPaddedIdsOverride) {
+		if (typeof normalizedAdvancedConfig.zeroPaddedIds === "number" && normalizedAdvancedConfig.zeroPaddedIds > 0) {
+			config.zeroPaddedIds = normalizedAdvancedConfig.zeroPaddedIds as number;
+		} else {
+			delete config.zeroPaddedIds;
+		}
 	}
-	if (hasDefinitionOfDoneOverride && !Array.isArray(normalizedAdvancedConfig.definitionOfDone)) {
-		delete config.definitionOfDone;
+	if (hasDefinitionOfDoneOverride) {
+		if (Array.isArray(normalizedAdvancedConfig.definitionOfDone)) {
+			config.definitionOfDone = [...(normalizedAdvancedConfig.definitionOfDone as string[])];
+		} else {
+			delete config.definitionOfDone;
+		}
 	}
 
 	return config;
