@@ -1,7 +1,7 @@
 import {useState, useEffect, memo, useCallback} from 'react';
 import {useParams, useNavigate, useSearchParams} from 'react-router-dom';
 import {apiClient} from '../lib/api';
-import MDEditor from '@uiw/react-md-editor';
+import PasteAwareMDEditor from './PasteAwareMDEditor';
 import MermaidMarkdown from './MermaidMarkdown';
 import {type Document} from '../../types';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -40,7 +40,7 @@ const MarkdownEditor = memo(function MarkdownEditor({
     return (
         <div className="h-full w-full flex flex-col">
             <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                <MDEditor
+                <PasteAwareMDEditor
                     value={value}
                     onChange={onChange}
                     preview="edit"
@@ -134,7 +134,7 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
             // Find document from props
             const prefixedId = addDocPrefix(id);
             const doc = docs.find(d => d.id === prefixedId);
-            
+
             // Always try to fetch the document from API, whether we found it in docs or not
             // This ensures deep linking works even before the parent component loads the docs array
             try {
