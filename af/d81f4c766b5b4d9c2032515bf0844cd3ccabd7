@@ -1,0 +1,38 @@
+src/test/commands-cov-helper.ts
+  s_8bfcaf37a38fc6::t_b962dffd9ebb5d 30
+  s_8bfcaf37a38fc6::t_759addfc1a12b1 16-19,21-29,31-33,50,63
+  s_8bfcaf37a38fc6::t_5b529db5dbfd59 1-5,7-15,20,34-36,38-49,51-53,57,59-60,66-87
+  s_8bfcaf37a38fc6::t_eeff06fdc68c55 58,62,64-65
+  s_8bfcaf37a38fc6::t_70c26e4853c80e 6,37,54-56,61
+src/test/commands-config-cov.test.ts
+  s_8bfcaf37a38fc6::t_602a99a05fc378 1-44,52,54,57-176,178-257,261
+  s_92571da67d3a6b::t_1199d3e279947d 258-260
+  s_8bfcaf37a38fc6::t_1c51eab8e58744 177
+  s_92571da67d3a6b::t_efc0836fec4c9f 45-51,53,55-56
+src/test/commands-task-cov.test.ts
+  s_92571da67d3a6b::t_c40c266a19e12e 1-119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "afd81f4c766b5b4d9c2032515bf0844cd3ccabd7",
+  "prompts": {},
+  "sessions": {
+    "s_8bfcaf37a38fc6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b01fbef1ffeoLRnvkuykRCv5W",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_92571da67d3a6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0bf210bffeGVVJbckeHIHNYV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
