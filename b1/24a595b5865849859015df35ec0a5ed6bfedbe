@@ -1,0 +1,51 @@
+src/test/commands-init-cov.test.ts
+  s_452bdfded6d332::t_07ab0de93d1142 111
+  s_452bdfded6d332::t_a179d1c259f279 1-110,112,209
+  s_452bdfded6d332::t_bef6a9deb508fc 173
+  s_452bdfded6d332::t_22ed5b472bbdad 113-160
+  s_452bdfded6d332::t_f9ad1824e5cf2e 167
+  s_452bdfded6d332::t_de35f3a50f0724 161-166,168-172,174-208
+src/test/commands-task-cov.test.ts
+  s_452bdfded6d332::t_52e39b2ed5d2c7 33,35
+  s_452bdfded6d332::t_3d47f7f87add80 173-216
+  s_452bdfded6d332::t_d9e8d67bb60340 118-150,153,155-172
+  s_452bdfded6d332::t_170fa9a07c870e 251-270
+  s_452bdfded6d332::t_fc1a20ee31d732 29
+  s_452bdfded6d332::t_a9036beaff02d7 217-226,228,230-234,236-243
+  s_452bdfded6d332::t_e36e7d97f5a276 235
+  s_452bdfded6d332::t_3a345983b141ac 151-152,154
+  s_452bdfded6d332::t_2dc204d9927623 112-116
+  s_452bdfded6d332::t_0e31c404d825fa 244-250
+  s_452bdfded6d332::t_9dcdac05c96746 93,95
+.github/workflows/ci.yml
+  s_92571da67d3a6b::t_9c4b94e1ac17e3 75,77
+src/test/commands-cov-helper.ts
+  s_452bdfded6d332::t_f6effaf47e05f2 77
+  s_452bdfded6d332::t_06de5a5c015576 11
+  s_452bdfded6d332::t_39aa4b0500295a 61-63
+  s_452bdfded6d332::t_63073173b73005 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "b124a595b5865849859015df35ec0a5ed6bfedbe",
+  "prompts": {},
+  "sessions": {
+    "s_452bdfded6d332": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1afff0306ffeMqp8FTOvGxThXN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_92571da67d3a6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0bf210bffeGVVJbckeHIHNYV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
