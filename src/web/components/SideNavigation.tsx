@@ -692,6 +692,11 @@ const SideNavigation = memo(function SideNavigation({
 											>
 												<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
 												<span className="truncate">{decision.title}</span>
+												{decision.status === 'superseded' && (
+													<span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-medium">
+														superseded
+													</span>
+												)}
 											</NavLink>
 										))
 									)}
