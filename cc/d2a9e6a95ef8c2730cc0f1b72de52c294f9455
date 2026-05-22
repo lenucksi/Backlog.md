@@ -1,0 +1,21 @@
+src/commands/decision.ts
+  s_9503228666d428::t_df7542953a9a62 1-3,72-76,100-138,147,170,175-196,218-254
+  s_9503228666d428::t_02580a9c59f7aa 197-217
+  ai_agent 8,139-146,148-169,171-174
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "ccd2a9e6a95ef8c2730cc0f1b72de52c294f9455",
+  "prompts": {},
+  "sessions": {
+    "s_9503228666d428": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2bb4c85ffeexnymOwFb0sncd",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
