@@ -731,6 +731,32 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 	console.log(`Updated task ${updatedTask.id}`);
 }
 
+async function handleTaskCompleteCommand(ids: string[]) {
+	const cwd = await requireProjectRoot();
+	const core = new Core(cwd);
+	await core.ensureConfigLoaded();
+
+	let hasError = false;
+	for (const rawId of ids) {
+		try {
+			const task = await core.loadTaskById(rawId);
+			if (!task) {
+				console.error(`Task ${rawId} not found.`);
+				hasError = true;
+				continue;
+			}
+			await core.editTask(task.id, { status: "Done" });
+			console.log(`Task ${task.id} — ${task.title} marked as Done`);
+		} catch (error) {
+			console.error(AppError.formatCLIError(error));
+			hasError = true;
+		}
+	}
+	if (hasError) {
+		process.exitCode = 1;
+	}
+}
+
 export function registerTaskCommand(program: Command): void {
 	const taskCmd = program.command("task").aliases(["tasks"]);
 
@@ -949,13 +975,20 @@ export function registerTaskCommand(program: Command): void {
 		});
 
 	taskCmd
+		.command("complete <id1> [id2...]")
+		.description("mark one or more tasks as Done")
+		.action(async (id1: string, ...rest: string[]) => {
+			await handleTaskCompleteCommand([id1, ...rest]);
+		});
+
+	taskCmd
 		.argument("[taskId]")
 		.option("--plain", "use plain text output")
 		.action(async (taskId: string | undefined, options: { plain?: boolean }) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 
-			const reservedCommands = ["create", "list", "edit", "view", "archive", "demote"];
+			const reservedCommands = ["create", "list", "edit", "view", "archive", "demote", "complete"];
 			if (taskId && reservedCommands.includes(taskId)) {
 				console.error(`Unknown command: ${taskId}`);
 				taskCmd.help();
