@@ -1,10 +1,10 @@
 ---
 id: BACK-512
 title: 'Coverage: Grosse 0%-TUI-Files initial testen'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
-updated_date: '2026-05-20 22:04'
+updated_date: '2026-05-22 11:18'
 labels:
   - coverage
   - testing
@@ -31,12 +31,24 @@ Strategie: Nicht jede Zeile testen, sondern Integrationstests via node-pty (wie 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 src/cli.ts erreicht ≥20% Line Coverage (kritische/neue Commands)
-- [ ] #2 src/ui/board.ts erreicht ≥20% Line Coverage
-- [ ] #3 src/ui/task-viewer-with-search.ts erreicht ≥20% Line Coverage
-- [ ] #4 src/ui/sequences.ts erreicht ≥20% Line Coverage
-- [ ] #5 Existierende Tests bleiben grün
+- [x] #1 src/cli.ts erreicht ≥20% Line Coverage (kritische/neue Commands)
+- [x] #2 src/ui/board.ts erreicht ≥20% Line Coverage
+- [x] #3 src/ui/task-viewer-with-search.ts erreicht ≥20% Line Coverage
+- [x] #4 src/ui/sequences.ts erreicht ≥20% Line Coverage
+- [x] #5 Existierende Tests bleiben grün
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Achieved coverage targets for all 4 files via parallel subagents:
+- src/cli.ts: 84.62% (target ≥20%) — integration test exercising CLI init path via direct module import
+- src/ui/board.ts: 34.26% (target ≥20%) — 29 tests covering formatTaskListItem, shouldRebuildColumns, renderBoardTui (non-TTY + mocked TTY paths)
+- src/ui/task-viewer-with-search.ts: 24.36% (target ≥20%) — mocking neo-blessed to test getPriorityDisplay, createMilestoneLabelResolver, createTaskPopup, various boundary/pane helpers
+- src/ui/sequences.ts: 54.29% (target ≥20%) — 10 tests covering displaySequences, sortSequences, aggregateSequences, runSequencesView via mocked console.log + mock.module
+
+Test files: src/test/cli-coverage.test.ts, board-coverage.test.ts, task-viewer-coverage.test.ts, sequences-coverage.test.ts
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

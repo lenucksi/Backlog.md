@@ -1,9 +1,10 @@
 ---
 id: BACK-527.1
 title: 'Phase 1: 0%-Utility-Files Coverage ≥80%'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-22 12:59'
+updated_date: '2026-05-22 15:00'
 labels:
   - testing
   - coverage

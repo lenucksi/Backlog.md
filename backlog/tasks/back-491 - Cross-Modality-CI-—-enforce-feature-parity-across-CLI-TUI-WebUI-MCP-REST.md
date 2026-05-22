@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-17 20:27'
+updated_date: '2026-05-22 09:52'
 labels:
   - ci
   - testing
@@ -51,6 +51,35 @@ Features have shipped in some access modalities but not others, generating upstr
 - [ ] #6 Claude skill file created at `.codex/skills/modality-parity-check.md` (or `.claude/skills/`) that reviews changed files and flags missing modality coverage; instructions for when to invoke it added to CLAUDE.md
 - [ ] #7 All 5 modalities named explicitly in the skill prompt so it cannot miss one by accident
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Current remaining gaps (v2 audit 2026-05-22)
+
+After DOC-005 re-audit, these are the gaps that cross-modality CI should prioritize catching:
+
+**High priority for CI enforcement:**
+1. CLI task complete — previously ⚠️, now ✅ (BACK-516)
+2. CLI decisions list/view/supersede — previously ❌, now ✅ (BACK-515)
+3. CLI doc archive/delete — previously ❌, now ✅ (BACK-516)
+4. MCP decisions list/view/supersede — previously ❌, now ✅ (BACK-515)
+5. MCP document archive/delete — previously ❌, now ✅ (BACK-489, BACK-516)
+6. CLI stats — previously ❌, now ✅ (BACK-516)
+
+**Gaps still open and should be CI-enforced when closed:**
+- TUI cannot create any entity (tasks, drafts, docs, milestones, decisions)
+- Decision edit missing in CLI and MCP
+- Decision create missing in MCP
+- Document archive/delete missing in WebUI
+- Milestone create/rename/remove missing in CLI
+- Cross-branch filtering missing in MCP
+- Demote to draft missing in WebUI, TUI, MCP (MCP handler exists but unregistered)
+- Board/kanban missing in MCP entirely
+- Statistics missing in TUI and MCP
+- Sequences management missing in CLI, TUI, MCP
+- TUI lacks milestone list/view
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

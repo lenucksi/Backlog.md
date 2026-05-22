@@ -4,7 +4,7 @@ title: 'Coverage-Checks, Minimum-Targets & Prek-Pre-Commit für Backlog.md Tech-
 status: Done
 assignee: []
 created_date: '2026-05-22 10:37'
-updated_date: '2026-05-22 12:46'
+updated_date: '2026-05-22 15:02'
 labels:
   - ci
   - testing
@@ -12,6 +12,7 @@ labels:
   - quality
   - prek
   - pre-commit
+milestone: m-13
 dependencies: []
 references:
   - 'file:///home/jo/kit/homeass/rig-for-red/prek.toml'

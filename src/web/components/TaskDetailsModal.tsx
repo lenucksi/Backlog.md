@@ -566,6 +566,18 @@ export const TaskDetailsModal: React.FC<Props> = ({
     onClose();
   };
 
+  const handleDemote = async () => {
+    if (!task) return;
+    if (!window.confirm("Demote to Draft? A new draft will be created and this task will be deleted.")) return;
+    try {
+      await apiClient.demoteTask(task.id);
+      if (onSaved) await onSaved();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
   const checkedCount = (criteria || []).filter((c) => c.checked).length;
   const totalCount = (criteria || []).length;
   const definitionCheckedCount = (definitionOfDone || []).filter((c) => c.checked).length;
@@ -1062,6 +1074,21 @@ export const TaskDetailsModal: React.FC<Props> = ({
               disabled={isFromOtherBranch}
             />
           </div>
+
+          {/* Demote to Draft button */}
+		          {mode === "preview" && task && !isFromOtherBranch && (status || "").toLowerCase() !== "draft" && (
+		            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+		              <button
+		                onClick={handleDemote}
+		                className="w-full inline-flex items-center justify-center px-4 py-2 bg-orange-500 dark:bg-orange-600 text-white text-sm font-medium rounded-md hover:bg-orange-600 dark:hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-orange-400 dark:focus:ring-orange-500 transition-colors duration-200"
+		              >
+		                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+		                </svg>
+		                Demote to Draft
+		              </button>
+		            </div>
+		          )}
 
           {/* Archive button at bottom of sidebar */}
 		          {task && onArchive && !isFromOtherBranch && (

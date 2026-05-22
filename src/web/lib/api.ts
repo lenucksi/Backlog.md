@@ -268,6 +268,10 @@ export class ApiClient {
 		await this.fetchWithRetry(`${API_BASE}/tasks/${id}/complete`, { method: "POST" });
 	}
 
+	async demoteTask(id: string): Promise<void> {
+		await this.fetchWithRetry(`${API_BASE}/tasks/${id}/demote`, { method: "POST" });
+	}
+
 	async getCleanupPreview(age: number): Promise<{
 		count: number;
 		tasks: Array<{ id: string; title: string; updatedDate?: string; createdDate: string }>;

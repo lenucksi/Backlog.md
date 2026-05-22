@@ -1,9 +1,10 @@
 ---
 id: BACK-513
 title: 'Research: TUI interactive editor handoff test reliability'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-21 01:39'
+updated_date: '2026-05-22 15:07'
 labels:
   - research
   - testing
@@ -50,3 +51,13 @@ Der interaktive TUI-Test (`src/test/tui-interactive-editor-handoff.test.ts`) tes
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Research outcome: Bun native PTY (via `Bun.spawn` + `terminal` option) replaces node-pty AND expect-TCL. 
+
+Test `tui-interactive-editor-handoff.test.ts` wurde auf termless/vterm.js Backend migriert (BACK-526). Der Test läuft stabil in ~11s (vorher ~2min via expect-TCL) und wird in CI auf ubuntu-latest ausgeführt.
+
+Option 4 aus der Research ("Bun-PTY-Lösung") wurde implementiert. Die Bun native PTY-API existiert und funktioniert. Test ist nicht mehr flaky.
+<!-- SECTION:FINAL_SUMMARY:END -->

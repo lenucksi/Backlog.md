@@ -76,6 +76,9 @@ archive/
 # prek internal hooks
 .husky/_
 
+# Agent memory/state store
+data/
+
 # Python cache
 __pycache__/
 *.pyc

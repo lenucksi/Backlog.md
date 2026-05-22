@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@alex-agent'
 created_date: '2026-04-25 12:14'
-updated_date: '2026-05-17 20:10'
+updated_date: '2026-05-22 10:26'
 labels:
   - cli
   - milestones
@@ -14,6 +14,7 @@ milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/232'
+  - 'BACK-524 — supersedes this task (broader scope: create + rename + remove)'
 priority: medium
 ordinal: 133000
 ---

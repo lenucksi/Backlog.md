@@ -1,11 +1,11 @@
-import { describe, it, expect } from "bun:test";
-import { createTerminal } from "@termless/core";
-import { createVtermBackend } from "./vterm-backend.ts";
+import { describe, expect, it } from "bun:test";
 import { mkdirSync } from "node:fs";
-import { $ } from "bun";
 import { join } from "node:path";
+import { createTerminal } from "@termless/core";
+import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
-import { initializeTestProject, createUniqueTestDir } from "./test-utils.ts";
+import { createUniqueTestDir, initializeTestProject } from "./test-utils.ts";
+import { createVtermBackend } from "./vterm-backend.ts";
 
 describe("vterm.js backend for termless", () => {
 	it("processes text and exposes cells", () => {
@@ -67,7 +67,19 @@ describe("vterm.js backend for termless", () => {
 		await $`git config user.name Test`.cwd(testDir).quiet();
 		const core = new Core(testDir);
 		await initializeTestProject(core, "Vterm board test");
-		await core.createTask({ id: "task-1", title: "Test task", status: "To Do", assignee: [], createdDate: "2026-05-22", labels: [], dependencies: [], description: "" }, false);
+		await core.createTask(
+			{
+				id: "task-1",
+				title: "Test task",
+				status: "To Do",
+				assignee: [],
+				createdDate: "2026-05-22",
+				labels: [],
+				dependencies: [],
+				description: "",
+			},
+			false,
+		);
 
 		const backend = createVtermBackend({ cols: 120, rows: 40 });
 		const term = createTerminal({ backend, cols: 120, rows: 40 });

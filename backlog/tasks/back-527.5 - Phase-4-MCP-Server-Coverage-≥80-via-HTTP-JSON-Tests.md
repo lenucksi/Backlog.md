@@ -1,9 +1,10 @@
 ---
 id: BACK-527.5
 title: 'Phase 4: MCP + Server Coverage ≥80% via HTTP/JSON Tests'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-22 14:30'
+updated_date: '2026-05-22 14:43'
 labels:
   - testing
   - coverage
@@ -59,3 +60,12 @@ testing, coverage, phase-4, mcp, server, back-527
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 src/mcp/server.ts ≥80% (99.31%)
+- [ ] #2 src/mcp/tools/tasks/handlers.ts ≥80% (92.36%)
+- [ ] #3 src/mcp/tools/milestones/handlers.ts ≥80% (97.77%)
+- [ ] #4 src/server/handlers/tasks.ts ≥80% (84.08%)
+- [ ] #5 src/server/index.ts ≥80% (83.61%)
+<!-- AC:END -->

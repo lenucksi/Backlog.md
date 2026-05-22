@@ -17,17 +17,17 @@
  *   const term = createTerminal({ backend: createVtermBackend(), cols: 120, rows: 40 })
  */
 
-import { createVtermScreen } from "vterm.js";
 import type {
-	TerminalBackend,
-	TerminalOptions,
 	Cell,
 	CursorState,
-	TerminalMode,
-	ScrollbackState,
 	RGB,
+	ScrollbackState,
+	TerminalBackend,
+	TerminalMode,
+	TerminalOptions,
 } from "@termless/core";
 import { encodeKeyToAnsi } from "@termless/core";
+import { createVtermScreen } from "vterm.js";
 
 const DEFAULT_COLS = 80;
 const DEFAULT_ROWS = 24;
@@ -138,10 +138,21 @@ export function createVtermBackend(opts?: Partial<TerminalOptions>): TerminalBac
 		getCell(row: number, col: number): Cell {
 			if (!screen) {
 				return {
-					char: "", fg: null, bg: null, bold: false, dim: false,
-					italic: false, underline: false, underlineColor: null,
-					strikethrough: false, inverse: false, blink: false,
-					hidden: false, wide: false, continuation: false, hyperlink: null,
+					char: "",
+					fg: null,
+					bg: null,
+					bold: false,
+					dim: false,
+					italic: false,
+					underline: false,
+					underlineColor: null,
+					strikethrough: false,
+					inverse: false,
+					blink: false,
+					hidden: false,
+					wide: false,
+					continuation: false,
+					hyperlink: null,
 				};
 			}
 			return convertCell(screen.getCell(row, col) as unknown as Record<string, unknown>);

@@ -1,9 +1,10 @@
 ---
 id: BACK-527.4
 title: 'Phase 5: TUI Coverage ≥50% via termless/vterm.js + mock.module'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-22 13:28'
+updated_date: '2026-05-22 15:00'
 labels:
   - testing
   - coverage

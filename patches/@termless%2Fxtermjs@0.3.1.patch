@@ -1,0 +1,15 @@
+diff --git a/src/backend.ts b/src/backend.ts
+index a107b505b2f489f8577a19e1f031a35ba7a1242e..7f0385330cee72a5d17eafbec891a25e83575f93 100644
+--- a/src/backend.ts
++++ b/src/backend.ts
+@@ -15,8 +15,8 @@ import type {
+   ScrollbackState,
+   TerminalCapabilities,
+   RGB,
+-} from "../../../src/types.ts"
+-import { encodeKeyToAnsi } from "../../../src/key-encoding.ts"
++} from "@termless/core"
++import { encodeKeyToAnsi } from "@termless/core"
+
+ // ═══════════════════════════════════════════════════════
+ // ANSI 256-color palette

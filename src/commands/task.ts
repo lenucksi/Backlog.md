@@ -977,8 +977,8 @@ export function registerTaskCommand(program: Command): void {
 	taskCmd
 		.command("complete <id1> [id2...]")
 		.description("mark one or more tasks as Done")
-		.action(async (id1: string, ...rest: string[]) => {
-			await handleTaskCompleteCommand([id1, ...rest]);
+		.action(async (id1: string, idsRest: string[], _options: Record<string, unknown>) => {
+			await handleTaskCompleteCommand([id1, ...(idsRest ?? [])]);
 		});
 
 	taskCmd

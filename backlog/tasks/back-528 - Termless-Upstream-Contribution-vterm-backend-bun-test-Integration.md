@@ -4,12 +4,14 @@ title: 'Termless Upstream Contribution: vterm-backend + bun-test Integration'
 status: To Do
 assignee: []
 created_date: '2026-05-22 12:47'
+updated_date: '2026-05-22 15:02'
 labels:
   - contribution
   - upstream
   - open-source
   - termless
   - vterm
+milestone: m-14
 dependencies: []
 references:
   - 'https://github.com/beorn/termless'

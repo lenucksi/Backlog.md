@@ -29,6 +29,5 @@
 				"SONARQUBE_ORG": "lenucksi"
 			}
 		}
-	},
-	"plugin": ["./hooks/backlog-guard/opencode-plugin.js"]
+	}
 }

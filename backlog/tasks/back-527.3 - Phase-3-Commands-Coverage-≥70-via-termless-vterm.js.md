@@ -1,9 +1,10 @@
 ---
 id: BACK-527.3
 title: 'Phase 3: Commands Coverage ≥70% via termless/vterm.js'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-22 13:28'
+updated_date: '2026-05-22 15:00'
 labels:
   - testing
   - coverage

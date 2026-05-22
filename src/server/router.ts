@@ -7,6 +7,7 @@ export type RouteHandlers = {
 		handleUpdateTask: (req: Request, taskId: string) => Promise<Response>;
 		handleDeleteTask: (taskId: string) => Promise<Response>;
 		handleCompleteTask: (taskId: string) => Promise<Response>;
+		handleDemoteTask: (taskId: string) => Promise<Response>;
 		handleReorderTask: (req: Request) => Promise<Response>;
 		handleCleanupPreview: (req: Request) => Promise<Response>;
 		handleCleanupExecute: (req: Request) => Promise<Response>;
@@ -78,6 +79,9 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		},
 		"/api/tasks/:id/complete": {
 			POST: async (req: Request & { params: { id: string } }) => await tasks.handleCompleteTask(req.params.id),
+		},
+		"/api/tasks/:id/demote": {
+			POST: async (req: Request & { params: { id: string } }) => await tasks.handleDemoteTask(req.params.id),
 		},
 		"/api/statuses": {
 			GET: async () => await config.handleGetStatuses(),

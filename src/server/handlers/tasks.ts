@@ -286,6 +286,21 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleDemoteTask(taskId: string): Promise<Response> {
+		try {
+			const task = await ctx.core.getTask(taskId);
+			if (!task) {
+				return Response.json({ error: "Task not found" }, { status: 404 });
+			}
+			await ctx.core.demoteTask(taskId);
+			ctx.broadcastTasksUpdated();
+			return Response.json({ success: true });
+		} catch (error) {
+			const message = error instanceof Error ? error.message : "Failed to demote task";
+			return Response.json({ error: message }, { status: 500 });
+		}
+	}
+
 	async function handleCleanupPreview(req: Request): Promise<Response> {
 		try {
 			const url = new URL(req.url);
@@ -408,6 +423,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		handleUpdateTask,
 		handleDeleteTask,
 		handleCompleteTask,
+		handleDemoteTask,
 		handleReorderTask,
 		handleCleanupPreview,
 		handleCleanupExecute,
