@@ -23,6 +23,7 @@ const BOARD_SHORTCUTS: Shortcut[] = [
 	{ key: "C", desc: "Complete task" },
 	{ key: "A", desc: "Archive task" },
 	{ key: "Y", desc: "Yank (Copy) task ID" },
+	{ key: "N", desc: "Create new task" },
 	{ key: "?", desc: "Show this help menu" },
 	{ key: "q/Esc", desc: "Quit / Close" },
 ];
@@ -41,6 +42,7 @@ const TASK_LIST_SHORTCUTS: Shortcut[] = [
 	{ key: "C", desc: "Complete task" },
 	{ key: "A", desc: "Archive task" },
 	{ key: "Y", desc: "Yank (Copy) task ID" },
+	{ key: "N", desc: "Create new task" },
 	{ key: "?", desc: "Show this help menu" },
 	{ key: "q/Esc", desc: "Quit / Close" },
 ];
