@@ -1,0 +1,25 @@
+src/mcp/tools/statistics/schemas.ts
+  s_b4102a08636ab4::t_b0d6567f6ae248 1-13
+src/mcp/server.ts
+  s_b4102a08636ab4::t_68b935708d18c3 527
+src/mcp/tools/statistics/handlers.ts
+  s_b4102a08636ab4::t_6d71132033c0c1 1-41
+src/mcp/tools/statistics/index.ts
+  s_b4102a08636ab4::t_37819de825bc11 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "9065511c664e6901b5b9becc3de565b78b106a75",
+  "prompts": {},
+  "sessions": {
+    "s_b4102a08636ab4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1afa9ff80ffeRx685uZo4NeVxN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
