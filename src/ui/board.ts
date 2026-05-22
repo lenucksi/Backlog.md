@@ -18,6 +18,7 @@ import { openConfirmPopup } from "./components/confirm-popup.ts";
 import { createFilterHeader, type FilterHeader, type FilterState } from "./components/filter-header.ts";
 import { openMultiSelectFilterPopup, openSingleSelectFilterPopup } from "./components/filter-popup.ts";
 import { openHelpPopup } from "./components/help-popup.ts";
+import { openCreateTaskPopup } from "./create-task.ts";
 import { formatFooterContent } from "./footer-content.ts";
 import { getStatusIcon } from "./status-icon.ts";
 import {
@@ -153,7 +154,7 @@ function formatColumnLabel(status: string, count: number): string {
 }
 
 const DEFAULT_FOOTER_CONTENT =
-	" {cyan-fg}[Tab]{/} View | {cyan-fg}[/]{/} Search | {cyan-fg}[P/F/I]{/} Filter | {cyan-fg}[←→/↑↓]{/} Nav | {cyan-fg}[Enter]{/} Details | {cyan-fg}[E/M/C/A]{/} Edit/Move/Comp/Arch | {cyan-fg}[m/d/D]{/} Milestone/Draft/Doc | {cyan-fg}[Y]{/} Yank | {cyan-fg}[?]{/} Help | {cyan-fg}[q]{/} Quit";
+	" {cyan-fg}[Tab]{/} View | {cyan-fg}[/]{/} Search | {cyan-fg}[P/F/I]{/} Filter | {cyan-fg}[←→/↑↓]{/} Nav | {cyan-fg}[Enter]{/} Details | {cyan-fg}[N]{/} New | {cyan-fg}[E/M/C/A]{/} Edit/Move/Comp/Arch | {cyan-fg}[m/d/D]{/} Milestone/Draft/Doc | {cyan-fg}[Y]{/} Yank | {cyan-fg}[?]{/} Help | {cyan-fg}[q]{/} Quit";
 
 export function shouldRebuildColumns(current: ColumnData[], next: ColumnData[]): boolean {
 	if (current.length !== next.length) {
@@ -1340,6 +1341,24 @@ export async function renderBoardTui(
 				showTransientFooter(` {green-fg}Copied ${task.id} to clipboard{/}`);
 			} else {
 				showTransientFooter(" {red-fg}Failed to copy to clipboard{/}");
+			}
+		});
+
+		screen.key(["n", "N"], async () => {
+			if (popupOpen || filterPopupOpen || modalOpen || moveOp || currentFocus === "filters") return;
+			popupOpen = true;
+			try {
+				const createCore = new Core(process.cwd(), { enableWatchers: true });
+				const created = await openCreateTaskPopup(screen, createCore, currentStatuses);
+				if (created) {
+					currentTasks = [...currentTasks, created];
+					renderView();
+					showTransientFooter(` {green-fg}Created ${created.id}{/}`);
+				}
+			} catch {
+				showTransientFooter(" {red-fg}Failed to create task.{/}");
+			} finally {
+				popupOpen = false;
 			}
 		});
 
