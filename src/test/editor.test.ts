@@ -48,7 +48,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 				defaultEditor: "code",
 			};
 
@@ -63,7 +62,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 				defaultEditor: "code",
 			};
 
@@ -78,7 +76,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 			};
 
 			const editor = resolveEditor(config);
@@ -92,7 +89,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 			};
 
 			const editor = resolveEditor(config);
@@ -163,7 +159,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 				defaultEditor: "echo",
 			};
 
@@ -179,7 +174,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 				defaultEditor: "definitely-not-a-real-editor",
 			};
 
@@ -205,7 +199,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 				defaultEditor: `node ${scriptPath}`,
 			};
 
@@ -228,7 +221,6 @@ describe("Editor utilities", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 				defaultEditor: "echo test-argument",
 			};
 

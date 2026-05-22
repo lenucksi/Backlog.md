@@ -47,7 +47,6 @@ describe("Auto-commit configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 			};
 			await core.filesystem.saveConfig(oldConfig);
 

@@ -10,7 +10,6 @@ export function migrateConfig(config: Partial<BacklogConfig>): BacklogConfig {
 		defaultStatus: "",
 		statuses: ["To Do", "In Progress", "Done"],
 		labels: [],
-		dateFormat: "YYYY-MM-DD",
 		maxColumnWidth: 80,
 		autoOpenBrowser: true,
 		defaultPort: 6420,

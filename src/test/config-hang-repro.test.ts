@@ -25,7 +25,6 @@ statuses: ["To Do", "In Progress", "Done"]
 labels: []
 milestones: []
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 
@@ -57,7 +56,6 @@ statuses: ["To Do", "In Progress", "Done"]
 labels: []
 milestones: []
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 
@@ -84,7 +82,6 @@ statuses: ["To Do", "In Progress", "Done"]
 labels: []
 milestones: ["Release 1", "Release 2"]
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 
@@ -105,7 +102,6 @@ statuses: ["To Do", "In Progress", "Done"]
 labels: []
 milestones: ["Release, Part 1", "Release 2"]
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 
@@ -126,7 +122,6 @@ milestones:
   - Release 2 # comment
   - 'Release #3'
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 
@@ -154,7 +149,6 @@ milestones: [
   "Release 2"
 ]
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 
@@ -173,7 +167,6 @@ labels: []
 milestones:
   - 'Release ''Alpha'''
 default_status: "To Do"
-date_format: "yyyy-mm-dd"
 max_column_width: 20
 auto_commit: false`;
 

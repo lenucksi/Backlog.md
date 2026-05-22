@@ -116,7 +116,6 @@ describe("Definition of Done", () => {
 				'definition_of_done: ["simple item", "item with, a comma, inside"]',
 				'statuses: ["To Do", "In Progress", "Done"]',
 				"labels: []",
-				"date_format: yyyy-mm-dd",
 				"",
 			].join("\n"),
 		);
@@ -142,7 +141,6 @@ describe("Definition of Done", () => {
 				String.raw`definition_of_done: ["Run .\scripts\check.ps1", "Run C:\temp\tasks"]`,
 				'statuses: ["To Do", "In Progress", "Done"]',
 				"labels: []",
-				"date_format: yyyy-mm-dd",
 				"",
 			].join("\n"),
 		);
@@ -170,7 +168,6 @@ describe("Definition of Done", () => {
 				"  - Documentation updated",
 				'statuses: ["To Do", "In Progress", "Done"]',
 				"labels: []",
-				"date_format: yyyy-mm-dd",
 				"",
 			].join("\n"),
 		);
@@ -195,7 +192,6 @@ describe("Definition of Done", () => {
 				"",
 				'statuses: ["To Do", "In Progress", "Done"]',
 				"labels: []",
-				"date_format: yyyy-mm-dd",
 				"",
 			].join("\n"),
 		);

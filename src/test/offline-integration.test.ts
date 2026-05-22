@@ -35,7 +35,6 @@ describe("Offline Integration Tests", () => {
 			statuses: ["To Do", "In Progress", "Done"],
 			labels: ["bug", "feature"],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
 			remoteOperations: false,
 		};
 
@@ -45,7 +44,6 @@ describe("Offline Integration Tests", () => {
 statuses: ["To Do", "In Progress", "Done"]
 labels: ["bug", "feature"]
 milestones: []
-date_format: YYYY-MM-DD
 backlog_directory: "backlog"
 remote_operations: false
 `,
@@ -183,7 +181,6 @@ remote_operations: false
 statuses: ["To Do", "Done"]
 labels: []
 milestones: []
-date_format: YYYY-MM-DD
 backlog_directory: "backlog"
 `,
 		);

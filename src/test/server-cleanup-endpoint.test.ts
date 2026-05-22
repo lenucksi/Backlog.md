@@ -43,7 +43,7 @@ describe("BacklogServer cleanup endpoints", () => {
 			statuses: ["To Do", "Review", "Closed"],
 			labels: [],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
+
 			remoteOperations: false,
 		});
 

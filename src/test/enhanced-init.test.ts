@@ -72,7 +72,6 @@ describe("Enhanced init command", () => {
 		expect(config?.projectName).toBe("New Project");
 		expect(config?.autoCommit).toBe(false); // Default value
 		expect(config?.statuses).toEqual(["To Do", "In Progress", "Done"]);
-		expect(config?.dateFormat).toBe("yyyy-mm-dd");
 	});
 
 	test("should handle editor configuration in init flow", async () => {
@@ -85,7 +84,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			backlogDirectory: "backlog",
 			autoCommit: false,
 			remoteOperations: true,
@@ -110,7 +108,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 		};
 
 		await core.filesystem.ensureBacklogStructure();
@@ -133,7 +130,6 @@ describe("Enhanced init command", () => {
 			labels: ["bug", "feature", "enhancement"],
 			milestones: ["v1.0", "v2.0"],
 			defaultStatus: "Backlog",
-			dateFormat: "dd/mm/yyyy",
 			maxColumnWidth: 30,
 			backlogDirectory: "backlog",
 			autoCommit: true,
@@ -147,7 +143,6 @@ describe("Enhanced init command", () => {
 		expect(existingConfig).toBeTruthy();
 		expect(existingConfig?.statuses).toEqual(["Backlog", "In Progress", "Review", "Done"]);
 		expect(existingConfig?.labels).toEqual(["bug", "feature", "enhancement"]);
-		expect(existingConfig?.dateFormat).toBe("dd/mm/yyyy");
 		expect(existingConfig?.maxColumnWidth).toBe(30);
 	});
 
@@ -159,7 +154,6 @@ describe("Enhanced init command", () => {
 			statuses: ["To Do", "In Progress", "Done"],
 			labels: ["bug"],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			definitionOfDone: ["Run tests", "Update docs"],
 			defaultAssignee: "@alex",
 			defaultReporter: "@bot",
@@ -234,7 +228,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			backlogDirectory: "backlog",
 			autoCommit: false,
 			remoteOperations: true,
@@ -263,7 +256,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			backlogDirectory: "backlog",
 			autoCommit: false,
 			remoteOperations: true,
@@ -292,7 +284,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			backlogDirectory: "backlog",
 			autoCommit: false,
 			zeroPaddedIds: 4,
@@ -333,7 +324,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			backlogDirectory: "backlog",
 			autoCommit: false,
 			prefixes: {
@@ -360,7 +350,6 @@ describe("Enhanced init command", () => {
 			labels: [],
 			milestones: [],
 			defaultStatus: "To Do",
-			dateFormat: "yyyy-mm-dd",
 			backlogDirectory: "backlog",
 			autoCommit: false,
 			prefixes: {

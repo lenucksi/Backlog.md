@@ -32,7 +32,7 @@ describe("BacklogServer asset serving", () => {
 			statuses: ["To Do", "In Progress", "Done"],
 			labels: [],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
+
 			remoteOperations: false,
 		});
 

@@ -37,7 +37,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			expect(needsDraftPrefixMigration(config)).toBe(true);
 		});
@@ -48,7 +47,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				prefixes: {
 					task: "task",
 				},
@@ -65,7 +63,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			await filesystem.saveConfig(initialConfig);
 
@@ -85,7 +82,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			await filesystem.saveConfig(initialConfig);
 
@@ -127,7 +123,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			await filesystem.saveConfig(initialConfig);
 
@@ -163,7 +158,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			await filesystem.saveConfig(initialConfig);
 
@@ -208,7 +202,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			await filesystem.saveConfig(initialConfig);
 
@@ -251,7 +244,6 @@ describe("Draft Prefix Migration", () => {
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 			};
 			await filesystem.saveConfig(initialConfig);
 

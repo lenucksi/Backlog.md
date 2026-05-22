@@ -117,7 +117,6 @@ statuses:
   - Done
 labels: []
 milestones: []
-dateFormat: yyyy-mm-dd
 checkActiveBranches: false
 onStatusChange: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" > "${callbackOutputPath}"'
 `;
@@ -156,7 +155,6 @@ statuses:
   - Done
 labels: []
 milestones: []
-dateFormat: yyyy-mm-dd
 checkActiveBranches: false
 onStatusChange: 'echo "global" > "${callbackOutputPath}"'
 `;
@@ -196,7 +194,6 @@ statuses:
   - Done
 labels: []
 milestones: []
-dateFormat: yyyy-mm-dd
 checkActiveBranches: false
 onStatusChange: 'echo "callback-ran" > "${callbackOutputPath}"'
 `;
@@ -228,7 +225,6 @@ statuses:
   - Done
 labels: []
 milestones: []
-dateFormat: yyyy-mm-dd
 checkActiveBranches: false
 `;
 			await writeFile(join(testDir, "backlog", "config.yml"), configContent);
@@ -253,7 +249,6 @@ statuses:
   - Done
 labels: []
 milestones: []
-dateFormat: yyyy-mm-dd
 checkActiveBranches: false
 onStatusChange: 'exit 1'
 `;
@@ -279,7 +274,6 @@ statuses:
   - Done
 labels: []
 milestones: []
-dateFormat: yyyy-mm-dd
 checkActiveBranches: false
 onStatusChange: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" >> "${callbackOutputPath}"'
 `;

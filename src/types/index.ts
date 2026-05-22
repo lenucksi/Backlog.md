@@ -290,7 +290,6 @@ export interface BacklogConfig {
 	milestones?: string[];
 	definitionOfDone?: string[];
 	defaultStatus?: string;
-	dateFormat: string;
 	maxColumnWidth?: number;
 	taskResolutionStrategy?: "most_recent" | "most_progressed";
 	defaultEditor?: string;

@@ -246,7 +246,6 @@ Task from feature branch`,
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				prefixes: { task: "jira" },
 			};
 			const localBranchTasks = await loadLocalBranchTasks(mockGit, config, undefined, localTasks);
@@ -305,7 +304,6 @@ New task from feature branch`,
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				prefixes: { task: "jira" },
 			};
 			const localBranchTasks = await loadLocalBranchTasks(mockGit, config, undefined, localTasks);

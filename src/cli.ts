@@ -1809,9 +1809,6 @@ configCmd
 				case "definitionOfDone":
 					console.log(config.definitionOfDone?.join(", ") || "");
 					break;
-				case "dateFormat":
-					console.log(config.dateFormat);
-					break;
 				case "maxColumnWidth":
 					console.log(config.maxColumnWidth?.toString() || "");
 					break;
@@ -1848,7 +1845,7 @@ configCmd
 				default:
 					console.error(`Unknown config key: ${key}`);
 					console.error(
-						"Available keys: defaultEditor, projectName, defaultStatus, statuses, labels, milestones, definitionOfDone, dateFormat, maxColumnWidth, defaultPort, autoOpenBrowser, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
+						"Available keys: defaultEditor, projectName, defaultStatus, statuses, labels, milestones, definitionOfDone, maxColumnWidth, defaultPort, autoOpenBrowser, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
 					);
 					process.exit(1);
 			}
@@ -1888,7 +1885,6 @@ configCmd
 			const milestones = await core.filesystem.listMilestones();
 			console.log(`  milestones: [${milestones.map((milestone) => milestone.id).join(", ")}]`);
 			console.log(`  definitionOfDone: [${(config.definitionOfDone ?? []).join(", ")}]`);
-			console.log(`  dateFormat: ${config.dateFormat}`);
 			console.log(`  maxColumnWidth: ${config.maxColumnWidth || "(not set)"}`);
 			console.log(`  autoOpenBrowser: ${config.autoOpenBrowser ?? "(not set)"}`);
 			console.log(`  defaultPort: ${config.defaultPort ?? "(not set)"}`);
@@ -2797,9 +2793,6 @@ async function handleConfigSetCommand(key: string, value: string) {
 		case "defaultStatus":
 			config.defaultStatus = value;
 			break;
-		case "dateFormat":
-			config.dateFormat = value;
-			break;
 		case "maxColumnWidth": {
 			const width = Number.parseInt(value, 10);
 			if (Number.isNaN(width) || width <= 0) {
@@ -2949,7 +2942,7 @@ async function handleConfigSetCommand(key: string, value: string) {
 		default:
 			console.error(`Unknown config key: ${key}`);
 			console.error(
-				"Available keys: defaultEditor, projectName, defaultStatus, dateFormat, maxColumnWidth, autoOpenBrowser, defaultPort, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
+				"Available keys: defaultEditor, projectName, defaultStatus, maxColumnWidth, autoOpenBrowser, defaultPort, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
 			);
 			process.exit(1);
 	}

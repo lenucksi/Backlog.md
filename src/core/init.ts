@@ -145,7 +145,6 @@ function buildInitConfig(
 		statuses: ["To Do", "In Progress", "Done"],
 		labels: [],
 		defaultStatus: "To Do",
-		dateFormat: "yyyy-mm-dd",
 		maxColumnWidth: 20,
 		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
 		autoCommit:
@@ -251,44 +250,29 @@ function inferBacklogDirectorySource(
 	return "custom";
 }
 
-function validateDirectoryCompatibility(
-	source: string | undefined,
-	inferred: string | undefined,
-): void {
+function validateDirectoryCompatibility(source: string | undefined, inferred: string | undefined): void {
 	if (source && inferred && source !== inferred) {
 		throw new Error("Backlog directory source and backlog directory value must agree.");
 	}
 }
 
-function validateDirectoryExists(
-	source: string | undefined,
-	directory: string | null | undefined,
-): void {
+function validateDirectoryExists(source: string | undefined, directory: string | null | undefined): void {
 	if (source === "custom" && !directory) {
 		throw new Error("Backlog directory must be a valid project-relative path.");
 	}
 }
 
-function validateCustomConfigLocation(
-	source: string | undefined,
-	configLocation: string | undefined,
-): void {
+function validateCustomConfigLocation(source: string | undefined, configLocation: string | undefined): void {
 	if (source === "custom" && configLocation !== "root") {
 		throw new Error("Custom backlog directories require root config discovery.");
 	}
 }
 
-function resolveConfigLocation(
-	source: string | undefined,
-	configOption: string | undefined,
-): "folder" | "root" {
+function resolveConfigLocation(source: string | undefined, configOption: string | undefined): "folder" | "root" {
 	return configOption ?? (source === "custom" ? "root" : "folder");
 }
 
-function resolveBacklogDirectory(
-	directory: string | null | undefined,
-	source: string | undefined,
-): string {
+function resolveBacklogDirectory(directory: string | null | undefined, source: string | undefined): string {
 	return directory ?? (source === ".backlog" ? ".backlog" : "backlog");
 }
 

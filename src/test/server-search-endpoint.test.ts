@@ -70,7 +70,7 @@ describe("BacklogServer search endpoint", () => {
 			statuses: ["To Do", "In Progress", "Done"],
 			labels: [],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
+
 			remoteOperations: false,
 		});
 

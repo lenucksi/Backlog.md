@@ -266,7 +266,6 @@ Invalid content`,
 				statuses: ["Ready", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-MM-dd",
 			};
 			await filesystem.saveConfig(customConfig);
 			await filesystem.saveDraft(sampleDraft);
@@ -308,7 +307,6 @@ Invalid content`,
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-MM-dd",
 				prefixes: {
 					task: "JIRA",
 				},
@@ -394,7 +392,6 @@ Invalid content`,
 			defaultReporter: undefined,
 			statuses: ["To Do", "In Progress", "Done"],
 			labels: ["bug", "feature"],
-			dateFormat: "yyyy-mm-dd",
 		};
 
 		it("should save and load config", async () => {
@@ -419,7 +416,6 @@ Invalid content`,
 				defaultReporter: "@author",
 				statuses: ["To Do"],
 				labels: [],
-				dateFormat: "yyyy-mm-dd",
 			};
 
 			await filesystem.saveConfig(cfg);
@@ -731,7 +727,6 @@ Invalid content`,
 				defaultReporter: undefined,
 				statuses: ["To Do", "In Progress", "Done"],
 				labels: ["bug", "feature", "enhancement"],
-				dateFormat: "yyyy-mm-dd",
 			};
 
 			await filesystem.saveConfig(fullConfig);
@@ -745,7 +740,6 @@ Invalid content`,
 				projectName: "Minimal Project",
 				statuses: ["To Do", "Done"],
 				labels: [],
-				dateFormat: "yyyy-mm-dd",
 			};
 
 			await filesystem.saveConfig(minimalConfig);

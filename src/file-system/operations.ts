@@ -1415,9 +1415,6 @@ ${description || `Milestone: ${title}`}`,
 						config.definitionOfDone = parsedDefinitionOfDone;
 					}
 					break;
-				case "date_format":
-					config.dateFormat = value.replace(/['"]/g, "");
-					break;
 				case "max_column_width":
 					config.maxColumnWidth = Number.parseInt(value, 10);
 					break;
@@ -1477,7 +1474,6 @@ ${description || `Milestone: ${title}`}`,
 			labels: config.labels || [],
 			definitionOfDone: config.definitionOfDone,
 			defaultStatus: config.defaultStatus,
-			dateFormat: config.dateFormat || "yyyy-mm-dd",
 			maxColumnWidth: config.maxColumnWidth,
 			defaultEditor: config.defaultEditor,
 			autoOpenBrowser: config.autoOpenBrowser,
@@ -1513,7 +1509,6 @@ ${description || `Milestone: ${title}`}`,
 			...(Array.isArray(normalizedDefinitionOfDone)
 				? [`definition_of_done: [${normalizedDefinitionOfDone.map((item) => JSON.stringify(item)).join(", ")}]`]
 				: []),
-			`date_format: ${config.dateFormat}`,
 			...(config.maxColumnWidth ? [`max_column_width: ${config.maxColumnWidth}`] : []),
 			...(config.defaultEditor ? [`default_editor: "${config.defaultEditor}"`] : []),
 			...(typeof config.autoOpenBrowser === "boolean" ? [`auto_open_browser: ${config.autoOpenBrowser}`] : []),

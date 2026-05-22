@@ -28,7 +28,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				remoteOperations: false,
 			};
 
@@ -62,7 +61,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				remoteOperations: true,
 			};
 
@@ -84,7 +82,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				remoteOperations: true,
 			};
 
@@ -125,7 +122,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				remoteOperations: true,
 			};
 
@@ -167,7 +163,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				remoteOperations: false,
 			};
 
@@ -194,7 +189,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				remoteOperations: true,
 			};
 
@@ -245,7 +239,6 @@ describe("Offline Mode Configuration", () => {
 				statuses: ["To Do", "Done"],
 				labels: [],
 				milestones: [],
-				dateFormat: "YYYY-MM-DD",
 				// remoteOperations field is missing
 			};
 

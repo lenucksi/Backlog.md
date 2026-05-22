@@ -26,7 +26,7 @@ describe("BacklogServer document endpoints", () => {
 			statuses: ["To Do", "In Progress", "Done"],
 			labels: [],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
+
 			remoteOperations: false,
 		});
 

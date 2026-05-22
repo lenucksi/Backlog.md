@@ -205,7 +205,6 @@ describe("Board Loading with checkActiveBranches", () => {
 				defaultStatus: "To Do",
 				labels: [],
 				milestones: [],
-				dateFormat: "yyyy-mm-dd",
 			};
 			await core.filesystem.saveConfig(minimalConfig);
 

@@ -30,7 +30,6 @@ describe("Missing git remote preflight", () => {
 			statuses: ["To Do", "Done"],
 			labels: [],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
 			remoteOperations: true,
 		} as BacklogConfig);
 
@@ -57,7 +56,6 @@ describe("Missing git remote preflight", () => {
 			statuses: ["To Do", "Done"],
 			labels: [],
 			milestones: [],
-			dateFormat: "YYYY-MM-DD",
 			remoteOperations: true,
 		};
 
