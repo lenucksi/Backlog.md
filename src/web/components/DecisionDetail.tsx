@@ -5,6 +5,7 @@ import MDEditor from '@uiw/react-md-editor';
 import MermaidMarkdown from './MermaidMarkdown';
 import { type Decision } from '../../types';
 import ErrorBoundary from '../components/ErrorBoundary';
+import Modal from './Modal';
 import { SuccessToast } from './SuccessToast';
 import { useTheme } from '../contexts/ThemeContext';
 import { sanitizeUrlTitle } from '../utils/urlHelpers';
@@ -16,10 +17,10 @@ const stripIdPrefix = (id: string): string => {
 };
 
 // Custom MDEditor wrapper for proper height handling
-const MarkdownEditor = memo(function MarkdownEditor({ 
-	value, 
-	onChange, 
-	isEditing 
+const MarkdownEditor = memo(function MarkdownEditor({
+	value,
+	onChange,
+	isEditing
 }: {
 	value: string;
 	onChange?: (val: string | undefined) => void;
@@ -49,7 +50,7 @@ const MarkdownEditor = memo(function MarkdownEditor({
 					data-color-mode={theme}
 					textareaProps={{
 						placeholder: 'Write your decision documentation here...',
-						style: { 
+						style: {
 							fontSize: '14px',
 							resize: 'none'
 						}
@@ -82,10 +83,11 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
-	
-	
+
+
 	const [isNewDecision, setIsNewDecision] = useState(false);
 	const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+	const [showEditGuardModal, setShowEditGuardModal] = useState(false);
 
 	useEffect(() => {
 		if (id === 'new') {
@@ -93,10 +95,12 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 			setIsNewDecision(true);
 			setIsEditing(true);
 			setIsLoading(false);
-			setDecisionTitle('');
-			setOriginalDecisionTitle('');
-			setContent('');
-			setOriginalContent('');
+			const prefillTitle = searchParams.get('title') || '';
+			const prefillContent = searchParams.get('content') || '';
+			setDecisionTitle(prefillTitle);
+			setOriginalDecisionTitle(prefillTitle);
+			setContent(prefillContent);
+			setOriginalContent(prefillContent);
 		} else if (id) {
 			setIsNewDecision(false);
 			setIsEditing(false); // Ensure we start in preview mode for existing decisions
@@ -118,13 +122,13 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 
 	const loadDecisionContent = async () => {
 		if (!id) return;
-		
+
 		try {
 			setIsLoading(true);
 			// Find decision from props
 			const prefixedId = addDecisionPrefix(id);
 			const decision = decisions.find(d => d.id === prefixedId);
-			
+
 			// Always try to fetch the decision from API, whether we found it in decisions or not
 			// This ensures deep linking works even before the parent component loads the decisions array
 			try {
@@ -161,7 +165,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 
 		try {
 			setIsSaving(true);
-			
+
 			if (isNewDecision) {
 				// Create new decision
 				const decision = await apiClient.createDecision(decisionTitle);
@@ -193,6 +197,25 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		} finally {
 			setIsSaving(false);
 		}
+	};
+
+	const handleSaveClicked = () => {
+		if (isNewDecision) {
+			handleSave();
+		} else {
+			setShowEditGuardModal(true);
+		}
+	};
+
+	const handleSupersedeWithDiff = () => {
+		setShowEditGuardModal(false);
+		const params = new URLSearchParams();
+		params.set('title', decisionTitle);
+		params.set('content', content);
+		if (id) {
+			params.set('supersedes', stripIdPrefix(id));
+		}
+		navigate(`/decisions/new?${params.toString()}`);
 	};
 
 	const handleEdit = () => {
@@ -292,7 +315,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 										</svg>
-										<span 
+										<span
 											className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(decision.status)}`}
 										>
 											{decision.status.charAt(0).toUpperCase() + decision.status.slice(1)}
@@ -351,7 +374,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 											Cancel
 										</button>
 									<button
-										onClick={handleSave}
+										onClick={handleSaveClicked}
 										disabled={!hasChanges || isSaving}
 											className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
 												hasChanges && !isSaving
@@ -382,7 +405,40 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 				</div>
 			</div>
 			</div>
-			
+
+		{/* Edit Guard Modal */}
+		<Modal
+			isOpen={showEditGuardModal}
+			onClose={() => setShowEditGuardModal(false)}
+			title="Edit decision"
+			maxWidthClass="max-w-md"
+		>
+			<div className="space-y-4">
+				<p className="text-sm text-gray-700 dark:text-gray-300">
+					Are you sure you want to edit this decision? Decisions are
+					immutable by convention — consider{' '}
+					<strong>superseding with a diff</strong> instead.
+				</p>
+				<div className="flex justify-end gap-3">
+					<button
+						onClick={() => {
+							setShowEditGuardModal(false);
+							handleSave();
+						}}
+						className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+					>
+						Edit anyway
+					</button>
+					<button
+						onClick={handleSupersedeWithDiff}
+						className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
+					>
+						Supersede with diff
+					</button>
+				</div>
+			</div>
+		</Modal>
+
 		{/* Save Success Toast */}
 		{showSaveSuccess && (
 			<SuccessToast
