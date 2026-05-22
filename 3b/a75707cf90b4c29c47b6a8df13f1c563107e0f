@@ -1,0 +1,109 @@
+src/test/cli-coverage.test.ts
+  s_2cbe138f68129a::t_154f526904ec35 2-3,5,9,13-20,23-25,31,35-37
+  s_2cbe138f68129a::t_0becfaa89d058b 4,6-8,10-12,21-22,26-30,32-34
+  s_61ed1292db38ff::t_3743998af024ed 1
+"backlog/tasks/back-519.2 - BACK-519.3-—-Inline-code-HTML-escaping-fix-PR-650.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-12
+src/test/tui-termless-core.test.ts
+  s_92571da67d3a6b::t_6d2805a63d13f8 1,4-5,7-8,70-82
+"backlog/tasks/back-512 - Coverage-Grosse-0-TUI-Files-initial-testen.md"
+  s_92571da67d3a6b::t_6d2805a63d13f8 4,7,34-38,41-51
+src/web/lib/api.ts
+  s_966eb2313de971::t_8996a34b56e2e1 271-274
+src/server/handlers/tasks.ts
+  s_966eb2313de971::t_508a5255f6b03a 426
+  s_966eb2313de971::t_9d49b374ce3275 289-303
+"backlog/tasks/back-519.1 - BACK-519.1-—-EEXIST-OneDrive-fix-PR-656.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-12
+"backlog/tasks/back-519.3 - BACK-519.6-—-Decision-MCP-create-search-tools-PR-633-partial.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-13
+"backlog/tasks/back-519.4 - BACK-519.2-—-Duplicate-task-ID-detection-PR-632.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-12
+src/test/vterm-backend.ts
+  s_92571da67d3a6b::t_6d2805a63d13f8 24-27,30,141-155
+"backlog/tasks/back-519.6 - BACK-519.7-—-Wiki-web-UI-PR-647-BACK-473-portion.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-12
+"backlog/tasks/back-519.7 - BACK-519.4-—-Local-file-preview-with-syntax-highlighting-PR-634.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-12
+src/web/components/TaskDetailsModal.tsx
+  s_966eb2313de971::t_03c89d84565f60 1078-1092
+  s_966eb2313de971::t_b66192b05701cf 569-580
+.gitignore
+  s_92571da67d3a6b::t_716453a4c0f15c 79-81
+"backlog/tasks/back-519.5 - BACK-519.5-—-Paste-as-markdown-support-PR-646.md"
+  s_92571da67d3a6b::t_faab53e4305ded 7-12
+"backlog/tasks/back-430 - Create-tasks-from-the-TUI-board.md"
+  s_92571da67d3a6b::t_6d2805a63d13f8 8,23-53,58-64,67
+src/commands/task.ts
+  s_92571da67d3a6b::t_6d2805a63d13f8 980-981
+"backlog/tasks/back-415 - Add-CLI-milestone-create-command.md"
+  s_92571da67d3a6b::t_6d2805a63d13f8 8,17
+"backlog/tasks/back-527 - Coverage-maximieren-Bestehende-0-und-Niedrig-Coverage-Files-auf-≥80-bringen-Bun-PTY-Strategie.md"
+  s_92571da67d3a6b::t_6d2805a63d13f8 6,90-96,131-158
+"backlog/tasks/back-527.5 - Phase-4-MCP-Server-Coverage-≥80-via-HTTP-JSON-Tests.md"
+  s_92571da67d3a6b::t_6d2805a63d13f8 4,7,63-71
+src/test/tui-interactive-editor-handoff.test.ts
+  s_92571da67d3a6b::t_6d2805a63d13f8 8
+hooks/backlog-guard/opencode-plugin.js
+  s_92571da67d3a6b::t_6d2805a63d13f8 5,59,214,366,428,475,502,539,649,677,749,864,881,1018,1316,1437,1573,1592,1649,1710,1748,1900,2027,2046,2139,2158,2174,2189,2210,2234,2277,2319,2344,2408,2463,2538,2610,2639,2685,2761,2844,2926,2967,3058,3088,3168,3403,3468,3598,3638,3653,3666,3773,3821,3861,4052,4114,4307,4524,4602,4629,4732,4772,4963,5153,5211,5270,5371,5968,5996,6852,6946,6967,7165,7211
+opencode.json
+  s_92571da67d3a6b::t_6d2805a63d13f8 32
+src/server/router.ts
+  s_966eb2313de971::t_c4e705a46cacff 83-85
+  s_966eb2313de971::t_7b3a58efdf4c06 10
+"backlog/tasks/back-491 - Cross-Modality-CI-—-enforce-feature-parity-across-CLI-TUI-WebUI-MCP-REST.md"
+  s_92571da67d3a6b::t_6d2805a63d13f8 9,55-82
+src/test/commands-test-helper.ts
+  s_8bfcaf37a38fc6::t_0d47c61c636113 1-101
+patches/@termless%2Fxtermjs@0.3.1.patch
+  s_92571da67d3a6b::t_9ca96524c724af 13
+  s_92571da67d3a6b::t_362ce3fe763e0a 1-12,14-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "3ba75707cf90b4c29c47b6a8df13f1c563107e0f",
+  "prompts": {},
+  "sessions": {
+    "s_2cbe138f68129a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0c3141dffeue29NKHFRdlVMw",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_61ed1292db38ff": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0f72f08ffegyQZ3KaAUNYj2I",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_8bfcaf37a38fc6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b01fbef1ffeoLRnvkuykRCv5W",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_92571da67d3a6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0bf210bffeGVVJbckeHIHNYV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_966eb2313de971": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1afbc1b9bffeJ8QbIUYUiggaLm",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
