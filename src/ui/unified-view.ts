@@ -4,6 +4,7 @@
 
 import type { Core } from "../core/backlog.ts";
 import type { Milestone, Task } from "../types/index.ts";
+import { formatDuplicateWarning, scanForDuplicateIds } from "../utils/duplicate-detection.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
@@ -177,6 +178,12 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 			tasksLoader: options.tasksLoader,
 			loadingScreenFactory: options.loadingScreenFactory,
 		});
+
+		const duplicates = scanForDuplicateIds(loadedTasks ?? []);
+		const warning = formatDuplicateWarning(duplicates);
+		if (warning) {
+			console.error(warning);
+		}
 
 		const baseTasks = (loadedTasks || []).filter((t) => t.id && t.id.trim() !== "" && hasAnyPrefix(t.id));
 		if (baseTasks.length === 0) {

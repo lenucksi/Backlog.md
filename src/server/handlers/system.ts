@@ -1,6 +1,7 @@
 import { dirname, join } from "node:path";
 import { initializeProject } from "../../core/init.ts";
 import { getTaskStatistics } from "../../core/statistics.ts";
+import { scanForDuplicateIds } from "../../utils/duplicate-detection.ts";
 import { getVersion } from "../../utils/version.ts";
 import type { ServerHandlerContext } from "../types.ts";
 import { parseOptionalBoolean } from "../utils.ts";
@@ -119,6 +120,17 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleGetDuplicates(): Promise<Response> {
+		try {
+			const tasks = await ctx.core.loadTasks();
+			const duplicates = scanForDuplicateIds(tasks);
+			return Response.json(duplicates);
+		} catch (error) {
+			console.error("Error getting duplicates:", error);
+			return Response.json({ error: "Failed to get duplicates" }, { status: 500 });
+		}
+	}
+
 	async function handleAssetRequest(req: Request): Promise<Response> {
 		try {
 			const url = new URL(req.url);
@@ -167,6 +179,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 		handleGetVersion,
 		handleGetStatistics,
 		handleGetStatus,
+		handleGetDuplicates,
 		handleInit,
 		handleAssetRequest,
 	};

@@ -7,6 +7,7 @@ import {
 	type TaskListFilter,
 } from "../../../types/index.ts";
 import type { TaskEditArgs, TaskEditRequest } from "../../../types/task-edit-args.ts";
+import { formatDuplicateWarning, scanForDuplicateIds } from "../../../utils/duplicate-detection.ts";
 import {
 	createMilestoneFilterValueResolver,
 	normalizeMilestoneFilterValue,
@@ -193,13 +194,26 @@ export class TaskHandlers {
 		const editable = tasks.filter((task) => isLocalEditableTask(task));
 		const filteredByLabels = this.filterTasksByLabels(editable, args.labels);
 
+		const contentItems: Array<{ type: "text"; text: string }> = [];
+
+		const duplicates = scanForDuplicateIds(tasks);
+		const warning = formatDuplicateWarning(duplicates);
+		if (warning) {
+			contentItems.push({ type: "text", text: warning });
+		}
+
 		if (filteredByLabels.length === 0) {
-			return { content: [{ type: "text", text: "No tasks found." }] };
+			contentItems.push({ type: "text", text: "No tasks found." });
+			return { content: contentItems };
 		}
 
 		const config = await this.core.filesystem.loadConfig();
 		const statuses = config?.statuses ?? [];
-		const contentItems = this.buildGroupedTaskOutput(filteredByLabels, statuses, args.limit);
+		const taskOutput = this.buildGroupedTaskOutput(filteredByLabels, statuses, args.limit);
+
+		for (const item of taskOutput) {
+			contentItems.push(item);
+		}
 
 		if (contentItems.length === 0) {
 			contentItems.push({ type: "text", text: "No tasks found." });

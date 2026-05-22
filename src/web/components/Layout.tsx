@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import SideNavigation from './SideNavigation';
 import Navigation from './Navigation';
+import DuplicateIdWarning from './DuplicateIdWarning';
 import { HealthIndicator, HealthSuccessToast } from './HealthIndicator';
 import { type Task, type Document, type Decision } from '../../types';
 
@@ -15,20 +16,21 @@ interface LayoutProps {
 	onRefreshData: () => Promise<void>;
 }
 
-export default function Layout({ 
-	projectName, 
-	showSuccessToast, 
-	onDismissToast, 
-	tasks, 
-	docs, 
-	decisions, 
-	isLoading, 
-	onRefreshData 
+export default function Layout({
+	projectName,
+	showSuccessToast,
+	onDismissToast,
+	tasks,
+	docs,
+	decisions,
+	isLoading,
+	onRefreshData
 }: LayoutProps) {
 	return (
 		<div className="h-screen bg-gray-50 dark:bg-gray-900 flex overflow-hidden transition-colors duration-200">
+			<DuplicateIdWarning />
 			<HealthIndicator />
-			<SideNavigation 
+			<SideNavigation
 				tasks={tasks}
 				docs={docs}
 				decisions={decisions}
