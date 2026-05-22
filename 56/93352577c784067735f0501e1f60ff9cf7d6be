@@ -1,0 +1,25 @@
+src/web/components/DecisionDetail.tsx
+  s_ed3dc6679b23a3::t_5383ea05bc822e 409-441
+  s_ed3dc6679b23a3::t_708aed2ebb4f80 98-103
+  s_ed3dc6679b23a3::t_4c8f217ea0d45b 8
+  s_ed3dc6679b23a3::t_36d971d34e62d1 20-23,53,86-87,125,131,168,318,408
+  s_ed3dc6679b23a3::t_40b1069957500d 90
+  s_ed3dc6679b23a3::t_3d7f65a0c24715 202-220
+  s_ed3dc6679b23a3::t_f3d910d2654009 377
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "5693352577c784067735f0501e1f60ff9cf7d6be",
+  "prompts": {},
+  "sessions": {
+    "s_ed3dc6679b23a3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1afa9f0e0ffebFa6XK10fgT3Cz",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
