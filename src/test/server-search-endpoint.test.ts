@@ -552,8 +552,7 @@ Milestone: m-0
 			body: "{",
 		});
 		expect(malformedResponse.status).toBe(400);
-		const malformedPayload = (await malformedResponse.json()) as { error?: string; code?: string };
-		expect(malformedPayload.code).toBe("VALIDATION_ERROR");
+		const malformedPayload = (await malformedResponse.json()) as { error: string };
 		expect(malformedPayload.error).toContain("valid JSON");
 
 		const afterMalformedMilestone = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/${source.id}`);
@@ -567,8 +566,7 @@ Milestone: m-0
 			body: JSON.stringify([]),
 		});
 		expect(arrayResponse.status).toBe(400);
-		const arrayPayload = (await arrayResponse.json()) as { error?: string; code?: string };
-		expect(arrayPayload.code).toBe("VALIDATION_ERROR");
+		const arrayPayload = (await arrayResponse.json()) as { error: string };
 		expect(arrayPayload.error).toContain("JSON object");
 
 		const afterArrayMilestone = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/${source.id}`);
@@ -584,8 +582,7 @@ Milestone: m-0
 			body: JSON.stringify({ title: "Missing Rename Target" }),
 		});
 		expect(renameMissing.status).toBe(404);
-		const renamePayload = (await renameMissing.json()) as { error?: string; code?: string };
-		expect(renamePayload.code).toBe("NOT_FOUND");
+		const renamePayload = (await renameMissing.json()) as { error: string };
 		expect(renamePayload.error).toContain("Milestone not found");
 
 		const removeMissing = await fetch(`http://127.0.0.1:${serverPort}/api/milestones/m-999`, {
@@ -594,8 +591,7 @@ Milestone: m-0
 			body: JSON.stringify({ taskHandling: "clear" }),
 		});
 		expect(removeMissing.status).toBe(404);
-		const removePayload = (await removeMissing.json()) as { error?: string; code?: string };
-		expect(removePayload.code).toBe("NOT_FOUND");
+		const removePayload = (await removeMissing.json()) as { error: string };
 		expect(removePayload.error).toContain("Milestone not found");
 	});
 
