@@ -1,0 +1,30 @@
+backlog/config.yml
+  s_7335826e2c62c4::t_cb45ab83053231 6
+.github/workflows/ci.yml
+  s_7335826e2c62c4::t_710584d35d1fa9 83-85
+src/test/modality-parity.test.ts
+  s_7335826e2c62c4::t_c88141a7517ece 1-23,25-140
+  s_7335826e2c62c4::t_825054b991ae8f 24
+AGENTS.md
+  s_7335826e2c62c4::t_825054b991ae8f 34
+  s_7335826e2c62c4::t_9a29382146aaca 70-82
+  s_7335826e2c62c4::t_abd8de701b23d1 83
+.codex/skills/modality-parity-check.md
+  s_7335826e2c62c4::t_0ab9ecfc046604 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "fbbb526ab642c917687ce8532fe92435774bb750",
+  "prompts": {},
+  "sessions": {
+    "s_7335826e2c62c4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af46a777ffe18i33dmJpHesBf",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    }
+  }
+}
