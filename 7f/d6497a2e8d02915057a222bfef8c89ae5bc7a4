@@ -1,0 +1,19 @@
+src/web/components/MermaidMarkdown.tsx
+  s_bafc8fdd2a4373::t_b6dd2ef17a65ff 22-67,86-127,130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "7fd6497a2e8d02915057a222bfef8c89ae5bc7a4",
+  "prompts": {},
+  "sessions": {
+    "s_bafc8fdd2a4373": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2ffffcaffeSOxOi8sVRTT0JN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
