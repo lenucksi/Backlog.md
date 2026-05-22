@@ -11,6 +11,7 @@ import {
 	type Task,
 	type TaskSearchResult,
 } from '../../types';
+import CollapsibleGroup from './CollapsibleGroup';
 import ErrorBoundary from './ErrorBoundary';
 import { SidebarSkeleton } from './LoadingSpinner';
 import { sanitizeUrlTitle } from '../utils/urlHelpers';
@@ -166,12 +167,12 @@ interface SideNavigationProps {
 	onRefreshData: () => Promise<void>;
 }
 
-const SideNavigation = memo(function SideNavigation({ 
-	tasks, 
-	docs, 
-	decisions, 
-	isLoading, 
-	error, 
+const SideNavigation = memo(function SideNavigation({
+	tasks,
+	docs,
+	decisions,
+	isLoading,
+	error,
 	onRetry
 }: SideNavigationProps) {
 	const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -183,22 +184,6 @@ const SideNavigation = memo(function SideNavigation({
 	const [isSearching, setIsSearching] = useState(false);
 	const [searchError, setSearchError] = useState<string | null>(null);
 	const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null);
-	const [isDocsCollapsed, setIsDocsCollapsed] = useState(() => {
-		const saved = localStorage.getItem('docsCollapsed');
-		if (saved !== null) {
-			return JSON.parse(saved);
-		}
-		// Auto-collapse if more than 6 documents
-		return docs.length > 6;
-	});
-	const [isDecisionsCollapsed, setIsDecisionsCollapsed] = useState(() => {
-		const saved = localStorage.getItem('decisionsCollapsed');
-		if (saved !== null) {
-			return JSON.parse(saved);
-		}
-		// Auto-collapse if more than 6 decisions
-		return decisions.length > 6;
-	});
 	const [version, setVersion] = useState<string>('');
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -206,10 +191,6 @@ const SideNavigation = memo(function SideNavigation({
 	// Create handlers - just navigate to new pages
 	const handleCreateDocument = useCallback(() => {
 		navigate('/documentation/new');
-	}, [navigate]);
-
-	useCallback(() => {
-		navigate('/decisions/new');
 	}, [navigate]);
 
 	useEffect(() => {
@@ -220,31 +201,6 @@ const SideNavigation = memo(function SideNavigation({
 	useEffect(() => {
 		getWebVersion().then(setVersion).catch(() => setVersion(''));
 	}, []);
-
-	// Save docs collapse state to localStorage
-	useEffect(() => {
-		localStorage.setItem('docsCollapsed', JSON.stringify(isDocsCollapsed));
-	}, [isDocsCollapsed]);
-
-	// Save decisions collapse state to localStorage
-	useEffect(() => {
-		localStorage.setItem('decisionsCollapsed', JSON.stringify(isDecisionsCollapsed));
-	}, [isDecisionsCollapsed]);
-
-	// Auto-collapse when data loads/changes if no saved preference exists
-	useEffect(() => {
-		const savedDocsCollapsed = localStorage.getItem('docsCollapsed');
-		if (savedDocsCollapsed === null && docs.length > 6) {
-			setIsDocsCollapsed(true);
-		}
-	}, [docs.length]);
-
-	useEffect(() => {
-		const savedDecisionsCollapsed = localStorage.getItem('decisionsCollapsed');
-		if (savedDecisionsCollapsed === null && decisions.length > 6) {
-			setIsDecisionsCollapsed(true);
-		}
-	}, [decisions.length]);
 
 	// Add keyboard shortcut for search
 	useEffect(() => {
@@ -335,10 +291,6 @@ const SideNavigation = memo(function SideNavigation({
 		return filtered.slice(0, 5);
 	}, [searchQuery, searchResults]);
 
-	// Always show full lists in their sections, search results are separate
-	const filteredDocs = docs;
-	const filteredDecisions = decisions;
-
 	const toggleCollapse = useCallback(() => {
 		setIsCollapsed((prev: any) => !prev);
 	}, []);
@@ -357,7 +309,7 @@ const SideNavigation = memo(function SideNavigation({
 				>
 					{isCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronLeft />}
 				</button>
-				
+
 				{!isCollapsed ? (
 					<div className="flex items-center w-full">
 						<div className="relative flex-1">
@@ -491,7 +443,7 @@ const SideNavigation = memo(function SideNavigation({
 						</div>
 					</div>
 				)}
-				
+
 				{/* Tasks Section - Hidden in collapsed state and when loading */}
 				{!isCollapsed && !isLoading && (
 					<div className="px-4 py-4">
@@ -586,123 +538,65 @@ const SideNavigation = memo(function SideNavigation({
 					<>
 						{/* Divider between Tasks and Documents */}
 						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
-						
-						{/* Documents Section */}
-						<div className="px-4 py-4">
-							<div className="flex items-center justify-between mb-4">
-									<div className="flex items-center space-x-3">
-										<button
-											onClick={() => setIsDocsCollapsed(!isDocsCollapsed)}
-											className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors duration-200"
-											title={isDocsCollapsed ? "Expand documents" : "Collapse documents"}
-										>
-											{isDocsCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronDown />}
-									</button>
-									<span className="text-gray-500 dark:text-gray-400"><Icons.Document /></span>
-									<span className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap">Documents ({docs.length})</span>
-								</div>
-									<button
-										onClick={handleCreateDocument}
-										className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
-										title="Create new document"
-									>
-										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-										<circle cx="12" cy="12" r="10" />
-									</svg>
-								</button>
-							</div>
-							
-							{/* Document List */}
-							{!isDocsCollapsed && (
-								<div className="space-y-1">
-									{filteredDocs.length === 0 ? (
-										<p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No documents</p>
-									) : (
-										filteredDocs.map((doc) => (
-											<NavLink
-												key={doc.id}
-												to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
-												className={({ isActive }) =>
-													`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-														isActive
-															? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
-															: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-													}`
-												}
-											>
-												<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
-												<span className="truncate">{doc.title}</span>
-											</NavLink>
-										))
-									)}
-								</div>
-							)}
-						</div>
+
+						<CollapsibleGroup
+							title="Documents"
+							icon={<Icons.Document />}
+							count={docs.length}
+							storageKey="docsCollapsed"
+							onCreate={handleCreateDocument}
+							defaultCollapsed={docs.length > 6}
+						>
+							{docs.map((doc) => (
+								<NavLink
+									key={doc.id}
+									to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
+									className={({ isActive }) =>
+										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+											isActive
+												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
+												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+										}`
+									}
+								>
+									<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
+									<span className="truncate">{doc.title}</span>
+								</NavLink>
+							))}
+						</CollapsibleGroup>
 
 						{/* Divider between Documents and Decisions */}
 						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
 
-						{/* Decisions Section */}
-						<div className="px-4 py-4">
-							<div className="flex items-center justify-between mb-4">
-									<div className="flex items-center space-x-3">
-										<button
-											onClick={() => setIsDecisionsCollapsed(!isDecisionsCollapsed)}
-											className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors duration-200"
-											title={isDecisionsCollapsed ? "Expand decisions" : "Collapse decisions"}
-										>
-											{isDecisionsCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronDown />}
-									</button>
-									<span className="text-gray-500 dark:text-gray-400"><Icons.Decision /></span>
-									<span className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap">Decisions ({decisions.length})</span>
-								</div>
-								{/* Temporarily hidden - decisions editing not ready */}
-								{/*{false && (*/}
-								{/*	<button*/}
-								{/*		onClick={handleCreateDecision}*/}
-								{/*		className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors cursor-pointer"*/}
-								{/*		title="Create new decision"*/}
-								{/*	>*/}
-								{/*		<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">*/}
-								{/*			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />*/}
-								{/*			<circle cx="12" cy="12" r="10" />*/}
-								{/*		</svg>*/}
-								{/*	</button>*/}
-								{/*)}*/}
-							</div>
-							
-							{/* Decision List */}
-							{!isDecisionsCollapsed && (
-								<div className="space-y-1">
-									{filteredDecisions.length === 0 ? (
-										<p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No decisions</p>
-									) : (
-										filteredDecisions.map((decision) => (
-											<NavLink
-												key={decision.id}
-												to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
-												className={({ isActive }) =>
-													`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-														isActive
-															? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
-															: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-													}`
-												}
-											>
-												<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
-												<span className="truncate">{decision.title}</span>
-												{decision.status === 'superseded' && (
-													<span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-medium">
-														superseded
-													</span>
-												)}
-											</NavLink>
-										))
+						<CollapsibleGroup
+							title="Decisions"
+							icon={<Icons.Decision />}
+							count={decisions.length}
+							storageKey="decisionsCollapsed"
+							defaultCollapsed={decisions.length > 6}
+						>
+							{decisions.map((decision) => (
+								<NavLink
+									key={decision.id}
+									to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
+									className={({ isActive }) =>
+										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+											isActive
+												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
+												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+										}`
+									}
+								>
+									<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
+									<span className="truncate">{decision.title}</span>
+									{decision.status === 'superseded' && (
+										<span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-medium">
+											superseded
+										</span>
 									)}
-								</div>
-							)}
-						</div>
+								</NavLink>
+							))}
+						</CollapsibleGroup>
 					</>
 				)}
 
@@ -792,10 +686,7 @@ const SideNavigation = memo(function SideNavigation({
 							</div>
 						</NavLink>
 						<button
-							onClick={() => {
-								setIsCollapsed(false);
-								setIsDocsCollapsed(false);
-							}}
+							onClick={() => setIsCollapsed(false)}
 								data-tooltip-id="sidebar-tooltip"
 								data-tooltip-content="Documentation"
 								className={`flex items-center justify-center p-3 rounded-md transition-colors duration-200 w-full ${
@@ -809,10 +700,7 @@ const SideNavigation = memo(function SideNavigation({
 							</div>
 						</button>
 						<button
-							onClick={() => {
-								setIsCollapsed(false);
-								setIsDecisionsCollapsed(false);
-							}}
+							onClick={() => setIsCollapsed(false)}
 								data-tooltip-id="sidebar-tooltip"
 								data-tooltip-content="Decisions"
 								className={`flex items-center justify-center p-3 rounded-md transition-colors duration-200 w-full ${
@@ -828,7 +716,7 @@ const SideNavigation = memo(function SideNavigation({
 					</div>
 				)}
 			</nav>
-			
+
 			{/* Settings Button - Bottom Left */}
 			<div className={`border-t border-gray-200 dark:border-gray-700 ${isCollapsed ? 'px-2 py-2' : 'px-4 py-4'}`}>
 				{!isCollapsed ? (
@@ -867,7 +755,7 @@ const SideNavigation = memo(function SideNavigation({
 					</NavLink>
 				)}
 			</div>
-			
+
 			<Tooltip id="sidebar-tooltip" place="right" />
 			</div>
 		</ErrorBoundary>
