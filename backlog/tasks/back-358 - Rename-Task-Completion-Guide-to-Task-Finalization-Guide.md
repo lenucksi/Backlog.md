@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-04 22:48'
-updated_date: '2026-01-16 17:58'
+updated_date: '2026-05-22 15:56'
 labels:
   - documentation
   - workflow
+milestone: m-16
 dependencies: []
 priority: low
 ---

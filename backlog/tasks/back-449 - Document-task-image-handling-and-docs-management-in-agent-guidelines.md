@@ -5,9 +5,10 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-04-26 13:05'
-updated_date: '2026-04-26 13:17'
+updated_date: '2026-05-22 15:56'
 labels:
   - documentation
+milestone: m-16
 dependencies: []
 modified_files:
   - src/guidelines/agent-guidelines.md
