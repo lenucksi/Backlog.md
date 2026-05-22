@@ -1,0 +1,59 @@
+"backlog/tasks/back-462 - Use-terminal-status-for-cleanup-instead-of-hardcoded-Done.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-491.1 - Re-audit-DOC-005-Feature-Parity-Matrix-after-refactors.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,14
+"backlog/tasks/back-492 - Tech-Debt-Research-—-audit-codebase-for-inconsistencies-and-produce-prioritized-reduction-plan.md"
+  s_92571da67d3a6b::t_627fcb320ae201 10,16
+"backlog/tasks/back-456 - Lock-milestone-ID-allocation-during-creation.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-383 - Restructure-README-into-two-usage-paths-MCP-spec-driven-vs-manual-CLI-based-on-conference-guidance.md"
+  s_92571da67d3a6b::t_627fcb320ae201 10,12,19
+"backlog/tasks/back-373 - Support-Drafts-via-MCP-task-tools-no-new-tools.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,12
+"backlog/tasks/back-347 - Add-milestone-editing-in-Web-UI.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8
+"backlog/tasks/back-363 - Fix-localById-case-mismatch-in-cross-branch-task-loading.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,12
+"backlog/tasks/back-374 - Ensure-MCP-server-exits-when-stdio-closes-and-disposes-watchers.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,10
+"backlog/tasks/back-345.10 - Fix-ID-generation-bugs-and-cleanup-prefix-config-leftovers.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-388 - Remove-legacy-config.milestones-logic-and-keep-milestone-files-as-sole-source-of-truth.md"
+  s_92571da67d3a6b::t_627fcb320ae201 10,12
+"backlog/tasks/back-381 - Fix-frontmatter-parsing-corruption-when-titles-contain-dollar-sign-sequences.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,11
+"backlog/tasks/back-360 - Fix-cross-branch-index-case-mismatch-for-custom-prefixes.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-375 - Fix-inconsistent-draft-IDs-for-`task-create-draft`.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,12
+"backlog/tasks/back-376 - Fix-web-task-creation-dropping-selected-milestone.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-444 - Support-filesystem-only-Backlog-projects-without-Git.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-451 - Fix-Guard-cross-branch-loading-behind-checkActiveBranches-flag.md"
+  s_92571da67d3a6b::t_627fcb320ae201 7,9
+"backlog/tasks/back-453 - Stabilize-Windows-CI-test-suite.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,10
+"backlog/tasks/back-359 - Pass-configured-task-prefix-to-cross-branch-loading-functions.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+"backlog/tasks/back-364 - Fix-getTask-to-use-configured-prefix-for-numeric-ID-lookups.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,12
+"backlog/tasks/back-457 - Avoid-stale-task-reads-after-milestone-mutations.md"
+  s_92571da67d3a6b::t_627fcb320ae201 8,13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "645f59e5f0e935dbadb2d574dd0ad54f273507ae",
+  "prompts": {},
+  "sessions": {
+    "s_92571da67d3a6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0bf210bffeGVVJbckeHIHNYV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
