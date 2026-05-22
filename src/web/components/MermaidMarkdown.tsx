@@ -10,13 +10,19 @@ const URI_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\u0000-\u0
 const EMAIL_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z0-9-]+>/;
 
 function sanitizeMarkdownSource(source: string): string {
-	return source.replace(/<(?=[A-Za-z])/g, (match, offset, fullText) => {
-		const remaining = fullText.slice(offset);
-		if (URI_AUTOLINK_PREFIX_REGEX.test(remaining) || EMAIL_AUTOLINK_PREFIX_REGEX.test(remaining)) {
-			return match;
+	const CODE_SPAN_REGEX = /(```[\s\S]*?```|`[^`]*`)/g;
+	return source.split(CODE_SPAN_REGEX).map((part, i) => {
+		if (i % 2 === 1) {
+			return part;
 		}
-		return "&lt;";
-	});
+		return part.replace(/<(?=[A-Za-z])/g, (match, offset, fullText) => {
+			const remaining = fullText.slice(offset);
+			if (URI_AUTOLINK_PREFIX_REGEX.test(remaining) || EMAIL_AUTOLINK_PREFIX_REGEX.test(remaining)) {
+				return match;
+			}
+			return "&lt;";
+		});
+	}).join('');
 }
 
 function slugify(text: string): string {
