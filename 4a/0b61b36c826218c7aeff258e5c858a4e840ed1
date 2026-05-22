@@ -1,0 +1,24 @@
+src/web/components/CollapsibleGroup.tsx
+  s_63e24695a6d803::t_5fa70bc96a00a1 1-125
+src/web/components/SideNavigation.tsx
+  s_63e24695a6d803::t_a1f87d028655cd 689,703
+  s_63e24695a6d803::t_92076a95b038f8 542-566,571-595,597-599
+  s_63e24695a6d803::t_951448280f31ce 14
+  s_63e24695a6d803::t_a0601c19b0b8c5 170-175,312,446,541,719,758
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "4a0b61b36c826218c7aeff258e5c858a4e840ed1",
+  "prompts": {},
+  "sessions": {
+    "s_63e24695a6d803": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af46db49ffeI1SNCxxz1LkGyB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
