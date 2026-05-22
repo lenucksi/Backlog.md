@@ -1,0 +1,47 @@
+src/server/index.ts
+  s_e6cea3c09683c7::t_db9ad7052eb71a 16
+  s_e6cea3c09683c7::t_dda44a4b9e84ba 164
+src/web/lib/api.ts
+  s_e6cea3c09683c7::t_1c95cc4210e671 329-335
+src/web/components/MermaidMarkdown.tsx
+  s_e6cea3c09683c7::t_ce6d619a566195 93,99,101-105,107-132,138
+  s_e6cea3c09683c7::t_4f538930f0e0e5 7
+  s_e6cea3c09683c7::t_8cca52182611f5 75
+src/web/components/FilePreviewModal.tsx
+  s_e6cea3c09683c7::t_91e7ffddd9e655 1-63
+src/file-system/operations.ts
+  s_e6cea3c09683c7::t_496fa7ce149ab4 161-179
+  s_e6cea3c09683c7::t_ee03b53dd60425 1396-1469
+src/server/router.ts
+  s_e6cea3c09683c7::t_8b00633cfb09bc 184-186
+  s_e6cea3c09683c7::t_7ea3cfd5cf3715 64
+  s_e6cea3c09683c7::t_41b4c9488e4f79 58-60
+src/server/handlers/files.ts
+  s_e6cea3c09683c7::t_546ebaa8537545 1-22
+src/web/components/TaskDetailsModal.tsx
+  s_e6cea3c09683c7::t_e9cdcc175c4732 811-819
+  s_e6cea3c09683c7::t_d7aa404c34abb7 1123
+  s_e6cea3c09683c7::t_152a09b36f2d08 949
+  s_e6cea3c09683c7::t_4d4eeb98608ff5 731-739
+  s_e6cea3c09683c7::t_534434d208d1b5 694
+  s_e6cea3c09683c7::t_58887bac2af68e 925
+  s_e6cea3c09683c7::t_3dea98adfc76d6 9
+  s_e6cea3c09683c7::t_d0fe042eeaf5bb 901
+  s_e6cea3c09683c7::t_771b605d342e43 231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "25c675cc2ff82e47d0b0e365aa3c423752acca3d",
+  "prompts": {},
+  "sessions": {
+    "s_e6cea3c09683c7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af46c34dffek8jjbhA8na69O6",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
