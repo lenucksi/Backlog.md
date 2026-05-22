@@ -1,9 +1,10 @@
 ---
 id: BACK-515.2
 title: 'Decisions: CLI list, view, supersede commands'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-21 16:03'
+updated_date: '2026-05-22 01:28'
 labels:
   - decisions
   - cli

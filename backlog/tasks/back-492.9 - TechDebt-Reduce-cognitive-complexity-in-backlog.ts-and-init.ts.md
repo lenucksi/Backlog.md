@@ -1,9 +1,10 @@
 ---
 id: BACK-492.9
 title: 'TechDebt: Reduce cognitive complexity in backlog.ts and init.ts'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
+updated_date: '2026-05-22 01:13'
 labels:
   - tech-debt
   - refactoring

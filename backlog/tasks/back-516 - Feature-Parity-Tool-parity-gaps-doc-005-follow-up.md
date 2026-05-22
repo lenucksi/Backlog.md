@@ -1,9 +1,10 @@
 ---
 id: BACK-516
 title: 'Feature Parity: Tool parity gaps (doc-005 follow-up)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-21 16:02'
+updated_date: '2026-05-22 01:28'
 labels:
   - parity
   - cli

@@ -1,9 +1,10 @@
 ---
 id: BACK-492.8
 title: 'TechDebt: Extract CLI command handlers from cli.ts into separate modules'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:02'
+updated_date: '2026-05-22 01:13'
 labels:
   - tech-debt
   - refactoring

@@ -1,10 +1,10 @@
 ---
 id: BACK-510
 title: 'Coverage: Push task-loader.ts, TaskCard.tsx über 85%'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
-updated_date: '2026-05-20 22:04'
+updated_date: '2026-05-22 00:18'
 labels:
   - coverage
   - testing

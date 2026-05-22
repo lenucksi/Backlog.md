@@ -1,11 +1,11 @@
 ---
 id: BACK-421
 title: Resolve dateFormat config behavior
-status: To Do
+status: Done
 assignee:
   - '@alex-agent'
 created_date: '2026-04-25 12:14'
-updated_date: '2026-05-17 20:10'
+updated_date: '2026-05-22 00:18'
 labels:
   - config
   - bug

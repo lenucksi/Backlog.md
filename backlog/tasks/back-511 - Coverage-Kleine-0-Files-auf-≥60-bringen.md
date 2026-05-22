@@ -1,10 +1,10 @@
 ---
 id: BACK-511
 title: 'Coverage: Kleine 0%-Files auf ≥60% bringen'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
-updated_date: '2026-05-20 22:04'
+updated_date: '2026-05-22 01:34'
 labels:
   - coverage
   - testing

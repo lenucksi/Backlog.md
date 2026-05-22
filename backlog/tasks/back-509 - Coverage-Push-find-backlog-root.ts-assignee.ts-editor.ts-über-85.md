@@ -1,9 +1,10 @@
 ---
 id: BACK-509
 title: 'Coverage: Push find-backlog-root.ts, assignee.ts, editor.ts über 85%'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 22:03'
+updated_date: '2026-05-22 01:34'
 labels:
   - coverage
   - testing

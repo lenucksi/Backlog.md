@@ -1,9 +1,10 @@
 ---
 id: BACK-492.2
 title: Unify task filter logic behind a shared interface
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-17 21:12'
+updated_date: '2026-05-22 01:13'
 labels:
   - tech-debt
   - refactoring

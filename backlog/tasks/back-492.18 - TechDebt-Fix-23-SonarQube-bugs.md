@@ -1,9 +1,10 @@
 ---
 id: BACK-492.18
 title: 'TechDebt: Fix 23 SonarQube bugs'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-20 23:44'
+updated_date: '2026-05-22 01:34'
 labels:
   - tech-debt
   - bugs

@@ -1,9 +1,10 @@
 ---
 id: BACK-516.2
 title: 'Parity: CLI backlog stats command'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-21 16:03'
+updated_date: '2026-05-22 01:28'
 labels:
   - parity
   - cli

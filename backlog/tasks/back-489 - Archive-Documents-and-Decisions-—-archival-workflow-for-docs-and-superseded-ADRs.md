@@ -3,10 +3,10 @@ id: BACK-489
 title: >-
   Archive Documents and Decisions — archival workflow for docs and superseded
   ADRs
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-17 20:27'
+updated_date: '2026-05-22 01:34'
 labels:
   - documents
   - decisions
