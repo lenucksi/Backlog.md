@@ -258,7 +258,9 @@ export class FileSystem {
 		];
 
 		for (const dir of directories) {
-			await mkdir(dir, { recursive: true });
+			await mkdir(dir, { recursive: true }).catch((err: NodeJS.ErrnoException) => {
+				if (err.code !== "EEXIST") throw err;
+			});
 		}
 	}
 
