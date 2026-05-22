@@ -73,6 +73,9 @@ test-benchmark-report.json
 # Local archive / reference documents
 archive/
 
+# prek internal hooks
+.husky/_
+
 # Python cache
 __pycache__/
 *.pyc

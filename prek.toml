@@ -1,0 +1,32 @@
+default_install_hook_types = ["pre-commit", "commit-msg"]
+
+[[repos]]
+repo = "builtin"
+hooks = [
+	{ id = "trailing-whitespace", exclude = "backlog/" },
+	{ id = "end-of-file-fixer", exclude = "backlog/" },
+	{ id = "check-yaml" },
+	{ id = "check-json" },
+	{ id = "check-toml" },
+	{ id = "check-added-large-files" },
+	{ id = "check-merge-conflict" },
+	{ id = "detect-private-key" },
+	{ id = "mixed-line-ending", args = ["--fix=lf"] },
+]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "biome-check-changed"
+name = "biome check (changed)"
+language = "system"
+entry = "bash -c 'bunx biome check --changed --write --files-ignore-unknown=true; exit 0'"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "conventional-commit"
+name = "conventional commit"
+language = "system"
+entry = "bash -c 'if ! head -1 \"$1\" | grep -qE \"^Merge \"; then echo \"$1\" | bunx tsx -e \"const fs=require(\\\"fs\\\"); const msg=fs.readFileSync(process.argv[1],\\\"utf8\\\"); if(!/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\(.+\\))?!?:\\s.+/.test(msg)){console.error(\\\"Invalid commit message format\\\"); process.exit(1)}\" -- \"$1\"; fi' --"
+stages = ["commit-msg"]

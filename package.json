@@ -27,6 +27,8 @@
     "@clack/prompts": "1.2.0",
     "@modelcontextprotocol/sdk": "1.29.0",
     "@tailwindcss/cli": "4.2.2",
+    "@termless/core": "^0.6.0",
+    "@termless/xtermjs": "^0.3.1",
     "@types/bun": "1.3.12",
     "@types/jsdom": "28.0.1",
     "@types/react": "19.2.14",
@@ -39,11 +41,9 @@
     "dependency-cruiser": "^17.4.0",
     "fuse.js": "7.3.0",
     "gray-matter": "4.0.3",
-    "husky": "9.1.7",
     "install": "0.13.0",
     "jsdom": "29.0.2",
     "knip": "^6.14.1",
-    "lint-staged": "16.4.0",
     "mermaid": "11.14.0",
     "neo-neo-bblessed": "1.0.9",
     "node-pty": "^1.1.0",
@@ -53,7 +53,8 @@
     "react-dom": "19.2.5",
     "react-router-dom": "7.14.1",
     "react-tooltip": "5.30.1",
-    "tailwindcss": "4.2.2"
+    "tailwindcss": "4.2.2",
+    "vterm.js": "^0.4.0"
   },
   "scripts": {
     "test": "bun test",
@@ -61,7 +62,7 @@
     "lint": "biome lint --write .",
     "check": "biome check .",
     "check:types": "bunx tsc --noEmit",
-    "prepare": "husky",
+    "prepare": "prek install",
     "build:css": "bun ./node_modules/@tailwindcss/cli/dist/index.mjs -i src/web/styles/source.css -o src/web/styles/style.css --minify",
     "guard:test": "bun test hooks/backlog-guard/guard-core.test.ts",
     "guard:build": "bun build hooks/backlog-guard/opencode-plugin.ts --outfile hooks/backlog-guard/opencode-plugin.js --target=node --format=esm && bun build hooks/backlog-guard/claude-hook.ts --outfile hooks/backlog-guard/claude-hook.js --target=node --format=esm --external=yaml --external=shell-quote",
@@ -72,17 +73,6 @@
     "mcp": "bun src/cli.ts mcp start",
     "update-nix": "sh scripts/update-nix.sh",
     "postinstall": "sh -c 'command -v bun2nix >/dev/null 2>&1 && bun2nix -o bun.nix || (command -v nix >/dev/null 2>&1 && nix --extra-experimental-features \"nix-command flakes\" run github:baileyluTCD/bun2nix/85d692d68a5345d868d3bb1158b953d2996d70f7 -- -o bun.nix || true)'"
-  },
-  "lint-staged": {
-    "package.json": [
-      "biome check --write --files-ignore-unknown=true"
-    ],
-    "*.json": [
-      "biome check --write --files-ignore-unknown=true"
-    ],
-    "src/**/*.{ts,js}": [
-      "biome check --write --files-ignore-unknown=true"
-    ]
   },
   "author": "Alex Gavrilescu (https://github.com/MrLesk)",
   "repository": {
@@ -111,5 +101,8 @@
     "@xenova/transformers": "^2.17.2",
     "shell-quote": "^1.8.3",
     "yaml": "^2.9.0"
+  },
+  "patchedDependencies": {
+    "@termless/xtermjs@0.3.1": "patches/@termless%2Fxtermjs@0.3.1.patch"
   }
 }

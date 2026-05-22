@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
   id-token: write
 
 env:
@@ -102,32 +103,28 @@ jobs:
               .bin = {backlog:"cli.js"} |
               .files = ["cli.js","resolveBinary.cjs","postuninstall.cjs","package.json","README.md","LICENSE"] |
               .scripts = {"postuninstall": "node postuninstall.cjs"} |
-              .repository = {"type":"git","url":"https://github.com/MrLesk/Backlog.md"} |
+              .repository = {"type":"git","url":"https://github.com/lenucksi/Backlog.md"} |
+              .publishConfig = {"registry":"https://npm.pkg.github.com"} |
+              .name = "@lenucksi/backlog.md" |
               .optionalDependencies = {
-                "backlog.md-linux-x64"  : "'$TAG'",
-                "backlog.md-linux-arm64": "'$TAG'",
-                "backlog.md-darwin-x64" : "'$TAG'",
-                "backlog.md-darwin-arm64": "'$TAG'",
-                "backlog.md-windows-x64": "'$TAG'"
+                "@lenucksi/backlog.md-linux-x64"  : "'$TAG'",
+                "@lenucksi/backlog.md-linux-arm64": "'$TAG'",
+                "@lenucksi/backlog.md-darwin-x64" : "'$TAG'",
+                "@lenucksi/backlog.md-darwin-arm64": "'$TAG'",
+                "@lenucksi/backlog.md-windows-x64": "'$TAG'"
               }' package.json > dist/package.json
           cp LICENSE README.md dist/ 2>/dev/null || true
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
-      - name: Configure npm for trusted publishing
-        shell: bash
+      - name: Configure npm for GitHub Packages
         run: |
-          set -euo pipefail
-          npm install -g npm@11.6.0
-          npm --version
-      - name: Dry run trusted publish
+          echo "@lenucksi:registry=https://npm.pkg.github.com" > ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+      - name: Publish to GitHub Packages
         run: |
           cd dist
-          npm publish --access public --dry-run
-      - name: Publish to npm
-        run: |
-          cd dist
-          npm publish --access public
+          npm publish
 
   publish-binaries:
     needs: build
@@ -135,23 +132,23 @@ jobs:
       matrix:
         include:
           - target: bun-linux-x64-baseline
-            package: backlog.md-linux-x64
+            package: "@lenucksi/backlog.md-linux-x64"
             os: linux
             cpu: x64
           - target: bun-linux-arm64
-            package: backlog.md-linux-arm64
+            package: "@lenucksi/backlog.md-linux-arm64"
             os: linux
             cpu: arm64
           - target: bun-darwin-x64
-            package: backlog.md-darwin-x64
+            package: "@lenucksi/backlog.md-darwin-x64"
             os: darwin
             cpu: x64
           - target: bun-darwin-arm64
-            package: backlog.md-darwin-arm64
+            package: "@lenucksi/backlog.md-darwin-arm64"
             os: darwin
             cpu: arm64
           - target: bun-windows-x64-baseline
-            package: backlog.md-windows-x64
+            package: "@lenucksi/backlog.md-windows-x64"
             os: win32
             cpu: x64
     runs-on: ubuntu-latest
@@ -166,7 +163,6 @@ jobs:
         run: |
           TAG="${GITHUB_REF##refs/tags/v}"
           mkdir -p pkg
-          # Rename the binary to the expected name
           if [[ -f backlog-bin.exe ]]; then
             mv backlog-bin.exe pkg/backlog.exe
           elif [[ -f backlog-bin ]]; then
@@ -184,9 +180,10 @@ jobs:
             "os": ["${{ matrix.os }}"],
             "cpu": ["${{ matrix.cpu }}"],
             "files": ["backlog${{ contains(matrix.target,'windows') && '.exe' || '' }}","package.json","LICENSE"],
+            "publishConfig": {"registry":"https://npm.pkg.github.com"},
             "repository": {
               "type": "git",
-              "url": "https://github.com/MrLesk/Backlog.md"
+              "url": "https://github.com/lenucksi/Backlog.md"
             }
           }
           EOF
@@ -198,20 +195,18 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
-      - name: Configure npm for trusted publishing
-        shell: bash
+      - name: Configure npm for GitHub Packages
         run: |
-          set -euo pipefail
-          npm install -g npm@11.6.0
-          npm --version
+          echo "@lenucksi:registry=https://npm.pkg.github.com" > ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
       - name: Dry run platform publish
         run: |
           cd pkg
-          npm publish --access public --dry-run
+          npm publish --dry-run
       - name: Publish platform package
         run: |
           cd pkg
-          npm publish --access public
+          npm publish
 
   verify-platform-packages:
     name: verify-platform-packages-${{ matrix.os }}
@@ -225,7 +220,6 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
       - name: Wait for platform package installability (Unix)
         if: ${{ matrix.os != 'windows-latest' }}
         shell: bash
@@ -234,7 +228,7 @@ jobs:
           VERSION="${GITHUB_REF##refs/tags/v}"
           MAX_ATTEMPTS=40
           SLEEP_SECONDS=15
-          PACKAGE_NAME="$(node -e 'const map = { win32: "windows", darwin: "darwin", linux: "linux" }; const platform = map[process.platform]; const arch = process.arch; if (!platform || !["x64","arm64"].includes(arch)) { process.exit(1); } process.stdout.write(`backlog.md-${platform}-${arch}`);')"
+          PACKAGE_NAME="$(node -e 'const map = { win32: "windows", darwin: "darwin", linux: "linux" }; const platform = map[process.platform]; const arch = process.arch; if (!platform || !["x64","arm64"].includes(arch)) { process.exit(1); } process.stdout.write(`@lenucksi/backlog.md-${platform}-${arch}`);')"
           BINARY_PATH="node_modules/${PACKAGE_NAME}/backlog"
 
           echo "Waiting for ${PACKAGE_NAME}@${VERSION} to become installable..."
@@ -243,6 +237,8 @@ jobs:
             mkdir sanity
             cd sanity
             npm init -y >/dev/null 2>&1
+            echo "@lenucksi:registry=https://npm.pkg.github.com" > .npmrc
+            echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
 
             if npm i "${PACKAGE_NAME}@${VERSION}" --prefer-online --no-audit --no-fund; then
               if [[ -f "$BINARY_PATH" ]]; then
@@ -274,17 +270,17 @@ jobs:
           MAX_ATTEMPTS=40
           SLEEP_SECONDS=15
           PACKAGES=(
-            "backlog.md-linux-x64"
-            "backlog.md-linux-arm64"
-            "backlog.md-darwin-x64"
-            "backlog.md-darwin-arm64"
-            "backlog.md-windows-x64"
+            "@lenucksi/backlog.md-linux-x64"
+            "@lenucksi/backlog.md-linux-arm64"
+            "@lenucksi/backlog.md-darwin-x64"
+            "@lenucksi/backlog.md-darwin-arm64"
+            "@lenucksi/backlog.md-windows-x64"
           )
 
           for pkg in "${PACKAGES[@]}"; do
             resolved=0
             for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-              version="$(npm view "${pkg}@${VERSION}" version 2>/dev/null || true)"
+              version="$(npm view "${pkg}@${VERSION}" --registry https://npm.pkg.github.com version 2>/dev/null || true)"
               if [[ "$version" == "$VERSION" ]]; then
                 echo "Metadata visible: ${pkg}@${VERSION} (attempt ${attempt}/${MAX_ATTEMPTS})."
                 resolved=1
@@ -315,7 +311,7 @@ jobs:
             throw "Unsupported runner arch: $Arch"
           }
 
-          $PackageName = "backlog.md-windows-$Arch"
+          $PackageName = "@lenucksi/backlog.md-windows-$Arch"
           $BinaryPath = Join-Path -Path "node_modules/$PackageName" -ChildPath "backlog.exe"
 
           Write-Host "Waiting for $PackageName@$Version to become installable..."
@@ -328,6 +324,8 @@ jobs:
 
             try {
               npm init -y | Out-Null
+              "@lenucksi:registry=https://npm.pkg.github.com" | Out-File -FilePath ".npmrc" -Encoding ASCII
+              "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" | Out-File -FilePath ".npmrc" -Encoding ASCII -Append
               npm i "$PackageName@$Version" --prefer-online --no-audit --no-fund
               if ($LASTEXITCODE -eq 0 -and (Test-Path $BinaryPath)) {
                 & $BinaryPath -v
@@ -365,7 +363,6 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
       - name: Install and run backlog -v (Unix)
         if: ${{ matrix.os != 'windows-latest' }}
         shell: bash
@@ -374,16 +371,18 @@ jobs:
           VERSION="${GITHUB_REF##refs/tags/v}"
           MAX_ATTEMPTS=40
           SLEEP_SECONDS=15
-          EXPECTED_PACKAGE="$(node -e 'const map = { win32: "windows", darwin: "darwin", linux: "linux" }; const platform = map[process.platform]; const arch = process.arch; if (!platform || !["x64","arm64"].includes(arch)) { process.exit(1); } process.stdout.write(`backlog.md-${platform}-${arch}`);')"
-          echo "Waiting for backlog.md@${VERSION} install + ${EXPECTED_PACKAGE} optional dependency..."
+          EXPECTED_PACKAGE="$(node -e 'const map = { win32: "windows", darwin: "darwin", linux: "linux" }; const platform = map[process.platform]; const arch = process.arch; if (!platform || !["x64","arm64"].includes(arch)) { process.exit(1); } process.stdout.write(`@lenucksi/backlog.md-${platform}-${arch}`);')"
+          echo "Waiting for @lenucksi/backlog.md@${VERSION} install + ${EXPECTED_PACKAGE} optional dependency..."
 
           for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
             rm -rf sanity
             mkdir sanity
             cd sanity
             npm init -y >/dev/null 2>&1
+            echo "@lenucksi:registry=https://npm.pkg.github.com" > .npmrc
+            echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
 
-            if npm i "backlog.md@${VERSION}" --prefer-online --no-audit --no-fund; then
+            if npm i "@lenucksi/backlog.md@${VERSION}" --prefer-online --no-audit --no-fund; then
               if npx backlog -v; then
                 echo "Install sanity succeeded on attempt ${attempt}/${MAX_ATTEMPTS}."
                 exit 0
@@ -405,7 +404,7 @@ jobs:
             fi
           done
 
-          echo "Install sanity timed out for backlog.md@${VERSION}."
+          echo "Install sanity timed out for @lenucksi/backlog.md@${VERSION}."
           exit 1
       - name: Install and run backlog -v (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -420,8 +419,8 @@ jobs:
             throw "Unsupported runner arch: $Arch"
           }
 
-          $ExpectedPackage = "backlog.md-windows-$Arch"
-          Write-Host "Waiting for backlog.md@$Version install + $ExpectedPackage optional dependency..."
+          $ExpectedPackage = "@lenucksi/backlog.md-windows-$Arch"
+          Write-Host "Waiting for @lenucksi/backlog.md@$Version install + $ExpectedPackage optional dependency..."
 
           for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
             if (Test-Path "sanity") {
@@ -432,7 +431,9 @@ jobs:
 
             try {
               npm init -y | Out-Null
-              npm i "backlog.md@$Version" --prefer-online --no-audit --no-fund
+              "@lenucksi:registry=https://npm.pkg.github.com" | Out-File -FilePath ".npmrc" -Encoding ASCII
+              "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" | Out-File -FilePath ".npmrc" -Encoding ASCII -Append
+              npm i "@lenucksi/backlog.md@$Version" --prefer-online --no-audit --no-fund
               if ($LASTEXITCODE -eq 0) {
                 npx backlog -v
                 if ($LASTEXITCODE -eq 0) {
@@ -458,7 +459,7 @@ jobs:
             }
           }
 
-          throw "Install sanity timed out for backlog.md@$Version."
+          throw "Install sanity timed out for @lenucksi/backlog.md@$Version."
 
   github-release:
     needs: build
