@@ -68,12 +68,31 @@ export function registerDocCommand(program: Command): void {
 	docCmd
 		.command("list")
 		.option("--plain", "use plain text output instead of interactive UI")
+		.option("--json", "output as JSON")
 		.action(async (options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const docs = await core.filesystem.listDocuments();
 			if (docs.length === 0) {
-				console.log("No docs found.");
+				if (options.json) {
+					console.log("[]");
+				} else {
+					console.log("No docs found.");
+				}
+				return;
+			}
+
+			if (options.json) {
+				const data = docs.map((d) => ({
+					id: d.id,
+					title: d.title,
+					type: d.type,
+					tags: d.tags,
+					createdDate: d.createdDate,
+					updatedDate: d.updatedDate ?? null,
+					path: d.path ?? null,
+				}));
+				console.log(JSON.stringify(data, null, 2));
 				return;
 			}
 
@@ -104,15 +123,21 @@ export function registerDocCommand(program: Command): void {
 	docCmd
 		.command("view <docId>")
 		.description("view a document")
-		.action(async (docId: string) => {
+		.option("--json", "output as JSON")
+		.action(async (docId: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			try {
-				const content = await core.getDocumentContent(docId);
-				if (content === null) {
+				const doc = await core.filesystem.loadDocument(docId).catch(() => null);
+				if (!doc) {
 					console.error(`Document ${docId} not found.`);
 					return;
 				}
+				if (options.json) {
+					console.log(JSON.stringify(doc, null, 2));
+					return;
+				}
+				const content = doc.rawContent || "";
 				await scrollableViewer(content);
 			} catch {
 				console.error(`Document ${docId} not found.`);

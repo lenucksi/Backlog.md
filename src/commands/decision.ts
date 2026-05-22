@@ -103,6 +103,7 @@ export function registerDecisionCommand(program: Command): void {
 		.option("--status <status>", "Filter by status")
 		.option("--supersedes <id>", "Filter by supersedes field")
 		.option("--superseded-by <id>", "Filter by supersededBy field")
+		.option("--json", "output as JSON")
 		.action(async (options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -118,6 +119,11 @@ export function registerDecisionCommand(program: Command): void {
 			if (options.supersededBy) {
 				const val = String(options.supersededBy);
 				decisions = decisions.filter((d) => d.supersededBy === val);
+			}
+
+			if (options.json) {
+				console.log(JSON.stringify(decisions, null, 2));
+				return;
 			}
 
 			if (decisions.length === 0) {
@@ -136,13 +142,21 @@ export function registerDecisionCommand(program: Command): void {
 			console.log(rows.join("\n"));
 		});
 
-	decisionCmd.command("view <id>").action(async (id: string) => {
+	decisionCmd
+		.command("view <id>")
+		.option("--json", "output as JSON")
+		.action(async (id: string, options) => {
 		const cwd = await requireProjectRoot();
 		const core = new Core(cwd);
 		const decision = await loadDecision(core, id);
 		if (!decision) {
 			console.error(`Decision not found: ${id}`);
 			process.exit(1);
+		}
+
+		if (options.json) {
+			console.log(JSON.stringify(decision, null, 2));
+			return;
 		}
 
 		console.log(`ID:             ${decision.id}`);

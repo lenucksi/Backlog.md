@@ -11,7 +11,8 @@ export function registerMilestoneCommand(program: Command): void {
 		.description("list milestones with completion status")
 		.option("--show-completed", "show completed milestones")
 		.option("--plain", "use plain text output")
-		.action(async (options: { showCompleted?: boolean; plain?: boolean }) => {
+		.option("--json", "output as JSON")
+		.action(async (options: { showCompleted?: boolean; plain?: boolean; json?: boolean }) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			await core.ensureConfigLoaded();
@@ -32,6 +33,29 @@ export function registerMilestoneCommand(program: Command): void {
 			});
 			const active = buckets.filter((bucket) => !bucket.isNoMilestone && !bucket.isCompleted);
 			const completed = buckets.filter((bucket) => !bucket.isNoMilestone && bucket.isCompleted);
+
+			if (options.json) {
+				const data = {
+					active: active.map((b) => ({
+						key: b.key,
+						label: b.label,
+						milestone: b.milestone,
+						doneCount: b.doneCount,
+						total: b.total,
+						progress: b.progress,
+					})),
+					completed: completed.map((b) => ({
+						key: b.key,
+						label: b.label,
+						milestone: b.milestone,
+						doneCount: b.doneCount,
+						total: b.total,
+						progress: b.progress,
+					})),
+				};
+				console.log(JSON.stringify(data, null, 2));
+				return;
+			}
 
 			const formatBucket = (bucket: (typeof buckets)[number]) => {
 				const id = bucket.milestone ?? bucket.label;

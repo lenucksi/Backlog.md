@@ -135,6 +135,7 @@ export function registerSearchCommand(program: Command): void {
 		)
 		.option("--limit <number>", "limit total results returned")
 		.option("--plain", "print plain text output instead of interactive UI")
+		.option("--json", "output as JSON")
 		.action(async (query: string | undefined, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -199,6 +200,19 @@ export function registerSearchCommand(program: Command): void {
 				types: types as SearchResultType[],
 				filters,
 			});
+
+			if (options.json) {
+				const data = searchResults.map((r) => ({
+					type: r.type,
+					score: r.score,
+					...("task" in r ? { task: r.task } : {}),
+					...("document" in r ? { document: r.document } : {}),
+					...("decision" in r ? { decision: r.decision } : {}),
+				}));
+				console.log(JSON.stringify(data, null, 2));
+				cleanup();
+				return;
+			}
 
 			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
 			if (usePlainOutput) {

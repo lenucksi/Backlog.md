@@ -95,7 +95,8 @@ export function registerConfigCommand(program: Command): void {
 	configCmd
 		.command("get <key>")
 		.description("get a configuration value")
-		.action(async (key: string) => {
+		.option("--json", "output as JSON")
+		.action(async (key: string, options) => {
 			try {
 				const cwd = await requireProjectRoot();
 				const core = new Core(cwd);
@@ -104,6 +105,74 @@ export function registerConfigCommand(program: Command): void {
 				if (!config) {
 					console.error("No backlog project found. Initialize one first with: backlog init");
 					process.exit(1);
+				}
+
+				if (options.json) {
+					switch (key) {
+						case "defaultEditor":
+							console.log(JSON.stringify(config.defaultEditor ?? null));
+							break;
+						case "projectName":
+							console.log(JSON.stringify(config.projectName));
+							break;
+						case "defaultStatus":
+							console.log(JSON.stringify(config.defaultStatus ?? ""));
+							break;
+						case "statuses":
+							console.log(JSON.stringify(config.statuses));
+							break;
+						case "labels":
+							console.log(JSON.stringify(config.labels));
+							break;
+						case "milestones": {
+							const milestones = await core.filesystem.listMilestones();
+							console.log(JSON.stringify(milestones.map((m) => m.id)));
+							break;
+						}
+						case "definitionOfDone":
+							console.log(JSON.stringify(config.definitionOfDone ?? []));
+							break;
+						case "maxColumnWidth":
+							console.log(JSON.stringify(config.maxColumnWidth ?? null));
+							break;
+						case "defaultPort":
+							console.log(JSON.stringify(config.defaultPort ?? null));
+							break;
+						case "autoOpenBrowser":
+							console.log(JSON.stringify(config.autoOpenBrowser ?? null));
+							break;
+						case "remoteOperations":
+							console.log(JSON.stringify(config.remoteOperations ?? null));
+							break;
+						case "autoCommit":
+							console.log(JSON.stringify(config.autoCommit ?? null));
+							break;
+						case "filesystemOnly":
+							console.log(JSON.stringify(config.filesystemOnly ?? false));
+							break;
+						case "bypassGitHooks":
+							console.log(JSON.stringify(config.bypassGitHooks ?? null));
+							break;
+						case "zeroPaddedIds":
+							console.log(JSON.stringify(config.zeroPaddedIds ?? null));
+							break;
+						case "checkActiveBranches":
+							console.log(JSON.stringify(config.checkActiveBranches ?? true));
+							break;
+						case "activeBranchDays":
+							console.log(JSON.stringify(config.activeBranchDays ?? 30));
+							break;
+						case "terminalStatuses":
+							console.log(JSON.stringify(config.terminalStatuses ?? []));
+							break;
+						default:
+							console.error(`Unknown config key: ${key}`);
+							console.error(
+								"Available keys: defaultEditor, projectName, defaultStatus, statuses, labels, milestones, definitionOfDone, maxColumnWidth, defaultPort, autoOpenBrowser, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
+							);
+							process.exit(1);
+					}
+					return;
 				}
 
 				switch (key) {
@@ -191,7 +260,8 @@ export function registerConfigCommand(program: Command): void {
 	configCmd
 		.command("list")
 		.description("list all configuration values")
-		.action(async () => {
+		.option("--json", "output as JSON")
+		.action(async (options) => {
 			try {
 				const cwd = await requireProjectRoot();
 				const core = new Core(cwd);
@@ -200,6 +270,32 @@ export function registerConfigCommand(program: Command): void {
 				if (!config) {
 					console.error("No backlog project found. Initialize one first with: backlog init");
 					process.exit(1);
+				}
+
+				if (options.json) {
+					const milestones = await core.filesystem.listMilestones();
+					const data = {
+						projectName: config.projectName,
+						defaultEditor: config.defaultEditor || null,
+						defaultStatus: config.defaultStatus || null,
+						statuses: config.statuses,
+						labels: config.labels,
+						milestones: milestones.map((m) => m.id),
+						definitionOfDone: config.definitionOfDone ?? [],
+						maxColumnWidth: config.maxColumnWidth ?? null,
+						autoOpenBrowser: config.autoOpenBrowser ?? null,
+						defaultPort: config.defaultPort ?? null,
+						remoteOperations: config.remoteOperations ?? null,
+						autoCommit: config.autoCommit ?? null,
+						filesystemOnly: config.filesystemOnly ?? false,
+						bypassGitHooks: config.bypassGitHooks ?? null,
+						zeroPaddedIds: config.zeroPaddedIds ?? null,
+						taskPrefix: config.prefixes?.task || "task",
+						checkActiveBranches: config.checkActiveBranches ?? true,
+						activeBranchDays: config.activeBranchDays ?? 30,
+					};
+					console.log(JSON.stringify(data, null, 2));
+					return;
 				}
 
 				console.log("Configuration:");

@@ -177,6 +177,11 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 			disableDefinitionOfDoneDefaults: options.dodDefaults === false,
 		});
 
+		if (options.json) {
+			console.log(JSON.stringify(task, null, 2));
+			return;
+		}
+
 		if (usePlainOutput) {
 			console.log(formatTaskPlainText(task, { filePathOverride: filePath }));
 			return;
@@ -241,6 +246,17 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 			cleanup();
 			return;
 		}
+	}
+
+	if (options.json) {
+		const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
+		const filtered = tasks.filter((task) => {
+			if (parentId) return task.parentTaskId && taskIdsEqual(parentId, task.parentTaskId);
+			return true;
+		});
+		console.log(JSON.stringify(filtered, null, 2));
+		cleanup();
+		return;
 	}
 
 	const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
@@ -722,6 +738,11 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 		return;
 	}
 
+	if (options.json) {
+		console.log(JSON.stringify(updatedTask, null, 2));
+		return;
+	}
+
 	const usePlainOutput = isPlainRequested(options);
 	if (usePlainOutput) {
 		console.log(formatTaskPlainText(updatedTask));
@@ -809,6 +830,7 @@ export function registerTaskCommand(program: Command): void {
 			"add documentation URL or file path (can be used multiple times)",
 			createMultiValueAccumulator(),
 		)
+		.option("--json", "output as JSON")
 		.action(async (title: string | undefined, options) => {
 			await handleTaskCreateCommand(title, options);
 		});
@@ -823,6 +845,7 @@ export function registerTaskCommand(program: Command): void {
 		.option("--priority <priority>", "filter tasks by priority (high, medium, low)")
 		.option("--sort <field>", "sort tasks by field (priority, id, ordinal)")
 		.option("--plain", "use plain text output instead of interactive UI")
+		.option("--json", "output as JSON")
 		.action(async (options) => {
 			await handleTaskListCommand(options);
 		});
@@ -910,6 +933,7 @@ export function registerTaskCommand(program: Command): void {
 			createMultiValueAccumulator(),
 		)
 		.option("--doc <documentation>", "set documentation (can be used multiple times)", createMultiValueAccumulator())
+		.option("--json", "output as JSON")
 		.action(async (taskId: string | undefined, options) => {
 			await handleTaskEditCommand(taskId, options);
 		});
@@ -918,6 +942,7 @@ export function registerTaskCommand(program: Command): void {
 		.command("view <taskId>")
 		.description("display task details")
 		.option("--plain", "use plain text output instead of interactive UI")
+		.option("--json", "output as JSON")
 		.action(async (taskId: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -925,6 +950,11 @@ export function registerTaskCommand(program: Command): void {
 			const task = await core.getTaskWithSubtasks(taskId, localTasks);
 			if (!task) {
 				console.error(`Task ${taskId} not found.`);
+				return;
+			}
+
+			if (options.json) {
+				console.log(JSON.stringify(task, null, 2));
 				return;
 			}
 
