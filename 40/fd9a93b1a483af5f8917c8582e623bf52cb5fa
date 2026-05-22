@@ -1,0 +1,19 @@
+src/utils/output-formatter.ts
+  s_f06ae715983ff0::t_df1436e459ed00 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "40fd9a93b1a483af5f8917c8582e623bf52cb5fa",
+  "prompts": {},
+  "sessions": {
+    "s_f06ae715983ff0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af981a33ffeQv9j2a3YVD560E",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
