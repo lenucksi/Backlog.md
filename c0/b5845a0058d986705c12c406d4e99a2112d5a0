@@ -1,0 +1,36 @@
+src/file-system/operations.ts
+  s_5cdaf206b53523::t_68bf3d6526905b 255
+  s_5cdaf206b53523::t_fa25aab85cca99 148-151
+  s_5cdaf206b53523::t_682d23061daac7 914-942
+  s_5cdaf206b53523::t_caa5af49bc40d3 234-238
+src/commands/doc.ts
+  s_5cdaf206b53523::t_a8a9d9b6caa7ad 121-168
+src/constants/index.ts
+  s_5cdaf206b53523::t_8c520781802fb5 23-24
+src/mcp/tools/documents/schemas.ts
+  s_5cdaf206b53523::t_6ab0427bdabc40 96-121
+src/mcp/tools/documents/handlers.ts
+  s_5cdaf206b53523::t_8abd52928c92b1 167-198
+  s_5cdaf206b53523::t_624ab8c2e99a11 37-44
+src/mcp/tools/documents/index.ts
+  s_5cdaf206b53523::t_8537b0dda6d6fb 117,119,126,128
+  s_5cdaf206b53523::t_65f40328c04f44 6,8
+  s_5cdaf206b53523::t_408dd66b26c5e3 16,18
+  s_5cdaf206b53523::t_f4c707e4c03b17 85-106,112-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "c0b5845a0058d986705c12c406d4e99a2112d5a0",
+  "prompts": {},
+  "sessions": {
+    "s_5cdaf206b53523": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2bb3eb2ffeb3MjkPnVCbEV5e",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
