@@ -102,6 +102,39 @@ export const taskCompleteSchema: JsonSchema = {
 	additionalProperties: false,
 };
 
+export const taskReorderSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		id: {
+			type: "string",
+			minLength: 1,
+			maxLength: 50,
+		},
+		after: {
+			type: "string",
+			maxLength: 50,
+			description: "Place task after this task ID",
+		},
+		before: {
+			type: "string",
+			maxLength: 50,
+			description: "Place task before this task ID",
+		},
+		ordinal: {
+			type: "number",
+			minimum: 0,
+			description: "Set task ordinal directly",
+		},
+		status: {
+			type: "string",
+			maxLength: 100,
+			description: "Target status for the task after reorder",
+		},
+	},
+	required: ["id"],
+	additionalProperties: false,
+};
+
 export const taskDemoteSchema: JsonSchema = {
 	type: "object",
 	properties: {

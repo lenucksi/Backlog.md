@@ -3,9 +3,16 @@ import type { McpServer } from "../../server.ts";
 import type { McpToolHandler } from "../../types.ts";
 import { generateTaskCreateSchema, generateTaskEditSchema } from "../../utils/schema-generators.ts";
 import { createSimpleValidatedTool } from "../../validation/tool-wrapper.ts";
-import type { TaskCreateArgs, TaskEditRequest, TaskListArgs, TaskSearchArgs } from "./handlers.ts";
+import type { TaskCreateArgs, TaskEditRequest, TaskListArgs, TaskReorderArgs, TaskSearchArgs } from "./handlers.ts";
 import { TaskHandlers } from "./handlers.ts";
-import { taskArchiveSchema, taskCompleteSchema, taskListSchema, taskSearchSchema, taskViewSchema } from "./schemas.ts";
+import {
+	taskArchiveSchema,
+	taskCompleteSchema,
+	taskListSchema,
+	taskReorderSchema,
+	taskSearchSchema,
+	taskViewSchema,
+} from "./schemas.ts";
 
 export function registerTaskTools(server: McpServer, config: BacklogConfig): void {
 	const handlers = new TaskHandlers(server);
@@ -80,6 +87,17 @@ export function registerTaskTools(server: McpServer, config: BacklogConfig): voi
 		async (input) => handlers.archiveTask(input as { id: string }),
 	);
 
+	const reorderTaskTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "task_reorder",
+			description: "Reorder a task by setting its ordinal or moving it relative to another task",
+			inputSchema: taskReorderSchema,
+			annotations: { title: "Reorder Task", destructiveHint: false },
+		},
+		taskReorderSchema,
+		async (input) => handlers.reorderTask(input as TaskReorderArgs),
+	);
+
 	const completeTaskTool: McpToolHandler = createSimpleValidatedTool(
 		{
 			name: "task_complete",
@@ -97,8 +115,16 @@ export function registerTaskTools(server: McpServer, config: BacklogConfig): voi
 	server.addTool(editTaskTool);
 	server.addTool(viewTaskTool);
 	server.addTool(archiveTaskTool);
+	server.addTool(reorderTaskTool);
 	server.addTool(completeTaskTool);
 }
 
-export type { TaskCreateArgs, TaskEditArgs, TaskListArgs, TaskSearchArgs } from "./handlers.ts";
-export { taskArchiveSchema, taskCompleteSchema, taskListSchema, taskSearchSchema, taskViewSchema } from "./schemas.ts";
+export type { TaskCreateArgs, TaskEditArgs, TaskListArgs, TaskReorderArgs, TaskSearchArgs } from "./handlers.ts";
+export {
+	taskArchiveSchema,
+	taskCompleteSchema,
+	taskListSchema,
+	taskReorderSchema,
+	taskSearchSchema,
+	taskViewSchema,
+} from "./schemas.ts";

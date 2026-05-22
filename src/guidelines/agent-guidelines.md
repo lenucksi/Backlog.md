@@ -720,6 +720,9 @@ backlog doc view doc-1
 | Filter by assignee | `backlog task list -a @sara --plain`         |
 | Archive task       | `backlog task archive 42`                    |
 | Demote to draft    | `backlog task demote 42`                     |
+| Reorder task       | `backlog task reorder 42 --after 17`         |
+| Reorder before     | `backlog task reorder 42 --before 17`        |
+| Set ordinal        | `backlog task reorder 42 --ordinal 1500`     |
 
 ---
 

@@ -417,6 +417,71 @@ export class TaskHandlers {
 		return await formatTaskCallResult(refreshed);
 	}
 
+	async reorderTask(args: TaskReorderArgs): Promise<CallToolResult> {
+		const task = await this.loadTaskOrThrow(args.id);
+
+		const explicitOrdinal = (args as { ordinal?: unknown }).ordinal;
+		if (explicitOrdinal === null) {
+			throw AppError.validation("Ordinal must be a non-negative number.");
+		}
+
+		if (typeof explicitOrdinal === "number") {
+			if (!Number.isFinite(explicitOrdinal) || explicitOrdinal < 0) {
+				throw AppError.validation("Ordinal must be a non-negative number.");
+			}
+			const updated = await this.core.editTask(task.id, { ordinal: explicitOrdinal });
+			return await formatTaskCallResult(updated);
+		}
+
+		const afterId = args.after ? args.after.trim() : undefined;
+		const beforeId = args.before ? args.before.trim() : undefined;
+
+		if (!afterId && !beforeId) {
+			throw AppError.validation('Specify "after", "before", or "ordinal"');
+		}
+
+		const refId = afterId ?? (beforeId as string);
+		const refTask = await this.core.getTask(refId);
+		if (!refTask) {
+			throw AppError.notFound(`Reference task not found: ${refId}`);
+		}
+
+		const targetStatus = args.status?.trim() || refTask.status || "To Do";
+
+		const allTasks = await this.core.filesystem.listTasks();
+		const statusTasks = allTasks
+			.filter((t) => (t.status || "").toLowerCase() === targetStatus.toLowerCase())
+			.sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0));
+
+		const orderedIds = statusTasks.map((t) => t.id);
+		const currentIdx = orderedIds.indexOf(task.id);
+		if (currentIdx !== -1) {
+			orderedIds.splice(currentIdx, 1);
+		}
+
+		const refIdx = orderedIds.indexOf(refId);
+		if (refIdx === -1) {
+			throw AppError.validation(`Reference task ${refId} not found in status "${targetStatus}".`);
+		}
+
+		const insertAt = afterId ? refIdx + 1 : refIdx;
+		orderedIds.splice(insertAt, 0, task.id);
+
+		try {
+			const { updatedTask } = await this.core.reorderTask({
+				taskId: task.id,
+				targetStatus,
+				orderedTaskIds: orderedIds,
+			});
+			return await formatTaskCallResult(updatedTask);
+		} catch (error) {
+			if (error instanceof Error) {
+				throw AppError.validation(error.message);
+			}
+			throw AppError.validation(String(error));
+		}
+	}
+
 	async editTask(args: TaskEditRequest): Promise<CallToolResult> {
 		try {
 			const rawOrdinal = (args as { ordinal?: unknown }).ordinal;
@@ -438,5 +503,13 @@ export class TaskHandlers {
 		}
 	}
 }
+
+export type TaskReorderArgs = {
+	id: string;
+	after?: string;
+	before?: string;
+	ordinal?: number;
+	status?: string;
+};
 
 export type { TaskEditArgs, TaskEditRequest };

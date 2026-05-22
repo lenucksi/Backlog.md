@@ -752,6 +752,89 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 	console.log(`Updated task ${updatedTask.id}`);
 }
 
+async function handleTaskReorderCommand(taskId: string, options: Record<string, unknown>) {
+	const cwd = await requireProjectRoot();
+	const core = new Core(cwd);
+	await core.ensureConfigLoaded();
+
+	const canonicalId = normalizeTaskId(taskId);
+	const task = await core.loadTaskById(canonicalId);
+	if (!task) {
+		console.error(`Task ${taskId} not found.`);
+		process.exitCode = 1;
+		return;
+	}
+
+	const explicitOrdinal = options.ordinal !== undefined ? Number(options.ordinal) : undefined;
+	if (explicitOrdinal !== undefined) {
+		if (!Number.isFinite(explicitOrdinal) || explicitOrdinal < 0) {
+			console.error(`Invalid ordinal: ${options.ordinal}. Must be a non-negative number.`);
+			process.exitCode = 1;
+			return;
+		}
+		try {
+			await core.editTask(canonicalId, { ordinal: explicitOrdinal });
+			console.log(`Reordered task ${canonicalId} to ordinal ${explicitOrdinal}`);
+		} catch (error) {
+			console.error(AppError.formatCLIError(error));
+			process.exitCode = 1;
+		}
+		return;
+	}
+
+	const afterId = options.after ? normalizeTaskId(String(options.after)) : undefined;
+	const beforeId = options.before ? normalizeTaskId(String(options.before)) : undefined;
+
+	if (!afterId && !beforeId) {
+		console.error("Specify --after, --before, or --ordinal");
+		process.exitCode = 1;
+		return;
+	}
+
+	const refId = afterId || (beforeId as string);
+	const refTask = await core.loadTaskById(refId);
+	if (!refTask) {
+		console.error(`Reference task ${refId} not found.`);
+		process.exitCode = 1;
+		return;
+	}
+
+	const targetStatus = options.status ? String(options.status).trim() : refTask.status || "To Do";
+
+	const allTasks = await core.filesystem.listTasks();
+	const statusTasks = allTasks
+		.filter((t) => (t.status || "").toLowerCase() === targetStatus.toLowerCase())
+		.sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0));
+
+	const orderedIds = statusTasks.map((t) => t.id);
+	const currentIdx = orderedIds.indexOf(canonicalId);
+	if (currentIdx !== -1) {
+		orderedIds.splice(currentIdx, 1);
+	}
+
+	const refIdx = orderedIds.indexOf(refId);
+	if (refIdx === -1) {
+		console.error(`Reference task ${refId} not found in status "${targetStatus}".`);
+		process.exitCode = 1;
+		return;
+	}
+
+	const insertAt = afterId ? refIdx + 1 : refIdx;
+	orderedIds.splice(insertAt, 0, canonicalId);
+
+	try {
+		await core.reorderTask({
+			taskId: canonicalId,
+			targetStatus,
+			orderedTaskIds: orderedIds,
+		});
+		console.log(`Reordered task ${canonicalId} ${afterId ? "after" : "before"} ${refId}`);
+	} catch (error) {
+		console.error(AppError.formatCLIError(error));
+		process.exitCode = 1;
+	}
+}
+
 async function handleTaskCompleteCommand(ids: string[]) {
 	const cwd = await requireProjectRoot();
 	const core = new Core(cwd);
@@ -1005,6 +1088,16 @@ export function registerTaskCommand(program: Command): void {
 		});
 
 	taskCmd
+		.command("reorder <taskId>")
+		.description("reorder a task by setting ordinal or placing after/before another task")
+		.option("--after <taskId>", "place after this task")
+		.option("--before <taskId>", "place before this task")
+		.option("--ordinal <number>", "set task ordinal for custom ordering")
+		.action(async (taskId: string, options) => {
+			await handleTaskReorderCommand(taskId, options);
+		});
+
+	taskCmd
 		.command("complete <id1> [id2...]")
 		.description("mark one or more tasks as Done")
 		.action(async (id1: string, idsRest: string[], _options: Record<string, unknown>) => {
@@ -1018,7 +1111,7 @@ export function registerTaskCommand(program: Command): void {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 
-			const reservedCommands = ["create", "list", "edit", "view", "archive", "demote", "complete"];
+			const reservedCommands = ["create", "list", "edit", "view", "archive", "demote", "reorder", "complete"];
 			if (taskId && reservedCommands.includes(taskId)) {
 				console.error(`Unknown command: ${taskId}`);
 				taskCmd.help();
