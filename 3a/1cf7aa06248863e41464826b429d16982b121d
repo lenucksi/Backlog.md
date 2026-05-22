@@ -1,0 +1,29 @@
+src/web/components/DocumentationDetail.tsx
+  s_ed3ae033a932f0::t_ecff8cb16c297a 4
+  s_ed3ae033a932f0::t_4e0b048e03d274 43
+src/types/turndown.d.ts
+  s_ed3ae033a932f0::t_14a75910b8fa61 1-38
+src/web/utils/paste-as-markdown.ts
+  s_ed3ae033a932f0::t_3bfa338816010b 1-100
+src/web/components/PasteAwareMDEditor.tsx
+  s_ed3ae033a932f0::t_7d8d2d71634c0d 1-61
+src/web/components/TaskDetailsModal.tsx
+  s_ed3ae033a932f0::t_f64825ad6f013d 699,894,918,939
+  s_ed3ae033a932f0::t_6159e3f6f57f60 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "3a1cf7aa06248863e41464826b429d16982b121d",
+  "prompts": {},
+  "sessions": {
+    "s_ed3ae033a932f0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af74f36fffeiIsmjHArZe1I5T",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
