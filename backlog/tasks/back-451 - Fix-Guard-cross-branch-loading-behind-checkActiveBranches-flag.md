@@ -4,8 +4,9 @@ title: 'Fix: Guard cross-branch loading behind checkActiveBranches flag'
 status: Done
 assignee: []
 created_date: '2026-04-28 04:57'
-updated_date: '2026-04-28 04:59'
+updated_date: '2026-05-22 15:44'
 labels: []
+milestone: m-9
 dependencies: []
 priority: high
 ---

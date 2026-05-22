@@ -7,14 +7,16 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-11 20:26'
-updated_date: '2026-02-21 15:13'
+updated_date: '2026-05-22 15:44'
 labels: []
+milestone: m-9
 dependencies: []
 references:
   - README.md
   - /Users/alex/projects/mrlesk.com/talks/voxxed/backlog-presentation/pages
 priority: medium
 ---
+
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->

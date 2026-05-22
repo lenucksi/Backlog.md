@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-15 19:30'
-updated_date: '2026-01-15 19:32'
+updated_date: '2026-05-22 15:44'
 labels:
   - bug
   - cross-branch
   - prefix-config
+milestone: m-9
 dependencies: []
 priority: high
 ---

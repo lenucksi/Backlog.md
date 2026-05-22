@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-22 20:32'
-updated_date: '2026-01-22 21:38'
+updated_date: '2026-05-22 15:44'
 labels:
   - mcp
   - drafts
+milestone: m-9
 dependencies: []
 references:
   - src/mcp/tools/tasks/index.ts

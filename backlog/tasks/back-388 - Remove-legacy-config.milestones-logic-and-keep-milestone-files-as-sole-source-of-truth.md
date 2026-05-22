@@ -7,9 +7,9 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-17 20:42'
-updated_date: '2026-05-22 15:39'
+updated_date: '2026-05-22 15:44'
 labels: []
-milestone: m-12
+milestone: m-9
 dependencies: []
 references:
   - src/file-system/operations.ts

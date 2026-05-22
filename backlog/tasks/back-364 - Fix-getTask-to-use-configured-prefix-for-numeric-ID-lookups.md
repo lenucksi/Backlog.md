@@ -5,10 +5,11 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-15 21:25'
-updated_date: '2026-01-15 21:42'
+updated_date: '2026-05-22 15:44'
 labels:
   - bug
   - mcp
+milestone: m-9
 dependencies: []
 priority: high
 ---

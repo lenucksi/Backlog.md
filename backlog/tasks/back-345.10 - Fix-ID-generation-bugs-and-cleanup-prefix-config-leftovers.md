@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-14 19:54'
-updated_date: '2026-01-14 20:14'
+updated_date: '2026-05-22 15:44'
 labels:
   - bug
   - refactor
   - tdd
+milestone: m-9
 dependencies: []
 parent_task_id: '345'
 priority: high

@@ -5,9 +5,10 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-02-11 20:04'
-updated_date: '2026-02-11 20:08'
+updated_date: '2026-05-22 15:44'
 labels:
   - bug
+milestone: m-9
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/516'

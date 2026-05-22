@@ -5,11 +5,12 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-05-03 18:18'
-updated_date: '2026-05-03 18:52'
+updated_date: '2026-05-22 15:44'
 labels:
   - bug
   - web
   - cleanup
+milestone: m-9
 dependencies: []
 modified_files:
   - src/utils/terminal-status.ts

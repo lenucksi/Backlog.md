@@ -5,8 +5,9 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-01-23 04:01'
-updated_date: '2026-01-23 04:22'
+updated_date: '2026-05-22 15:44'
 labels: []
+milestone: m-9
 dependencies: []
 references:
   - src/commands/mcp.ts
