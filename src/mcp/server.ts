@@ -524,6 +524,7 @@ export async function createMcpServer(projectRoot: string, options: ServerInitOp
 	registerDefinitionOfDoneTools(server);
 	registerDocumentTools(server, config);
 	registerDecisionTools(server);
+	registerStatisticsTools(server);
 
 	if (options.debug) {
 		console.error("MCP server initialised (stdio transport only).");
