@@ -366,6 +366,29 @@ export class ApiClient {
 		});
 	}
 
+	async fetchArchivedDocs(): Promise<Array<{ id: string; title: string; path: string }>> {
+		return this.getJson<Array<{ id: string; title: string; path: string }>>(
+			`${API_BASE}/docs/archived`,
+			"Failed to fetch archived documents",
+		);
+	}
+
+	async restoreDoc(id: string): Promise<{ success: boolean }> {
+		return this.fetchJson<{ success: boolean }>(`${API_BASE}/docs/${encodeURIComponent(id)}/restore`, {
+			method: "POST",
+		});
+	}
+
+	async fetchCompletedTasks(): Promise<Task[]> {
+		return this.getJson<Task[]>(`${API_BASE}/tasks/completed`, "Failed to fetch completed tasks");
+	}
+
+	async reopenTask(id: string): Promise<{ success: boolean }> {
+		return this.fetchJson<{ success: boolean }>(`${API_BASE}/tasks/${encodeURIComponent(id)}/reopen`, {
+			method: "POST",
+		});
+	}
+
 	async fetchDecisions(): Promise<Decision[]> {
 		return this.getJson<Decision[]>(`${API_BASE}/decisions`, "Failed to fetch decisions");
 	}

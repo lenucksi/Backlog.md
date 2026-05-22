@@ -161,6 +161,8 @@ interface SideNavigationProps {
 	tasks: Task[];
 	docs: Document[];
 	decisions: Decision[];
+	archivedDocs: Array<{ id: string; title: string; path: string }>;
+	completedTasks: Task[];
 	isLoading: boolean;
 	error?: Error | null;
 	onRetry?: () => void;
@@ -171,9 +173,12 @@ const SideNavigation = memo(function SideNavigation({
 	tasks,
 	docs,
 	decisions,
+	archivedDocs,
+	completedTasks,
 	isLoading,
 	error,
-	onRetry
+	onRetry,
+	onRefreshData
 }: SideNavigationProps) {
 	const [isCollapsed, setIsCollapsed] = useState(() => {
 		const saved = localStorage.getItem('sideNavCollapsed');
@@ -534,6 +539,48 @@ const SideNavigation = memo(function SideNavigation({
 					</div>
 				)}
 
+				{/* Completed Tasks Section */}
+				{!isCollapsed && !isLoading && completedTasks.length > 0 && (
+					<>
+						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
+						<CollapsibleGroup
+							title={`Completed (${completedTasks.length})`}
+							icon={<span className="text-gray-400 dark:text-gray-500"><Icons.Tasks /></span>}
+							count={0}
+							storageKey="completedTasksCollapsed"
+							defaultCollapsed={true}
+						>
+							{completedTasks.map((task) => (
+								<div
+									key={task.id}
+									className="flex items-center space-x-3 px-3 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 group"
+								>
+									<span className="text-gray-400 dark:text-gray-500 shrink-0"><Icons.List /></span>
+									<div className="flex-1 min-w-0 cursor-pointer" onClick={() => window.dispatchEvent(new CustomEvent('open-task', { detail: task }))}>
+										<span className="truncate">{task.title}</span>
+										<div className="text-xs text-gray-400 dark:text-gray-500 truncate">{task.id}</div>
+									</div>
+									<button
+										onClick={async (e) => {
+											e.stopPropagation();
+											try {
+												await apiClient.reopenTask(task.id);
+												await onRefreshData();
+											} catch (err) {
+												console.error('Failed to reopen task:', err);
+											}
+										}}
+										className="shrink-0 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+										title="Reopen task"
+									>
+										Reopen
+									</button>
+								</div>
+							))}
+						</CollapsibleGroup>
+					</>
+				)}
+
 				{!isCollapsed && !isLoading && (
 					<>
 						{/* Divider between Tasks and Documents */}
@@ -575,7 +622,7 @@ const SideNavigation = memo(function SideNavigation({
 							storageKey="decisionsCollapsed"
 							defaultCollapsed={decisions.length > 6}
 						>
-							{decisions.map((decision) => (
+							{decisions.filter((d) => d.status !== 'superseded').map((decision) => (
 								<NavLink
 									key={decision.id}
 									to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
@@ -589,11 +636,66 @@ const SideNavigation = memo(function SideNavigation({
 								>
 									<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
 									<span className="truncate">{decision.title}</span>
-									{decision.status === 'superseded' && (
-										<span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-medium">
-											superseded
-										</span>
-									)}
+								</NavLink>
+							))}
+						</CollapsibleGroup>
+
+						<CollapsibleGroup
+							title="Superseded"
+							icon={<Icons.Decision />}
+							count={decisions.filter((d) => d.status === 'superseded').length}
+							storageKey="supersededCollapsed"
+							defaultCollapsed={true}
+						>
+							{decisions.filter((d) => d.status === 'superseded').map((decision) => (
+								<NavLink
+									key={decision.id}
+									to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
+									className={({ isActive }) =>
+										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+											isActive
+												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
+												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+										}`
+									}
+								>
+									<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
+									<div className="flex-1 min-w-0">
+										<span className="truncate">{decision.title}</span>
+										{decision.supersededBy && (
+											<div className="text-xs text-gray-400 dark:text-gray-500 truncate">
+												superseded by {decision.supersededBy}
+											</div>
+										)}
+									</div>
+								</NavLink>
+							))}
+						</CollapsibleGroup>
+
+						{/* Divider between Decisions and Archived Docs */}
+						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
+
+						<CollapsibleGroup
+							title="Archived Docs"
+							icon={<span className="text-gray-400 dark:text-gray-500"><Icons.Document /></span>}
+							count={archivedDocs.length}
+							storageKey="archivedDocsCollapsed"
+							defaultCollapsed={true}
+						>
+							{archivedDocs.map((doc) => (
+								<NavLink
+									key={doc.id}
+									to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
+									className={({ isActive }) =>
+										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+											isActive
+												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
+												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+										}`
+									}
+								>
+									<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
+									<span className="truncate text-gray-500 dark:text-gray-400">{doc.title}</span>
 								</NavLink>
 							))}
 						</CollapsibleGroup>

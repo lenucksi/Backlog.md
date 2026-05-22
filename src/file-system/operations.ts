@@ -932,6 +932,76 @@ export class FileSystem {
 		return document;
 	}
 
+	async listArchivedDocuments(): Promise<Array<{ id: string; title: string; path: string }>> {
+		try {
+			const archiveDir = await this.getArchiveDocsDir();
+			const glob = new Bun.Glob("**/*.md");
+			const files = await Array.fromAsync(glob.scan({ cwd: archiveDir, followSymlinks: true }));
+			const docs: Array<{ id: string; title: string; path: string }> = [];
+			for (const file of files) {
+				const filepath = join(archiveDir, file);
+				const content = await Bun.file(filepath).text();
+				const parsed = matter(content);
+				const id = (parsed.data.id as string) || file.replace(/\.md$/, "");
+				const title = (parsed.data.title as string) || file;
+				docs.push({ id, title, path: file });
+			}
+			return docs;
+		} catch {
+			return [];
+		}
+	}
+
+	async restoreDocument(id: string): Promise<boolean> {
+		try {
+			const archiveDir = await this.getArchiveDocsDir();
+			const docsDir = await this.getDocsDir();
+			const glob = new Bun.Glob("**/doc-*.md");
+			const files = await Array.fromAsync(glob.scan({ cwd: archiveDir, followSymlinks: true }));
+			for (const file of files) {
+				const filepath = join(archiveDir, file);
+				const content = await Bun.file(filepath).text();
+				const parsed = matter(content);
+				if (parsed.data.id === id || file.startsWith(`${id} -`) || file.startsWith(`doc-${id} -`)) {
+					const targetPath = join(docsDir, file);
+					await this.ensureDirectoryExists(dirname(targetPath));
+					await rename(filepath, targetPath);
+					return true;
+				}
+			}
+			return false;
+		} catch {
+			return false;
+		}
+	}
+
+	async reopenTask(taskId: string): Promise<boolean> {
+		try {
+			const completedDir = await this.getCompletedDir();
+			const config = await this.loadConfig();
+			const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
+			const globPattern = buildGlobPattern(taskPrefix);
+			const files = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
+			const normalizedId = normalizeId(taskId, taskPrefix);
+			const filenameId = idForFilename(normalizedId);
+			const completedFile = files.find(
+				(f) => f.startsWith(`${filenameId} -`) || f.startsWith(`${filenameId}-`),
+			);
+			if (!completedFile) return false;
+
+			const sourcePath = join(completedDir, completedFile);
+			const content = await Bun.file(sourcePath).text();
+			const task = parseTask(content);
+			task.status = "To Do";
+			task.filePath = undefined;
+			await this.saveTask(task);
+			await unlink(sourcePath);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
 	async archiveDocument(id: string): Promise<boolean> {
 		try {
 			const doc = await this.loadDocument(id);

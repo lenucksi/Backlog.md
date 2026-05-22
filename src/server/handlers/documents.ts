@@ -112,6 +112,29 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleListArchivedDocs(): Promise<Response> {
+		try {
+			const docs = await ctx.core.filesystem.listArchivedDocuments();
+			return Response.json(docs);
+		} catch (error) {
+			console.error("Error listing archived documents:", error);
+			return Response.json([]);
+		}
+	}
+
+	async function handleRestoreDocument(docId: string): Promise<Response> {
+		try {
+			const success = await ctx.core.filesystem.restoreDocument(docId);
+			if (!success) {
+				return Response.json({ error: "Document not found in archive" }, { status: 404 });
+			}
+			return Response.json({ success: true });
+		} catch (error) {
+			console.error("Error restoring document:", error);
+			return Response.json({ error: "Failed to restore document" }, { status: 500 });
+		}
+	}
+
 	async function handleDocumentArchive(docId: string): Promise<Response> {
 		try {
 			const success = await ctx.core.filesystem.archiveDocument(docId);
@@ -143,6 +166,8 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 		handleGetDoc,
 		handleCreateDoc,
 		handleUpdateDoc,
+		handleListArchivedDocs,
+		handleRestoreDocument,
 		handleDocumentArchive,
 		handleDocumentDelete,
 	};

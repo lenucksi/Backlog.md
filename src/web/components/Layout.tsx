@@ -12,6 +12,8 @@ interface LayoutProps {
 	tasks: Task[];
 	docs: Document[];
 	decisions: Decision[];
+	archivedDocs: Array<{ id: string; title: string; path: string }>;
+	completedTasks: Task[];
 	isLoading: boolean;
 	onRefreshData: () => Promise<void>;
 }
@@ -23,6 +25,8 @@ export default function Layout({
 	tasks,
 	docs,
 	decisions,
+	archivedDocs,
+	completedTasks,
 	isLoading,
 	onRefreshData
 }: LayoutProps) {
@@ -34,6 +38,8 @@ export default function Layout({
 				tasks={tasks}
 				docs={docs}
 				decisions={decisions}
+				archivedDocs={archivedDocs}
+				completedTasks={completedTasks}
 				isLoading={isLoading}
 				onRefreshData={onRefreshData}
 			/>

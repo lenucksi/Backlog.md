@@ -173,16 +173,18 @@ function App() {
   const [archivedMilestones, setArchivedMilestones] = useState<Milestone[]>([]);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [taskConfirmation, setTaskConfirmation] = useState<{task: Task, isDraft: boolean} | null>(null);
-  
+
   // Initialization state
   const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
-  
+
   // Centralized data state
   const [tasks, setTasks] = useState<Task[]>([]);
   const [docs, setDocs] = useState<Document[]>([]);
   const [decisions, setDecisions] = useState<Decision[]>([]);
+  const [archivedDocs, setArchivedDocs] = useState<Array<{ id: string; title: string; path: string }>>([]);
+  const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const { isOnline } = useHealthCheckContext();
   const previousOnlineRef = useRef<boolean | null>(null);
   const hasBeenRunningRef = useRef(false);
@@ -258,12 +260,14 @@ function App() {
   const loadAllData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [statusesData, configData, searchResults, milestonesData, archivedMilestonesData] = await Promise.all([
+      const [statusesData, configData, searchResults, milestonesData, archivedMilestonesData, archivedDocsData, completedTasksData] = await Promise.all([
         apiClient.fetchStatuses(),
         apiClient.fetchConfig(),
         apiClient.search(),
         apiClient.fetchMilestones(),
         apiClient.fetchArchivedMilestones(),
+        apiClient.fetchArchivedDocs(),
+        apiClient.fetchCompletedTasks(),
       ]);
 
       const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
@@ -276,6 +280,8 @@ function App() {
       setConfig(configData);
       setMilestoneEntities(milestonesData);
       setArchivedMilestones(archivedMilestonesData);
+      setArchivedDocs(archivedDocsData);
+      setCompletedTasks(completedTasksData);
       setMilestones(
         collectMilestoneIds(tasksList, milestonesData, archivedMilestonesData).filter(
           (milestone) => !archivedKeys.has(milestoneKey(milestone)),
@@ -352,7 +358,7 @@ function App() {
       }, 4000);
       return () => clearTimeout(timer);
     }
-    
+
     // Update the ref for next time
     previousOnlineRef.current = isOnline;
   }, [isOnline]);
@@ -484,6 +490,8 @@ function App() {
                 tasks={tasks}
                 docs={docs}
                 decisions={decisions}
+                archivedDocs={archivedDocs}
+                completedTasks={completedTasks}
                 isLoading={isLoading}
                 onRefreshData={refreshData}
               />

@@ -415,6 +415,30 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleListCompletedTasks(): Promise<Response> {
+		try {
+			const tasks = await ctx.core.filesystem.listCompletedTasks();
+			return Response.json(tasks);
+		} catch (error) {
+			console.error("Error listing completed tasks:", error);
+			return Response.json([]);
+		}
+	}
+
+	async function handleReopenTask(taskId: string): Promise<Response> {
+		try {
+			const success = await ctx.core.filesystem.reopenTask(taskId);
+			if (!success) {
+				return Response.json({ error: "Task not found in completed" }, { status: 404 });
+			}
+			ctx.broadcastTasksUpdated();
+			return Response.json({ success: true });
+		} catch (error) {
+			console.error("Error reopening task:", error);
+			return Response.json({ error: "Failed to reopen task" }, { status: 500 });
+		}
+	}
+
 	return {
 		handleListTasks,
 		handleSearch,
@@ -429,5 +453,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		handleCleanupExecute,
 		handleGetSequences,
 		handleMoveSequence,
+		handleListCompletedTasks,
+		handleReopenTask,
 	};
 }

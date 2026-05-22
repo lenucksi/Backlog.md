@@ -13,12 +13,16 @@ export type RouteHandlers = {
 		handleCleanupExecute: (req: Request) => Promise<Response>;
 		handleGetSequences: () => Promise<Response>;
 		handleMoveSequence: (req: Request) => Promise<Response>;
+		handleListCompletedTasks: () => Promise<Response>;
+		handleReopenTask: (taskId: string) => Promise<Response>;
 	};
 	documents: {
 		handleListDocs: () => Promise<Response>;
 		handleGetDoc: (docId: string) => Promise<Response>;
 		handleCreateDoc: (req: Request) => Promise<Response>;
 		handleUpdateDoc: (req: Request, docId: string) => Promise<Response>;
+		handleListArchivedDocs: () => Promise<Response>;
+		handleRestoreDocument: (docId: string) => Promise<Response>;
 		handleDocumentArchive: (docId: string) => Promise<Response>;
 		handleDocumentDelete: (docId: string) => Promise<Response>;
 	};
@@ -90,6 +94,12 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		"/api/tasks/:id/demote": {
 			POST: async (req: Request & { params: { id: string } }) => await tasks.handleDemoteTask(req.params.id),
 		},
+		"/api/tasks/completed": {
+			GET: async () => await tasks.handleListCompletedTasks(),
+		},
+		"/api/tasks/:id/reopen": {
+			POST: async (req: Request & { params: { id: string } }) => await tasks.handleReopenTask(req.params.id),
+		},
 		"/api/statuses": {
 			GET: async () => await config.handleGetStatuses(),
 		},
@@ -105,6 +115,12 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 			GET: async (req: Request & { params: { id: string } }) => await documents.handleGetDoc(req.params.id),
 			PUT: async (req: Request & { params: { id: string } }) => await documents.handleUpdateDoc(req, req.params.id),
 			DELETE: async (req: Request & { params: { id: string } }) => await documents.handleDocumentDelete(req.params.id),
+		},
+		"/api/docs/archived": {
+			GET: async () => await documents.handleListArchivedDocs(),
+		},
+		"/api/docs/:id/restore": {
+			POST: async (req: Request & { params: { id: string } }) => await documents.handleRestoreDocument(req.params.id),
 		},
 		"/api/docs/:id/archive": {
 			POST: async (req: Request & { params: { id: string } }) => await documents.handleDocumentArchive(req.params.id),
