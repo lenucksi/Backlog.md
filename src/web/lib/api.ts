@@ -388,6 +388,15 @@ export class ApiClient {
 		return this.sendJson<Decision>(`${API_BASE}/decisions`, "POST", { title }, "Failed to create decision");
 	}
 
+	async resolveDecision(id: string): Promise<{ success: boolean; decision: Decision }> {
+		return this.sendJson<{ success: boolean; decision: Decision }>(
+			`${API_BASE}/decisions/${encodeURIComponent(id)}/resolve`,
+			"POST",
+			{},
+			"Failed to resolve decision",
+		);
+	}
+
 	async fetchMilestones(): Promise<Milestone[]> {
 		return this.getJson<Milestone[]>(`${API_BASE}/milestones`, "Failed to fetch milestones");
 	}

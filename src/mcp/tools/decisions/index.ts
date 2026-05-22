@@ -1,9 +1,23 @@
 import type { McpServer } from "../../server.ts";
 import type { McpToolHandler } from "../../types.ts";
 import { createSimpleValidatedTool } from "../../validation/tool-wrapper.ts";
-import type { DecisionListArgs, DecisionSupersedeArgs, DecisionViewArgs } from "./handlers.ts";
+import type {
+	DecisionCreateArgs,
+	DecisionListArgs,
+	DecisionResolveArgs,
+	DecisionSearchArgs,
+	DecisionSupersedeArgs,
+	DecisionViewArgs,
+} from "./handlers.ts";
 import { DecisionHandlers } from "./handlers.ts";
-import { decisionListSchema, decisionSupersedeSchema, decisionViewSchema } from "./schemas.ts";
+import {
+	decisionCreateSchema,
+	decisionListSchema,
+	decisionResolveSchema,
+	decisionSearchSchema,
+	decisionSupersedeSchema,
+	decisionViewSchema,
+} from "./schemas.ts";
 
 export function registerDecisionTools(server: McpServer): void {
 	const handlers = new DecisionHandlers(server);
@@ -31,6 +45,29 @@ export function registerDecisionTools(server: McpServer): void {
 		async (input) => handlers.viewDecision(input as DecisionViewArgs),
 	);
 
+	const createTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "decision_create",
+			description: "Create a Backlog.md decision with a title and optional fields",
+			inputSchema: decisionCreateSchema,
+			annotations: { title: "Create Decision", destructiveHint: true },
+		},
+		decisionCreateSchema,
+		async (input) => handlers.createDecision(input as DecisionCreateArgs),
+	);
+
+	const searchTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "decision_search",
+			description:
+				"Search Backlog.md decisions by title, id, context, decision, or consequences using substring matching",
+			inputSchema: decisionSearchSchema,
+			annotations: { title: "Search Decisions", readOnlyHint: true, destructiveHint: false },
+		},
+		decisionSearchSchema,
+		async (input) => handlers.searchDecisions(input as DecisionSearchArgs),
+	);
+
 	const supersedeTool: McpToolHandler = createSimpleValidatedTool(
 		{
 			name: "decision_supersede",
@@ -43,7 +80,22 @@ export function registerDecisionTools(server: McpServer): void {
 		async (input) => handlers.supersedeDecision(input as DecisionSupersedeArgs),
 	);
 
+	const resolveTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "decision_resolve",
+			description:
+				"Mark a non-superseded decision as superseded without creating a replacement (supersede-to-nirvana).",
+			inputSchema: decisionResolveSchema,
+			annotations: { title: "Resolve Decision", destructiveHint: true },
+		},
+		decisionResolveSchema,
+		async (input) => handlers.resolveDecision(input as DecisionResolveArgs),
+	);
+
 	server.addTool(listTool);
 	server.addTool(viewTool);
+	server.addTool(createTool);
+	server.addTool(searchTool);
 	server.addTool(supersedeTool);
+	server.addTool(resolveTool);
 }

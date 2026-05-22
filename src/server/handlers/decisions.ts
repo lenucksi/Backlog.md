@@ -66,10 +66,28 @@ export function createDecisionHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleResolveDecision(decisionId: string): Promise<Response> {
+		try {
+			const normalizedId = decisionId.startsWith("decision-") ? decisionId : `decision-${decisionId}`;
+			const decision = await ctx.core.resolveDecision(normalizedId);
+			return Response.json({ success: true, decision });
+		} catch (error) {
+			if (error instanceof Error && error.message.includes("not found")) {
+				return Response.json({ error: "Decision not found" }, { status: 404 });
+			}
+			if (error instanceof Error && error.message.includes("already superseded")) {
+				return Response.json({ error: error.message }, { status: 409 });
+			}
+			console.error("Error resolving decision:", error);
+			return Response.json({ error: "Failed to resolve decision" }, { status: 500 });
+		}
+	}
+
 	return {
 		handleListDecisions,
 		handleGetDecision,
 		handleCreateDecision,
 		handleUpdateDecision,
+		handleResolveDecision,
 	};
 }

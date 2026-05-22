@@ -19,6 +19,25 @@ export type DecisionSupersedeArgs = {
 	title: string;
 };
 
+export type DecisionCreateArgs = {
+	title: string;
+	status?: string;
+	context?: string;
+	decision?: string;
+	consequences?: string;
+	alternatives?: string;
+};
+
+export type DecisionSearchArgs = {
+	query: string;
+	limit?: number;
+};
+
+export type DecisionResolveArgs = {
+	id: string;
+	title?: string;
+};
+
 export class DecisionHandlers {
 	constructor(private readonly core: Core) {}
 
@@ -117,6 +136,93 @@ export class DecisionHandlers {
 
 		return {
 			content: [{ type: "text", text: lines.join("\n") }],
+		};
+	}
+
+	async createDecision(args: DecisionCreateArgs): Promise<CallToolResult> {
+		const { generateNextDecisionId } = await import("../../../commands/decision.ts");
+		const id = await generateNextDecisionId(this.core);
+		const date = new Date().toISOString().slice(0, 16).replace("T", " ");
+
+		const decision: Decision = {
+			id,
+			title: args.title,
+			date,
+			status: (args.status as Decision["status"]) || "proposed",
+			context: args.context || "",
+			decision: args.decision || "",
+			consequences: args.consequences || "",
+			alternatives: args.alternatives,
+			rawContent: "",
+		};
+
+		await this.core.createDecision(decision);
+
+		return {
+			content: [
+				{
+					type: "text",
+					text: `Created decision ${id} - ${args.title}`,
+				},
+			],
+		};
+	}
+
+	async searchDecisions(args: DecisionSearchArgs): Promise<CallToolResult> {
+		const decisions = await this.core.filesystem.listDecisions();
+		const q = args.query.toLowerCase();
+		const searchFields = ["id", "title", "context", "decision", "consequences"] as const;
+		const limit = args.limit ?? 20;
+
+		const filtered = decisions.filter((d) =>
+			searchFields.some((field) => {
+				const value = d[field];
+				return typeof value === "string" && value.toLowerCase().includes(q);
+			}),
+		);
+
+		if (filtered.length === 0) {
+			return {
+				content: [{ type: "text", text: "No decisions matched the search query." }],
+			};
+		}
+
+		const lines: string[] = ["Search results:"];
+		let count = 0;
+		for (const d of filtered) {
+			if (count >= limit) break;
+			lines.push(this.formatDecisionSummaryLine(d));
+			count++;
+		}
+
+		if (filtered.length > limit) {
+			lines.push(`(Showing ${limit} of ${filtered.length} results)`);
+		}
+
+		return {
+			content: [{ type: "text", text: lines.join("\n") }],
+		};
+	}
+
+	async resolveDecision(args: DecisionResolveArgs): Promise<CallToolResult> {
+		const oldDecision = await this.loadDecisionOrThrow(args.id);
+
+		if (oldDecision.status === "superseded") {
+			throw AppError.validation("Decision " + args.id + " is already superseded.");
+		}
+
+		oldDecision.status = "superseded";
+		await this.core.createDecision(oldDecision);
+
+		const note = args.title ? ` (${args.title})` : "";
+
+		return {
+			content: [
+				{
+					type: "text",
+					text: "Updated " + oldDecision.id + " status to superseded" + note + ".",
+				},
+			],
 		};
 	}
 

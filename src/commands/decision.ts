@@ -188,6 +188,27 @@ export function registerDecisionCommand(program: Command): void {
 	});
 
 	decisionCmd
+		.command("resolve <id>")
+		.description("Mark a decision as superseded without creating a replacement (supersede-to-nirvana)")
+		.action(async (id: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+
+			const decision = await loadDecision(core, id);
+			if (!decision) {
+				console.error(`Decision not found: ${id}`);
+				process.exit(1);
+			}
+			if (decision.status === "superseded") {
+				console.error(`Decision ${id} is already superseded.`);
+				process.exit(1);
+			}
+
+			await core.resolveDecision(decision.id);
+			console.log(`Resolved ${decision.id} — status set to superseded`);
+		});
+
+	decisionCmd
 		.command("supersede <id>")
 		.requiredOption("--title <title>", "Title for the new decision")
 		.action(async (id: string, options) => {
