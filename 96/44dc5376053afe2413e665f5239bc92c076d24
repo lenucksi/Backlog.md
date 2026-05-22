@@ -1,0 +1,44 @@
+src/server/handlers/system.ts
+  s_dc7842ab7963f8::t_0716c65edddd6b 182
+  s_dc7842ab7963f8::t_8fe07fa607d35e 123-133
+  s_dc7842ab7963f8::t_55ff90d283a016 4
+src/utils/duplicate-detection.ts
+  s_dc7842ab7963f8::t_b1e9797607323e 1-53
+src/web/components/DuplicateIdWarning.tsx
+  s_dc7842ab7963f8::t_d0f4a9ea41aae7 1-35
+src/mcp/tools/tasks/handlers.ts
+  s_dc7842ab7963f8::t_993a2819e624e5 10
+  s_dc7842ab7963f8::t_891c8edfc36cde 197-204,206-207,212-216
+src/server/router.ts
+  s_dc7842ab7963f8::t_2b2826c630bd80 152-154
+  s_dc7842ab7963f8::t_372940b12485a8 51
+src/test/duplicate-detection.test.ts
+  s_dc7842ab7963f8::t_c0ce7530316317 1-12,16-36,39-50,55-73,77-125,127-163
+  s_dc7842ab7963f8::t_b34086db225f4e 13-15,37-38,51-54,74-76,126
+src/web/lib/api.ts
+  s_dc7842ab7963f8::t_8c429f0876cc03 2
+  s_dc7842ab7963f8::t_35897059bc950c 461-464
+src/web/components/Layout.tsx
+  s_dc7842ab7963f8::t_149d6c1d90f5c8 4
+  s_dc7842ab7963f8::t_9573174e9e927f 19-27,33
+  s_dc7842ab7963f8::t_97a3410350b3f2 31
+src/ui/unified-view.ts
+  s_dc7842ab7963f8::t_b9614c12f3cb1a 7
+  s_dc7842ab7963f8::t_35b9241b96b4ff 182-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "9644dc5376053afe2413e665f5239bc92c076d24",
+  "prompts": {},
+  "sessions": {
+    "s_dc7842ab7963f8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af750113ffex08B7GF9DQ20fj",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
