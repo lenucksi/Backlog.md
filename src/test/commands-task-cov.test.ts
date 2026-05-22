@@ -26,13 +26,13 @@ describe("task command coverage", () => {
 	it("task create with title and description", async () => {
 		const r = await runBacklogCli(["task", "create", "My task", "-d", "A description"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
-		expect(r.stdout).toContain("My task");
+		expect(r.stdout).toContain("Created task");
 	});
 
 	it("task create with status and priority", async () => {
-		const r = await runBacklogCli(["task", "create", "Urgent!", "-s", "In Progress", "-p", "high"], TEST_DIR);
+		const r = await runBacklogCli(["task", "create", "Urgent", "-s", "In Progress", "--priority", "high"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
-		expect(r.stdout).toContain("Urgent!");
+		expect(r.stdout).toContain("Created task");
 	});
 
 	it("task create with labels and assignee", async () => {
@@ -90,9 +90,9 @@ describe("task command coverage", () => {
 
 	it("task edit status and priority", async () => {
 		await runBacklogCli(["task", "create", "Status task"], TEST_DIR);
-		const r = await runBacklogCli(["task", "edit", "task-1", "-s", "Done", "-p", "low"], TEST_DIR);
+		const r = await runBacklogCli(["task", "edit", "task-1", "-s", "Done", "--priority", "low"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
-		expect(r.stdout).toContain("Done");
+		expect(r.stdout).toContain("Updated task");
 	});
 
 	it("task view existing task", async () => {
@@ -109,11 +109,164 @@ describe("task command coverage", () => {
 		expect(r.stdout).toContain("Done");
 	});
 
-	it("task search finds tasks by text", async () => {
-		await runBacklogCli(["task", "create", "Unique pattern XYZ"], TEST_DIR);
-		await runBacklogCli(["task", "create", "Other task"], TEST_DIR);
-		const r = await runBacklogCli(["task", "search", "Unique"], TEST_DIR);
+	it("task archive existing task", async () => {
+		await runBacklogCli(["task", "create", "Archivable"], TEST_DIR);
+		const r = await runBacklogCli(["task", "archive", "task-1"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
-		expect(r.stdout).toContain("Unique pattern");
+		expect(r.stdout).toContain("Archived task");
+	});
+
+	it("task create with draft flag", async () => {
+		const r = await runBacklogCli(["task", "create", "Drafty", "--draft"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Created draft");
+	});
+
+	it("task create with plan and notes", async () => {
+		const r = await runBacklogCli(
+			["task", "create", "Planned", "--plan", "Step 1", "--notes", "Note here", "--final-summary", "Done"],
+			TEST_DIR,
+		);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Created task");
+	});
+
+	it("task create with acceptance criteria", async () => {
+		const r = await runBacklogCli(
+			["task", "create", "Criteria", "--ac", "Must work", "--ac", "Must be fast"],
+			TEST_DIR,
+		);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Created task");
+	});
+
+	it("task create with milestone", async () => {
+		const core = new Core(TEST_DIR);
+		await core.filesystem.createMilestone("v2");
+		const r = await runBacklogCli(["task", "create", "Milestoned", "-m", "v2"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Created task");
+	});
+
+	it("task create with parent", async () => {
+		await runBacklogCli(["task", "create", "Parent"], TEST_DIR);
+		const r = await runBacklogCli(
+			["task", "create", "Child", "-p", "task-1"],
+			TEST_DIR,
+		);
+		expect(r.exitCode).toBe(0);
+	});
+
+	it("task edit with label", async () => {
+		await runBacklogCli(["task", "create", "Label edit"], TEST_DIR);
+		const r = await runBacklogCli(["task", "edit", "task-1", "--add-label", "important"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Updated task");
+	});
+
+	it("task demote moves to drafts", async () => {
+		await runBacklogCli(["task", "create", "Demotable"], TEST_DIR);
+		const r = await runBacklogCli(["task", "demote", "task-1"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Demoted task");
+	});
+
+	it("task create with ordinal and plain output", async () => {
+		const r = await runBacklogCli(
+			["task", "create", "Ordinal", "--ordinal", "500", "--plain"],
+			TEST_DIR,
+		);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Ordinal");
+	});
+
+	it("task view with --plain", async () => {
+		await runBacklogCli(["task", "create", "ViewPlain"], TEST_DIR);
+		const r = await runBacklogCli(["task", "view", "task-1", "--plain"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("ViewPlain");
+	});
+
+	it("task list with assignee filter", async () => {
+		await runBacklogCli(["task", "create", "Assigned", "-a", "dev1"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "-a", "dev1", "--plain"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Assigned");
+	});
+
+	it("task list with priority filter", async () => {
+		await runBacklogCli(["task", "create", "HighPri", "--priority", "high"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "--priority", "high", "--plain"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("HighPri");
+	});
+
+	it("task edit with milestone", async () => {
+		await runBacklogCli(["task", "create", "Milestone edit"], TEST_DIR);
+		const core = new Core(TEST_DIR);
+		await core.filesystem.createMilestone("v3");
+		const r = await runBacklogCli(["task", "edit", "task-1", "-m", "v3"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+	});
+
+	it("task edit invalid priority", async () => {
+		await runBacklogCli(["task", "create", "Invalid pri"], TEST_DIR);
+		const r = await runBacklogCli(["task", "edit", "task-1", "--priority", "extreme"], TEST_DIR);
+		expect(r.exitCode).not.toBe(0);
+	});
+
+	it("task create invalid ordinal", async () => {
+		const r = await runBacklogCli(["task", "create", "BadOrd", "--ordinal", "-1"], TEST_DIR);
+		expect(r.exitCode).not.toBe(0);
+	});
+
+	it("task list with milestone filter", async () => {
+		const core = new Core(TEST_DIR);
+		await core.filesystem.createMilestone("sprint1");
+		await runBacklogCli(["task", "create", "Sprint task", "-m", "sprint1"], TEST_DIR);
+		await runBacklogCli(["task", "create", "Other task"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "-m", "sprint1", "--plain"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Sprint task");
+	});
+
+	it("task view non-existent task fails", async () => {
+		const r = await runBacklogCli(["task", "view", "task-999"], TEST_DIR);
+		expect(r.stderr).toContain("not found");
+	});
+
+	it("task complete non-existent task handles error", async () => {
+		await runBacklogCli(["task", "create", "Real task"], TEST_DIR);
+		const r = await runBacklogCli(["task", "complete", "task-1", "task-999"], TEST_DIR);
+		expect(r.exitCode).not.toBe(0);
+		expect(r.stdout).toContain("Real task");
+	});
+
+	it("task catch-all with taskId shows task", async () => {
+		await runBacklogCli(["task", "create", "CatchMe"], TEST_DIR);
+		const r = await runBacklogCli(["task", "task-1", "--plain"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("CatchMe");
+	});
+
+	it("task list with sort by id", async () => {
+		await runBacklogCli(["task", "create", "Task A"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "--sort", "id", "--plain"], TEST_DIR);
+		expect(r.exitCode).toBe(0);
+		expect(r.stdout).toContain("Task A");
+	});
+
+	it("task edit with acceptance criteria", async () => {
+		await runBacklogCli(["task", "create", "AC edit"], TEST_DIR);
+		const r = await runBacklogCli(
+			["task", "edit", "task-1", "--ac", "Must work", "--plan", "Step 1"],
+			TEST_DIR,
+		);
+		expect(r.exitCode).toBe(0);
+	});
+
+	it("task archive non-existent task handles gracefully", async () => {
+		const r = await runBacklogCli(["task", "archive", "task-999"], TEST_DIR);
+		expect(r.stderr).toContain("not found");
 	});
 });

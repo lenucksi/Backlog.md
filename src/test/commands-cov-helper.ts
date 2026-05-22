@@ -8,6 +8,7 @@ export interface CliResult {
 
 const originalCwd = process.cwd();
 const originalArgv = process.argv;
+const originalExitCode = process.exitCode;
 const originalExit = process.exit;
 const originalLog = console.log;
 const originalError = console.error;
@@ -38,6 +39,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 
 	process.chdir(cwd);
 	process.argv = ["bun", "src/cli.ts", ...args];
+	process.exitCode = 0;
 	console.log = (...msgs: any[]) => stdout.push(msgs.map(String).join(" "));
 	console.error = (...msgs: any[]) => stderr.push(msgs.map(String).join(" "));
 	console.warn = (...msgs: any[]) => stderr.push(msgs.map(String).join(" "));
@@ -56,6 +58,9 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		registerConfig!(program);
 
 		await program.parseAsync(process.argv);
+		if (process.exitCode) {
+			exitCode = process.exitCode;
+		}
 	} catch (err: unknown) {
 		if (err instanceof CliExitError) {
 			exitCode = exitCode || 1;
@@ -69,6 +74,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 	} finally {
 		process.chdir(originalCwd);
 		process.argv = originalArgv;
+		process.exitCode = originalExitCode;
 		process.exit = originalExit;
 		console.log = originalLog;
 		console.error = originalError;
