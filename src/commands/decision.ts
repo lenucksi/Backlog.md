@@ -1,7 +1,11 @@
+import { writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import type { Decision } from "../types/index.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { openInEditor } from "../utils/editor.ts";
 
 export async function generateNextDecisionId(core: Core): Promise<string> {
 	const config = await core.filesystem.loadConfig();
@@ -65,6 +69,11 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 	return `decision-${nextIdNumber}`;
 }
 
+async function loadDecision(core: Core, id: string): Promise<Decision | null> {
+	const normalizedId = id.startsWith("decision-") ? id : `decision-${id}`;
+	return await core.filesystem.loadDecision(normalizedId);
+}
+
 export function registerDecisionCommand(program: Command): void {
 	const decisionCmd = program.command("decision");
 
@@ -87,5 +96,161 @@ export function registerDecisionCommand(program: Command): void {
 			};
 			await core.createDecision(decision);
 			console.log(`Created decision ${id}`);
+		});
+
+	decisionCmd
+		.command("list")
+		.option("--status <status>", "Filter by status")
+		.option("--supersedes <id>", "Filter by supersedes field")
+		.option("--superseded-by <id>", "Filter by supersededBy field")
+		.action(async (options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			let decisions = await core.filesystem.listDecisions();
+
+			if (options.status) {
+				decisions = decisions.filter((d) => d.status === options.status);
+			}
+			if (options.supersedes) {
+				const val = String(options.supersedes);
+				decisions = decisions.filter((d) => d.supersedes === val);
+			}
+			if (options.supersededBy) {
+				const val = String(options.supersededBy);
+				decisions = decisions.filter((d) => d.supersededBy === val);
+			}
+
+			if (decisions.length === 0) {
+				console.log("No decisions found.");
+				return;
+			}
+
+			const rows = decisions.map((d) => {
+				const supersedeTag = d.supersedes
+					? ` supersedes:${d.supersedes}`
+					: d.supersededBy
+						? ` superseded-by:${d.supersededBy}`
+						: "";
+				return `${d.id.padEnd(16)} ${d.status.padEnd(12)} ${d.date.padEnd(14)} ${d.title}${supersedeTag}`;
+			});
+			console.log(rows.join("\n"));
+		});
+
+	decisionCmd.command("view <id>").action(async (id: string) => {
+		const cwd = await requireProjectRoot();
+		const core = new Core(cwd);
+		const decision = await loadDecision(core, id);
+		if (!decision) {
+			console.error(`Decision not found: ${id}`);
+			process.exit(1);
+		}
+
+		console.log(`ID:             ${decision.id}`);
+		console.log(`Title:          ${decision.title}`);
+		console.log(`Date:           ${decision.date}`);
+		console.log(`Status:         ${decision.status}`);
+		if (decision.supersedes) {
+			const ref = await loadDecision(core, decision.supersedes);
+			console.log(`Supersedes:     ${decision.supersedes}${ref ? ` (${ref.title})` : ""}`);
+		}
+		if (decision.supersededBy) {
+			const ref = await loadDecision(core, decision.supersededBy);
+			console.log(`Superseded by:  ${decision.supersededBy}${ref ? ` (${ref.title})` : ""}`);
+		}
+		console.log("");
+		console.log("=== Context ===");
+		console.log(decision.context || "(empty)");
+		console.log("");
+		console.log("=== Decision ===");
+		console.log(decision.decision || "(empty)");
+		console.log("");
+		console.log("=== Consequences ===");
+		console.log(decision.consequences || "(empty)");
+		if (decision.alternatives) {
+			console.log("");
+			console.log("=== Alternatives ===");
+			console.log(decision.alternatives);
+		}
+	});
+
+	decisionCmd
+		.command("supersede <id>")
+		.requiredOption("--title <title>", "Title for the new decision")
+		.action(async (id: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+
+			const oldDecision = await loadDecision(core, id);
+			if (!oldDecision) {
+				console.error(`Decision not found: ${id}`);
+				process.exit(1);
+			}
+			if (oldDecision.status === "superseded") {
+				console.error(`Decision ${id} is already superseded.`);
+				process.exit(1);
+			}
+
+			const newId = await generateNextDecisionId(core);
+			const date = new Date().toISOString().slice(0, 16).replace("T", " ");
+
+			const lines: string[] = [];
+			lines.push("---");
+			lines.push("id: " + newId);
+			lines.push("title: " + options.title);
+			lines.push("date: " + date);
+			lines.push("status: accepted");
+			lines.push("supersedes: " + oldDecision.id);
+			lines.push("---");
+			lines.push("");
+			lines.push("## Context");
+			lines.push("");
+			lines.push(oldDecision.context || "(same context as the superseded decision)");
+			lines.push("");
+			lines.push("## Decision");
+			lines.push("");
+			lines.push("(describe the new decision)");
+			lines.push("");
+			lines.push("## Consequences");
+			lines.push("");
+			lines.push("(describe the consequences)");
+			const templateContent = lines.join("\n");
+
+			const tmpFile = join(tmpdir(), `backlog-supersede-${newId}.md`);
+			writeFileSync(tmpFile, templateContent, "utf-8");
+
+			const editorOk = await openInEditor(tmpFile, config);
+			if (!editorOk) {
+				console.error("Editor failed or was cancelled.");
+				process.exit(1);
+			}
+
+			const { readFileSync } = await import("node:fs");
+			const editedContent = readFileSync(tmpFile, "utf-8");
+
+			const { parseDecision } = await import("../markdown/parser.ts");
+
+			const rawDecision = parseDecision(editedContent);
+			const newDecision: Decision = {
+				id: newId,
+				title: options.title,
+				date,
+				status: "accepted",
+				context: rawDecision.context || "(same context as the superseded decision)",
+				decision: rawDecision.decision || "(describe the new decision)",
+				consequences: rawDecision.consequences || "(describe the consequences)",
+				alternatives: rawDecision.alternatives,
+				supersedes: oldDecision.id,
+				rawContent: rawDecision.rawContent,
+			};
+
+			await core.createDecision(newDecision);
+
+			oldDecision.status = "superseded";
+			oldDecision.supersededBy = newDecision.id;
+			await core.createDecision(oldDecision);
+
+			console.log(`Created decision ${newId} superseding ${oldDecision.id}`);
+			console.log(`Updated ${oldDecision.id} status to superseded`);
 		});
 }
