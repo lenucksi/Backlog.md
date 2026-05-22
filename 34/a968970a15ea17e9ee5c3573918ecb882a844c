@@ -1,0 +1,44 @@
+src/server/handlers/documents.ts
+  s_f56da19971ce96::t_ed8df5caf07d85 115-137,169-170
+src/web/lib/api.ts
+  s_f56da19971ce96::t_0c5a20bc9443e7 369-391
+src/web/App.tsx
+  s_f56da19971ce96::t_b70d950c0aa75e 493-494
+  s_f56da19971ce96::t_74d1038244e49e 176,179,187,361
+  s_f56da19971ce96::t_d8870b26c419da 184-185
+  s_f56da19971ce96::t_9a07eb5985b861 263,269-270,283-284
+src/web/components/SideNavigation.tsx
+  s_f56da19971ce96::t_010ddae8ba9fc8 164-165
+  s_f56da19971ce96::t_c989fe503528ce 542-583
+  s_f56da19971ce96::t_116a8f03d487dd 176-177,180-181
+  s_f56da19971ce96::t_bfaf9a01d2c20e 625,639-698
+src/server/handlers/tasks.ts
+  s_f56da19971ce96::t_497bacdef3d3b6 418-441,456-457
+src/file-system/operations.ts
+  s_f56da19971ce96::t_81cb6ebf34ba06 935-1004
+src/web/components/Layout.tsx
+  s_f56da19971ce96::t_d6112cca0105d2 41-42
+  s_f56da19971ce96::t_0ada320c274937 15-16
+  s_f56da19971ce96::t_bcfb3a44169f58 28-29
+src/server/router.ts
+  s_f56da19971ce96::t_c09bb835bd24eb 16-17
+  s_f56da19971ce96::t_6c507023e385cb 119-124
+  s_f56da19971ce96::t_b961beec66c4f7 97-102
+  s_f56da19971ce96::t_c8a38384a9c0da 24-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "34a968970a15ea17e9ee5c3573918ecb882a844c",
+  "prompts": {},
+  "sessions": {
+    "s_f56da19971ce96": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1af346b6affeE5h4RodiTJrmGj",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
