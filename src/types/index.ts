@@ -223,13 +223,17 @@ export interface SearchMatch {
 	value?: unknown;
 }
 
-export interface SearchFilters {
+export interface TaskFilterSpec {
 	status?: string | string[];
 	priority?: SearchPriorityFilter | SearchPriorityFilter[];
 	assignee?: string | string[];
-	labels?: string | string[];
-	modifiedFiles?: string | string[];
+	labels?: string[];
+	milestone?: string;
+	parentTaskId?: string;
+	modifiedFiles?: string[];
 }
+
+export type SearchFilters = TaskFilterSpec;
 
 export interface SearchOptions {
 	query?: string;

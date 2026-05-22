@@ -245,6 +245,19 @@ describe("SearchService", () => {
 		expect(filtered.map((result) => result.task.id)).toStrictEqual(["TASK-1"]);
 	});
 
+	it("accepts TaskFilterSpec with milestone filter without error", async () => {
+		await filesystem.saveTask(baseTask);
+		await search.ensureInitialized();
+
+		// milestone is part of TaskFilterSpec; SearchService accepts it through the shared interface
+		const results = search.search({
+			types: ["task"],
+			filters: { milestone: "v1.0" },
+		});
+		// SearchService ignores milestone filtering, returns all matching tasks
+		expect(results.filter(isTaskResult).length).toBe(1);
+	});
+
 	it("refreshes the index when content changes", async () => {
 		await filesystem.saveTask(baseTask);
 		await search.ensureInitialized();

@@ -18,6 +18,7 @@ import {
 	type Sequence,
 	type Task,
 	type TaskCreateInput,
+	type TaskFilterSpec,
 	type TaskListFilter,
 	type TaskUpdateInput,
 } from "../types/index.ts";
@@ -35,6 +36,7 @@ import {
 	normalizeMilestoneFilterValue,
 	resolveClosestMilestoneFilterValue,
 } from "../utils/milestone-filter.ts";
+import { matchesModifiedFileFilters, normalizeModifiedFileFilters } from "../utils/modified-files.ts";
 import { buildIdRegex, extractAnyPrefix, getPrefixForType, normalizeId } from "../utils/prefix-config.ts";
 import {
 	getCanonicalStatus as resolveCanonicalStatus,
@@ -555,6 +557,11 @@ function mergeTaskArray(
 	}
 }
 
+function getFilterValue(value: string | string[] | undefined): string | undefined {
+	if (!value) return undefined;
+	return Array.isArray(value) ? value[0] : value;
+}
+
 function filterTasksWithCompleted(
 	tasks: Task[],
 	branchStateEntries: BranchTaskStateEntry[] | undefined,
@@ -669,24 +676,30 @@ export class Core {
 
 	private applyTaskFilters(
 		tasks: Task[],
-		filters?: TaskListFilter,
+		filters?: TaskFilterSpec,
 		resolveMilestoneFilterValue?: (milestoneValue: string) => string,
 	): Task[] {
 		if (!filters) {
 			return tasks;
 		}
 		let result = tasks;
-		if (filters.status) {
-			const statusLower = filters.status.toLowerCase();
+
+		const statusValue = getFilterValue(filters.status);
+		if (statusValue) {
+			const statusLower = statusValue.toLowerCase();
 			result = result.filter((task) => (task.status ?? "").toLowerCase() === statusLower);
 		}
 		if (filters.assignee) {
-			const assigneeLower = filters.assignee.toLowerCase();
-			result = result.filter((task) => (task.assignee ?? []).some((value) => value.toLowerCase() === assigneeLower));
+			const assigneeLower = getFilterValue(filters.assignee)?.toLowerCase();
+			if (assigneeLower) {
+				result = result.filter((task) => (task.assignee ?? []).some((value) => value.toLowerCase() === assigneeLower));
+			}
 		}
 		if (filters.priority) {
-			const priorityLower = String(filters.priority).toLowerCase();
-			result = result.filter((task) => (task.priority ?? "").toLowerCase() === priorityLower);
+			const priorityLower = getFilterValue(filters.priority)?.toLowerCase();
+			if (priorityLower) {
+				result = result.filter((task) => (task.priority ?? "").toLowerCase() === priorityLower);
+			}
 		}
 		if (filters.milestone) {
 			const milestoneFilter = resolveClosestMilestoneFilterValue(
@@ -712,6 +725,12 @@ export class Core {
 					const labelSet = new Set(taskLabels);
 					return requiredLabels.some((label) => labelSet.has(label));
 				});
+			}
+		}
+		if (filters.modifiedFiles && filters.modifiedFiles.length > 0) {
+			const normalized = normalizeModifiedFileFilters(filters.modifiedFiles);
+			if (normalized) {
+				result = result.filter((task) => matchesModifiedFileFilters(task.modifiedFiles, normalized));
 			}
 		}
 		return result;
@@ -2433,8 +2452,8 @@ export class Core {
 	}
 
 	async createDecisionWithTitle(title: string, autoCommit?: boolean): Promise<Decision> {
-		// Import the generateNextDecisionId function from CLI
-		const { generateNextDecisionId } = await import("../cli.js");
+		// Import the generateNextDecisionId function
+		const { generateNextDecisionId } = await import("../commands/decision.ts");
 		const id = await generateNextDecisionId(this);
 
 		const decision: Decision = {

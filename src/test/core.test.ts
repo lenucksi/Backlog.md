@@ -433,6 +433,32 @@ describe("Core", () => {
 			});
 			expect(parent2.id).toBe("TASK-2");
 		});
+
+		it("should filter tasks by modifiedFiles through queryTasks", async () => {
+			const coreTask: Task = {
+				...sampleTask,
+				id: "task-core",
+				title: "Core Module Task",
+				modifiedFiles: ["src/core/backlog.ts"],
+				description: "A task modifying core files",
+			};
+			const webTask: Task = {
+				...sampleTask,
+				id: "task-web",
+				title: "Web Module Task",
+				modifiedFiles: ["src/web/components.tsx"],
+				description: "A task modifying web files",
+			};
+			await core.createTask(coreTask, false);
+			await core.createTask(webTask, false);
+
+			const results = await core.queryTasks({
+				filters: { modifiedFiles: ["src/core"] },
+			});
+
+			expect(results).toHaveLength(1);
+			expect(results[0]?.title).toBe("Core Module Task");
+		}, 15000);
 	});
 
 	describe("document operations", () => {
