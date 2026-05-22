@@ -1,0 +1,21 @@
+src/commands/task.ts
+  s_5cdaf206b53523::t_1ad5063286a211 734-759
+  s_5cdaf206b53523::t_0c294a47e98339 978-983
+  s_5cdaf206b53523::t_90ff44e3c1a538 991
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "5ccb9a16fe0cbafaa2aedbc5df5296a3e5ed3d6a",
+  "prompts": {},
+  "sessions": {
+    "s_5cdaf206b53523": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2bb3eb2ffeb3MjkPnVCbEV5e",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
