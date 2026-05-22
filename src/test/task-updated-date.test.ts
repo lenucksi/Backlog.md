@@ -2,6 +2,15 @@ import { describe, expect, it } from "bun:test";
 import { upsertTaskUpdatedDate } from "../utils/task-updated-date.ts";
 
 describe("upsertTaskUpdatedDate", () => {
+	it("returns content unchanged when content is empty", () => {
+		expect(upsertTaskUpdatedDate("", "2026-02-11 22:15")).toBe("");
+	});
+
+	it("returns content unchanged when updatedDate is empty", () => {
+		const input = "---\nid: task-1\n---\n\nBody";
+		expect(upsertTaskUpdatedDate(input, "")).toBe(input);
+	});
+
 	it("replaces existing updated_date value", () => {
 		const input = `---
 id: task-1
