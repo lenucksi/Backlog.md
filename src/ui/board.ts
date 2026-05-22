@@ -25,6 +25,9 @@ import {
 	resolveSearchExitTargetIndex,
 	shouldMoveFromListBoundaryToSearch,
 } from "./task-viewer-with-search.ts";
+import { openCreateDocumentScreen } from "./create-document.ts";
+import { openCreateDraftScreen } from "./create-draft.ts";
+import { openCreateMilestoneScreen } from "./create-milestone.ts";
 import { createScreen } from "./tui.ts";
 import { stripBlessedFgTags } from "./utils/strip-tags.ts";
 
@@ -150,7 +153,7 @@ function formatColumnLabel(status: string, count: number): string {
 }
 
 const DEFAULT_FOOTER_CONTENT =
-	" {cyan-fg}[Tab]{/} View | {cyan-fg}[/]{/} Search | {cyan-fg}[P/F/I]{/} Filter | {cyan-fg}[←→/↑↓]{/} Nav | {cyan-fg}[Enter]{/} Details | {cyan-fg}[E/M/C/A]{/} Edit/Move/Comp/Arch | {cyan-fg}[Y]{/} Yank | {cyan-fg}[?]{/} Help | {cyan-fg}[q]{/} Quit";
+	" {cyan-fg}[Tab]{/} View | {cyan-fg}[/]{/} Search | {cyan-fg}[P/F/I]{/} Filter | {cyan-fg}[←→/↑↓]{/} Nav | {cyan-fg}[Enter]{/} Details | {cyan-fg}[E/M/C/A]{/} Edit/Move/Comp/Arch | {cyan-fg}[m/d/D]{/} Milestone/Draft/Doc | {cyan-fg}[Y]{/} Yank | {cyan-fg}[?]{/} Help | {cyan-fg}[q]{/} Quit";
 
 export function shouldRebuildColumns(current: ColumnData[], next: ColumnData[]): boolean {
 	if (current.length !== next.length) {
@@ -1229,6 +1232,30 @@ export async function renderBoardTui(
 
 			renderView();
 		};
+
+		screen.key(["m"], async () => {
+			if (popupOpen || filterPopupOpen || modalOpen || moveOp || currentFocus === "filters") return;
+			await runWithModalGuard(async () => {
+				await openCreateMilestoneScreen(screen);
+				renderView();
+			});
+		});
+
+		screen.key(["d"], async () => {
+			if (popupOpen || filterPopupOpen || modalOpen || moveOp || currentFocus === "filters") return;
+			await runWithModalGuard(async () => {
+				await openCreateDraftScreen(screen);
+				renderView();
+			});
+		});
+
+		screen.key(["D"], async () => {
+			if (popupOpen || filterPopupOpen || modalOpen || moveOp || currentFocus === "filters") return;
+			await runWithModalGuard(async () => {
+				await openCreateDocumentScreen(screen);
+				renderView();
+			});
+		});
 
 		screen.key(["m", "M", "S-m"], async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters") return;
