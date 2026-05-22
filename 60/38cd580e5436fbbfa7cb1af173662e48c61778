@@ -1,0 +1,13 @@
+src/ui/board.ts
+  ai_agent 21,154,1320-1334
+src/ui/create-task.ts
+  ai_agent 1-253
+src/ui/components/help-popup.ts
+  ai_agent 26,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "6038cd580e5436fbbfa7cb1af173662e48c61778",
+  "prompts": {}
+}
