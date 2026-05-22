@@ -1,0 +1,69 @@
+.gitignore
+  s_92571da67d3a6b::t_4e6216647d9361 76-78
+.github/workflows/prek.yml
+  s_92571da67d3a6b::t_52790b08bc7ae2 1-11
+biome.json
+  s_92571da67d3a6b::t_735fd3a8aa1e61 6-7
+scripts/run-tui-interactive-tests.sh
+  s_92571da67d3a6b::t_11e8d363767d9b 4
+src/test/tui-termless-core.test.ts
+  s_92571da67d3a6b::t_d4408d7b6bf88c 2
+  s_fd1d9b6734a512::t_325bf0e3cbb70a 1,5-80
+prek.toml
+  s_92571da67d3a6b::t_f5f89b94ba9153 1-23,25-32
+  s_92571da67d3a6b::t_810ca140a5136b 24
+src/test/termless-helper.ts
+  s_92571da67d3a6b::t_f15ff39b702006 4-9,13,15,23,25-28,34,39,42,45
+  s_92571da67d3a6b::t_062ea20387ec92 1-3,10-12,14,16-22,24,29-33,35,41,43-44,46
+  s_92571da67d3a6b::t_68db26dd77ebcd 36-38,40
+package.json
+  s_92571da67d3a6b::t_d51ae420ef796a 30-31
+  s_92571da67d3a6b::t_14d44f3e42e4f9 56-57
+  s_92571da67d3a6b::t_362ce3fe763e0a 104-106
+  s_92571da67d3a6b::t_0fbbef6c8843ea 65
+.github/workflows/ci.yml
+  s_92571da67d3a6b::t_b73e2da27db611 156-159
+  s_92571da67d3a6b::t_698ef63212b1e6 75,77
+src/test/vterm-backend.ts
+  s_fd1d9b6734a512::t_325bf0e3cbb70a 136-150
+  s_92571da67d3a6b::t_2940471d6f60c1 201-202,205-206
+  s_92571da67d3a6b::t_5413adf6d7ca08 1-31,33-37,39-84,86-87,92,96,99,101-135,151-200,203-204,207-235
+  s_92571da67d3a6b::t_9da04a1ad2c925 32,38
+  s_92571da67d3a6b::t_7807f92dd991f4 85,88-91,93-95,97-98,100
+.github/workflows/release.yml
+  s_92571da67d3a6b::t_9f3afc2afe804e 9
+  s_92571da67d3a6b::t_fce86ccca47b3e 231,240-241,273-277,283,314,327-328
+  s_92571da67d3a6b::t_1134a66116dba1 106-108,110-114,120,122-124,127
+  s_92571da67d3a6b::t_07fda2939e873d 135,139,143,147,151,183,186,198,200-201,205,209
+  s_92571da67d3a6b::t_26f570c0aeda28 374-375,382-383,385,407,422-423,434-436,462
+src/test/tui-interactive-editor-handoff.test.ts
+  s_92571da67d3a6b::t_750477547f6037 85-92,96,103,105,107,110
+  s_92571da67d3a6b::t_0e319ad2814982 81,93,97-98,104,106,108-109
+  s_92571da67d3a6b::t_3defbecdbd60d1 99
+  s_92571da67d3a6b::t_0bdc23eaa3cf6b 100-102
+  s_92571da67d3a6b::t_59291c379e3045 94-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "b46f033b84ccb604c5b07e1229d0337e037bd679",
+  "prompts": {},
+  "sessions": {
+    "s_92571da67d3a6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0bf210bffeGVVJbckeHIHNYV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_fd1d9b6734a512": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b03aeea5ffei9lRMH8KN6YfIg",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
