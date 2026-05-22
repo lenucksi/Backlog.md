@@ -370,6 +370,39 @@ function sanitizeAppendInput(values: string[] | undefined): string[] {
 	return values.map((value) => String(value).trim()).filter((value) => value.length > 0);
 }
 
+type TaskStringField = "implementationPlan" | "implementationNotes" | "finalSummary";
+
+function applyClearSetAppendBlock(
+	task: Task,
+	field: TaskStringField,
+	clear: boolean | undefined,
+	set: string | undefined,
+	append: string[] | undefined,
+): boolean {
+	let mutated = false;
+	if (clear && task[field] !== undefined) {
+		if (field === "finalSummary") {
+			task[field] = "";
+		} else {
+			delete task[field];
+		}
+		mutated = true;
+	}
+	mutated =
+		applyStringField(set, task[field], (next) => {
+			task[field] = next;
+		}) || mutated;
+	const appends = sanitizeAppendInput(append);
+	if (appends.length > 0) {
+		const { value, changed } = appendBlock(task[field], appends);
+		if (changed) {
+			task[field] = value;
+			mutated = true;
+		}
+	}
+	return mutated;
+}
+
 function appendBlock(
 	existing: string | undefined,
 	additions: string[] | undefined,
@@ -1642,62 +1675,30 @@ export class Core {
 		mutated = resolveDocumentationFromInput(task, input) || mutated;
 		mutated = resolveModifiedFilesFromInput(task, input) || mutated;
 
-		if (input.clearImplementationPlan) {
-			if (task.implementationPlan !== undefined) {
-				delete task.implementationPlan;
-				mutated = true;
-			}
-		}
 		mutated =
-			applyStringField(input.implementationPlan, task.implementationPlan, (next) => {
-				task.implementationPlan = next;
-			}) || mutated;
-		const planAppends = sanitizeAppendInput(input.appendImplementationPlan);
-		if (planAppends.length > 0) {
-			const { value, changed } = appendBlock(task.implementationPlan, planAppends);
-			if (changed) {
-				task.implementationPlan = value;
-				mutated = true;
-			}
-		}
-
-		if (input.clearImplementationNotes) {
-			if (task.implementationNotes !== undefined) {
-				delete task.implementationNotes;
-				mutated = true;
-			}
-		}
+			applyClearSetAppendBlock(
+				task,
+				"implementationPlan",
+				input.clearImplementationPlan,
+				input.implementationPlan,
+				input.appendImplementationPlan,
+			) || mutated;
 		mutated =
-			applyStringField(input.implementationNotes, task.implementationNotes, (next) => {
-				task.implementationNotes = next;
-			}) || mutated;
-		const notesAppends = sanitizeAppendInput(input.appendImplementationNotes);
-		if (notesAppends.length > 0) {
-			const { value, changed } = appendBlock(task.implementationNotes, notesAppends);
-			if (changed) {
-				task.implementationNotes = value;
-				mutated = true;
-			}
-		}
-
-		if (input.clearFinalSummary) {
-			if (task.finalSummary !== undefined) {
-				task.finalSummary = "";
-				mutated = true;
-			}
-		}
+			applyClearSetAppendBlock(
+				task,
+				"implementationNotes",
+				input.clearImplementationNotes,
+				input.implementationNotes,
+				input.appendImplementationNotes,
+			) || mutated;
 		mutated =
-			applyStringField(input.finalSummary, task.finalSummary, (next) => {
-				task.finalSummary = next;
-			}) || mutated;
-		const finalSummaryAppends = sanitizeAppendInput(input.appendFinalSummary);
-		if (finalSummaryAppends.length > 0) {
-			const { value, changed } = appendBlock(task.finalSummary, finalSummaryAppends);
-			if (changed) {
-				task.finalSummary = value;
-				mutated = true;
-			}
-		}
+			applyClearSetAppendBlock(
+				task,
+				"finalSummary",
+				input.clearFinalSummary,
+				input.finalSummary,
+				input.appendFinalSummary,
+			) || mutated;
 
 		mutated = resolveAcceptanceCriteriaFromInput(task, input) || mutated;
 		mutated = resolveDefinitionOfDoneFromInput(task, input) || mutated;

@@ -31,22 +31,13 @@ function sortByDateDesc(tasks: Task[], field: "createdDate" | "updatedDate"): Ta
 	return tasks.sort((a, b) => toDate(b[field]).getTime() - toDate(a[field]).getTime());
 }
 
-function getAgeInDays(
-	createdDate: string,
-	now: Date,
-	isTerminal: boolean,
-	updatedDate?: string,
-): number {
+function getAgeInDays(createdDate: string, now: Date, isTerminal: boolean, updatedDate?: string): number {
 	const start = new Date(createdDate).getTime();
 	const end = isTerminal && updatedDate ? new Date(updatedDate).getTime() : now.getTime();
 	return Math.floor((end - start) / MS_PER_DAY);
 }
 
-function isStaleTask(
-	task: Task,
-	oneMonthAgo: Date,
-	isTerminal: boolean,
-): boolean {
+function isStaleTask(task: Task, oneMonthAgo: Date, isTerminal: boolean): boolean {
 	if (isTerminal) return false;
 	const lastDate = task.updatedDate || task.createdDate;
 	if (!lastDate) return false;
@@ -110,11 +101,7 @@ export function getTaskStatistics(
 			staleTasks.push(task);
 		}
 
-		if (
-			task.dependencies &&
-			task.dependencies.length > 0 &&
-			!terminal
-		) {
+		if (task.dependencies && task.dependencies.length > 0 && !terminal) {
 			const hasBlocking = task.dependencies.some((depId) => {
 				const dep = tasks.find((t) => t.id === depId);
 				return dep && !isTerminalStatus(dep.status, statuses, terminalStatuses);

@@ -303,9 +303,7 @@ export class TaskHandlers {
 			if (typeof args.limit === "number" && args.limit >= 0) {
 				matches = matches.slice(0, args.limit);
 			}
-			return matches.length === 0
-				? this.noTasksFoundMessage(query, modifiedFiles)
-				: this.formatSearchResults(matches);
+			return matches.length === 0 ? this.noTasksFoundMessage(query, modifiedFiles) : this.formatSearchResults(matches);
 		}
 
 		const tasks = await this.core.loadTasks(undefined, undefined, { includeCompleted: true });

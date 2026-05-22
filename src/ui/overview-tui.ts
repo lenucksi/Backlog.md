@@ -228,10 +228,7 @@ function printTaskListLine(task: { id: string; title: string }): void {
 	console.log(`    ${task.id} - ${task.title}`);
 }
 
-function printTaskList(
-	tasks: Array<{ id: string; title: string }>,
-	emptyMessage: string,
-): void {
+function printTaskList(tasks: Array<{ id: string; title: string }>, emptyMessage: string): void {
 	if (tasks.length > 0) {
 		for (const task of tasks) {
 			printTaskListLine(task);

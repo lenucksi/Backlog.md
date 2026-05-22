@@ -175,7 +175,17 @@ export async function buildRemoteTaskIndex(
 
 	const normalized = branches.map(normalizeRemoteBranch).filter((b): b is string => Boolean(b));
 
-	await runIndexWorkers(git, normalized, backlogDir, sinceDays, prefix, stateCollector, includeCompleted, out, (br) => `origin/${br}`);
+	await runIndexWorkers(
+		git,
+		normalized,
+		backlogDir,
+		sinceDays,
+		prefix,
+		stateCollector,
+		includeCompleted,
+		out,
+		(br) => `origin/${br}`,
+	);
 	return out;
 }
 
@@ -241,7 +251,18 @@ export async function buildLocalBranchTaskIndex(
 		return out;
 	}
 
-	await runIndexWorkers(git, normalized, backlogDir, sinceDays, prefix, stateCollector, includeCompleted, out, (br) => br, { silent: true });
+	await runIndexWorkers(
+		git,
+		normalized,
+		backlogDir,
+		sinceDays,
+		prefix,
+		stateCollector,
+		includeCompleted,
+		out,
+		(br) => br,
+		{ silent: true },
+	);
 	return out;
 }
 
