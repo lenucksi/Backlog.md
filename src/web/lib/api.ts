@@ -326,6 +326,13 @@ export class ApiClient {
 		return this.getJson<Document>(`${API_BASE}/docs/${encodeURIComponent(id)}`, "Failed to fetch document");
 	}
 
+	async fetchFileContent(path: string): Promise<{ content: string; language: string }> {
+		return this.getJson<{ content: string; language: string }>(
+			`${API_BASE}/file-content?path=${encodeURIComponent(path)}`,
+			"Failed to fetch file content",
+		);
+	}
+
 	async updateDoc(filename: string, content: string, title?: string, path?: string | null): Promise<Document> {
 		const payload: Record<string, unknown> = { content };
 		if (typeof title === "string") payload.title = title;

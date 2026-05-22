@@ -13,6 +13,7 @@ import { createConfigHandlers } from "./handlers/config.ts";
 import { createDecisionHandlers } from "./handlers/decisions.ts";
 import { createDocumentHandlers } from "./handlers/documents.ts";
 import { createDraftHandlers } from "./handlers/drafts.ts";
+import { createFileHandlers } from "./handlers/files.ts";
 import { createMilestoneHandlers } from "./handlers/milestones.ts";
 import { createSystemHandlers } from "./handlers/system.ts";
 import { createTaskHandlers } from "./handlers/tasks.ts";
@@ -160,6 +161,7 @@ export class BacklogServer {
 					decisions: createDecisionHandlers(ctx),
 					drafts: createDraftHandlers(ctx),
 					milestones: createMilestoneHandlers(ctx),
+					files: createFileHandlers(ctx),
 					config: createConfigHandlers(ctx),
 					system: createSystemHandlers(ctx),
 				},

@@ -158,6 +158,25 @@ export class FileSystem {
 		return this.projectRoot;
 	}
 
+	async readProjectFile(relativePath: string): Promise<{ content: string; language: string }> {
+		if (relativePath.includes("..")) {
+			throw new Error("Invalid path: directory traversal not allowed");
+		}
+		const resolvedPath = join(this.projectRoot, relativePath);
+		if (!resolvedPath.startsWith(this.projectRoot)) {
+			throw new Error("Invalid path: outside project root");
+		}
+		const file = Bun.file(resolvedPath);
+		if (!(await file.exists())) {
+			throw new Error(`File not found: ${relativePath}`);
+		}
+		const content = await file.text();
+		const filename = relativePath.split("/").pop() || "";
+		const ext = filename.includes(".") ? (filename.split(".").pop()?.toLowerCase() ?? "") : "";
+		const language = this.detectLanguage(ext, filename);
+		return { content, language };
+	}
+
 	invalidateConfigCache(): void {
 		this.cachedConfig = null;
 		const resolution = resolveBacklogDirectory(this.projectRoot);
@@ -1374,6 +1393,80 @@ ${description || `Milestone: ${title}`}`,
 	}
 
 	// Utility methods
+	private detectLanguage(ext: string, filename: string): string {
+		if (!ext) {
+			const nameMap: Record<string, string> = {
+				dockerfile: "dockerfile",
+				makefile: "makefile",
+				gemfile: "ruby",
+			};
+			return nameMap[filename.toLowerCase()] ?? "";
+		}
+		const map: Record<string, string> = {
+			ts: "typescript",
+			tsx: "typescriptreact",
+			js: "javascript",
+			jsx: "javascriptreact",
+			json: "json",
+			md: "markdown",
+			mdc: "markdown",
+			css: "css",
+			html: "html",
+			yaml: "yaml",
+			yml: "yaml",
+			py: "python",
+			rs: "rust",
+			go: "go",
+			java: "java",
+			c: "c",
+			cc: "cpp",
+			cpp: "cpp",
+			h: "c",
+			hpp: "cpp",
+			sh: "bash",
+			bash: "bash",
+			zsh: "bash",
+			sql: "sql",
+			xml: "xml",
+			toml: "toml",
+			ini: "ini",
+			cfg: "ini",
+			ruby: "ruby",
+			rb: "ruby",
+			php: "php",
+			swift: "swift",
+			kt: "kotlin",
+			dart: "dart",
+			scala: "scala",
+			vue: "vue",
+			svelte: "svelte",
+			graphql: "graphql",
+			gql: "graphql",
+			diff: "diff",
+			patch: "diff",
+			tex: "latex",
+			pl: "perl",
+			r: "r",
+			lua: "lua",
+			ex: "elixir",
+			exs: "elixir",
+			elm: "elm",
+			erl: "erlang",
+			hrl: "erlang",
+			clj: "clojure",
+			cljs: "clojure",
+			edn: "clojure",
+			hs: "haskell",
+			lhs: "haskell",
+			nix: "nix",
+			sass: "sass",
+			scss: "scss",
+			less: "less",
+			wasm: "wasm",
+		};
+		return map[ext] ?? "";
+	}
+
 	private sanitizeFilename(filename: string): string {
 		// Remove path-unsafe characters, then strip noisy punctuation before normalizing whitespace
 		return (

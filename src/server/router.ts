@@ -55,10 +55,13 @@ export type RouteHandlers = {
 		handleInit: (req: Request) => Promise<Response>;
 		handleAssetRequest: (req: Request) => Promise<Response>;
 	};
+	files: {
+		handleGetFileContent: (req: Request) => Promise<Response>;
+	};
 };
 
 export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Record<string, unknown> {
-	const { tasks, documents, decisions, drafts, milestones, config, system } = handlers;
+	const { tasks, documents, decisions, drafts, milestones, config, system, files } = handlers;
 
 	return {
 		"/": spaIndexHtml,
@@ -177,6 +180,9 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		},
 		"/assets/*": {
 			GET: async (req: Request) => await system.handleAssetRequest(req),
+		},
+		"/api/file-content": {
+			GET: async (req: Request) => await files.handleGetFileContent(req),
 		},
 	};
 }

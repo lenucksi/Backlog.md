@@ -4,6 +4,7 @@ import { renderMermaidIn } from "../utils/mermaid";
 
 interface Props {
 	source: string;
+	onFileClick?: (path: string) => void;
 }
 
 const URI_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\u0000-\u0020]*>/;
@@ -71,7 +72,7 @@ const headingPlugin: any = () => (tree: Record<string, any>) => {
 	visit(tree);
 };
 
-export default function MermaidMarkdown({ source }: Props) {
+export default function MermaidMarkdown({ source, onFileClick }: Props) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const safeSource = sanitizeMarkdownSource(source);
 
@@ -89,30 +90,52 @@ export default function MermaidMarkdown({ source }: Props) {
 		return () => cancelAnimationFrame(frameId);
 	}, [safeSource]);
 
-	// Intercept hash link clicks for in-document navigation
+	// Intercept hash link clicks for in-document navigation and file path clicks for preview
 	useEffect(() => {
 		const container = ref.current;
 		if (!container) return;
 
 		const handleClick = (e: MouseEvent) => {
-			const anchor = (e.target as HTMLElement).closest("a[href^='#']");
-			if (!anchor) return;
+			const target = e.target as HTMLElement;
 
-			const hash = anchor.getAttribute("href");
-			if (!hash || hash === "#") return;
+			// Handle hash link navigation
+			const hashAnchor = target.closest("a[href^='#']");
+			if (hashAnchor) {
+				const hash = hashAnchor.getAttribute("href");
+				if (!hash || hash === "#") return;
 
-			const id = hash.slice(1);
-			const element = document.getElementById(id);
-			if (element) {
-				e.preventDefault();
-				element.scrollIntoView({ behavior: "smooth", block: "start" });
-				window.history.replaceState(null, "", hash);
+				const id = hash.slice(1);
+				const element = document.getElementById(id);
+				if (element) {
+					e.preventDefault();
+					element.scrollIntoView({ behavior: "smooth", block: "start" });
+					window.history.replaceState(null, "", hash);
+				}
+				return;
+			}
+
+			// Handle file path clicks for preview
+			if (onFileClick) {
+				const linkAnchor = target.closest("a[href]");
+				if (linkAnchor) {
+					const href = linkAnchor.getAttribute("href");
+					if (
+						href &&
+						!href.startsWith("http://") &&
+						!href.startsWith("https://") &&
+						!href.startsWith("#") &&
+						!href.startsWith("mailto:")
+					) {
+						e.preventDefault();
+						onFileClick(href);
+					}
+				}
 			}
 		};
 
 		container.addEventListener("click", handleClick);
 		return () => container.removeEventListener("click", handleClick);
-	}, []);
+	}, [onFileClick]);
 
 	// Scroll to hash on initial render when URL contains a hash
 	useEffect(() => {
