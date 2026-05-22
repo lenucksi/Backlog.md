@@ -1,0 +1,85 @@
+src/commands/doc.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 7-13,94
+  s_0baec3357d919c::t_b6f22c92c3b9e6 1-6,14-93,95-121
+src/core/statistics.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 34,40,104
+src/commands/agents.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 61
+  s_0baec3357d919c::t_2bf7555a43a973 1-2,4-7,9-25,27-60,62-75
+  s_0baec3357d919c::t_9b6587d144d1f5 3,8,26
+src/commands/config.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 3,8,46,53,395,403
+  s_0baec3357d919c::t_06658ca3d08c6f 1-2,4-7,9-45,47-52,54-394,396-402,404-416
+src/commands/browser.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 17
+  s_0baec3357d919c::t_63c66c0b0c4c08 1-16,18-78
+src/commands/overview.ts
+  s_0baec3357d919c::t_3372190d2c38b2 2
+  s_0baec3357d919c::t_651789a2ae5356 1,6,49-70
+src/commands/cleanup.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 5,65,129,131
+  s_0baec3357d919c::t_f809cfa6f33796 1-4,6-64,66-128,130,132-134
+src/commands/board.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 8,10,75,121,145,186,196
+  s_0baec3357d919c::t_6cd3765af821f0 1-5,7,9,11-74,76-120,122-144,146-185,187-195,197-204
+  s_0baec3357d919c::t_16cd296347e2f0 6
+src/commands/sequence.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 2,22
+  s_0baec3357d919c::t_ac06f12cdf6c91 1,3-21,23-47
+src/commands/draft.ts
+  s_0baec3357d919c::t_19386923e022c8 1-5,7-70,72-82,84-214
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 6,71,83
+src/commands/task.ts
+  s_0baec3357d919c::t_95a98782bdbd08 5
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 8,19,151,154-155,164,169,280,402,419,428,619,739,770,808
+  s_0baec3357d919c::t_001b5699092e52 1-4,6-7,9-18,20-150,152-153,156-163,165-168,170-279,281-401,403-418,420-427,429-618,620-738,740-769,771-807,809-995
+src/commands/milestone.ts
+  s_0baec3357d919c::t_3f2d7f221c5736 1-81
+src/commands/search.ts
+  s_0baec3357d919c::t_6117a96d3514a8 1-4,6-11,18-148,150-256
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 5,12-17,149
+src/cli.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 6-7,9-13,15-20,22
+  s_0baec3357d919c::t_a7f0923edcfcb3 4-5,8,42-66,123,136-137,147-161
+src/ui/overview-tui.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 231
+src/mcp/tools/tasks/handlers.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 306
+src/commands/decision.ts
+  s_0baec3357d919c::t_5fba0f1ec4fdea 6
+  s_0baec3357d919c::t_78ebb96ad2d765 1-5,7-91
+src/core/task-loader.ts
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 178-188,254-265
+src/core/backlog.ts
+  s_ae2ca93d343222::t_5d1fd7ae3f4472 373-405
+  s_ae2ca93d343222::t_b7bcc452c8e456 1679-1683,1685,1687-1691,1693,1695-1699,1701
+src/utils/cli-context.ts
+  s_0baec3357d919c::t_2dc07e55548cd0 1-42
+src/commands/init.ts
+  s_0baec3357d919c::t_271ee90d17e284 1,3,5-86,88-139,141-180,182-235,237-280,282-335,337-348,350-406,408,411-414,416-417,419,421-423,425,427-429,431-435,439-442,444-447,449-455,457-459,461-463,465-482,484-502,504-509,511-515,519,521-529,531-554,557,559-578,580-595,597-604,606-608,610-617,629-633,642-646,657-678,680-687,689-690,692-693,695-696,698-723,725-741,743-820,823,825-826,828-843,845,847-860,866-867,869-871,873-877,879-881,883-919,921-961,964-971
+  s_0baec3357d919c::t_aeb0a6d9eaaf90 2,4,87,140,181,236,281,336,349,407,409-410,415,418,420,424,426,430,436-438,443,448,456,460,464,483,503,510,516-518,520,530,555-556,558,579,596,605,609,618-628,634-641,647-656,679,688,691,694,697,724,742,821-822,824,827,844,846,861-865,868,872,878,882,920,962-963
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "d5b591db234e3d1cc4a17df4a265b91e2febbd01",
+  "prompts": {},
+  "sessions": {
+    "s_0baec3357d919c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2e3806cffeUM3Y0EtkHiTQR6",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_ae2ca93d343222": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2e369bbffeNChYEVmO7vS8cK",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
