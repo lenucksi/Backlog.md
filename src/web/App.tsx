@@ -387,10 +387,11 @@ function App() {
 
   // Sync editingTask with refreshed tasks data to prevent stale state
   // This fixes the bug where acceptance criteria disappears after save (GitHub #467)
+  // Deep compare to avoid resetting form when a different task file changed on disk
   useEffect(() => {
     if (editingTask && showModal) {
       const updatedTask = tasks.find(t => t.id === editingTask.id);
-      if (updatedTask && updatedTask !== editingTask) {
+      if (updatedTask && JSON.stringify(updatedTask) !== JSON.stringify(editingTask)) {
         setEditingTask(updatedTask);
       }
     }

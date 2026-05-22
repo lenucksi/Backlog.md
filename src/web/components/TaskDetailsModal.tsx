@@ -282,26 +282,38 @@ export const TaskDetailsModal: React.FC<Props> = ({
   }, [mode, title, description, plan, notes, finalSummary, criteria, definitionOfDone, status]);
 
   // Reset local state when task changes or modal opens
+  // When in edit mode, preserve content fields and mode to avoid losing unsaved drafts
   useEffect(() => {
-    setTitle(task?.title || "");
-    setDescription(task?.description || "");
-    setPlan(task?.implementationPlan || "");
-    setNotes(task?.implementationNotes || "");
-    setFinalSummary(task?.finalSummary || "");
-    setCriteria(task?.acceptanceCriteriaItems || []);
-    setDefinitionOfDone(task?.definitionOfDoneItems || (isCreateMode ? defaultDefinitionOfDone : []));
-    setStatus(task?.status || (isDraftMode ? "Draft" : (availableStatuses?.[0] || "To Do")));
-    setAssignee(task?.assignee || []);
-    setLabels(task?.labels || []);
-    setPriority(task?.priority || "");
-    setDependencies(task?.dependencies || []);
-    setReferences(task?.references || []);
-    setMilestone(task?.milestone || "");
-    setMode(isCreateMode ? "create" : "preview");
+    if (mode === "edit") {
+      // Only update sidebar metadata, preserve content fields and edit mode
+      setStatus(task?.status || (isDraftMode ? "Draft" : (availableStatuses?.[0] || "To Do")));
+      setAssignee(task?.assignee || []);
+      setLabels(task?.labels || []);
+      setPriority(task?.priority || "");
+      setDependencies(task?.dependencies || []);
+      setReferences(task?.references || []);
+      setMilestone(task?.milestone || "");
+    } else {
+      setTitle(task?.title || "");
+      setDescription(task?.description || "");
+      setPlan(task?.implementationPlan || "");
+      setNotes(task?.implementationNotes || "");
+      setFinalSummary(task?.finalSummary || "");
+      setCriteria(task?.acceptanceCriteriaItems || []);
+      setDefinitionOfDone(task?.definitionOfDoneItems || (isCreateMode ? defaultDefinitionOfDone : []));
+      setStatus(task?.status || (isDraftMode ? "Draft" : (availableStatuses?.[0] || "To Do")));
+      setAssignee(task?.assignee || []);
+      setLabels(task?.labels || []);
+      setPriority(task?.priority || "");
+      setDependencies(task?.dependencies || []);
+      setReferences(task?.references || []);
+      setMilestone(task?.milestone || "");
+      setMode(isCreateMode ? "create" : "preview");
+    }
     setError(null);
     // Preload tasks for dependency picker
     apiClient.fetchTasks().then(setAvailableTasks).catch(() => setAvailableTasks([]));
-  }, [task, isOpen, isCreateMode, isDraftMode, availableStatuses, defaultDefinitionOfDone]);
+  }, [task, isOpen, mode, isCreateMode, isDraftMode, availableStatuses, defaultDefinitionOfDone]);
 
   const handleCancelEdit = () => {
     if (isDirty) {
