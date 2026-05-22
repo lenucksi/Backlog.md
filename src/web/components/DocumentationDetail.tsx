@@ -93,6 +93,7 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
     const [saveError, setSaveError] = useState<Error | null>(null);
     const [isNewDocument, setIsNewDocument] = useState(false);
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<"archive" | "delete" | null>(null);
 
     useEffect(() => {
         if (id === 'new') {
@@ -134,7 +135,7 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
             // Find document from props
             const prefixedId = addDocPrefix(id);
             const doc = docs.find(d => d.id === prefixedId);
-            
+
             // Always try to fetch the document from API, whether we found it in docs or not
             // This ensures deep linking works even before the parent component loads the docs array
             try {
@@ -261,6 +262,34 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
         }
     };
 
+    const handleArchive = useCallback(async () => {
+        if (!id) return;
+        try {
+            await apiClient.archiveDoc(addDocPrefix(id));
+            await onRefreshData();
+            navigate('/documentation');
+        } catch (err) {
+            const error = err instanceof Error ? err : new Error('Failed to archive document');
+            setError(error);
+            console.error('Failed to archive document:', error);
+        }
+        setConfirmAction(null);
+    }, [id, onRefreshData, navigate]);
+
+    const handleDelete = useCallback(async () => {
+        if (!id) return;
+        try {
+            await apiClient.deleteDoc(addDocPrefix(id));
+            await onRefreshData();
+            navigate('/documentation');
+        } catch (err) {
+            const error = err instanceof Error ? err : new Error('Failed to delete document');
+            setError(error);
+            console.error('Failed to delete document:', error);
+        }
+        setConfirmAction(null);
+    }, [id, onRefreshData, navigate]);
+
     const hasChanges = content !== originalContent || docTitle !== originalDocTitle || docPath !== originalDocPath;
 
     if (!id) {
@@ -356,17 +385,41 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
                             </div>
                             <div className="flex items-center space-x-3 ml-6">
                                 {!isEditing ? (
-                                    <button
-                                        onClick={handleEdit}
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-                                    >
-                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                             viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                        Edit
-                                    </button>
+                                    <>
+                                        {!isNewDocument && (
+                                            <>
+                                                <button
+                                                    onClick={() => setConfirmAction("archive")}
+                                                    className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+                                                >
+                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                                    </svg>
+                                                    Archive
+                                                </button>
+                                                <button
+                                                    onClick={() => setConfirmAction("delete")}
+                                                    className="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+                                                >
+                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </>
+                                        )}
+                                        <button
+                                            onClick={handleEdit}
+                                            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                 viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                            Edit
+                                        </button>
+                                    </>
                                 ) : (
                                     <div className="flex items-center space-x-2">
 	                                        <button
@@ -431,6 +484,55 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
                     </div>
                 )}
             </div>
+
+            {/* Archive/Delete Confirmation Modal */}
+            {confirmAction && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+                        <div className="flex items-start space-x-4">
+                            <div className={`p-2 rounded-full ${confirmAction === "delete" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-100 dark:bg-blue-900/30"}`}>
+                                {confirmAction === "delete" ? (
+                                    <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                    </svg>
+                                ) : (
+                                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                    </svg>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                    {confirmAction === "delete" ? "Delete Document" : "Archive Document"}
+                                </h3>
+                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    {confirmAction === "delete"
+                                        ? `Are you sure you want to permanently delete "${docTitle || document?.title || id}"? This action cannot be undone.`
+                                        : `Archive "${docTitle || document?.title || id}"? It will be moved to the archive directory.`}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="mt-6 flex justify-end space-x-3">
+                            <button
+                                onClick={() => setConfirmAction(null)}
+                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmAction === "delete" ? handleDelete : handleArchive}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
+                                    confirmAction === "delete"
+                                        ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                                        : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+                                }`}
+                            >
+                                {confirmAction === "delete" ? "Delete" : "Archive"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Save Success Toast */}
             {showSaveSuccess && (

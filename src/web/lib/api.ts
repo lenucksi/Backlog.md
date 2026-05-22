@@ -346,6 +346,18 @@ export class ApiClient {
 		);
 	}
 
+	async archiveDoc(id: string): Promise<{ success: boolean }> {
+		return this.fetchJson<{ success: boolean }>(`${API_BASE}/docs/${encodeURIComponent(id)}/archive`, {
+			method: "POST",
+		});
+	}
+
+	async deleteDoc(id: string): Promise<{ success: boolean }> {
+		return this.fetchJson<{ success: boolean }>(`${API_BASE}/docs/${encodeURIComponent(id)}`, {
+			method: "DELETE",
+		});
+	}
+
 	async fetchDecisions(): Promise<Decision[]> {
 		return this.getJson<Decision[]>(`${API_BASE}/decisions`, "Failed to fetch decisions");
 	}

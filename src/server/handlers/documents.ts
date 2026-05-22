@@ -112,10 +112,38 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleDocumentArchive(docId: string): Promise<Response> {
+		try {
+			const success = await ctx.core.filesystem.archiveDocument(docId);
+			if (!success) {
+				return Response.json({ error: "Document not found" }, { status: 404 });
+			}
+			return Response.json({ success: true });
+		} catch (error) {
+			console.error("Error archiving document:", error);
+			return Response.json({ error: "Failed to archive document" }, { status: 500 });
+		}
+	}
+
+	async function handleDocumentDelete(docId: string): Promise<Response> {
+		try {
+			const success = await ctx.core.filesystem.deleteDocument(docId);
+			if (!success) {
+				return Response.json({ error: "Document not found" }, { status: 404 });
+			}
+			return Response.json({ success: true });
+		} catch (error) {
+			console.error("Error deleting document:", error);
+			return Response.json({ error: "Failed to delete document" }, { status: 500 });
+		}
+	}
+
 	return {
 		handleListDocs,
 		handleGetDoc,
 		handleCreateDoc,
 		handleUpdateDoc,
+		handleDocumentArchive,
+		handleDocumentDelete,
 	};
 }

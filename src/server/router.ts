@@ -19,6 +19,8 @@ export type RouteHandlers = {
 		handleGetDoc: (docId: string) => Promise<Response>;
 		handleCreateDoc: (req: Request) => Promise<Response>;
 		handleUpdateDoc: (req: Request, docId: string) => Promise<Response>;
+		handleDocumentArchive: (docId: string) => Promise<Response>;
+		handleDocumentDelete: (docId: string) => Promise<Response>;
 	};
 	decisions: {
 		handleListDecisions: () => Promise<Response>;
@@ -97,6 +99,10 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		"/api/docs/:id": {
 			GET: async (req: Request & { params: { id: string } }) => await documents.handleGetDoc(req.params.id),
 			PUT: async (req: Request & { params: { id: string } }) => await documents.handleUpdateDoc(req, req.params.id),
+			DELETE: async (req: Request & { params: { id: string } }) => await documents.handleDocumentDelete(req.params.id),
+		},
+		"/api/docs/:id/archive": {
+			POST: async (req: Request & { params: { id: string } }) => await documents.handleDocumentArchive(req.params.id),
 		},
 		"/api/decisions": {
 			GET: async () => await decisions.handleListDecisions(),
