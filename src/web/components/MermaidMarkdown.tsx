@@ -19,6 +19,52 @@ function sanitizeMarkdownSource(source: string): string {
 	});
 }
 
+function slugify(text: string): string {
+	return text
+		.toLowerCase()
+		.replace(/[^\w\s-]/g, "")
+		.replace(/\s+/g, "-")
+		.replace(/-+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
+function extractText(node: Record<string, any>): string {
+	if (!node.children) return "";
+	return node.children
+		.map((child: Record<string, any>) => {
+			if (child.type === "text") return child.value;
+			if (child.type === "element") return extractText(child);
+			return "";
+		})
+		.join("");
+}
+
+const headingPlugin: any = () => (tree: Record<string, any>) => {
+	const seenIds = new Set<string>();
+	function visit(node: Record<string, any>) {
+		if (node.type === "element" && /^h[1-6]$/.test(node.tagName)) {
+			const text = extractText(node);
+			if (text) {
+				let id = slugify(text);
+				if (seenIds.has(id)) {
+					let counter = 1;
+					while (seenIds.has(`${id}-${counter}`)) {
+						counter++;
+					}
+					id = `${id}-${counter}`;
+				}
+				seenIds.add(id);
+				node.properties = node.properties || {};
+				node.properties.id = id;
+			}
+		}
+		if (node.children) {
+			node.children.forEach(visit);
+		}
+	}
+	visit(tree);
+};
+
 export default function MermaidMarkdown({ source }: Props) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const safeSource = sanitizeMarkdownSource(source);
@@ -37,9 +83,51 @@ export default function MermaidMarkdown({ source }: Props) {
 		return () => cancelAnimationFrame(frameId);
 	}, [safeSource]);
 
+	// Intercept hash link clicks for in-document navigation
+	useEffect(() => {
+		const container = ref.current;
+		if (!container) return;
+
+		const handleClick = (e: MouseEvent) => {
+			const anchor = (e.target as HTMLElement).closest("a[href^='#']");
+			if (!anchor) return;
+
+			const hash = anchor.getAttribute("href");
+			if (!hash || hash === "#") return;
+
+			const id = hash.slice(1);
+			const element = document.getElementById(id);
+			if (element) {
+				e.preventDefault();
+				element.scrollIntoView({ behavior: "smooth", block: "start" });
+				window.history.replaceState(null, "", hash);
+			}
+		};
+
+		container.addEventListener("click", handleClick);
+		return () => container.removeEventListener("click", handleClick);
+	}, []);
+
+	// Scroll to hash on initial render when URL contains a hash
+	useEffect(() => {
+		if (!ref.current) return;
+
+		const hash = window.location.hash;
+		if (hash && hash.length > 1) {
+			const id = hash.slice(1);
+			const frameId = requestAnimationFrame(() => {
+				const element = document.getElementById(id);
+				if (element) {
+					element.scrollIntoView({ behavior: "smooth", block: "start" });
+				}
+			});
+			return () => cancelAnimationFrame(frameId);
+		}
+	}, [safeSource]);
+
 	return (
 		<div ref={ref} className="wmde-markdown">
-			<MDEditor.Markdown source={safeSource} />
+			<MDEditor.Markdown source={safeSource} rehypePlugins={[headingPlugin]} />
 		</div>
 	);
 }
