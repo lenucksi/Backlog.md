@@ -1,0 +1,22 @@
+src/test/mcp-server.test.ts
+  s_92571da67d3a6b::t_42bdfef3f554ca 231-235
+src/test/server-search-endpoint.test.ts
+  s_92571da67d3a6b::t_52c91eca774a59 585,594
+  s_92571da67d3a6b::t_a1762d784644ab 555,569
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "14cfa2edc4a0fcbb6123a917e00b42eb929e6eba",
+  "prompts": {},
+  "sessions": {
+    "s_92571da67d3a6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0bf210bffeGVVJbckeHIHNYV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
