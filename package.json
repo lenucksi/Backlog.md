@@ -100,6 +100,8 @@
   "dependencies": {
     "@xenova/transformers": "^2.17.2",
     "shell-quote": "^1.8.3",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2",
     "yaml": "^2.9.0"
   },
   "patchedDependencies": {

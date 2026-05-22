@@ -3,7 +3,7 @@ import type { AcceptanceCriterion, Milestone, Task } from "../../types";
 import Modal from "./Modal";
 import { apiClient } from "../lib/api";
 import { useTheme } from "../contexts/ThemeContext";
-import MDEditor from "@uiw/react-md-editor";
+import PasteAwareMDEditor from "./PasteAwareMDEditor";
 import AcceptanceCriteriaEditor from "./AcceptanceCriteriaEditor";
 import MermaidMarkdown from './MermaidMarkdown';
 import ChipInput from "./ChipInput";
@@ -696,7 +696,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
               )
             ) : (
               <div className="border border-gray-200 dark:border-gray-700 rounded-md">
-                <MDEditor
+                <PasteAwareMDEditor
                   value={description}
                   onChange={(val) => setDescription(val || "")}
                   preview="edit"
@@ -891,7 +891,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
               )
             ) : (
               <div className="border border-gray-200 dark:border-gray-700 rounded-md">
-                <MDEditor
+                <PasteAwareMDEditor
                   value={plan}
                   onChange={(val) => setPlan(val || "")}
                   preview="edit"
@@ -915,7 +915,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
               )
             ) : (
               <div className="border border-gray-200 dark:border-gray-700 rounded-md">
-                <MDEditor
+                <PasteAwareMDEditor
                   value={notes}
                   onChange={(val) => setNotes(val || "")}
                   preview="edit"
@@ -936,7 +936,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
                 </div>
               ) : (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-md">
-                  <MDEditor
+                  <PasteAwareMDEditor
                     value={finalSummary}
                     onChange={(val) => setFinalSummary(val || "")}
                     preview="edit"
