@@ -31,7 +31,7 @@ You MUST read the overview resource to understand the complete workflow. The inf
 When you're working on a task, you should assign it yourself: -a @{your-name}
 
 In addition to the rules above, please consider the following:
-At the end of every task implementation, try to take a moment to see if you can simplify it. 
+At the end of every task implementation, try to take a moment to see if you can simplify it.
 When you are done implementing, you know much more about a task than when you started.
 At this point you can better judge retrospectively what can be the simplest architecture to solve the problem.
 If you can simplify the code, do it.
@@ -44,6 +44,20 @@ If you can simplify the code, do it.
 - Keep behavior consistent across similar stores (defaults, parse errors, locking). Divergence requires a clear reason.
 - Don't add new exported helpers just to compute a path; derive from existing paths or add one shared helper only when reused.
 
+
+## Cross-Modality Checklist
+
+Before considering a feature complete, verify coverage across all 5 access modalities:
+
+- **CLI**: `backlog <command>` or `backlog <command> <subcommand>` exists in `src/commands/`
+- **TUI**: Screen/keybinding exists in `src/ui/`
+- **WebUI**: Web component/page in `src/web/` + REST endpoint in `src/server/router.ts`
+- **MCP**: MCP tool registered in `src/mcp/tools/` with handler + input schema
+- **REST**: HTTP endpoint in `src/server/router.ts` + handler in `src/server/handlers/`
+
+When a modality is intentionally excluded, document the N/A status with justification in the task description.
+
+When reviewing changed files, use the `.claude/skills/modality-parity-check.md` skill to flag cross-modality gaps.
 
 ## Commands
 
