@@ -1,0 +1,48 @@
+src/server/handlers/tasks.ts
+  s_be6275130718f4::t_8e50fc28e75903 2-3,5-386,388-417
+  ai_agent 1,4,387
+src/server/router.ts
+  s_be6275130718f4::t_1e2129991287c7 1-54,56-126,128-163
+  ai_agent 55,127
+src/server/handlers/documents.ts
+  s_be6275130718f4::t_be9d26a76d44e5 1-2,6-121
+  ai_agent 3-5
+src/server/types.ts
+  s_be6275130718f4::t_8b8fc3b74784cb 1-15
+src/server/handlers/config.ts
+  s_be6275130718f4::t_d7a311c1d09bd3 1-55
+src/server/handlers/drafts.ts
+  s_be6275130718f4::t_35f1758f3dfb92 1-35
+src/server/middleware.ts
+  s_be6275130718f4::t_da2f86670ee668 1-42
+src/server/handlers/system.ts
+  s_be6275130718f4::t_4001359a0ba2ba 1-5,7-66,68-173
+  ai_agent 6,67
+src/server/index.ts
+  ai_agent 12,14,18-19,21,25
+  s_be6275130718f4::t_e62f00bf0d40ee 107-131,154
+  s_be6275130718f4::t_cd08e41edb3055 13,15-17,20,137,153,155-168,172,274,277,280,299
+src/server/handlers/decisions.ts
+  s_be6275130718f4::t_980e42020d07b7 1-75
+src/server/utils.ts
+  s_be6275130718f4::t_3ebb7fcca8a47e 2-21,23-303
+  ai_agent 1,22
+src/server/handlers/milestones.ts
+  s_be6275130718f4::t_7b8432289458a4 1-213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "960c40478cf0101aee8ba7d0159e1d09cb07ec02",
+  "prompts": {},
+  "sessions": {
+    "s_be6275130718f4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b2e37710ffe9KWol6wGDSqB8c",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
