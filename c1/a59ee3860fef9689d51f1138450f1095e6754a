@@ -1,0 +1,31 @@
+"backlog/tasks/back-527 - Coverage-maximieren-Bestehende-0-und-Niedrig-Coverage-Files-auf-≥80-bringen-Bun-PTY-Strategie.md"
+  ai_agent 1-140
+"backlog/tasks/back-527.1 - Phase-1-0-Utility-Files-Coverage-≥80.md"
+  ai_agent 1-64
+"backlog/docs/doc-7 - Terminal-Test-Strategie-Bun-Native-PTY-statt-termless-oder-expect-TCL.md"
+  ai_agent 1-76
+"backlog/tasks/back-526 - Coverage-Checks-Minimum-Targets-Prek-Pre-Commit-für-Backlog.md-Tech-Stack.md"
+  s_2cbe138f68129a::t_adaa5b4c40cc36 1-182
+"backlog/tasks/back-527.2 - Phase-2-Core-Services-Coverage-≥80.md"
+  ai_agent 1-96
+"backlog/tasks/back-528 - Termless-Upstream-Contribution-vterm-backend-bun-test-Integration.md"
+  ai_agent 1-70
+"backlog/docs/doc-8 - Termless-Analysis-Wie-wir-termless-für-bun-test-blessed-TUI-verwendbar-gemacht-haben.md"
+  ai_agent 1-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "c1a59ee3860fef9689d51f1138450f1095e6754a",
+  "prompts": {},
+  "sessions": {
+    "s_2cbe138f68129a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0c3141dffeue29NKHFRdlVMw",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
