@@ -1,0 +1,25 @@
+"backlog/tasks/back-426 - Fix-in-document-markdown-hash-links.md"
+  ai_agent 4,8
+"backlog/tasks/back-492 - Tech-Debt-Research-—-audit-codebase-for-inconsistencies-and-produce-prioritized-reduction-plan.md"
+  ai_agent 6,10
+"backlog/tasks/back-492.2 - Unify-task-filter-logic-behind-a-shared-interface.md"
+  ai_agent 4,7
+"backlog/tasks/back-492.10 - TechDebt-Refactor-server-index.ts-routing-and-handler-registration.md"
+  ai_agent 4-6,8,30-33,36-85,88-90
+"backlog/tasks/back-421 - Resolve-dateFormat-config-behavior.md"
+  ai_agent 4,8
+"backlog/tasks/back-429 - Preserve-unsaved-Web-drafts-across-file-refreshes.md"
+  ai_agent 4,8
+"backlog/tasks/back-492.8 - TechDebt-Extract-CLI-command-handlers-from-cli.ts-into-separate-modules.md"
+  ai_agent 4,7
+"backlog/tasks/back-492.9 - TechDebt-Reduce-cognitive-complexity-in-backlog.ts-and-init.ts.md"
+  ai_agent 4,7
+"backlog/tasks/back-510 - Coverage-Push-task-loader.ts-TaskCard.tsx-über-85.md"
+  ai_agent 4,7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "a06d824e5551e1a52c890dd5dc37a14aa01b71d7",
+  "prompts": {}
+}
