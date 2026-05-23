@@ -167,11 +167,6 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
-	return {
-		handleGetStatuses,
-		handleGetConfig,
-		handleUpdateConfig,
-		handleListLabels,
 	async function handleAddLabel(req: Request): Promise<Response> {
 		try {
 			const { name } = await req.json();
