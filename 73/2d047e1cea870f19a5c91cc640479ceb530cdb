@@ -1,0 +1,33 @@
+"backlog/tasks/back-521 - BACK-522-—-Decision-resolve-supersede-to-nirvana-close-without-successor.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+"backlog/tasks/back-519.5 - BACK-519.5-—-Paste-as-markdown-support-PR-646.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+"backlog/tasks/back-525 - BACK-520-—-Ordinal-Reorder-Draft-create-APIs-konsolidieren-dokumentieren.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+"backlog/tasks/back-519.3 - BACK-519.6-—-Decision-MCP-create-search-tools-PR-633-partial.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+"backlog/tasks/back-519.7 - BACK-519.4-—-Local-file-preview-with-syntax-highlighting-PR-634.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+"backlog/tasks/back-519.4 - BACK-519.2-—-Duplicate-task-ID-detection-PR-632.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+"backlog/tasks/back-491 - Cross-Modality-CI-—-enforce-feature-parity-across-CLI-TUI-WebUI-MCP-REST.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 7
+"backlog/tasks/back-520 - BACK-523-—-WebUI-document-archive-delete.md"
+  s_9950b262d2ec16::t_649429f5d1ef9f 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "732d047e1cea870f19a5c91cc640479ceb530cdb",
+  "prompts": {},
+  "sessions": {
+    "s_9950b262d2ec16": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aed7ccf8ffet3U1Uoi6S2FBrk",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
