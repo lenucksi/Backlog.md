@@ -103,12 +103,12 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     e.preventDefault();
     setIsDragOver(false);
     setDropPosition(null);
-    
+
     const droppedTaskId = e.dataTransfer.getData('text/plain');
     const sourceStatus = e.dataTransfer.getData('text/status');
-    
+
     if (!droppedTaskId) return;
-    
+
     if (!onTaskReorder) {
       return;
     }
@@ -163,7 +163,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
       setDropPosition(null);
     }
   };
-  
+
   const handleDragOverColumn = (e: React.DragEvent) => {
     e.preventDefault();
     // Clear drop position if dragging in empty space
@@ -231,7 +231,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             {tasks.length}
           </span>
         </div>
-        
+
         {canSortByPriority && (
           <div className="relative" ref={menuRef}>
             <button
@@ -248,7 +248,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
               </svg>
             </button>
-            
+
             {showMenu && (
               <div
                 id={columnActionsId}
@@ -271,7 +271,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
           </div>
         )}
       </div>
-      
+
       <div className="space-y-3">
         {parentTasks.map((parentTask) => {
           const children = childTasksByParent.get(parentTask.id) || [];
@@ -371,7 +371,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             />
           </div>
         ))}
-        
+
         {/* Drop zone indicator - only show in different columns */}
         {isDragOver && dragSourceStatus !== title && (
           <div className="border-2 border-green-400 dark:border-green-500 border-dashed rounded-md bg-green-50 dark:bg-green-900/20 p-4 text-center transition-colors duration-200">
@@ -380,7 +380,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             </div>
           </div>
         )}
-        
+
         {isEmpty && !isDragOver && (
           <div className="text-center py-2 text-gray-400 dark:text-gray-500 text-xs transition-colors duration-200">
             {dragSourceStatus && dragSourceStatus !== title

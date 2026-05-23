@@ -91,8 +91,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
 
       <div
         className={`bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md p-3 mb-2 transition-all duration-200 ${
-          isFromOtherBranch 
-            ? 'opacity-75 cursor-not-allowed border-dashed' 
+          isFromOtherBranch
+            ? 'opacity-75 cursor-not-allowed border-dashed'
             : 'cursor-pointer hover:shadow-md dark:hover:shadow-lg hover:border-stone-500 dark:hover:border-stone-400'
         } ${getPriorityClass(task.priority)} ${
           isDragging ? 'opacity-50 transform rotate-2 scale-105' : ''
