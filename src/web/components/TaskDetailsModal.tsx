@@ -24,7 +24,6 @@ interface Props {
   milestoneEntities?: Milestone[];
   archivedMilestoneEntities?: Milestone[];
   definitionOfDoneDefaults?: string[];
-  labelSuggestions?: string[];
 }
 
 type Mode = "preview" | "edit" | "create";
@@ -63,7 +62,6 @@ export const TaskDetailsModal: React.FC<Props> = ({
   archivedMilestoneEntities,
   isDraftMode,
   definitionOfDoneDefaults,
-  labelSuggestions,
 }) => {
   const { theme } = useTheme();
   const isCreateMode = !task;
@@ -1034,12 +1032,6 @@ export const TaskDetailsModal: React.FC<Props> = ({
               onChange={(value) => handleInlineMetaUpdate({ labels: value })}
               placeholder="Type label and press Enter or comma"
               disabled={isFromOtherBranch}
-              suggestions={labelSuggestions}
-              onAddSuggestion={async (name) => {
-                try {
-                  await apiClient.addLabel(name);
-                } catch {}
-              }}
             />
           </div>
 

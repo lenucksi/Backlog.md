@@ -277,7 +277,6 @@ function App() {
       setStatuses(statusesData);
       setProjectName(configData.projectName);
       setAvailableLabels(configData.labels || []);
-      apiClient.populateLabelColorCache();
       setConfig(configData);
       setMilestoneEntities(milestonesData);
       setArchivedMilestones(archivedMilestonesData);
@@ -380,14 +379,6 @@ function App() {
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
     setShowModal(true);
-  };
-
-  const handleNavigateToTask = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    if (task) {
-      setEditingTask(task);
-      setShowModal(true);
-    }
   };
 
   const handleCloseModal = () => {
@@ -583,7 +574,6 @@ function App() {
           archivedMilestoneEntities={archivedMilestones}
           isDraftMode={isDraftMode}
           definitionOfDoneDefaults={config?.definitionOfDone ?? []}
-          onNavigateToTask={handleNavigateToTask}
         />
 
         {/* Task Creation Confirmation Toast */}

@@ -1,5 +1,4 @@
-import React from "react";
-import { getCachedLabelColors } from "../lib/api";';
+import React from 'react';
 import { type Task } from '../../types';
 
 interface TaskCardProps {
@@ -140,26 +139,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
         {/* Labels - limit to 3 */}
         {task.labels.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {(() => {
-                const labelColors = window.__BACKLOG_LABEL_COLORS__ ?? getCachedLabelColors();
-                return task.labels.slice(0, 3).map(label => {
-                  const color = labelColors[label];
-                  return (
-                    <span
-                      key={label}
-                      className="inline-block px-1.5 py-0.5 text-[10px] rounded transition-colors duration-200"
-                      style={color ? {
-                        backgroundColor: color + "22",
-                        color: color,
-                        border: "1px solid " + color + "44",
-                      } : undefined}
-                      {...(!color ? { className: "inline-block px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded transition-colors duration-200" } : {})}
-                    >
-                      {label}
-                    </span>
-                  );
-                });
-              })()}
+            {task.labels.slice(0, 3).map(label => (
+              <span
+                key={label}
+                className="inline-block px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded transition-colors duration-200"
+              >
+                {label}
+              </span>
+            ))}
             {task.labels.length > 3 && (
               <span className="inline-block px-1.5 py-0.5 text-[10px] text-gray-400 dark:text-gray-500">
                 +{task.labels.length - 3}

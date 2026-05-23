@@ -201,19 +201,19 @@ export function parseDecision(content: string): Decision {
 	const { frontmatter, content: rawContent } = parseMarkdown(content);
 
 	return {
-\t\tid: String(frontmatter.id || ""),
-\t\ttitle: String(frontmatter.title || ""),
-\t\tdate: normalizeDate(frontmatter.date),
-\t\tstatus: String(frontmatter.status || "proposed") as Decision["status"],
-\t\tcontext: extractSection(rawContent, "Context") || "",
-\t\tdecision: extractSection(rawContent, "Decision") || "",
-\t\tconsequences: extractSection(rawContent, "Consequences") || "",
-\t\talternatives: extractSection(rawContent, "Alternatives"),
-\t\tsupersedes: frontmatter.supersedes ? String(frontmatter.supersedes) : undefined,
-\t\tsupersededBy: frontmatter.supersededBy ? String(frontmatter.supersededBy) : undefined,
-\t\tlabels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
-\t\trawContent,
-\t};
+		id: String(frontmatter.id || ""),
+		title: String(frontmatter.title || ""),
+		date: normalizeDate(frontmatter.date),
+		status: String(frontmatter.status || "proposed") as Decision["status"],
+		context: extractSection(rawContent, "Context") || "",
+		decision: extractSection(rawContent, "Decision") || "",
+		consequences: extractSection(rawContent, "Consequences") || "",
+		alternatives: extractSection(rawContent, "Alternatives"),
+		supersedes: frontmatter.supersedes ? String(frontmatter.supersedes) : undefined,
+		supersededBy: frontmatter.supersededBy ? String(frontmatter.supersededBy) : undefined,
+		labels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
+		rawContent,
+	};
 }
 
 export function parseDocument(content: string): Document {
@@ -221,13 +221,13 @@ export function parseDocument(content: string): Document {
 
 	return {
 		id: String(frontmatter.id || ""),
-\t\ttitle: String(frontmatter.title || ""),
-\t\ttype: String(frontmatter.type || "other") as Document["type"],
-\t\tcreatedDate: normalizeDate(frontmatter.created_date),
-\t\tupdatedDate: frontmatter.updated_date ? normalizeDate(frontmatter.updated_date) : undefined,
-\t\trawContent,
-\t\tlabels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
-\t\ttags: Array.isArray(frontmatter.tags) ? frontmatter.tags.map(String) : undefined,
+		title: String(frontmatter.title || ""),
+		type: String(frontmatter.type || "other") as Document["type"],
+		createdDate: normalizeDate(frontmatter.created_date),
+		updatedDate: frontmatter.updated_date ? normalizeDate(frontmatter.updated_date) : undefined,
+		rawContent,
+		labels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
+		tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.map(String) : undefined,
 	};
 }
 

@@ -24,19 +24,6 @@ export function parseDocumentType(value: unknown): Document["type"] | undefined 
 	return value as Document["type"];
 }
 
-export function parseDocumentLabels(value: unknown): string[] | undefined {
-	if (value === undefined) {
-		return undefined;
-	}
-	if (!Array.isArray(value)) {
-		throw new DocumentPayloadValidationError("Document labels must be an array of strings.");
-	}
-	if (value.some((label) => typeof label !== "string")) {
-		throw new DocumentPayloadValidationError("Document labels must be an array of strings.");
-	}
-	return Array.from(new Set(value.map((label) => label.trim()).filter((label) => label.length > 0)));
-}
-
 export function parseDocumentTags(value: unknown): string[] | undefined {
 	if (value === undefined) {
 		return undefined;

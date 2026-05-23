@@ -161,17 +161,17 @@ export interface TaskListFilter {
 }
 
 export interface Decision {
-\tid: string;
-\ttitle: string;
-\tdate: string;
-\tstatus: "proposed" | "accepted" | "rejected" | "superseded";
-\tcontext: string;
-\tdecision: string;
-\tconsequences: string;
-\talternatives?: string;
-\tsupersedes?: string;
-\tsupersededBy?: string;
-\tlabels?: string[];
+	id: string;
+	title: string;
+	date: string;
+	status: "proposed" | "accepted" | "rejected" | "superseded";
+	context: string;
+	decision: string;
+	consequences: string;
+	alternatives?: string;
+	supersedes?: string;
+	supersededBy?: string;
+	labels?: string[];
 	readonly rawContent: string; // Raw markdown content without frontmatter
 }
 
@@ -186,14 +186,14 @@ export const DOCUMENT_TYPE_VALUES = ["readme", "guide", "specification", "other"
 export type DocumentType = (typeof DOCUMENT_TYPE_VALUES)[number];
 
 export interface Document {
-\tid: string;
-\ttitle: string;
-\ttype: DocumentType;
-\tcreatedDate: string;
-\tupdatedDate?: string;
-\trawContent: string; // Raw markdown content without frontmatter
-\tlabels?: string[];
-\ttags?: string[];
+	id: string;
+	title: string;
+	type: DocumentType;
+	createdDate: string;
+	updatedDate?: string;
+	rawContent: string; // Raw markdown content without frontmatter
+	labels?: string[];
+	tags?: string[];
 	// Web UI specific fields
 	name?: string;
 	path?: string;
@@ -201,22 +201,22 @@ export interface Document {
 }
 
 export interface DocumentCreateInput {
-\ttitle: string;
-\tcontent?: string;
-\ttype?: Document["type"];
-\tpath?: string;
-\tlabels?: string[];
-\ttags?: string[];
+	title: string;
+	content?: string;
+	type?: Document["type"];
+	path?: string;
+	labels?: string[];
+	tags?: string[];
 }
 
 export interface DocumentUpdateInput {
-\tid: string;
-\tcontent: string;
-\ttitle?: string;
-\ttype?: Document["type"];
-\tpath?: string | null;
-\tlabels?: string[];
-\ttags?: string[];
+	id: string;
+	content: string;
+	title?: string;
+	type?: Document["type"];
+	path?: string | null;
+	labels?: string[];
+	tags?: string[];
 }
 
 export type SearchResultType = "task" | "document" | "decision";

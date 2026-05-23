@@ -236,14 +236,6 @@ export async function viewTaskEnhanced(
 
 	// Collect available labels from config and tasks
 	availableLabels = collectAvailableLabels(allTasks, labels);
-	const labelColorMap: Record<string, string> = {};
-	if (labels) {
-		for (const label of labels) {
-			if (typeof label === "object" && label.color) {
-				labelColorMap[label.name] = label.color;
-			}
-		}
-	}
 
 	// State for filtering - normalize filters to match configured values
 	let searchQuery = options.searchQuery || "";
@@ -651,10 +643,7 @@ export async function viewTaskEnhanced(
 				activeFilters.push(`Priority: {cyan-fg}${priorityFilter}{/}`);
 			}
 			if (labelFilter.length > 0) {
-				activeFilters.push(`Labels: ${labelFilter.map((l) => {
-						const c = labelColorMap[l];
-						return c ? `{${c}-fg}${l}{/}` : `{yellow-fg}${l}{/}`;
-					}).join(", ")}`);
+				activeFilters.push(`Labels: {yellow-fg}${labelFilter.join(", ")}{/}`);
 			}
 			if (milestoneFilter) {
 				const milestoneFilterLabel =
@@ -781,14 +770,7 @@ export async function viewTaskEnhanced(
 				const assigneeText = task.assignee?.length
 					? ` {cyan-fg}${task.assignee[0]?.startsWith("@") ? task.assignee[0] : `@${task.assignee[0]}`}{/}`
 					: "";
-				const labelsText = task.labels?.length
-									? ` ${task.labels
-											.map((l) => {
-												const c = labelColorMap[l];
-												return c ? `{${c}-fg}[${l}]{/}` : `{yellow-fg}[${l}]{/}`;
-											})
-											.join(" ")}`
-									: "";
+				const labelsText = task.labels?.length ? ` {yellow-fg}[${task.labels.join(", ")}]{/}` : "";
 				const priorityText = getPriorityDisplay(task.priority);
 				const isCrossBranch = Boolean((task as Task & { branch?: string }).branch);
 				const branchText = isCrossBranch ? ` {green-fg}(${(task as Task & { branch?: string }).branch}){/}` : "";
@@ -1373,7 +1355,7 @@ function generateDetailContent(
 		metadata.push(`{bold}Assignee:{/bold} {cyan-fg}${assigneeList}{/}`);
 	}
 	if (task.labels?.length) {
-		metadata.push(`{bold}Labels:{/bold} ${task.labels.map((l) => { const c = labelColorMap[l]; return c ? `{${c}-fg}[${l}]{/}` : `{yellow-fg}[${l}]{/}`; }).join(" ")}`);
+		metadata.push(`{bold}Labels:{/bold} ${task.labels.map((l) => `{yellow-fg}[${l}]{/}`).join(" ")}`);
 	}
 	if (task.reporter) {
 		const reporterText = task.reporter.startsWith("@") ? task.reporter : `@${task.reporter}`;

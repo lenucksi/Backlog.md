@@ -608,9 +608,6 @@ const SideNavigation = memo(function SideNavigation({
 								>
 									<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
 									<span className="truncate">{doc.title}</span>
-									{doc.labels && doc.labels.length > 0 && (
-										<span className="shrink-0 w-2 h-2 rounded-full bg-stone-400 dark:bg-stone-500" title={doc.labels.join(", ")} />
-									)}
 								</NavLink>
 							))}
 						</CollapsibleGroup>
@@ -639,9 +636,6 @@ const SideNavigation = memo(function SideNavigation({
 								>
 									<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
 									<span className="truncate">{decision.title}</span>
-									{decision.labels && decision.labels.length > 0 && (
-										<span className="shrink-0 w-2 h-2 rounded-full bg-stone-400 dark:bg-stone-500" title={decision.labels.join(", ")} />
-									)}
 								</NavLink>
 							))}
 						</CollapsibleGroup>
@@ -674,9 +668,6 @@ const SideNavigation = memo(function SideNavigation({
 											</div>
 										)}
 									</div>
-									{decision.labels && decision.labels.length > 0 && (
-										<span className="shrink-0 w-2 h-2 rounded-full bg-stone-400 dark:bg-stone-500" title={decision.labels.join(", ")} />
-									)}
 								</NavLink>
 							))}
 						</CollapsibleGroup>
@@ -705,9 +696,6 @@ const SideNavigation = memo(function SideNavigation({
 								>
 									<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
 									<span className="truncate text-gray-500 dark:text-gray-400">{doc.title}</span>
-									{doc.labels && doc.labels.length > 0 && (
-										<span className="shrink-0 w-2 h-2 rounded-full bg-stone-400 dark:bg-stone-500" title={doc.labels.join(", ")} />
-									)}
 								</NavLink>
 							))}
 						</CollapsibleGroup>

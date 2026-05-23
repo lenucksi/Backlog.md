@@ -20,12 +20,7 @@ function buildDocumentText(document: Document, options?: { includeContent?: bool
 		lines.push(`Updated: ${document.updatedDate}`);
 	}
 
-	if (document.tags && document.tags.length > 0) {
-		lines.push(`Tags: ${document.tags.join(", ")}`);
-	}
-	if (document.labels && document.labels.length > 0) {
-		lines.push(`Labels: ${document.labels.join(", ")}`);
-	}
+	lines.push(formatTags(document.tags));
 
 	if (options?.includeContent !== false) {
 		lines.push("");

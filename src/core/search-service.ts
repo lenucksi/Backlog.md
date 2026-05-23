@@ -36,13 +36,11 @@ interface TaskSearchEntity extends BaseSearchEntity {
 interface DocumentSearchEntity extends BaseSearchEntity {
 	readonly type: "document";
 	readonly document: Document;
-	readonly labelsLower: string[];
 }
 
 interface DecisionSearchEntity extends BaseSearchEntity {
 	readonly type: "decision";
 	readonly decision: Decision;
-	readonly labelsLower: string[];
 }
 
 type SearchEntity = TaskSearchEntity | DocumentSearchEntity | DecisionSearchEntity;
@@ -167,8 +165,6 @@ export class SearchService {
 		const fuseResults = fuse.search(trimmedQuery);
 		const results: SearchResult[] = [];
 
-		const hasLabels = normalizedFilters.labels && normalizedFilters.labels.length > 0;
-
 		for (const result of fuseResults) {
 			const entity = result.item;
 			if (!allowedTypes.has(entity.type)) {
@@ -177,15 +173,6 @@ export class SearchService {
 
 			if (entity.type === "task" && !this.matchesTaskFilters(entity, normalizedFilters)) {
 				continue;
-			}
-
-			if (hasLabels) {
-				if (entity.type === "document" || entity.type === "decision") {
-					const entityLabels = entity.labelsLower;
-					if (!normalizedFilters.labels!.some((l) => entityLabels.includes(l))) {
-						continue;
-					}
-				}
 			}
 
 			results.push(this.mapEntityToResult(entity, result));
@@ -238,7 +225,6 @@ export class SearchService {
 			title: document.title,
 			bodyText: document.rawContent ?? "",
 			document,
-			labelsLower: (document.labels || []).map((label) => label.toLowerCase()),
 		}));
 
 		this.decisions = decisions.map((decision) => ({
@@ -247,7 +233,6 @@ export class SearchService {
 			title: decision.title,
 			bodyText: decision.rawContent ?? "",
 			decision,
-			labelsLower: (decision.labels || []).map((label) => label.toLowerCase()),
 		}));
 
 		this.collection = [...this.tasks, ...this.documents, ...this.decisions];
@@ -284,19 +269,8 @@ export class SearchService {
 	): SearchResult[] {
 		const results: SearchResult[] = [];
 
-		const hasLabels = filters.labels && filters.labels.length > 0;
-		const matchesDocOrDecisionLabels = (entity: DocumentSearchEntity | DecisionSearchEntity): boolean => {
-			if (!hasLabels) return true;
-			return filters.labels!.some((l) => entity.labelsLower.includes(l));
-		};
-
 		const addUntilLimit = (entities: SearchEntity[]): boolean => {
 			for (const entity of entities) {
-				if (hasLabels && entity.type !== "task") {
-					if (!matchesDocOrDecisionLabels(entity as DocumentSearchEntity | DecisionSearchEntity)) {
-						continue;
-					}
-				}
 				results.push(this.mapEntityToResult(entity));
 				if (limit && results.length >= limit) return true;
 			}

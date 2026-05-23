@@ -17,7 +17,7 @@ export type RouteHandlers = {
 		handleReopenTask: (taskId: string) => Promise<Response>;
 	};
 	documents: {
-		handleListDocs: (req: Request) => Promise<Response>;
+		handleListDocs: () => Promise<Response>;
 		handleGetDoc: (docId: string) => Promise<Response>;
 		handleCreateDoc: (req: Request) => Promise<Response>;
 		handleUpdateDoc: (req: Request, docId: string) => Promise<Response>;
@@ -27,7 +27,7 @@ export type RouteHandlers = {
 		handleDocumentDelete: (docId: string) => Promise<Response>;
 	};
 	decisions: {
-		handleListDecisions: (req: Request) => Promise<Response>;
+		handleListDecisions: () => Promise<Response>;
 		handleGetDecision: (decisionId: string) => Promise<Response>;
 		handleCreateDecision: (req: Request) => Promise<Response>;
 		handleUpdateDecision: (req: Request, decisionId: string) => Promise<Response>;
@@ -108,7 +108,7 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 			PUT: async (req: Request) => await config.handleUpdateConfig(req),
 		},
 		"/api/docs": {
-			GET: async (req: Request) => await documents.handleListDocs(req),
+			GET: async () => await documents.handleListDocs(),
 			POST: async (req: Request) => await documents.handleCreateDoc(req),
 		},
 		"/api/docs/:id": {
@@ -126,7 +126,7 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 			POST: async (req: Request & { params: { id: string } }) => await documents.handleDocumentArchive(req.params.id),
 		},
 		"/api/decisions": {
-			GET: async (req: Request) => await decisions.handleListDecisions(req),
+			GET: async () => await decisions.handleListDecisions(),
 			POST: async (req: Request) => await decisions.handleCreateDecision(req),
 		},
 		"/api/decisions/:id": {

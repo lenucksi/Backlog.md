@@ -1,26 +1,15 @@
 import type { ServerHandlerContext } from "../types.ts";
 
 export function createDecisionHandlers(ctx: ServerHandlerContext) {
-	async function handleListDecisions(req: Request): Promise<Response> {
+	async function handleListDecisions(): Promise<Response> {
 		try {
 			const store = await ctx.getContentStore();
-			const url = new URL(req.url);
-			const labelParams = url.searchParams.getAll("label").concat(url.searchParams.getAll("labels"));
-			const labelFilters = labelParams.map((l) => l.toLowerCase()).filter(Boolean);
-
-			let decisions = store.getDecisions();
-			if (labelFilters.length > 0) {
-				decisions = decisions.filter((d) => {
-					const decisionLabels = (d.labels ?? []).map((l) => l.toLowerCase());
-					return labelFilters.every((filter) => decisionLabels.includes(filter));
-				});
-			}
+			const decisions = store.getDecisions();
 			const decisionFiles = decisions.map((decision) => ({
 				id: decision.id,
 				title: decision.title,
 				status: decision.status,
 				date: decision.date,
-				labels: decision.labels || [],
 				context: decision.context,
 				decision: decision.decision,
 				consequences: decision.consequences,

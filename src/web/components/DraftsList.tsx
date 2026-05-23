@@ -164,24 +164,11 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
                     )}
                     {draft.labels && draft.labels.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {{(() => {
-                            const labelColors = getCachedLabelColors();
-                            return draft.labels.map((label) => {
-                              const color = labelColors[label];
-                              return (
-                                <span key={label}
-                                  className={color ? "px-2 py-1 text-xs rounded-circle" : "px-2 py-1 text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-circle"}
-                                  style={color ? {
-                                    backgroundColor: color + "22",
-                                    color: color,
-                                    border: "1px solid " + color + "44",
-                                  } : {}}
-                                >
-                                  {label}
-                                </span>
-                              );
-                            });
-                          })()}}
+                        {draft.labels.map((label) => (
+                          <span key={label} className="px-2 py-1 text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-circle">
+                            {label}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -191,7 +178,6 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
                         e.stopPropagation();
                         handlePromoteDraft(draft.id);
                       }}
-import { getCachedLabelColors } from '../lib/api';
                       className="inline-flex items-center px-3 py-1.5 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 dark:focus:ring-offset-gray-800 transition-colors duration-200"
                     >
                       Promote to Task

@@ -6,7 +6,6 @@ import { formatDocumentCallResult } from "../../utils/document-response.ts";
 
 export type DocumentListArgs = {
 	search?: string;
-	labels?: string[];
 };
 
 export type DocumentViewArgs = {
@@ -19,7 +18,6 @@ export type DocumentCreateArgs = {
 	type?: Document["type"];
 	path?: string;
 	tags?: string[];
-	labels?: string[];
 };
 
 export type DocumentUpdateArgs = {
@@ -29,13 +27,11 @@ export type DocumentUpdateArgs = {
 	type?: Document["type"];
 	path?: string;
 	tags?: string[];
-	labels?: string[];
 };
 
 export type DocumentSearchArgs = {
 	query: string;
 	limit?: number;
-	labels?: string[];
 };
 
 export type DocumentArchiveArgs = {
@@ -63,9 +59,6 @@ export class DocumentHandlers {
 		} else {
 			metadata.push("tags: (none)");
 		}
-		if (document.labels && document.labels.length > 0) {
-			metadata.push(`labels: ${document.labels.join(", ")}`);
-		}
 		return `  ${document.id} - ${document.title} (${metadata.join(", ")})`;
 	}
 
@@ -89,20 +82,13 @@ export class DocumentHandlers {
 		const search = args.search?.toLowerCase();
 		const documents = await this.core.filesystem.listDocuments();
 
-		let filtered = documents;
-		if (search && search.length > 0) {
-			filtered = filtered.filter((document) => {
-				const haystacks = [document.id, document.title];
-				return haystacks.some((value) => value.toLowerCase().includes(search));
-			});
-		}
-		if (args.labels && args.labels.length > 0) {
-			const labelFilters = args.labels.map((label) => label.toLowerCase());
-			filtered = filtered.filter((document) => {
-				const docLabels = (document.labels ?? []).map((label) => label.toLowerCase());
-				return labelFilters.every((filter) => docLabels.includes(filter));
-			});
-		}
+		const filtered =
+			search && search.length > 0
+				? documents.filter((document) => {
+						const haystacks = [document.id, document.title];
+						return haystacks.some((value) => value.toLowerCase().includes(search));
+					})
+				: documents;
 
 		if (filtered.length === 0) {
 			return {
@@ -143,7 +129,6 @@ export class DocumentHandlers {
 				type: args.type,
 				path: args.path,
 				tags: args.tags,
-				labels: args.labels,
 			});
 			return await formatDocumentCallResult(document, {
 				summaryLines: ["Document created successfully."],
@@ -167,7 +152,6 @@ export class DocumentHandlers {
 				type: args.type,
 				path: args.path,
 				tags: args.tags,
-				labels: args.labels,
 			});
 			return await formatDocumentCallResult(document, {
 				summaryLines: ["Document updated successfully."],
@@ -218,7 +202,6 @@ export class DocumentHandlers {
 			query: args.query,
 			limit: args.limit,
 			types: ["document"],
-			filters: args.labels && args.labels.length > 0 ? { labels: args.labels } : undefined,
 		});
 
 		const documents = results.filter((result): result is DocumentSearchResult => result.type === "document");

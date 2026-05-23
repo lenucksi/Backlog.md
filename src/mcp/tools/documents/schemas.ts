@@ -10,11 +10,6 @@ export const documentListSchema: JsonSchema = {
 			type: "string",
 			maxLength: 200,
 		},
-		labels: {
-			type: "array",
-			items: { type: "string", maxLength: 100 },
-			maxItems: 50,
-		},
 	},
 	required: [],
 	additionalProperties: false,
@@ -58,11 +53,6 @@ export const documentCreateSchema: JsonSchema = {
 			items: { type: "string", maxLength: 100 },
 			maxItems: 50,
 		},
-		labels: {
-			type: "array",
-			items: { type: "string", maxLength: 100 },
-			maxItems: 50,
-		},
 	},
 	required: ["title", "content"],
 	additionalProperties: false,
@@ -94,11 +84,6 @@ export const documentUpdateSchema: JsonSchema = {
 			maxLength: 300,
 		},
 		tags: {
-			type: "array",
-			items: { type: "string", maxLength: 100 },
-			maxItems: 50,
-		},
-		labels: {
 			type: "array",
 			items: { type: "string", maxLength: 100 },
 			maxItems: 50,
@@ -146,11 +131,6 @@ export const documentSearchSchema: JsonSchema = {
 			type: "number",
 			minimum: 1,
 			maximum: 100,
-		},
-		labels: {
-			type: "array",
-			items: { type: "string", maxLength: 100 },
-			maxItems: 50,
 		},
 	},
 	required: ["query"],

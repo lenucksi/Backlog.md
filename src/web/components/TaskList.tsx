@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { apiClient, getCachedLabelColors } from "../lib/api";
+import { apiClient } from "../lib/api";
 import type {
 	Milestone,
 	SearchPriorityFilter,
@@ -817,26 +817,15 @@ const TaskList: React.FC<TaskListProps> = ({
 											<td className="px-3 py-2.5">
 												{visibleLabels.length > 0 ? (
 													<div className="flex items-center gap-1 min-w-0">
-														{{(() => {
-                        const labelColors = getCachedLabelColors();
-                        return visibleLabels.map((label) => {
-                          const color = labelColors[label];
-                          return (
-                            <span
-                              key={label}
-                              className={color ? "inline-flex max-w-[7rem] truncate rounded-circle px-2 py-0.5 text-[11px]" : "inline-flex max-w-[7rem] truncate rounded-circle bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 dark:bg-gray-700 dark:text-gray-200"}
-                              style={color ? {
-                                backgroundColor: color + "22",
-                                color: color,
-                                border: "1px solid " + color + "44",
-                              } : {}}
-                              title={label}
-                            >
-                              {label}
-                            </span>
-                          );
-                        });
-                      })()}}
+														{visibleLabels.map((label) => (
+															<span
+																key={label}
+																className="inline-flex max-w-[7rem] truncate rounded-circle bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+																title={label}
+															>
+																{label}
+															</span>
+														))}
 														{labelOverflow > 0 && (
 															<span className="text-[11px] text-gray-500 dark:text-gray-400">+{labelOverflow}</span>
 														)}
