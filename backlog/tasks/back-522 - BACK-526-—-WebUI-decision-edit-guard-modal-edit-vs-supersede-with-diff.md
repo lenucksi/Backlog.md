@@ -1,11 +1,11 @@
 ---
 id: BACK-522
 title: 'BACK-526 — WebUI: decision edit guard modal (edit vs supersede with diff)'
-status: In Progress
+status: Done
 assignee:
   - '@opencode'
 created_date: '2026-05-22 10:25'
-updated_date: '2026-05-22 15:37'
+updated_date: '2026-05-22 16:32'
 labels:
   - web-ui
   - decisions
@@ -15,6 +15,8 @@ milestone: m-8
 dependencies: []
 documentation:
   - doc-005
+modified_files:
+  - src/web/components/DecisionDetail.tsx
 priority: low
 ordinal: 225000
 ---
@@ -73,3 +75,9 @@ Solution: Vor dem Speichern eines Edits ein Modal zeigen:
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added edit guard modal to WebUI DecisionDetail.tsx. Before saving a decision edit, a modal warns about the immutable create-supersede pattern. Offers "Edit anyway" (direct save) or "Supersede with diff" (navigates to new decision creation with pre-filled content and auto-supersede link).
+<!-- SECTION:FINAL_SUMMARY:END -->

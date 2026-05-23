@@ -298,6 +298,7 @@ export class GitOperations {
 			"connection timed out",
 			"temporary failure in name resolution",
 			"operation timed out",
+			"the requested url",
 		];
 
 		const lowerMessage = message.toLowerCase();

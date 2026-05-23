@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { formatTime } from "../commands/overview.ts";
 
 describe("formatTime", () => {

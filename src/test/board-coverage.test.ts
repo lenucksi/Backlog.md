@@ -597,7 +597,12 @@ describe("renderBoardTui TTY path", () => {
 	it("handles navigation with no tasks in column (boundary)", async () => {
 		process.stdout.isTTY = true;
 		const { renderBoardTui } = await import("../ui/board.ts");
-		const promise = renderBoardTui([makeTask({ id: "T-1", title: "Only", status: "To Do" })], ["To Do"], "horizontal", 30);
+		const promise = renderBoardTui(
+			[makeTask({ id: "T-1", title: "Only", status: "To Do" })],
+			["To Do"],
+			"horizontal",
+			30,
+		);
 		await new Promise((r) => setTimeout(r, 10));
 
 		const downHandler = _screenKeyHandlers.find((h) => h.keys.includes("down"));

@@ -1,10 +1,11 @@
 ---
 id: BACK-519.3
 title: 'BACK-519.6 — Decision MCP create/search tools (PR #633 partial)'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 15:12'
+updated_date: '2026-05-22 16:48'
 labels:
   - upstream
   - feature
@@ -14,6 +15,10 @@ milestone: m-14
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/633'
+modified_files:
+  - src/mcp/tools/decisions/schemas.ts
+  - src/mcp/tools/decisions/handlers.ts
+  - src/mcp/tools/decisions/index.ts
 parent_task_id: BACK-519
 priority: medium
 ordinal: 220000
@@ -42,3 +47,9 @@ Add `decision_create` and `decision_search` MCP tools. We already have `decision
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added decision_create and decision_search MCP tools following existing decisions MCP pattern. From upstream PR #633 by abbyssoul (partial).
+<!-- SECTION:FINAL_SUMMARY:END -->

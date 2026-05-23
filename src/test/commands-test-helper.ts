@@ -19,18 +19,18 @@ let commandRegistered = false;
 export async function runBacklogCmd(args: string[], cwd: string): Promise<RunResult> {
 	const logs: string[] = [];
 	const errors: string[] = [];
-	let exitCode: number | null = null;
+	let _exitCode: number | null = null;
 
 	process.chdir(cwd);
 	process.argv = ["bun", "src/cli.ts", ...args];
-	console.log = (...a: any[]) => logs.push(a.map(String).join(" "));
-	console.error = (...a: any[]) => errors.push(a.map(String).join(" "));
-	console.warn = (...a: any[]) => errors.push(a.map(String).join(" "));
+	console.log = (...a: unknown[]) => logs.push(a.map(String).join(" "));
+	console.error = (...a: unknown[]) => errors.push(a.map(String).join(" "));
+	console.warn = (...a: unknown[]) => errors.push(a.map(String).join(" "));
 	process.exit = ((code?: number) => {
-		exitCode = code ?? null;
+		_exitCode = code ?? null;
 		throw new ProcessExitError(code);
 	}) as (code?: number) => never;
-	(process as any).exitCode = null;
+	(process as { exitCode: unknown }).exitCode = null;
 
 	if (!commandRegistered) {
 		commandCache = new Command();
@@ -38,7 +38,7 @@ export async function runBacklogCmd(args: string[], cwd: string): Promise<RunRes
 		commandRegistered = true;
 	}
 
-	const program = commandCache!;
+	const program = commandCache;
 	program.commands = [];
 	// prevent duplicate name errors
 	for (const key of Object.keys(program)) {
@@ -49,7 +49,7 @@ export async function runBacklogCmd(args: string[], cwd: string): Promise<RunRes
 	return await runWithFreshProgram(args, cwd, logs, errors);
 }
 
-async function runWithFreshProgram(args: string[], cwd: string, logs: string[], errors: string[]): Promise<RunResult> {
+async function runWithFreshProgram(args: string[], _cwd: string, logs: string[], errors: string[]): Promise<RunResult> {
 	let exitCode: number | null = null;
 	const program = new Command();
 	program.exitOverride();
@@ -67,9 +67,9 @@ async function runWithFreshProgram(args: string[], cwd: string, logs: string[], 
 	} catch (err: unknown) {
 		if (err instanceof ProcessExitError) {
 			exitCode = err.code ?? null;
-		} else if (err instanceof Error && (err as any).code === "commander.exit") {
+		} else if (err instanceof Error && (err as { code?: string }).code === "commander.exit") {
 			// Commander exitOverride throws mild errors for help etc.
-			exitCode = (err as any).exitCode ?? null;
+			exitCode = (err as { exitCode?: number }).exitCode ?? null;
 		} else {
 			// Unknown errors, re-throw
 			throw err;

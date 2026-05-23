@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { Core } from "../core/backlog.ts";
 import { BacklogServer } from "../server/index.ts";
 import { AppError } from "../utils/app-error.ts";
-import { createUniqueTestDir, retry, safeCleanup } from "./test-utils.ts";
+import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
 let server: BacklogServer | null = null;
@@ -55,7 +55,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 	it("returns 404 for unknown paths", async () => {
 		server = new BacklogServer(TEST_DIR);
 		await server.start(0, false);
-		const port = server.getPort()!;
+		const port = server.getPort() as number;
 
 		const res = await fetch(`http://127.0.0.1:${port}/unknown-path`);
 		expect(res.status).toBe(404);
@@ -64,7 +64,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 	it("serves favicon request", async () => {
 		server = new BacklogServer(TEST_DIR);
 		await server.start(0, false);
-		const port = server.getPort()!;
+		const port = server.getPort() as number;
 
 		const res = await fetch(`http://127.0.0.1:${port}/favicon.ico`);
 		expect(res.status).toBe(200);
@@ -75,7 +75,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 		const appError = AppError.notFound("Task not found");
 		const response = appError.formatForServer();
 		expect(response.status).toBe(404);
-		const body = await response.json() as { error: string };
+		const body = (await response.json()) as { error: string };
 		expect(body.error).toBe("Task not found");
 	});
 
@@ -84,7 +84,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 		expect(server.getPort()).toBeNull();
 		await server.start(0, false);
 		expect(server.getPort()).toBeGreaterThan(0);
-		const port = server.getPort()!;
+		const port = server.getPort() as number;
 
 		const res = await fetch(`http://127.0.0.1:${port}/api/status`);
 		expect(res.ok).toBe(true);
@@ -96,7 +96,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 	it("handles websocket upgrade via handleRequest for non-routed paths", async () => {
 		server = new BacklogServer(TEST_DIR);
 		await server.start(0, false);
-		const port = server.getPort()!;
+		const port = server.getPort() as number;
 
 		// Bun fetch sends Upgrade header but server.upgrade() returns false
 		// (fetch cannot do full WebSocket upgrades), falling through to 400
@@ -111,7 +111,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 	it("handles milestone resolution for create", async () => {
 		server = new BacklogServer(TEST_DIR);
 		await server.start(0, false);
-		const port = server.getPort()!;
+		const port = server.getPort() as number;
 
 		await fetch(`http://127.0.0.1:${port}/api/milestones`, {
 			method: "POST",
@@ -124,7 +124,7 @@ describe("BacklogServer index (start/stop/error handling)", () => {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ title: "Milestone task", milestone: "Sprint 1" }),
 		});
-		const task = await res.json() as { milestone?: string };
+		const task = (await res.json()) as { milestone?: string };
 		expect(task.milestone).toBeDefined();
 	});
 });

@@ -1,11 +1,19 @@
-import { mkdir, rename, unlink } from "node:fs/promises";
+import { mkdir, readdir, rename, rmdir, stat, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import matter from "gray-matter";
 import lockfile from "proper-lockfile";
 import { DEFAULT_DIRECTORIES, DEFAULT_FILES, DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
 import { parseDecision, parseDocument, parseMilestone, parseTask } from "../markdown/parser.ts";
 import { serializeDecision, serializeDocument, serializeTask } from "../markdown/serializer.ts";
-import type { BacklogConfig, Decision, Document, Milestone, Task, TaskListFilter } from "../types/index.ts";
+import type {
+	BacklogConfig,
+	Decision,
+	Document,
+	LabelConfig,
+	Milestone,
+	Task,
+	TaskListFilter,
+} from "../types/index.ts";
 import type { BacklogConfigSource } from "../utils/backlog-directory.ts";
 import { normalizeProjectBacklogDirectory, resolveBacklogDirectory } from "../utils/backlog-directory.ts";
 import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
@@ -92,6 +100,47 @@ async function cleanupDocumentDuplicates(docsDir: string, matchesForId: string[]
 	}
 }
 
+export function parseLabelArray(content: string): Array<string | LabelConfig> {
+	if (!content || content.trim().length === 0) return [];
+	const items: Array<string | LabelConfig> = [];
+	let depth = 0;
+	let current = "";
+	for (const ch of content) {
+		if (ch === "{" || ch === "[") depth++;
+		else if (ch === "}" || ch === "]") depth--;
+		if (ch === "," && depth === 0) {
+			const trimmed = current.trim();
+			if (trimmed) {
+				if (trimmed.startsWith("{")) {
+					const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
+					const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
+					if (nameMatch) {
+						items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
+					}
+				} else {
+					items.push(trimmed.replace(/['"]/g, ""));
+				}
+			}
+			current = "";
+		} else {
+			current += ch;
+		}
+	}
+	const trimmed = current.trim();
+	if (trimmed) {
+		if (trimmed.startsWith("{")) {
+			const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
+			const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
+			if (nameMatch) {
+				items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
+			}
+		} else {
+			items.push(trimmed.replace(/['"]/g, ""));
+		}
+	}
+	return items;
+}
+
 export class FileSystem {
 	private resolvedBacklogDir: string;
 	private resolvedBacklogDirName: string;
@@ -123,10 +172,6 @@ export class FileSystem {
 	get tasksDir(): string {
 		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.TASKS);
 	}
-	get completedDir(): string {
-		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.COMPLETED);
-	}
-
 	get archiveTasksDir(): string {
 		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS);
 	}
@@ -255,18 +300,12 @@ export class FileSystem {
 		return join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DOCS);
 	}
 
-	private async getCompletedDir(): Promise<string> {
-		const backlogDir = await this.getBacklogDir();
-		return join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
-	}
-
 	async ensureBacklogStructure(): Promise<void> {
 		const backlogDir = await this.getBacklogDir();
 		const directories = [
 			backlogDir,
 			join(backlogDir, DEFAULT_DIRECTORIES.TASKS),
 			join(backlogDir, DEFAULT_DIRECTORIES.DRAFTS),
-			join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DRAFTS),
 			join(backlogDir, DEFAULT_DIRECTORIES.MILESTONES),
@@ -280,6 +319,39 @@ export class FileSystem {
 			await mkdir(dir, { recursive: true }).catch((err: NodeJS.ErrnoException) => {
 				if (err.code !== "EEXIST") throw err;
 			});
+		}
+	}
+
+	async migrateCompletedTasks(): Promise<void> {
+		try {
+			const backlogDir = await this.getBacklogDir();
+			const completedDir = join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
+			const archiveTasksDir = await this.getArchiveTasksDir();
+
+			const completedDirExists = await stat(completedDir)
+				.then(() => true)
+				.catch(() => false);
+			if (!completedDirExists) return;
+
+			await this.ensureDirectoryExists(archiveTasksDir);
+
+			const entries = await readdir(completedDir);
+			for (const entry of entries) {
+				if (entry.endsWith(".md")) {
+					const source = join(completedDir, entry);
+					const target = join(archiveTasksDir, entry);
+					await rename(source, target);
+				}
+			}
+
+			const remaining = await readdir(completedDir);
+			if (remaining.length === 0) {
+				await rmdir(completedDir);
+			}
+		} catch (_error) {
+			if (process.env.DEBUG) {
+				console.error("Failed to migrate completed tasks:", _error);
+			}
 		}
 	}
 
@@ -472,9 +544,9 @@ export class FileSystem {
 	}
 
 	async listCompletedTasks(): Promise<Task[]> {
-		let completedDir: string;
+		let archiveTasksDir: string;
 		try {
-			completedDir = await this.getCompletedDir();
+			archiveTasksDir = await this.getArchiveTasksDir();
 		} catch (_error) {
 			return [];
 		}
@@ -486,14 +558,14 @@ export class FileSystem {
 
 		let taskFiles: string[];
 		try {
-			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
+			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }));
 		} catch (_error) {
 			return [];
 		}
 
 		const tasks: Task[] = [];
 		for (const file of taskFiles) {
-			const filepath = join(completedDir, file);
+			const filepath = join(archiveTasksDir, file);
 			try {
 				const content = await Bun.file(filepath).text();
 				const task = parseTask(content);
@@ -572,14 +644,14 @@ export class FileSystem {
 	async completeTask(taskId: string): Promise<boolean> {
 		try {
 			const tasksDir = await this.getTasksDir();
-			const completedDir = await this.getCompletedDir();
+			const archiveTasksDir = await this.getArchiveTasksDir();
 			const core = { filesystem: { tasksDir } };
 			const sourcePath = await getTaskPath(taskId, core as TaskPathContext);
 			const taskFile = await getTaskFilename(taskId, core as TaskPathContext);
 
 			if (!sourcePath || !taskFile) return false;
 
-			const targetPath = join(completedDir, taskFile);
+			const targetPath = join(archiveTasksDir, taskFile);
 
 			// Ensure target directory exists
 			await this.ensureDirectoryExists(dirname(targetPath));
@@ -977,19 +1049,19 @@ export class FileSystem {
 
 	async reopenTask(taskId: string): Promise<boolean> {
 		try {
-			const completedDir = await this.getCompletedDir();
+			const archiveTasksDir = await this.getArchiveTasksDir();
 			const config = await this.loadConfig();
 			const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
 			const globPattern = buildGlobPattern(taskPrefix);
-			const files = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
+			const files = await Array.fromAsync(
+				new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }),
+			);
 			const normalizedId = normalizeId(taskId, taskPrefix);
 			const filenameId = idForFilename(normalizedId);
-			const completedFile = files.find(
-				(f) => f.startsWith(`${filenameId} -`) || f.startsWith(`${filenameId}-`),
-			);
+			const completedFile = files.find((f) => f.startsWith(`${filenameId} -`) || f.startsWith(`${filenameId}-`));
 			if (!completedFile) return false;
 
-			const sourcePath = join(completedDir, completedFile);
+			const sourcePath = join(archiveTasksDir, completedFile);
 			const content = await Bun.file(sourcePath).text();
 			const task = parseTask(content);
 			task.status = "To Do";
@@ -1587,13 +1659,25 @@ ${description || `Milestone: ${title}`}`,
 					config.defaultStatus = value.replace(/['"]/g, "");
 					break;
 				case "statuses":
-				case "labels":
 					if (value.startsWith("[") && value.endsWith("]")) {
 						const arrayContent = value.slice(1, -1);
 						config[key] = arrayContent
 							.split(",")
 							.map((item) => item.trim().replace(/['"]/g, ""))
 							.filter(Boolean);
+					}
+					break;
+				case "labels":
+					if (value.startsWith("[") && value.endsWith("]")) {
+						const arrayContent = value.slice(1, -1);
+						if (arrayContent.includes("name:") || arrayContent.includes("{")) {
+							config.labels = parseLabelArray(arrayContent);
+						} else {
+							config.labels = arrayContent
+								.split(",")
+								.map((item) => item.trim().replace(/['"]/g, ""))
+								.filter(Boolean);
+						}
 					}
 					break;
 				case "terminal_statuses":

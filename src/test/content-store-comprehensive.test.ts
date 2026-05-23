@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { ContentStore } from "../core/content-store.ts";
 import { FileSystem } from "../file-system/operations.ts";
 import type { Decision, Document, Task } from "../types/index.ts";
@@ -21,7 +21,7 @@ describe("ContentStore - comprehensive coverage", () => {
 		rawContent: "## Description\nSeed content",
 	};
 
-	const sampleDecision: Decision = {
+	const _sampleDecision: Decision = {
 		id: "decision-1",
 		title: "Adopt shared cache",
 		date: "2025-09-19",
@@ -32,7 +32,7 @@ describe("ContentStore - comprehensive coverage", () => {
 		rawContent: "## Context\nContext\n\n## Decision\nDecision text\n\n## Consequences\nConsequences",
 	};
 
-	const sampleDocument: Document = {
+	const _sampleDocument: Document = {
 		id: "doc-1",
 		title: "Architecture Guide",
 		type: "guide",

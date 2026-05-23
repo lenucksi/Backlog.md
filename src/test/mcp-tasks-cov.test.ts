@@ -39,7 +39,9 @@ describe("MCP task tools coverage", () => {
 	afterEach(async () => {
 		try {
 			await mcpServer.stop();
-		} catch { /* ignore */ }
+		} catch {
+			/* ignore */
+		}
 		await safeCleanup(TEST_DIR);
 	});
 

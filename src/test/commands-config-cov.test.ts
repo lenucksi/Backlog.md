@@ -1,10 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
-import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 import { runBacklogCli } from "./commands-cov-helper.ts";
+import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
 
@@ -43,11 +42,21 @@ describe("config command coverage", () => {
 
 	it("config get all keys", async () => {
 		const keys: Array<{ key: string }> = [
-			"projectName", "defaultStatus", "statuses",
-			"labels", "definitionOfDone", "maxColumnWidth",
-			"defaultPort", "autoOpenBrowser", "remoteOperations",
-			"autoCommit", "filesystemOnly", "bypassGitHooks",
-			"zeroPaddedIds", "checkActiveBranches", "activeBranchDays",
+			"projectName",
+			"defaultStatus",
+			"statuses",
+			"labels",
+			"definitionOfDone",
+			"maxColumnWidth",
+			"defaultPort",
+			"autoOpenBrowser",
+			"remoteOperations",
+			"autoCommit",
+			"filesystemOnly",
+			"bypassGitHooks",
+			"zeroPaddedIds",
+			"checkActiveBranches",
+			"activeBranchDays",
 			"terminalStatuses",
 		];
 		for (const key of keys) {

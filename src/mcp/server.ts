@@ -28,7 +28,10 @@ import { registerWorkflowResources } from "./resources/workflow/index.ts";
 import { registerDecisionTools } from "./tools/decisions/index.ts";
 import { registerDefinitionOfDoneTools } from "./tools/definition-of-done/index.ts";
 import { registerDocumentTools } from "./tools/documents/index.ts";
+import { registerLabelTools } from "./tools/labels/index.ts";
 import { registerMilestoneTools } from "./tools/milestones/index.ts";
+import { registerOpenTools } from "./tools/open/index.ts";
+import { registerStatisticsTools } from "./tools/statistics/index.ts";
 import { registerTaskTools } from "./tools/tasks/index.ts";
 import { registerWorkflowTools } from "./tools/workflow/index.ts";
 import type {
@@ -245,6 +248,8 @@ export class McpServer extends Core {
 		registerWorkflowResources(this);
 		registerWorkflowTools(this);
 		registerTaskTools(this, config);
+		registerLabelTools(this);
+		registerStatisticsTools(this);
 		registerMilestoneTools(this);
 		registerDefinitionOfDoneTools(this);
 		registerDocumentTools(this, config);
@@ -520,11 +525,13 @@ export async function createMcpServer(projectRoot: string, options: ServerInitOp
 	registerWorkflowResources(server);
 	registerWorkflowTools(server);
 	registerTaskTools(server, config);
+	registerLabelTools(server);
 	registerMilestoneTools(server);
 	registerDefinitionOfDoneTools(server);
 	registerDocumentTools(server, config);
 	registerDecisionTools(server);
 	registerStatisticsTools(server);
+	registerOpenTools(server, config);
 
 	if (options.debug) {
 		console.error("MCP server initialised (stdio transport only).");

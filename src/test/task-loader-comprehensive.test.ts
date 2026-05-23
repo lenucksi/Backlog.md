@@ -1,4 +1,4 @@
-import { describe, expect, it, spyOn } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { getTaskLoadingMessage, resolveTaskConflict } from "../core/task-loader.ts";
 import type { BacklogConfig, Task } from "../types/index.ts";
 import { normalizeId } from "../utils/prefix-config.ts";

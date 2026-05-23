@@ -134,9 +134,7 @@ describe("help-popup", () => {
 		await new Promise((r) => setTimeout(r, 10));
 
 		// Find the escape handler registered on the popup
-		const escapeHandler = _allKeyHandlers.find(
-			(h) => h.keys.includes("escape") && h.keys.includes("q"),
-		);
+		const escapeHandler = _allKeyHandlers.find((h) => h.keys.includes("escape") && h.keys.includes("q"));
 		expect(escapeHandler).toBeDefined();
 		escapeHandler?.handler();
 
@@ -389,7 +387,7 @@ describe("filter-header", () => {
 
 		header.setExitRequestHandler((direction) => exitDirections.push(direction));
 
-		header.setFocusChangeHandler((focus) => {
+		header.setFocusChangeHandler((_focus) => {
 			// focus changed
 		});
 	});
@@ -432,9 +430,7 @@ describe("confirm-popup", () => {
 		await new Promise((r) => setTimeout(r, 10));
 
 		// Find the Enter key handler on the popup
-		const enterHandler = _allKeyHandlers.find(
-			(h) => h.keys.includes("enter") && h.keys.includes("y"),
-		);
+		const enterHandler = _allKeyHandlers.find((h) => h.keys.includes("enter") && h.keys.includes("y"));
 		expect(enterHandler).toBeDefined();
 		enterHandler?.handler();
 
@@ -463,9 +459,7 @@ describe("confirm-popup", () => {
 
 		await new Promise((r) => setTimeout(r, 10));
 
-		const escapeHandler = _allKeyHandlers.find(
-			(h) => h.keys.includes("escape") && h.keys.includes("n"),
-		);
+		const escapeHandler = _allKeyHandlers.find((h) => h.keys.includes("escape") && h.keys.includes("n"));
 		expect(escapeHandler).toBeDefined();
 		escapeHandler?.handler();
 
@@ -495,9 +489,7 @@ describe("confirm-popup", () => {
 		await new Promise((r) => setTimeout(r, 10));
 
 		// Find and call the enter handler twice — second should be no-op
-		const enterHandler = _allKeyHandlers.find(
-			(h) => h.keys.includes("enter") && h.keys.includes("y"),
-		);
+		const enterHandler = _allKeyHandlers.find((h) => h.keys.includes("enter") && h.keys.includes("y"));
 		enterHandler?.handler();
 		enterHandler?.handler();
 
@@ -694,7 +686,10 @@ describe("generic-list", () => {
 		const { createGenericList } = await import("../ui/components/generic-list.ts");
 
 		const list = createGenericList({
-			items: [{ id: "X", title: "First" }, { id: "Y", title: "Second" }],
+			items: [
+				{ id: "X", title: "First" },
+				{ id: "Y", title: "Second" },
+			],
 			showHelp: false,
 		});
 

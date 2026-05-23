@@ -59,12 +59,12 @@ export class DecisionHandlers {
 	private formatDecisionSummaryLine(decision: Decision, suffix = ""): string {
 		const tags: string[] = [decision.status, decision.date];
 		if (decision.supersedes) {
-			tags.push("supersedes:" + decision.supersedes);
+			tags.push(`supersedes:${decision.supersedes}`);
 		}
 		if (decision.supersededBy) {
-			tags.push("superseded-by:" + decision.supersededBy);
+			tags.push(`superseded-by:${decision.supersededBy}`);
 		}
-		return "  " + decision.id + " - " + decision.title + " (" + tags.join(", ") + ")" + suffix;
+		return `  ${decision.id} - ${decision.title} (${tags.join(", ")})${suffix}`;
 	}
 
 	async listDecisions(args: DecisionListArgs = {}): Promise<CallToolResult> {
@@ -105,19 +105,19 @@ export class DecisionHandlers {
 		const decision = await this.loadDecisionOrThrow(args.id);
 
 		const lines: string[] = [
-			"Decision: " + decision.id,
-			"Title: " + decision.title,
-			"Date: " + decision.date,
-			"Status: " + decision.status,
+			`Decision: ${decision.id}`,
+			`Title: ${decision.title}`,
+			`Date: ${decision.date}`,
+			`Status: ${decision.status}`,
 		];
 
 		if (decision.supersedes) {
 			const title = await this.resolveTitle(decision.supersedes);
-			lines.push("Supersedes: " + decision.supersedes + " (" + title + ")");
+			lines.push(`Supersedes: ${decision.supersedes} (${title})`);
 		}
 		if (decision.supersededBy) {
 			const title = await this.resolveTitle(decision.supersededBy);
-			lines.push("Superseded by: " + decision.supersededBy + " (" + title + ")");
+			lines.push(`Superseded by: ${decision.supersededBy} (${title})`);
 		}
 		lines.push("");
 		lines.push("=== Context ===");
@@ -208,7 +208,7 @@ export class DecisionHandlers {
 		const oldDecision = await this.loadDecisionOrThrow(args.id);
 
 		if (oldDecision.status === "superseded") {
-			throw AppError.validation("Decision " + args.id + " is already superseded.");
+			throw AppError.validation(`Decision ${args.id} is already superseded.`);
 		}
 
 		oldDecision.status = "superseded";
@@ -220,7 +220,7 @@ export class DecisionHandlers {
 			content: [
 				{
 					type: "text",
-					text: "Updated " + oldDecision.id + " status to superseded" + note + ".",
+					text: `Updated ${oldDecision.id} status to superseded${note}.`,
 				},
 			],
 		};
@@ -230,7 +230,7 @@ export class DecisionHandlers {
 		const oldDecision = await this.loadDecisionOrThrow(args.id);
 
 		if (oldDecision.status === "superseded") {
-			throw AppError.validation("Decision " + args.id + " is already superseded.");
+			throw AppError.validation(`Decision ${args.id} is already superseded.`);
 		}
 
 		const { generateNextDecisionId } = await import("../../../commands/decision.ts");
@@ -261,8 +261,8 @@ export class DecisionHandlers {
 				{
 					type: "text",
 					text: [
-						"Created decision " + newId + " superseding " + oldDecision.id + ".",
-						"Updated " + oldDecision.id + " status to superseded.",
+						`Created decision ${newId} superseding ${oldDecision.id}.`,
+						`Updated ${oldDecision.id} status to superseded.`,
 					].join("\n"),
 				},
 			],

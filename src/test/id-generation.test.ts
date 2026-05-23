@@ -45,12 +45,12 @@ describe("Task ID Generation with Archives", () => {
 		const activeTasks = await core.fs.listTasks();
 		expect(activeTasks.length).toBe(0);
 
-		// Create new task - should be TASK-1 (archived IDs can be reused)
+		// Create new task - should be TASK-6 (archived IDs are now in archive/tasks/ so not reusable)
 		const result = await core.createTaskFromInput({ title: "Task After Archive" }, false);
-		expect(result.task.id).toBe("TASK-1");
+		expect(result.task.id).toBe("TASK-6");
 
 		// Verify the task was created with correct ID
-		const newTask = await core.getTask("task-1");
+		const newTask = await core.getTask("task-6");
 		expect(newTask).not.toBeNull();
 		expect(newTask?.title).toBe("Task After Archive");
 	});
@@ -102,13 +102,13 @@ describe("Task ID Generation with Archives", () => {
 		await core.archiveTask("task-1.1", false);
 		await core.archiveTask("task-1.2", false);
 
-		// Create new parent task - should be TASK-1 (reusing archived parent ID)
+		// Create new parent task - should be TASK-2 (archived parent ID is now in archive/tasks/ so not reusable)
 		const newParent = await core.createTaskFromInput({ title: "New Parent" }, false);
-		expect(newParent.task.id).toBe("TASK-1");
+		expect(newParent.task.id).toBe("TASK-2");
 
-		// Create subtask of new parent (TASK-1) - should be TASK-1.1 (reusing archived subtask ID)
-		const newSubtask = await core.createTaskFromInput({ title: "New Subtask", parentTaskId: "task-1" }, false);
-		expect(newSubtask.task.id).toBe("TASK-1.1");
+		// Create subtask of new parent (TASK-2) - should be TASK-2.1 (archived subtask IDs are not reusable)
+		const newSubtask = await core.createTaskFromInput({ title: "New Subtask", parentTaskId: "task-2" }, false);
+		expect(newSubtask.task.id).toBe("TASK-2.1");
 	});
 
 	it("should work with zero-padded IDs and reuse archived IDs", async () => {
@@ -126,9 +126,9 @@ describe("Task ID Generation with Archives", () => {
 
 		await core.archiveTask("task-001", false);
 
-		// Create new task - should reuse archived ID (TASK-001)
+		// Create new task - should get next ID (archived ID is now in archive/tasks/ so not reusable)
 		const result = await core.createTaskFromInput({ title: "Task 2" }, false);
-		expect(result.task.id).toBe("TASK-001");
+		expect(result.task.id).toBe("TASK-002");
 	});
 
 	it("should detect existing subtasks with different casing (legacy data)", async () => {

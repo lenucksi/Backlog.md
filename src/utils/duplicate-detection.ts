@@ -29,11 +29,7 @@ export function scanForDuplicateIds(tasks: Task[]): DuplicateGroup[] {
 export function formatDuplicateWarning(duplicates: DuplicateGroup[]): string {
 	if (duplicates.length === 0) return "";
 
-	const lines: string[] = [
-		"",
-		"⚠️  WARNING: Duplicate task IDs detected!",
-		"",
-	];
+	const lines: string[] = ["", "⚠️  WARNING: Duplicate task IDs detected!", ""];
 
 	for (const group of duplicates) {
 		lines.push(`  ID: ${group.id}`);

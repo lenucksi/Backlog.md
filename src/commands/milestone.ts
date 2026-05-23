@@ -9,16 +9,11 @@ import {
 import type { Milestone } from "../types/index.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 
-function findMilestoneByAlias(
-	name: string,
-	milestones: Milestone[],
-): Milestone | undefined {
+function findMilestoneByAlias(name: string, milestones: Milestone[]): Milestone | undefined {
 	const normalized = normalizeMilestoneName(name);
 	if (!normalized) return undefined;
 	const key = milestoneKey(normalized);
-	return milestones.find(
-		(m) => milestoneKey(m.id) === key || milestoneKey(m.title) === key,
-	);
+	return milestones.find((m) => milestoneKey(m.id) === key || milestoneKey(m.title) === key);
 }
 
 export function registerMilestoneCommand(program: Command): void {
@@ -120,13 +115,9 @@ export function registerMilestoneCommand(program: Command): void {
 
 			const existing = await core.filesystem.listMilestones();
 			const nameKey = milestoneKey(normalizedName);
-			const duplicate = existing.find(
-				(m) => milestoneKey(m.id) === nameKey || milestoneKey(m.title) === nameKey,
-			);
+			const duplicate = existing.find((m) => milestoneKey(m.id) === nameKey || milestoneKey(m.title) === nameKey);
 			if (duplicate) {
-				console.error(
-					`Milestone "${normalizedName}" already exists (${duplicate.id}: ${duplicate.title}).`,
-				);
+				console.error(`Milestone "${normalizedName}" already exists (${duplicate.id}: ${duplicate.title}).`);
 				process.exitCode = 1;
 				return;
 			}
@@ -214,109 +205,94 @@ export function registerMilestoneCommand(program: Command): void {
 		.option("--keep", "keep task milestone values unchanged")
 		.option("--clear", "clear milestone from tasks (default)")
 		.option("--reassign <target>", "reassign tasks to another milestone")
-		.action(
-			async (name: string, options: { keep?: boolean; clear?: boolean; reassign?: string }) => {
-				const cwd = await requireProjectRoot();
-				const core = new Core(cwd);
-				await core.ensureConfigLoaded();
+		.action(async (name: string, options: { keep?: boolean; clear?: boolean; reassign?: string }) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			await core.ensureConfigLoaded();
 
-				const normalizedName = normalizeMilestoneName(name);
-				if (!normalizedName) {
-					console.error("Milestone name cannot be empty.");
+			const normalizedName = normalizeMilestoneName(name);
+			if (!normalizedName) {
+				console.error("Milestone name cannot be empty.");
+				process.exitCode = 1;
+				return;
+			}
+
+			const milestones = await core.filesystem.listMilestones();
+			const sourceMilestone = findMilestoneByAlias(normalizedName, milestones);
+			if (!sourceMilestone) {
+				console.error(`Milestone "${name}" not found.`);
+				process.exitCode = 1;
+				return;
+			}
+
+			const taskHandling = options.reassign ? "reassign" : options.keep ? "keep" : "clear";
+
+			const reassignTo = options.reassign ? normalizeMilestoneName(options.reassign) : undefined;
+
+			let targetMilestone: Milestone | undefined;
+			if (taskHandling === "reassign") {
+				if (!reassignTo) {
+					console.error("Target milestone name is required for --reassign.");
 					process.exitCode = 1;
 					return;
 				}
-
-				const milestones = await core.filesystem.listMilestones();
-				const sourceMilestone = findMilestoneByAlias(normalizedName, milestones);
-				if (!sourceMilestone) {
-					console.error(`Milestone "${name}" not found.`);
+				targetMilestone = findMilestoneByAlias(reassignTo, milestones);
+				if (!targetMilestone) {
+					console.error(`Target milestone "${reassignTo}" not found.`);
 					process.exitCode = 1;
 					return;
 				}
-
-				const taskHandling = options.reassign
-					? "reassign"
-					: options.keep
-						? "keep"
-						: "clear";
-
-				const reassignTo = options.reassign
-					? normalizeMilestoneName(options.reassign)
-					: undefined;
-
-				let targetMilestone: Milestone | undefined;
-				if (taskHandling === "reassign") {
-					if (!reassignTo) {
-						console.error("Target milestone name is required for --reassign.");
-						process.exitCode = 1;
-						return;
-					}
-					targetMilestone = findMilestoneByAlias(reassignTo, milestones);
-					if (!targetMilestone) {
-						console.error(`Target milestone "${reassignTo}" not found.`);
-						process.exitCode = 1;
-						return;
-					}
-					if (
-						milestoneKey(targetMilestone.id) === milestoneKey(sourceMilestone.id)
-					) {
-						console.error("Target milestone must be different from the removed milestone.");
-						process.exitCode = 1;
-						return;
-					}
-				}
-
-				const sourceKey = milestoneKey(sourceMilestone.title);
-				const sourceIdKey = milestoneKey(sourceMilestone.id);
-				let updatedIds: string[] = [];
-				if (taskHandling !== "keep") {
-					const tasks = await core.filesystem.listTasks();
-					const matchingTasks = tasks.filter((task) => {
-						if (!task.milestone) return false;
-						const taskKey = milestoneKey(task.milestone);
-						return taskKey === sourceKey || taskKey === sourceIdKey;
-					});
-					for (const task of matchingTasks) {
-						try {
-							await core.editTask(
-								task.id,
-								{
-									milestone:
-										taskHandling === "reassign" ? targetMilestone!.id : null,
-								},
-								false,
-							);
-							updatedIds.push(task.id);
-						} catch (error) {
-							console.error(`Failed to update task ${task.id}: ${error}`);
-						}
-					}
-				}
-
-				const archiveResult = await core.archiveMilestone(sourceMilestone.id, false);
-				if (!archiveResult.success) {
-					console.error(`Failed to remove milestone "${sourceMilestone.title}".`);
+				if (milestoneKey(targetMilestone.id) === milestoneKey(sourceMilestone.id)) {
+					console.error("Target milestone must be different from the removed milestone.");
 					process.exitCode = 1;
 					return;
 				}
+			}
 
+			const sourceKey = milestoneKey(sourceMilestone.title);
+			const sourceIdKey = milestoneKey(sourceMilestone.id);
+			const updatedIds: string[] = [];
+			if (taskHandling !== "keep") {
+				const tasks = await core.filesystem.listTasks();
+				const matchingTasks = tasks.filter((task) => {
+					if (!task.milestone) return false;
+					const taskKey = milestoneKey(task.milestone);
+					return taskKey === sourceKey || taskKey === sourceIdKey;
+				});
+				for (const task of matchingTasks) {
+					try {
+						await core.editTask(
+							task.id,
+							{
+								milestone: taskHandling === "reassign" ? targetMilestone?.id : null,
+							},
+							false,
+						);
+						updatedIds.push(task.id);
+					} catch (error) {
+						console.error(`Failed to update task ${task.id}: ${error}`);
+					}
+				}
+			}
+
+			const archiveResult = await core.archiveMilestone(sourceMilestone.id, false);
+			if (!archiveResult.success) {
+				console.error(`Failed to remove milestone "${sourceMilestone.title}".`);
+				process.exitCode = 1;
+				return;
+			}
+
+			console.log(`Removed milestone "${sourceMilestone.title}" (${sourceMilestone.id}).`);
+			if (taskHandling === "keep") {
+				console.log("Kept task milestone values unchanged.");
+			} else if (taskHandling === "reassign") {
 				console.log(
-					`Removed milestone "${sourceMilestone.title}" (${sourceMilestone.id}).`,
+					`Reassigned ${updatedIds.length} task(s) to "${targetMilestone?.title}" (${targetMilestone?.id}): ${updatedIds.join(", ")}`,
 				);
-				if (taskHandling === "keep") {
-					console.log("Kept task milestone values unchanged.");
-				} else if (taskHandling === "reassign") {
-					console.log(
-						`Reassigned ${updatedIds.length} task(s) to "${targetMilestone!.title}" (${targetMilestone!.id}): ${updatedIds.join(", ")}`,
-					);
-				} else {
-					console.log(
-						`Cleared milestone from ${updatedIds.length} task(s): ${updatedIds.join(", ")}`,
-					);
-				}
-			},
-		);
+			} else {
+				console.log(`Cleared milestone from ${updatedIds.length} task(s): ${updatedIds.join(", ")}`);
+			}
+		});
 
 	milestoneCmd
 		.command("archive <name>")

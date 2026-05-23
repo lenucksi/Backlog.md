@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import type { Milestone, Task } from "../types/index.ts";
 
 // Global key handler tracker for viewTaskEnhanced tests
@@ -10,6 +10,7 @@ const _screenKeyHandlers: Array<{
 function resetGlobalHandlers(): void {
 	_screenKeyHandlers.length = 0;
 }
+
 import {
 	buildTaskViewerMilestoneFilterModel,
 	resolveFilterExitPane,
@@ -716,10 +717,7 @@ describe("createTaskPopup", () => {
 	it("handles task with only parentTaskId but no parentTaskTitle", async () => {
 		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
 		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(
-			screen,
-			makeRichTask({ parentTaskTitle: undefined, parentTaskId: "TASK-99" }),
-		);
+		const result = await popupFactory(screen, makeRichTask({ parentTaskTitle: undefined, parentTaskId: "TASK-99" }));
 		expect(result).not.toBeNull();
 	});
 
@@ -859,7 +857,15 @@ describe("viewTaskEnhanced TTY path", () => {
 		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
 
 		const promise = viewTaskEnhanced(
-			{ id: "T-1", title: "Test", status: "To Do", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] },
+			{
+				id: "T-1",
+				title: "Test",
+				status: "To Do",
+				assignee: [],
+				createdDate: "2024-06-01",
+				labels: [],
+				dependencies: [],
+			},
 			{
 				core: {
 					filesystem: {
@@ -872,7 +878,17 @@ describe("viewTaskEnhanced TTY path", () => {
 					getTaskWithSubtasks: async () => null,
 					editTaskInTui: async () => ({ reason: "not_found", task: null, changed: false }),
 				},
-				tasks: [{ id: "T-1", title: "Test", status: "To Do", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] }],
+				tasks: [
+					{
+						id: "T-1",
+						title: "Test",
+						status: "To Do",
+						assignee: [],
+						createdDate: "2024-06-01",
+						labels: [],
+						dependencies: [],
+					},
+				],
 			},
 		);
 
@@ -892,7 +908,15 @@ describe("viewTaskEnhanced TTY path", () => {
 		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
 
 		const promise = viewTaskEnhanced(
-			{ id: "T-1", title: "Test", status: "To Do", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] },
+			{
+				id: "T-1",
+				title: "Test",
+				status: "To Do",
+				assignee: [],
+				createdDate: "2024-06-01",
+				labels: [],
+				dependencies: [],
+			},
 			{
 				core: {
 					filesystem: {
@@ -905,7 +929,17 @@ describe("viewTaskEnhanced TTY path", () => {
 					getTaskWithSubtasks: async () => null,
 					editTaskInTui: async () => ({ reason: "not_found", task: null, changed: false }),
 				},
-				tasks: [{ id: "T-1", title: "Test", status: "To Do", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] }],
+				tasks: [
+					{
+						id: "T-1",
+						title: "Test",
+						status: "To Do",
+						assignee: [],
+						createdDate: "2024-06-01",
+						labels: [],
+						dependencies: [],
+					},
+				],
 				searchQuery: "test",
 				statusFilter: "To Do",
 			},
@@ -927,7 +961,15 @@ describe("viewTaskEnhanced TTY path", () => {
 		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
 
 		const promise = viewTaskEnhanced(
-			{ id: "T-1", title: "Test", status: "To Do", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] },
+			{
+				id: "T-1",
+				title: "Test",
+				status: "To Do",
+				assignee: [],
+				createdDate: "2024-06-01",
+				labels: [],
+				dependencies: [],
+			},
 			{
 				core: {
 					filesystem: {
@@ -941,8 +983,24 @@ describe("viewTaskEnhanced TTY path", () => {
 					editTaskInTui: async () => ({ reason: "not_found", task: null, changed: false }),
 				},
 				tasks: [
-					{ id: "T-1", title: "First", status: "To Do", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] },
-					{ id: "T-2", title: "Second", status: "In Progress", assignee: [], createdDate: "2024-06-01", labels: [], dependencies: [] },
+					{
+						id: "T-1",
+						title: "First",
+						status: "To Do",
+						assignee: [],
+						createdDate: "2024-06-01",
+						labels: [],
+						dependencies: [],
+					},
+					{
+						id: "T-2",
+						title: "Second",
+						status: "In Progress",
+						assignee: [],
+						createdDate: "2024-06-01",
+						labels: [],
+						dependencies: [],
+					},
 				],
 			},
 		);

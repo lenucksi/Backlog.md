@@ -1,7 +1,7 @@
 import type { ScreenInterface } from "neo-neo-bblessed";
 import { box, textbox } from "neo-neo-bblessed";
-import { createPopupChrome } from "./components/filter-popup.ts";
 import { Core } from "../core/backlog.ts";
+import { createPopupChrome } from "./components/filter-popup.ts";
 
 export async function openCreateDocumentScreen(screen: ScreenInterface): Promise<boolean> {
 	return new Promise<boolean>((resolve) => {
@@ -9,8 +9,7 @@ export async function openCreateDocumentScreen(screen: ScreenInterface): Promise
 		const { popup, close } = createPopupChrome({
 			screen,
 			title: "Create Document",
-			helpText:
-				" {cyan-fg}[Enter]{/} Next / Submit | {cyan-fg}[Esc]{/} Cancel",
+			helpText: " {cyan-fg}[Enter]{/} Next / Submit | {cyan-fg}[Esc]{/} Cancel",
 			width: "55%",
 			height: 10,
 		});

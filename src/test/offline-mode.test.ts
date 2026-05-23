@@ -135,6 +135,7 @@ describe("Offline Mode Configuration", () => {
 				"No route to host",
 				"Connection timed out",
 				"Temporary failure in name resolution",
+				"The requested URL returned error: 503",
 			];
 
 			for (const errorMessage of networkErrors) {

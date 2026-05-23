@@ -43,7 +43,7 @@ const Settings: React.FC = () => {
 
 	const handleInputChange = (field: keyof BacklogConfig, value: any) => {
 		if (!config) return;
-		
+
 		setConfig({
 			...config,
 			[field]: value
@@ -158,8 +158,8 @@ const Settings: React.FC = () => {
 									value={config.projectName}
 									onChange={(e) => handleInputChange('projectName', e.target.value)}
 									className={`w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200 ${
-										validationErrors.projectName 
-											? 'border-red-500 dark:border-red-400' 
+										validationErrors.projectName
+											? 'border-red-500 dark:border-red-400'
 											: 'border-gray-300 dark:border-gray-600'
 									}`}
 								/>
@@ -174,8 +174,8 @@ const Settings: React.FC = () => {
 								</label>
 								<select
 									id="dateFormat"
-									value={config.dateFormat}
-									onChange={(e) => handleInputChange('dateFormat', e.target.value)}
+									value={(config as any).dateFormat}
+									onChange={(e) => handleInputChange('dateFormat' as any, e.target.value)}
 									className="w-full h-10 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
 								>
 									<option value="yyyy-mm-dd">yyyy-mm-dd</option>
@@ -268,6 +268,82 @@ const Settings: React.FC = () => {
 						</div>
 					</div>
 
+					{/* Labels Management */}
+					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Labels</h2>
+						<div className="space-y-3">
+							{config.labels.map((label, index) => (
+								<div key={`label-${index}`} className="flex items-center gap-2">
+									<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
+										{label}
+									</span>
+									<button
+										type="button"
+										onClick={async () => {
+											const newName = prompt("Rename label to:", label);
+											if (newName && newName.trim() && newName.trim() !== label) {
+												try {
+													await apiClient.renameLabel(label, newName.trim());
+													const updated = await apiClient.fetchLabels();
+													setConfig({ ...config, labels: updated });
+												} catch (err) {
+													setError(err instanceof Error ? err.message : "Failed to rename label");
+												}
+											}
+										}}
+										className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
+									>
+										Rename
+									</button>
+									<button
+										type="button"
+										onClick={async () => {
+											if (confirm(`Remove label "${label}" from config?`)) {
+												try {
+													await apiClient.removeLabel(label);
+													const updated = await apiClient.fetchLabels();
+													setConfig({ ...config, labels: updated });
+												} catch (err) {
+													setError(err instanceof Error ? err.message : "Failed to remove label");
+												}
+											}
+										}}
+										className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+									>
+										Delete
+									</button>
+								</div>
+							))}
+							<div className="flex items-center gap-2 pt-2">
+								<input
+									type="text"
+									id="newLabelInput"
+									placeholder="New label name..."
+									className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400"
+								/>
+								<button
+									type="button"
+									onClick={async () => {
+										const input = document.getElementById("newLabelInput") as HTMLInputElement;
+										const name = input?.value?.trim();
+										if (!name) return;
+										try {
+											await apiClient.addLabel(name);
+											const updated = await apiClient.fetchLabels();
+											setConfig({ ...config, labels: updated });
+											input.value = "";
+										} catch (err) {
+											setError(err instanceof Error ? err.message : "Failed to add label");
+										}
+									}}
+									className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+								>
+									Add
+								</button>
+							</div>
+						</div>
+					</div>
+
 					{/* Definition of Done Defaults */}
 					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Definition of Done Defaults</h2>
@@ -326,8 +402,8 @@ const Settings: React.FC = () => {
 									value={config.defaultPort || 6420}
 									onChange={(e) => handleInputChange('defaultPort', parseInt(e.target.value) || 6420)}
 									className={`w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200 ${
-										validationErrors.defaultPort 
-											? 'border-red-500 dark:border-red-400' 
+										validationErrors.defaultPort
+											? 'border-red-500 dark:border-red-400'
 											: 'border-gray-300 dark:border-gray-600'
 									}`}
 								/>

@@ -152,7 +152,7 @@ function validatePriority(raw?: string): "high" | "medium" | "low" | undefined {
 export function parseTask(content: string): Task {
 	const { frontmatter, content: rawContent } = parseMarkdown(content);
 
-	const validatedPriority = validatePriority(frontmatter.priority);
+	const validatedPriority = validatePriority(frontmatter.priority as unknown as string | undefined);
 
 	// Parse structured acceptance criteria (checked/text/index) from all sections
 	const structuredCriteria: AcceptanceCriterion[] = AcceptanceCriteriaManager.parseAllCriteria(rawContent);
@@ -211,6 +211,7 @@ export function parseDecision(content: string): Decision {
 		alternatives: extractSection(rawContent, "Alternatives"),
 		supersedes: frontmatter.supersedes ? String(frontmatter.supersedes) : undefined,
 		supersededBy: frontmatter.supersededBy ? String(frontmatter.supersededBy) : undefined,
+		labels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
 		rawContent,
 	};
 }
@@ -225,6 +226,7 @@ export function parseDocument(content: string): Document {
 		createdDate: normalizeDate(frontmatter.created_date),
 		updatedDate: frontmatter.updated_date ? normalizeDate(frontmatter.updated_date) : undefined,
 		rawContent,
+		labels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
 		tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.map(String) : undefined,
 	};
 }

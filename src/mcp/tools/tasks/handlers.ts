@@ -400,7 +400,7 @@ export class TaskHandlers {
 		}
 
 		const filePath = task.filePath ?? null;
-		const completedFilePath = filePath ? join(this.core.filesystem.completedDir, basename(filePath)) : undefined;
+		const completedFilePath = filePath ? join(this.core.filesystem.archiveTasksDir, basename(filePath)) : undefined;
 
 		const success = await this.core.completeTask(task.id);
 		if (!success) {

@@ -1,10 +1,9 @@
-import { describe, expect, it, beforeEach, afterEach } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
-import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 import { runBacklogCli } from "./commands-cov-helper.ts";
+import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
 
@@ -20,7 +19,11 @@ describe("task command coverage", () => {
 	});
 
 	afterEach(async () => {
-		try { await safeCleanup(TEST_DIR); } catch { /* ignore */ }
+		try {
+			await safeCleanup(TEST_DIR);
+		} catch {
+			/* ignore */
+		}
 	});
 
 	it("task create with title and description", async () => {
@@ -150,10 +153,7 @@ describe("task command coverage", () => {
 
 	it("task create with parent", async () => {
 		await runBacklogCli(["task", "create", "Parent"], TEST_DIR);
-		const r = await runBacklogCli(
-			["task", "create", "Child", "-p", "task-1"],
-			TEST_DIR,
-		);
+		const r = await runBacklogCli(["task", "create", "Child", "-p", "task-1"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 	});
 
@@ -172,10 +172,7 @@ describe("task command coverage", () => {
 	});
 
 	it("task create with ordinal and plain output", async () => {
-		const r = await runBacklogCli(
-			["task", "create", "Ordinal", "--ordinal", "500", "--plain"],
-			TEST_DIR,
-		);
+		const r = await runBacklogCli(["task", "create", "Ordinal", "--ordinal", "500", "--plain"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 		expect(r.stdout).toContain("Ordinal");
 	});
@@ -258,10 +255,7 @@ describe("task command coverage", () => {
 
 	it("task edit with acceptance criteria", async () => {
 		await runBacklogCli(["task", "create", "AC edit"], TEST_DIR);
-		const r = await runBacklogCli(
-			["task", "edit", "task-1", "--ac", "Must work", "--plan", "Step 1"],
-			TEST_DIR,
-		);
+		const r = await runBacklogCli(["task", "edit", "task-1", "--ac", "Must work", "--plan", "Step 1"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 	});
 

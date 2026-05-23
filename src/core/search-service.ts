@@ -324,7 +324,7 @@ export class SearchService {
 			(!hasPriorities || this.matchesPriority(task, new Set(filters.priorities))) &&
 			(!hasAssignees || this.matchesAssignees(task, new Set(filters.assignees))) &&
 			(!hasLabels || this.matchesLabels(task, new Set(filters.labels))) &&
-			(!hasModifiedFiles || matchesModifiedFileFilters(task.modifiedFiles, filters.modifiedFiles!))
+			(!hasModifiedFiles || matchesModifiedFileFilters(task.modifiedFiles, filters.modifiedFiles as string[]))
 		);
 	}
 

@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { $ } from "bun";
 import { randomUUID } from "node:crypto";
 import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
+import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { McpServer } from "../mcp/server.ts";
 import { registerTaskTools } from "../mcp/tools/tasks/index.ts";
@@ -91,10 +91,13 @@ describe("cross-modality parity", () => {
 
 	it("returns identical task lists across CLI, API, and MCP when filtering by status", async () => {
 		// ── CLI modality ──────────────────────────────────────────
-		const cliProc = Bun.spawn(["bun", join(WORKTREE_ROOT, "src/cli.ts"), "task", "list", "--status", "Done", "--json"], {
-			cwd: testDir,
-			env: { ...process.env, NO_COLOR: "1" },
-		});
+		const cliProc = Bun.spawn(
+			["bun", join(WORKTREE_ROOT, "src/cli.ts"), "task", "list", "--status", "Done", "--json"],
+			{
+				cwd: testDir,
+				env: { ...process.env, NO_COLOR: "1" },
+			},
+		);
 		const cliOut = await new Response(cliProc.stdout).text();
 		const cliExit = await cliProc.exited;
 		expect(cliExit).toBe(0);
@@ -104,7 +107,7 @@ describe("cross-modality parity", () => {
 		// ── API modality ──────────────────────────────────────────
 		const server = new BacklogServer(testDir);
 		await server.start(0, false);
-		const port = server.getPort()!;
+		const port = server.getPort() as number;
 		await fetch(`http://127.0.0.1:${port}/api/status`, { signal: AbortSignal.timeout(1000) });
 
 		const apiResp = await fetch(`http://127.0.0.1:${port}/api/tasks?status=Done`);

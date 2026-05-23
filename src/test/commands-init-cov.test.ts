@@ -1,10 +1,9 @@
-import { describe, expect, it, beforeEach, afterEach } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
-import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 import { runBacklogCli } from "./commands-cov-helper.ts";
+import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
 
@@ -15,7 +14,11 @@ describe("init command coverage", () => {
 	});
 
 	afterEach(async () => {
-		try { await safeCleanup(TEST_DIR); } catch { /* ignore */ }
+		try {
+			await safeCleanup(TEST_DIR);
+		} catch {
+			/* ignore */
+		}
 	});
 
 	it("init with defaults creates project", async () => {
@@ -46,10 +49,7 @@ describe("init command coverage", () => {
 	});
 
 	it("init with no-git flag", async () => {
-		const r = await runBacklogCli(
-			["init", "NoGit", "--defaults", "--integration-mode", "none", "--no-git"],
-			TEST_DIR,
-		);
+		const r = await runBacklogCli(["init", "NoGit", "--defaults", "--integration-mode", "none", "--no-git"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 
 		const core = new Core(TEST_DIR);
@@ -87,10 +87,7 @@ describe("init command coverage", () => {
 		await $`git init -b main`.cwd(TEST_DIR).quiet();
 		await $`git config user.email test@test.com`.cwd(TEST_DIR).quiet();
 		await $`git config user.name Tester`.cwd(TEST_DIR).quiet();
-		const r = await runBacklogCli(
-			["init", "BadMode", "--defaults", "--integration-mode", "bogus"],
-			TEST_DIR,
-		);
+		const r = await runBacklogCli(["init", "BadMode", "--defaults", "--integration-mode", "bogus"], TEST_DIR);
 		expect(r.exitCode).not.toBe(0);
 		expect(r.stderr).toContain("Invalid integration mode");
 	});
@@ -131,7 +128,17 @@ describe("init command coverage", () => {
 		await $`git config user.email test@test.com`.cwd(TEST_DIR).quiet();
 		await $`git config user.name Tester`.cwd(TEST_DIR).quiet();
 		const r = await runBacklogCli(
-			["init", "AdvOpts", "--defaults", "--integration-mode", "none", "--auto-open-browser", "false", "--check-branches", "true"],
+			[
+				"init",
+				"AdvOpts",
+				"--defaults",
+				"--integration-mode",
+				"none",
+				"--auto-open-browser",
+				"false",
+				"--check-branches",
+				"true",
+			],
 			TEST_DIR,
 		);
 		expect(r.exitCode).toBe(0);
@@ -163,10 +170,7 @@ describe("init command coverage", () => {
 		await $`git init -b main`.cwd(TEST_DIR).quiet();
 		await $`git config user.email test@test.com`.cwd(TEST_DIR).quiet();
 		await $`git config user.name Tester`.cwd(TEST_DIR).quiet();
-		const r = await runBacklogCli(
-			["init", "BadDirPath", "--defaults", "--backlog-dir", "/tmp/bad"],
-			TEST_DIR,
-		);
+		const r = await runBacklogCli(["init", "BadDirPath", "--defaults", "--backlog-dir", "/tmp/bad"], TEST_DIR);
 		expect(r.exitCode).not.toBe(0);
 	});
 
@@ -175,7 +179,17 @@ describe("init command coverage", () => {
 		await $`git config user.email test@test.com`.cwd(TEST_DIR).quiet();
 		await $`git config user.name Tester`.cwd(TEST_DIR).quiet();
 		const r = await runBacklogCli(
-			["init", "BypassTest", "--defaults", "--integration-mode", "none", "--bypass-git-hooks", "true", "--check-branches", "false"],
+			[
+				"init",
+				"BypassTest",
+				"--defaults",
+				"--integration-mode",
+				"none",
+				"--bypass-git-hooks",
+				"true",
+				"--check-branches",
+				"false",
+			],
 			TEST_DIR,
 		);
 		expect(r.exitCode).toBe(0);

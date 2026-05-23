@@ -2220,14 +2220,14 @@ export class Core {
 
 	async completeTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
 		// Get paths before moving the file
-		const completedDir = this.fs.completedDir;
+		const archiveTasksDir = this.fs.archiveTasksDir;
 		const taskPath = await getTaskPath(taskId, this);
 		const taskFilename = await getTaskFilename(taskId, this);
 
 		if (!taskPath || !taskFilename) return false;
 
 		const fromPath = taskPath;
-		const toPath = join(completedDir, taskFilename);
+		const toPath = join(archiveTasksDir, taskFilename);
 
 		const success = await this.fs.completeTask(taskId);
 
@@ -2506,6 +2506,7 @@ export class Core {
 				title: existingDoc.title,
 				type: existingDoc.type,
 				tags: existingDoc.tags,
+				labels: existingDoc.labels,
 				content,
 				...(existingDoc.path !== undefined && { path: getDocumentSubPathFromRelativePath(existingDoc.path) }),
 			},
@@ -2524,6 +2525,7 @@ export class Core {
 		}
 
 		const subPath = normalizeDocumentSubPath(input.path);
+		const labels = normalizeStringList(input.labels);
 		const tags = normalizeStringList(input.tags);
 		const type = normalizeDocumentTypeInput(input.type) ?? "other";
 		const document = await this.withCreateLock(async () => {
@@ -2534,6 +2536,7 @@ export class Core {
 				type,
 				createdDate: new Date().toISOString().slice(0, 16).replace("T", " "),
 				rawContent: input.content ?? "",
+				...(labels && labels.length > 0 && { labels }),
 				...(tags && tags.length > 0 && { tags }),
 			};
 
@@ -2555,6 +2558,7 @@ export class Core {
 			throw new Error("Document title cannot be empty.");
 		}
 
+		const labels = input.labels !== undefined ? normalizeStringList(input.labels) : existingDoc.labels;
 		const tags = input.tags !== undefined ? normalizeStringList(input.tags) : existingDoc.tags;
 		const type = normalizeDocumentTypeInput(input.type) ?? existingDoc.type;
 		const subPath =
@@ -2568,6 +2572,7 @@ export class Core {
 			type,
 			rawContent: input.content,
 			updatedDate: new Date().toISOString().slice(0, 16).replace("T", " "),
+			labels: labels && labels.length > 0 ? labels : undefined,
 			tags: tags && tags.length > 0 ? tags : undefined,
 		};
 

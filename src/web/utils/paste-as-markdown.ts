@@ -12,9 +12,22 @@ const turndownService = new TurndownService({
 turndownService.use(gfm);
 
 const EXCLUDED_TAGS = new Set([
-	"script", "style", "link", "meta", "noscript",
-	"svg", "path", "circle", "rect", "line", "polyline", "polygon",
-	"iframe", "object", "embed", "applet",
+	"script",
+	"style",
+	"link",
+	"meta",
+	"noscript",
+	"svg",
+	"path",
+	"circle",
+	"rect",
+	"line",
+	"polyline",
+	"polygon",
+	"iframe",
+	"object",
+	"embed",
+	"applet",
 ]);
 
 function cleanNode(node: Node): boolean {
@@ -45,10 +58,7 @@ function cleanNode(node: Node): boolean {
 
 export function cleanHtml(html: string): string {
 	const parser = new DOMParser();
-	const doc = parser.parseFromString(
-		`<!DOCTYPE html><html><body>${html}</body></html>`,
-		"text/html",
-	);
+	const doc = parser.parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`, "text/html");
 	const body = doc.body;
 	let child = body.firstChild;
 	while (child) {
@@ -65,14 +75,10 @@ export function htmlToMarkdown(html: string): string {
 }
 
 export function hasHtmlInClipboard(clipboardData: DataTransfer): boolean {
-	return clipboardData.types.some(
-		(t) => t === "text/html" || t === "text/rtf",
-	);
+	return clipboardData.types.some((t) => t === "text/html" || t === "text/rtf");
 }
 
-export function extractHtmlFromClipboard(
-	clipboardData: DataTransfer,
-): string | null {
+export function extractHtmlFromClipboard(clipboardData: DataTransfer): string | null {
 	for (const type of ["text/html", "text/rtf"]) {
 		const data = clipboardData.getData(type);
 		if (data && data.trim().length > 0) {
@@ -82,10 +88,7 @@ export function extractHtmlFromClipboard(
 	return null;
 }
 
-export function insertTextAtCursor(
-	textarea: HTMLTextAreaElement,
-	text: string,
-): string {
+export function insertTextAtCursor(textarea: HTMLTextAreaElement, text: string): string {
 	const start = textarea.selectionStart;
 	const end = textarea.selectionEnd;
 	const before = textarea.value.slice(0, start);

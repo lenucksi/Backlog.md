@@ -50,6 +50,7 @@ export type RouteHandlers = {
 		handleGetStatuses: () => Promise<Response>;
 		handleGetConfig: () => Promise<Response>;
 		handleUpdateConfig: (req: Request) => Promise<Response>;
+		handleListLabels: () => Promise<Response>;
 	};
 	system: {
 		handleGetVersion: () => Promise<Response>;
@@ -70,6 +71,9 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 	return {
 		"/": spaIndexHtml,
 		"/tasks": spaIndexHtml,
+		"/tasks/*": spaIndexHtml,
+		"/board": spaIndexHtml,
+		"/board/*": spaIndexHtml,
 		"/milestones": spaIndexHtml,
 		"/drafts": spaIndexHtml,
 		"/documentation": spaIndexHtml,
@@ -135,8 +139,7 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 				await decisions.handleUpdateDecision(req, req.params.id),
 		},
 		"/api/decisions/:id/resolve": {
-			POST: async (req: Request & { params: { id: string } }) =>
-				await decisions.handleResolveDecision(req.params.id),
+			POST: async (req: Request & { params: { id: string } }) => await decisions.handleResolveDecision(req.params.id),
 		},
 		"/api/drafts": {
 			GET: async () => await drafts.handleListDrafts(),
@@ -160,6 +163,14 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		},
 		"/api/milestones/:id/archive": {
 			POST: async (req: Request & { params: { id: string } }) => await milestones.handleArchiveMilestone(req.params.id),
+		},
+		"/api/config/labels": {
+			GET: async () => await config.handleListLabels(),
+			POST: async (req: Request) => await config.handleAddLabel(req),
+		},
+		"/api/config/labels/:name": {
+			PUT: async (req: Request & { params: { name: string } }) => await config.handleRenameLabel(req),
+			DELETE: async (req: Request & { params: { name: string } }) => await config.handleRemoveLabel(req),
 		},
 		"/api/tasks/reorder": {
 			POST: async (req: Request) => await tasks.handleReorderTask(req),

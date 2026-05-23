@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { Core } from "../core/backlog.ts";
 import { BacklogServer } from "../server/index.ts";
-import { AppError } from "../utils/app-error.ts";
 import { createUniqueTestDir, retry, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
@@ -37,10 +36,14 @@ describe("BacklogServer task endpoints", () => {
 		expect(port).not.toBeNull();
 		serverPort = port ?? 0;
 
-		await retry(async () => {
-			const res = await fetch(`http://127.0.0.1:${serverPort}/api/status`, { signal: AbortSignal.timeout(500) });
-			if (!res.ok) throw new Error("server not ready");
-		}, 10, 50);
+		await retry(
+			async () => {
+				const res = await fetch(`http://127.0.0.1:${serverPort}/api/status`, { signal: AbortSignal.timeout(500) });
+				if (!res.ok) throw new Error("server not ready");
+			},
+			10,
+			50,
+		);
 	});
 
 	afterEach(async () => {
@@ -84,14 +87,14 @@ describe("BacklogServer task endpoints", () => {
 	it("returns 400 for invalid priority filter", async () => {
 		const res = await fetch(`http://127.0.0.1:${serverPort}/api/tasks?priority=invalid`);
 		expect(res.status).toBe(400);
-		const body = await res.json() as { error: string };
+		const body = (await res.json()) as { error: string };
 		expect(body.error).toBe("Invalid priority filter");
 	});
 
 	it("filters by parent task with not-found error", async () => {
 		const res = await fetch(`http://127.0.0.1:${serverPort}/api/tasks?parent=nonexistent`);
 		expect(res.status).toBe(404);
-		const body = await res.json() as { error: string };
+		const body = (await res.json()) as { error: string };
 		expect(body.error).toContain("not found");
 	});
 
@@ -126,14 +129,14 @@ describe("BacklogServer task endpoints", () => {
 	it("returns 400 for search with invalid limit", async () => {
 		const res = await fetch(`http://127.0.0.1:${serverPort}/api/search?query=test&limit=-1`);
 		expect(res.status).toBe(400);
-		const body = await res.json() as { error: string };
+		const body = (await res.json()) as { error: string };
 		expect(body.error).toContain("limit");
 	});
 
 	it("returns 400 for search with invalid type parameter", async () => {
 		const res = await fetch(`http://127.0.0.1:${serverPort}/api/search?query=test&type=invalid`);
 		expect(res.status).toBe(400);
-		const body = await res.json() as { error: string };
+		const body = (await res.json()) as { error: string };
 		expect(body.error).toContain("type");
 	});
 
@@ -164,7 +167,7 @@ describe("BacklogServer task endpoints", () => {
 			body: JSON.stringify({}),
 		});
 		expect(res.status).toBe(400);
-		const body = await res.json() as { error: string };
+		const body = (await res.json()) as { error: string };
 		expect(body.error).toContain("Title is required");
 	});
 

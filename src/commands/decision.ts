@@ -80,6 +80,7 @@ export function registerDecisionCommand(program: Command): void {
 	decisionCmd
 		.command("create <title>")
 		.option("-s, --status <status>")
+		.option("-l, --labels <labels>", "set labels (comma-separated)")
 		.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -89,6 +90,12 @@ export function registerDecisionCommand(program: Command): void {
 				title: title as string,
 				date: new Date().toISOString().slice(0, 16).replace("T", " "),
 				status: (options.status || "proposed") as Decision["status"],
+				labels: options.labels
+					? String(options.labels)
+							.split(",")
+							.map((label: string) => label.trim())
+							.filter(Boolean)
+					: undefined,
 				context: "",
 				decision: "",
 				consequences: "",
@@ -103,6 +110,7 @@ export function registerDecisionCommand(program: Command): void {
 		.option("--status <status>", "Filter by status")
 		.option("--supersedes <id>", "Filter by supersedes field")
 		.option("--superseded-by <id>", "Filter by supersededBy field")
+		.option("-l, --label <labels>", "Filter by labels (comma-separated)")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
 			const cwd = await requireProjectRoot();
@@ -146,46 +154,46 @@ export function registerDecisionCommand(program: Command): void {
 		.command("view <id>")
 		.option("--json", "output as JSON")
 		.action(async (id: string, options) => {
-		const cwd = await requireProjectRoot();
-		const core = new Core(cwd);
-		const decision = await loadDecision(core, id);
-		if (!decision) {
-			console.error(`Decision not found: ${id}`);
-			process.exit(1);
-		}
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const decision = await loadDecision(core, id);
+			if (!decision) {
+				console.error(`Decision not found: ${id}`);
+				process.exit(1);
+			}
 
-		if (options.json) {
-			console.log(JSON.stringify(decision, null, 2));
-			return;
-		}
+			if (options.json) {
+				console.log(JSON.stringify(decision, null, 2));
+				return;
+			}
 
-		console.log(`ID:             ${decision.id}`);
-		console.log(`Title:          ${decision.title}`);
-		console.log(`Date:           ${decision.date}`);
-		console.log(`Status:         ${decision.status}`);
-		if (decision.supersedes) {
-			const ref = await loadDecision(core, decision.supersedes);
-			console.log(`Supersedes:     ${decision.supersedes}${ref ? ` (${ref.title})` : ""}`);
-		}
-		if (decision.supersededBy) {
-			const ref = await loadDecision(core, decision.supersededBy);
-			console.log(`Superseded by:  ${decision.supersededBy}${ref ? ` (${ref.title})` : ""}`);
-		}
-		console.log("");
-		console.log("=== Context ===");
-		console.log(decision.context || "(empty)");
-		console.log("");
-		console.log("=== Decision ===");
-		console.log(decision.decision || "(empty)");
-		console.log("");
-		console.log("=== Consequences ===");
-		console.log(decision.consequences || "(empty)");
-		if (decision.alternatives) {
+			console.log(`ID:             ${decision.id}`);
+			console.log(`Title:          ${decision.title}`);
+			console.log(`Date:           ${decision.date}`);
+			console.log(`Status:         ${decision.status}`);
+			if (decision.supersedes) {
+				const ref = await loadDecision(core, decision.supersedes);
+				console.log(`Supersedes:     ${decision.supersedes}${ref ? ` (${ref.title})` : ""}`);
+			}
+			if (decision.supersededBy) {
+				const ref = await loadDecision(core, decision.supersededBy);
+				console.log(`Superseded by:  ${decision.supersededBy}${ref ? ` (${ref.title})` : ""}`);
+			}
 			console.log("");
-			console.log("=== Alternatives ===");
-			console.log(decision.alternatives);
-		}
-	});
+			console.log("=== Context ===");
+			console.log(decision.context || "(empty)");
+			console.log("");
+			console.log("=== Decision ===");
+			console.log(decision.decision || "(empty)");
+			console.log("");
+			console.log("=== Consequences ===");
+			console.log(decision.consequences || "(empty)");
+			if (decision.alternatives) {
+				console.log("");
+				console.log("=== Alternatives ===");
+				console.log(decision.alternatives);
+			}
+		});
 
 	decisionCmd
 		.command("resolve <id>")
@@ -231,11 +239,11 @@ export function registerDecisionCommand(program: Command): void {
 
 			const lines: string[] = [];
 			lines.push("---");
-			lines.push("id: " + newId);
-			lines.push("title: " + options.title);
-			lines.push("date: " + date);
+			lines.push(`id: ${newId}`);
+			lines.push(`title: ${options.title}`);
+			lines.push(`date: ${date}`);
 			lines.push("status: accepted");
-			lines.push("supersedes: " + oldDecision.id);
+			lines.push(`supersedes: ${oldDecision.id}`);
 			lines.push("---");
 			lines.push("");
 			lines.push("## Context");

@@ -39,7 +39,9 @@ describe("MCP milestone tools coverage", () => {
 	afterEach(async () => {
 		try {
 			await server.stop();
-		} catch { /* ignore */ }
+		} catch {
+			/* ignore */
+		}
 		await safeCleanup(TEST_DIR);
 	});
 
@@ -175,7 +177,10 @@ describe("MCP milestone tools coverage", () => {
 		});
 
 		const remove = await server.testInterface.callTool({
-			params: { name: "milestone_remove", arguments: { name: "Source", taskHandling: "reassign", reassignTo: "Target" } },
+			params: {
+				name: "milestone_remove",
+				arguments: { name: "Source", taskHandling: "reassign", reassignTo: "Target" },
+			},
 		});
 		const text = getText(remove.content);
 		expect(text).toContain("Removed milestone");
@@ -201,7 +206,10 @@ describe("MCP milestone tools coverage", () => {
 		});
 
 		const result = await server.testInterface.callTool({
-			params: { name: "milestone_remove", arguments: { name: "Alone", taskHandling: "reassign", reassignTo: "Missing" } },
+			params: {
+				name: "milestone_remove",
+				arguments: { name: "Alone", taskHandling: "reassign", reassignTo: "Missing" },
+			},
 		});
 		expect(result.isError).toBe(true);
 		expect(getText(result.content)).toContain("not found");
@@ -213,7 +221,10 @@ describe("MCP milestone tools coverage", () => {
 		});
 
 		const result = await server.testInterface.callTool({
-			params: { name: "milestone_remove", arguments: { name: "Lonely", taskHandling: "reassign", reassignTo: "Lonely" } },
+			params: {
+				name: "milestone_remove",
+				arguments: { name: "Lonely", taskHandling: "reassign", reassignTo: "Lonely" },
+			},
 		});
 		expect(result.isError).toBe(true);
 		expect(getText(result.content)).toContain("must be different");

@@ -1,6 +1,7 @@
 import { isCreateLockError } from "../../file-system/operations.ts";
 import type { SearchResultType } from "../../types/index.ts";
 import { labelsToLower } from "../../utils/label-filter.ts";
+import { attachSubtaskSummaries } from "../../utils/task-subtasks.ts";
 import type { ServerHandlerContext } from "../types.ts";
 import {
 	buildSearchFilters,
@@ -55,7 +56,10 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 			includeCrossBranch: crossBranch,
 		});
 
-		return Response.json(tasks);
+		const store = await ctx.getContentStore();
+		const allTasks = store.getTasks();
+		const enriched = tasks.map((t) => attachSubtaskSummaries(t, allTasks));
+		return Response.json(enriched);
 	}
 
 	async function handleSearch(req: Request): Promise<Response> {
@@ -179,12 +183,14 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		const localTask = await ctx.core.filesystem.loadTask(taskId);
 		if (localTask) {
 			store.upsertTask(localTask);
-			return Response.json(localTask);
+			const allTasks = store.getTasks();
+			return Response.json(attachSubtaskSummaries(localTask, allTasks));
 		}
 
-		const task = findTaskByLooseId(store.getTasks(), taskId);
+		const allTasks = store.getTasks();
+		const task = findTaskByLooseId(allTasks, taskId);
 		if (task) {
-			return Response.json(task);
+			return Response.json(attachSubtaskSummaries(task, allTasks));
 		}
 
 		return Response.json({ error: "Task not found" }, { status: 404 });

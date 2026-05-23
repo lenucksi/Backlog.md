@@ -1,11 +1,11 @@
 ---
 id: BACK-524
 title: 'CLI: milestone create/rename/remove commands'
-status: In Progress
+status: Done
 assignee:
   - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 15:37'
+updated_date: '2026-05-22 16:32'
 labels:
   - cli
   - milestone
@@ -15,6 +15,8 @@ milestone: m-12
 dependencies: []
 documentation:
   - doc-005
+modified_files:
+  - src/commands/milestone.ts
 priority: medium
 ordinal: 227000
 ---
@@ -68,3 +70,9 @@ CLI hat nur `milestone list` und `milestone archive`. Milestone create/rename/re
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added 3 CLI subcommands to backlog milestone: create (with --description), rename (updates referencing tasks), remove (with --keep/--clear/--reassign). Implemented in src/commands/milestone.ts (+235 lines). All 3 commands use existing FileSystem/Core milestone methods.
+<!-- SECTION:FINAL_SUMMARY:END -->

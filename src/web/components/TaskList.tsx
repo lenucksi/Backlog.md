@@ -8,6 +8,7 @@ import type {
 	TaskSearchResult,
 } from "../../types";
 import { collectAvailableLabels } from "../../utils/label-filter.ts";
+import { taskIdsEqual } from "../../utils/task-path.ts";
 import { isTerminalStatus } from "../../utils/terminal-status.ts";
 import { collectArchivedMilestoneKeys, getMilestoneLabel, milestoneKey } from "../utils/milestones";
 import { formatStoredUtcDateForCompactDisplay, parseStoredUtcDate } from "../utils/date-display";
@@ -583,6 +584,38 @@ const TaskList: React.FC<TaskListProps> = ({
 
 	const currentCount = sortedDisplayTasks.length;
 
+	// Flatten tasks with subtask hierarchy for table display
+	const hierarchicalTasks = useMemo(() => {
+		const childrenByParent = new Map<string, Task[]>();
+		const childIds = new Set<string>();
+
+		for (const t of sortedDisplayTasks) {
+			if (t.parentTaskId) {
+				childIds.add(t.id);
+				const existing = childrenByParent.get(t.parentTaskId) || [];
+				existing.push(t);
+				childrenByParent.set(t.parentTaskId, existing);
+			}
+		}
+
+		const result: Array<{ task: Task; depth: number }> = [];
+		for (const t of sortedDisplayTasks) {
+			// Skip children whose parent is in the displayed list (rendered by parent)
+			if (childIds.has(t.id) && sortedDisplayTasks.some((p) => taskIdsEqual(p.id, t.parentTaskId ?? ""))) {
+				continue;
+			}
+			result.push({ task: t, depth: 0 });
+			const children = childrenByParent.get(t.id);
+			if (children) {
+				for (const child of children) {
+					result.push({ task: child, depth: 1 });
+				}
+			}
+		}
+
+		return result;
+	}, [sortedDisplayTasks]);
+
 	useEffect(() => {
 		const headerEl = tableHeaderScrollRef.current;
 		const bodyEl = tableBodyScrollRef.current;
@@ -751,7 +784,7 @@ const TaskList: React.FC<TaskListProps> = ({
 						<table className="w-full min-w-[1100px] table-fixed border-collapse">
 							{renderColumnGroup()}
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-								{sortedDisplayTasks.map((task) => {
+								{hierarchicalTasks.map(({ task, depth }) => {
 									const isFromOtherBranch = Boolean(task.branch);
 									const visibleLabels = task.labels.slice(0, 2);
 									const labelOverflow = Math.max(task.labels.length - visibleLabels.length, 0);
@@ -774,17 +807,29 @@ const TaskList: React.FC<TaskListProps> = ({
 												{task.id}
 											</td>
 											<td className="px-3 py-2.5">
-												<div className="flex items-center gap-2 min-w-0">
-													<span
-														className={`block truncate text-sm ${
-															isFromOtherBranch
-																? "text-gray-600 dark:text-gray-300"
-																: "text-gray-900 dark:text-gray-100"
-														}`}
-														title={task.title}
-													>
-														{task.title}
-													</span>
+													<div className="flex items-center gap-2 min-w-0" style={depth > 0 ? { paddingLeft: "1.5rem" } : undefined}>
+														{depth > 0 && (
+															<svg className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l-5-5-5 5" />
+															</svg>
+														)}
+														<div className="flex flex-col min-w-0">
+															{depth > 0 && task.parentTaskTitle && (
+																<span className="text-[10px] text-gray-400 dark:text-gray-500 truncate mb-0.5">
+																	↳ {task.parentTaskTitle}
+																</span>
+															)}
+															<span
+																className={`block truncate text-sm ${
+																	isFromOtherBranch
+																		? "text-gray-600 dark:text-gray-300"
+																		: "text-gray-900 dark:text-gray-100"
+																}`}
+																title={task.title}
+															>
+																{task.title}
+															</span>
+														</div>
 													{isFromOtherBranch && task.branch && (
 														<span
 															className="inline-flex shrink-0 items-center rounded-circle bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"

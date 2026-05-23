@@ -4,8 +4,8 @@
 
 import type { Core } from "../core/backlog.ts";
 import type { Milestone, Task } from "../types/index.ts";
-import { formatDuplicateWarning, scanForDuplicateIds } from "../utils/duplicate-detection.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
+import { formatDuplicateWarning, scanForDuplicateIds } from "../utils/duplicate-detection.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { applySharedTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";

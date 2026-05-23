@@ -40,9 +40,9 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 	process.chdir(cwd);
 	process.argv = ["bun", "src/cli.ts", ...args];
 	process.exitCode = 0;
-	console.log = (...msgs: any[]) => stdout.push(msgs.map(String).join(" "));
-	console.error = (...msgs: any[]) => stderr.push(msgs.map(String).join(" "));
-	console.warn = (...msgs: any[]) => stderr.push(msgs.map(String).join(" "));
+	console.log = (...msgs: unknown[]) => stdout.push(msgs.map(String).join(" "));
+	console.error = (...msgs: unknown[]) => stderr.push(msgs.map(String).join(" "));
+	console.warn = (...msgs: unknown[]) => stderr.push(msgs.map(String).join(" "));
 	process.exit = ((code?: number) => {
 		exitCode = code ?? 0;
 		throw new CliExitError(code);
@@ -53,9 +53,9 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		const program = new Command();
 		program.exitOverride();
 
-		registerInit!(program);
-		registerTask!(program);
-		registerConfig!(program);
+		registerInit?.(program);
+		registerTask?.(program);
+		registerConfig?.(program);
 
 		await program.parseAsync(process.argv);
 		if (process.exitCode) {
@@ -64,9 +64,9 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 	} catch (err: unknown) {
 		if (err instanceof CliExitError) {
 			exitCode = exitCode || 1;
-		} else if (err instanceof Error && (err as any).code === "commander.exit") {
-			exitCode = (err as any).exitCode ?? 1;
-		} else if (err instanceof Error && (err as any).code === "commander.help") {
+		} else if (err instanceof Error && (err as { code?: string }).code === "commander.exit") {
+			exitCode = (err as { exitCode?: number }).exitCode ?? 1;
+		} else if (err instanceof Error && (err as { code?: string }).code === "commander.help") {
 			exitCode = 0;
 		} else {
 			throw err;

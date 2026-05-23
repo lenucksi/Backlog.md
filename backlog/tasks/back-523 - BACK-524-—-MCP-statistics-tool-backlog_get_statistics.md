@@ -1,11 +1,11 @@
 ---
 id: BACK-523
 title: 'BACK-524 — MCP: statistics tool (backlog_get_statistics)'
-status: In Progress
+status: Done
 assignee:
   - '@opencode'
 created_date: '2026-05-22 10:25'
-updated_date: '2026-05-22 15:37'
+updated_date: '2026-05-22 16:31'
 labels:
   - mcp
   - statistics
@@ -15,6 +15,11 @@ milestone: m-13
 dependencies: []
 documentation:
   - doc-005
+modified_files:
+  - src/mcp/tools/statistics/schemas.ts
+  - src/mcp/tools/statistics/handlers.ts
+  - src/mcp/tools/statistics/index.ts
+  - src/mcp/server.ts
 priority: medium
 ordinal: 226000
 ---
@@ -70,3 +75,9 @@ Statistics sind nur über CLI (`backlog stats`) und WebUI (`/api/statistics`) ve
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Created new MCP tool backlog_get_statistics in src/mcp/tools/statistics/ (3 files). Tool accepts optional milestone filter, returns statistics matching CLI --json format (total by status/priority/milestone/assignee). Registered in src/mcp/server.ts. 13 tests pass.
+<!-- SECTION:FINAL_SUMMARY:END -->

@@ -24,7 +24,7 @@ function t(id: string, deps: string[] = [], ordinal?: number): Task {
 	};
 }
 
-function mustGet<T>(arr: T[], idx: number): T {
+function _mustGet<T>(arr: T[], idx: number): T {
 	const v = arr[idx];
 	if (v === undefined) throw new Error(`expected element at index ${idx}`);
 	return v;
@@ -36,7 +36,7 @@ describe("computeSequences - cycle detection", () => {
 		// Create unique task objects - no duplicate IDs
 		const tasks = [t("task-a"), t("task-b", ["task-a"]), t("task-c", ["task-b"])];
 		// Add the cycle edge: C depends on A via a separate update
-		tasks[2]!.dependencies.push("task-a");
+		tasks[2]?.dependencies.push("task-a");
 		const res = computeSequences(tasks);
 		// The cycle should be detected and remaining nodes emitted as one layer
 		expect(res.sequences.length).toBeGreaterThanOrEqual(1);
@@ -59,8 +59,8 @@ describe("computeSequences - cycle detection", () => {
 		// 1 -> 2 -> 3 -> 1 and 4 -> 2 (partial cycle with extra node)
 		const tasks = [t("task-1"), t("task-2", ["task-1"]), t("task-3"), t("task-4", ["task-2"])];
 		// Add cycle edge: task-3 depends on task-2 AND task-1 depends on task-3
-		tasks[2]!.dependencies.push("task-2");
-		tasks[0]!.dependencies.push("task-3");
+		tasks[2]?.dependencies.push("task-2");
+		tasks[0]?.dependencies.push("task-3");
 		const res = computeSequences(tasks);
 		const allIds = res.sequences.flatMap((s) => s.tasks.map((x) => x.id));
 		expect(allIds).toContain("task-4");

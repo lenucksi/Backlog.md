@@ -18,6 +18,9 @@ import { openConfirmPopup } from "./components/confirm-popup.ts";
 import { createFilterHeader, type FilterHeader, type FilterState } from "./components/filter-header.ts";
 import { openMultiSelectFilterPopup, openSingleSelectFilterPopup } from "./components/filter-popup.ts";
 import { openHelpPopup } from "./components/help-popup.ts";
+import { openCreateDocumentScreen } from "./create-document.ts";
+import { openCreateDraftScreen } from "./create-draft.ts";
+import { openCreateMilestoneScreen } from "./create-milestone.ts";
 import { openCreateTaskPopup } from "./create-task.ts";
 import { formatFooterContent } from "./footer-content.ts";
 import { getStatusIcon } from "./status-icon.ts";
@@ -26,9 +29,6 @@ import {
 	resolveSearchExitTargetIndex,
 	shouldMoveFromListBoundaryToSearch,
 } from "./task-viewer-with-search.ts";
-import { openCreateDocumentScreen } from "./create-document.ts";
-import { openCreateDraftScreen } from "./create-draft.ts";
-import { openCreateMilestoneScreen } from "./create-milestone.ts";
 import { createScreen } from "./tui.ts";
 import { stripBlessedFgTags } from "./utils/strip-tags.ts";
 

@@ -19,6 +19,7 @@ export function registerDocCommand(program: Command): void {
 		.command("create <title>")
 		.option("-p, --path <path>")
 		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
+		.option("-l, --labels <labels>", "set labels (comma-separated)")
 		.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -26,6 +27,12 @@ export function registerDocCommand(program: Command): void {
 				title: title as string,
 				type: (options.type || "other") as DocType["type"],
 				path: options.path,
+				labels: options.labels
+					? String(options.labels)
+							.split(",")
+							.map((label: string) => label.trim())
+							.filter(Boolean)
+					: undefined,
 				content: "",
 			});
 			console.log(`Created document ${document.id}`);
@@ -42,6 +49,7 @@ export function registerDocCommand(program: Command): void {
 		.option("-p, --path <path>", "move document under a docs-relative path (absolute paths and .. are rejected)")
 		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
 		.option("--tags <tags>", "set tags (comma-separated or use multiple times)", createMultiValueAccumulator())
+		.option("--labels <labels>", "set labels (comma-separated or use multiple times)", createMultiValueAccumulator())
 		.action(async (docId: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -57,6 +65,7 @@ export function registerDocCommand(program: Command): void {
 				type: options.type,
 				path: options.path,
 				...(options.tags !== undefined && { tags: parseDelimitedStringList(options.tags) ?? [] }),
+				...(options.labels !== undefined && { labels: parseDelimitedStringList(options.labels) ?? [] }),
 			});
 
 			console.log(`Updated document ${document.id}`);
@@ -69,10 +78,23 @@ export function registerDocCommand(program: Command): void {
 		.command("list")
 		.option("--plain", "use plain text output instead of interactive UI")
 		.option("--json", "output as JSON")
+		.option("-l, --label <labels>", "filter by labels (comma-separated)")
 		.action(async (options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
-			const docs = await core.filesystem.listDocuments();
+			let docs = await core.filesystem.listDocuments();
+			const labelFilters = options.label
+				? String(options.label)
+						.split(",")
+						.map((l: string) => l.trim().toLowerCase())
+						.filter(Boolean)
+				: [];
+			if (labelFilters.length > 0) {
+				docs = docs.filter((d) => {
+					const docLabels = (d.labels ?? []).map((l: string) => l.toLowerCase());
+					return labelFilters.every((filter: string) => docLabels.includes(filter));
+				});
+			}
 			if (docs.length === 0) {
 				if (options.json) {
 					console.log("[]");
@@ -87,6 +109,7 @@ export function registerDocCommand(program: Command): void {
 					id: d.id,
 					title: d.title,
 					type: d.type,
+					labels: d.labels,
 					tags: d.tags,
 					createdDate: d.createdDate,
 					updatedDate: d.updatedDate ?? null,
@@ -99,7 +122,8 @@ export function registerDocCommand(program: Command): void {
 			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
 			if (usePlainOutput) {
 				for (const d of docs) {
-					console.log(`${d.id} - ${d.title}`);
+					const labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";
+					console.log(`${d.id} - ${d.title}${labelStr}`);
 				}
 				return;
 			}

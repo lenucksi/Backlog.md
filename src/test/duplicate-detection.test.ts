@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { Core } from "../core/backlog.ts";
 import { BacklogServer } from "../server/index.ts";
-import { type DuplicateGroup, scanForDuplicateIds, formatDuplicateWarning } from "../utils/duplicate-detection.ts";
 import type { Task } from "../types/index.ts";
+import { type DuplicateGroup, formatDuplicateWarning, scanForDuplicateIds } from "../utils/duplicate-detection.ts";
 import { createUniqueTestDir, retry, safeCleanup } from "./test-utils.ts";
 
 function makeTask(id: string, title: string, overrides: Partial<Task> = {}): Task {
@@ -27,15 +27,11 @@ describe("scanForDuplicateIds", () => {
 	});
 
 	it("detects duplicate IDs", () => {
-		const tasks = [
-			makeTask("BACK-1", "Task 1"),
-			makeTask("BACK-1", "Task 1 dup"),
-			makeTask("BACK-2", "Task 2"),
-		];
+		const tasks = [makeTask("BACK-1", "Task 1"), makeTask("BACK-1", "Task 1 dup"), makeTask("BACK-2", "Task 2")];
 		const result = scanForDuplicateIds(tasks);
 		expect(result).toHaveLength(1);
-		expect(result[0]!.id).toBe("BACK-1");
-		expect(result[0]!.tasks).toHaveLength(2);
+		expect(result[0]?.id).toBe("BACK-1");
+		expect(result[0]?.tasks).toHaveLength(2);
 	});
 
 	it("detects multiple duplicate groups", () => {
@@ -48,10 +44,10 @@ describe("scanForDuplicateIds", () => {
 		];
 		const result = scanForDuplicateIds(tasks);
 		expect(result).toHaveLength(2);
-		expect(result[0]!.id).toBe("BACK-1");
-		expect(result[1]!.id).toBe("BACK-2");
-		expect(result[0]!.tasks).toHaveLength(2);
-		expect(result[1]!.tasks).toHaveLength(3);
+		expect(result[0]?.id).toBe("BACK-1");
+		expect(result[1]?.id).toBe("BACK-2");
+		expect(result[0]?.tasks).toHaveLength(2);
+		expect(result[1]?.tasks).toHaveLength(3);
 	});
 
 	it("skips tasks without an id", () => {
@@ -71,9 +67,9 @@ describe("scanForDuplicateIds", () => {
 		];
 		const result = scanForDuplicateIds(tasks);
 		expect(result).toHaveLength(3);
-		expect(result[0]!.id).toBe("A-1");
-		expect(result[1]!.id).toBe("B-1");
-		expect(result[2]!.id).toBe("C-1");
+		expect(result[0]?.id).toBe("A-1");
+		expect(result[1]?.id).toBe("B-1");
+		expect(result[2]?.id).toBe("C-1");
 	});
 });
 
@@ -86,10 +82,7 @@ describe("formatDuplicateWarning", () => {
 		const duplicates: DuplicateGroup[] = [
 			{
 				id: "BACK-1",
-				tasks: [
-					makeTask("BACK-1", "Original"),
-					makeTask("BACK-1", "Duplicate"),
-				],
+				tasks: [makeTask("BACK-1", "Original"), makeTask("BACK-1", "Duplicate")],
 			},
 		];
 		const result = formatDuplicateWarning(duplicates);
@@ -134,10 +127,14 @@ describe("BacklogServer duplicates endpoint", () => {
 		expect(port).not.toBeNull();
 		serverPort = port ?? 0;
 
-		await retry(async () => {
-			const res = await fetch(`http://127.0.0.1:${serverPort}/api/status`, { signal: AbortSignal.timeout(500) });
-			if (!res.ok) throw new Error("server not ready");
-		}, 10, 50);
+		await retry(
+			async () => {
+				const res = await fetch(`http://127.0.0.1:${serverPort}/api/status`, { signal: AbortSignal.timeout(500) });
+				if (!res.ok) throw new Error("server not ready");
+			},
+			10,
+			50,
+		);
 	});
 
 	afterEach(async () => {
