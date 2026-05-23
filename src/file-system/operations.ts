@@ -92,7 +92,7 @@ async function cleanupDocumentDuplicates(docsDir: string, matchesForId: string[]
 	}
 }
 
-export function function parseLabelArray(content: string): Array<string | LabelConfig> {
+export function parseLabelArray(content: string): Array<string | LabelConfig> {
 	if (!content || content.trim().length === 0) return [];
 	const items: Array<string | LabelConfig> = [];
 	let depth = 0;
@@ -132,6 +132,7 @@ export function function parseLabelArray(content: string): Array<string | LabelC
 	}
 	return items;
 }
+
 export class FileSystem {
 	private resolvedBacklogDir: string;
 	private resolvedBacklogDirName: string;

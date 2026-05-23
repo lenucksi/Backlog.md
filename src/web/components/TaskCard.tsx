@@ -91,8 +91,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
 
       <div
         className={`bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md p-3 mb-2 transition-all duration-200 ${
-          isFromOtherBranch 
-            ? 'opacity-75 cursor-not-allowed border-dashed' 
+          isFromOtherBranch
+            ? 'opacity-75 cursor-not-allowed border-dashed'
             : 'cursor-pointer hover:shadow-md dark:hover:shadow-lg hover:border-stone-500 dark:hover:border-stone-400'
         } ${getPriorityClass(task.priority)} ${
           isDragging ? 'opacity-50 transform rotate-2 scale-105' : ''
@@ -116,7 +116,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
 
         {/* Header row with priority badge and task ID */}
         <div className="flex items-center justify-between gap-2 mb-1.5">
-          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono transition-colors duration-200">{task.id}</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono transition-colors duration-200">{task.id}</span>
+            {task.parentTaskId && (
+              <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300 rounded-full">
+                Subtask
+              </span>
+            )}
+          </div>
           {(() => {
             const badge = getPriorityBadge(task.priority);
             return badge ? (

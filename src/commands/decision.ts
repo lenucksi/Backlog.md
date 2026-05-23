@@ -80,6 +80,7 @@ export function registerDecisionCommand(program: Command): void {
 	decisionCmd
 		.command("create <title>")
 		.option("-s, --status <status>")
+		.option("-l, --labels <labels>", "set labels (comma-separated)")
 		.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -89,6 +90,9 @@ export function registerDecisionCommand(program: Command): void {
 				title: title as string,
 				date: new Date().toISOString().slice(0, 16).replace("T", " "),
 				status: (options.status || "proposed") as Decision["status"],
+				labels: options.labels
+					? String(options.labels).split(",").map((label: string) => label.trim()).filter(Boolean)
+					: undefined,
 				context: "",
 				decision: "",
 				consequences: "",
@@ -103,6 +107,7 @@ export function registerDecisionCommand(program: Command): void {
 		.option("--status <status>", "Filter by status")
 		.option("--supersedes <id>", "Filter by supersedes field")
 		.option("--superseded-by <id>", "Filter by supersededBy field")
+		.option("-l, --label <labels>", "Filter by labels (comma-separated)")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
 			const cwd = await requireProjectRoot();
