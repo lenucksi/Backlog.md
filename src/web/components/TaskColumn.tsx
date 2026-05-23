@@ -3,6 +3,7 @@ import { type Task } from '../../types';
 import { sortByPriority } from '../../utils/task-sorting';
 import type { ReorderTaskPayload } from '../lib/api';
 import TaskCard from './TaskCard';
+import { taskIdsEqual } from '../../utils/task-path';
 
 interface TaskColumnProps {
   title: string;
@@ -172,7 +173,40 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     }
   };
 
+  const [collapsedParents, setCollapsedParents] = React.useState<Record<string, boolean>>({});
+
   const isEmpty = tasks.length === 0;
+
+  // Group subtasks under their parents within this column
+  const { parentTasks, childTasksByParent, orphanChildren } = React.useMemo(() => {
+    const childrenByParent = new Map<string, Task[]>();
+    const childIds = new Set<string>();
+
+    for (const t of tasks) {
+      if (t.parentTaskId) {
+        childIds.add(t.id);
+        const existing = childrenByParent.get(t.parentTaskId) || [];
+        existing.push(t);
+        childrenByParent.set(t.parentTaskId, existing);
+      }
+    }
+
+    const parents: Task[] = [];
+    const orphans: Task[] = [];
+
+    for (const t of tasks) {
+      if (t.parentTaskId && tasks.some((p) => taskIdsEqual(p.id, t.parentTaskId ?? ""))) {
+        continue; // skip children whose parent is in this column
+      }
+      if (t.parentTaskId && !tasks.some((p) => taskIdsEqual(p.id, t.parentTaskId ?? ""))) {
+        orphans.push(t); // child without parent in this column
+        continue;
+      }
+      parents.push(t);
+    }
+
+    return { parentTasks: parents, childTasksByParent: childrenByParent, orphanChildren: orphans };
+  }, [tasks]);
 
   return (
     <div
@@ -239,37 +273,92 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
       </div>
       
       <div className="space-y-3">
-        {tasks.map((task, index) => (
-          <div 
-            key={task.id} 
-            className="relative"
-            onDragOver={(e) => {
-              if (!onTaskReorder || !draggedTaskId || draggedTaskId === task.id) return;
-              
-              e.preventDefault();
-              const rect = e.currentTarget.getBoundingClientRect();
-              const y = e.clientY - rect.top;
-              const height = rect.height;
-              
-              // Determine if we're in the top or bottom half
-              if (y < height / 2) {
-                setDropPosition({ index, position: 'before' });
-              } else {
-                setDropPosition({ index, position: 'after' });
-              }
-            }}
-          >
-            {/* Drop indicator for before this task */}
-            {dropPosition?.index === index && dropPosition.position === 'before' && (
-              <div className="h-1 bg-blue-500 rounded-full mb-2 animate-pulse" />
-            )}
-            
+        {parentTasks.map((parentTask) => {
+          const children = childTasksByParent.get(parentTask.id) || [];
+          const isCollapsed = collapsedParents[parentTask.id] || false;
+
+          return (
+            <div key={parentTask.id} className="relative">
+              {/* Parent card */}
+              <div className="relative">
+                {children.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setCollapsedParents((prev) => ({ ...prev, [parentTask.id]: !isCollapsed }))}
+                    className="absolute -left-1 top-3 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-xs"
+                    title={isCollapsed ? "Show subtasks" : "Hide subtasks"}
+                  >
+                    <svg
+                      className={`w-3 h-3 transition-transform ${isCollapsed ? "" : "rotate-90"}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
+                <TaskCard
+                  task={parentTask}
+                  onUpdate={onTaskUpdate}
+                  onEdit={onEditTask}
+                  onDragStart={() => {
+                    setDraggedTaskId(parentTask.id);
+                    onDragStart?.({ status: title, laneId: laneId ?? null });
+                  }}
+                  onDragEnd={() => {
+                    setDraggedTaskId(null);
+                    setDropPosition(null);
+                    onDragEnd?.();
+                  }}
+                  status={title}
+                  laneId={laneId}
+                />
+                {children.length > 0 && (
+                  <div className="mt-1 ml-1">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                      {children.length} subtask{children.length > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Children (indented under parent) */}
+              {!isCollapsed && children.length > 0 && (
+                <div className="ml-6 mt-2 space-y-2 border-l-2 border-gray-200 dark:border-gray-600 pl-3">
+                  {children.map((child) => (
+                    <div key={child.id} className="relative">
+                      <TaskCard
+                        task={child}
+                        onUpdate={onTaskUpdate}
+                        onEdit={onEditTask}
+                        onDragStart={() => {
+                          setDraggedTaskId(child.id);
+                          onDragStart?.({ status: title, laneId: laneId ?? null });
+                        }}
+                        onDragEnd={() => {
+                          setDraggedTaskId(null);
+                          setDropPosition(null);
+                          onDragEnd?.();
+                        }}
+                        status={title}
+                        laneId={laneId}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Orphan children (subtasks whose parent is not in this column) */}
+        {orphanChildren.map((orphan) => (
+          <div key={orphan.id} className="relative">
             <TaskCard
-              task={task}
+              task={orphan}
               onUpdate={onTaskUpdate}
               onEdit={onEditTask}
               onDragStart={() => {
-                setDraggedTaskId(task.id);
+                setDraggedTaskId(orphan.id);
                 onDragStart?.({ status: title, laneId: laneId ?? null });
               }}
               onDragEnd={() => {
@@ -280,11 +369,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
               status={title}
               laneId={laneId}
             />
-            
-            {/* Drop indicator for after this task */}
-            {dropPosition?.index === index && dropPosition.position === 'after' && (
-              <div className="h-1 bg-blue-500 rounded-full mt-2 animate-pulse" />
-            )}
           </div>
         ))}
         

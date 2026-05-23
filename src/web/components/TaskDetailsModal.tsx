@@ -24,6 +24,7 @@ interface Props {
   milestoneEntities?: Milestone[];
   archivedMilestoneEntities?: Milestone[];
   definitionOfDoneDefaults?: string[];
+  onNavigateToTask?: (taskId: string) => void;
 }
 
 type Mode = "preview" | "edit" | "create";
@@ -227,6 +228,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
   const [dependencies, setDependencies] = useState<string[]>(task?.dependencies || []);
   const [references, setReferences] = useState<string[]>(task?.references || []);
   const [milestone, setMilestone] = useState<string>(task?.milestone || "");
+  const [parentTaskId, setParentTaskId] = useState<string>(task?.parentTaskId || "");
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [previewFilePath, setPreviewFilePath] = useState<string | null>(null);
   const milestoneSelectionValue = resolveMilestoneToId(milestone);
@@ -295,6 +297,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
       setDependencies(task?.dependencies || []);
       setReferences(task?.references || []);
       setMilestone(task?.milestone || "");
+      setParentTaskId(task?.parentTaskId || "");
     } else {
       setTitle(task?.title || "");
       setDescription(task?.description || "");
@@ -310,6 +313,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
       setDependencies(task?.dependencies || []);
       setReferences(task?.references || []);
       setMilestone(task?.milestone || "");
+      setParentTaskId(task?.parentTaskId || "");
       setMode(isCreateMode ? "create" : "preview");
     }
     setError(null);
@@ -456,6 +460,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
         priority: (priority === "" ? undefined : priority) as "high" | "medium" | "low" | undefined,
         dependencies,
         milestone: milestone.trim().length > 0 ? milestone.trim() : undefined,
+        parentTaskId: parentTaskId.trim().length > 0 ? parentTaskId.trim() : undefined,
       };
 
       if (isCreateMode && onSubmit) {
@@ -534,6 +539,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
     if (updates.dependencies !== undefined) setDependencies(updates.dependencies as string[]);
     if (updates.references !== undefined) setReferences(updates.references as string[]);
     if (updates.milestone !== undefined) setMilestone((updates.milestone ?? "") as string);
+    if (updates.parentTaskId !== undefined) setParentTaskId(String(updates.parentTaskId ?? ""));
 
     // Only update server if editing existing task
     if (task) {
@@ -667,6 +673,43 @@ export const TaskDetailsModal: React.FC<Props> = ({
             <span className="font-medium">Read-only:</span> This task exists in the <span className="font-semibold">{task?.branch}</span> branch. Switch to that branch to edit it.
           </div>
         </div>
+      )}
+
+      {/* Parent task reference */}
+      {task && task.parentTaskTitle && task.parentTaskId && !isCreateMode && (
+        <div className="mb-4 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium text-blue-700 dark:text-blue-300">Parent:</span>
+            <button
+              onClick={() => onNavigateToTask?.(task.parentTaskId!)}
+              className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+            >
+              {task.parentTaskTitle}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Subtasks section */}
+      {task && task.subtaskSummaries && task.subtaskSummaries.length > 0 && !isCreateMode && (
+        <details className="mb-4 group">
+          <summary className="cursor-pointer px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+            Subtasks ({task.subtaskSummaries.length})
+          </summary>
+          <ul className="mt-2 space-y-1 px-2">
+            {task.subtaskSummaries.map((sub) => (
+              <li key={sub.id}>
+                <button
+                  onClick={() => onNavigateToTask?.(sub.id)}
+                  className="w-full text-left px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                >
+                  <span className="font-mono text-xs text-gray-400 dark:text-gray-500 mr-2">{sub.id}</span>
+                  {sub.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1074,6 +1117,24 @@ export const TaskDetailsModal: React.FC<Props> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Parent Task ID */}
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+            <SectionHeader title="Parent Task ID" />
+            <input
+              type="text"
+              value={parentTaskId}
+              onChange={(e) => setParentTaskId(e.target.value)}
+              onBlur={() => {
+                if (parentTaskId !== (task?.parentTaskId ?? "")) {
+                  void handleInlineMetaUpdate({ parentTaskId: parentTaskId.trim() || undefined });
+                }
+              }}
+              placeholder="e.g. BACK-123"
+              disabled={isFromOtherBranch}
+              className={`w-full h-10 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 focus:border-transparent transition-colors duration-200 ${isFromOtherBranch ? 'opacity-60 cursor-not-allowed' : ''}`}
+            />
           </div>
 
           {/* Dependencies */}

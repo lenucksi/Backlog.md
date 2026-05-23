@@ -116,7 +116,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
 
         {/* Header row with priority badge and task ID */}
         <div className="flex items-center justify-between gap-2 mb-1.5">
-          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono transition-colors duration-200">{task.id}</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono transition-colors duration-200">{task.id}</span>
+            {task.parentTaskId && (
+              <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300 rounded-full">
+                Subtask
+              </span>
+            )}
+          </div>
           {(() => {
             const badge = getPriorityBadge(task.priority);
             return badge ? (
