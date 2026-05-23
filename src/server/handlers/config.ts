@@ -96,7 +96,9 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				return Response.json({ error: `Label not found: ${oldName}` }, { status: 404 });
 			}
 			const trimmedNew = newName.trim();
-			if ((config.labels ?? []).some((l) => l.toLowerCase() === trimmedNew.toLowerCase() && l !== config.labels![idx])) {
+			if (
+				(config.labels ?? []).some((l) => l.toLowerCase() === trimmedNew.toLowerCase() && l !== config.labels![idx])
+			) {
 				return Response.json({ error: `Target label already exists: ${trimmedNew}` }, { status: 409 });
 			}
 			config.labels[idx] = trimmedNew;
@@ -169,8 +171,8 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		handleRenameLabel,
 		handleRemoveLabel,
 	};
-		handleGetStatuses,
+	handleGetStatuses,
 		handleGetConfig,
 		handleUpdateConfig,
-	};
+}
 }

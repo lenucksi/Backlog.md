@@ -1,5 +1,4 @@
 import type { TaskStatistics } from "../../core/statistics.ts";
-import type { DuplicateGroup } from "../../utils/duplicate-detection.ts";
 import type {
 	BacklogConfig,
 	Decision,
@@ -11,6 +10,7 @@ import type {
 	Task,
 	TaskStatus,
 } from "../../types/index.ts";
+import type { DuplicateGroup } from "../../utils/duplicate-detection.ts";
 
 const API_BASE = "/api";
 

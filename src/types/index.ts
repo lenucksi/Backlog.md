@@ -160,19 +160,20 @@ export interface TaskListFilter {
 	labels?: string[];
 }
 
-export interface Decision {
-\tid: string;
-\ttitle: string;
-\tdate: string;
-\tstatus: "proposed" | "accepted" | "rejected" | "superseded";
-\tcontext: string;
-\tdecision: string;
-\tconsequences: string;
-\talternatives?: string;
-\tsupersedes?: string;
-\tsupersededBy?: string;
-\tlabels?: string[];
-	readonly rawContent: string; // Raw markdown content without frontmatter
+export type Decision = {};
+\tid: string
+\ttitle: string
+\tdate: string
+\tstatus: "proposed" | "accepted" | "rejected" | "superseded"
+\tcontext: string
+\tdecision: string
+\tconsequences: string
+\talternatives?: string
+\tsupersedes?: string
+\tsupersededBy?: string
+\tlabels?: string[]
+readonly;
+rawContent: string; // Raw markdown content without frontmatter
 }
 
 export interface Milestone {
@@ -185,38 +186,38 @@ export interface Milestone {
 export const DOCUMENT_TYPE_VALUES = ["readme", "guide", "specification", "other"] as const;
 export type DocumentType = (typeof DOCUMENT_TYPE_VALUES)[number];
 
-export interface Document {
-\tid: string;
-\ttitle: string;
-\ttype: DocumentType;
-\tcreatedDate: string;
-\tupdatedDate?: string;
-\trawContent: string; // Raw markdown content without frontmatter
-\tlabels?: string[];
-\ttags?: string[];
-	// Web UI specific fields
-	name?: string;
-	path?: string;
-	lastModified?: string;
+export type Document = {};
+\tid: string
+\ttitle: string
+\ttype: DocumentType
+\tcreatedDate: string
+\tupdatedDate?: string
+\trawContent: string // Raw markdown content without frontmatter
+\tlabels?: string[]
+\ttags?: string[]
+// Web UI specific fields
+name?: string;
+path?: string;
+lastModified?: string;
 }
 
-export interface DocumentCreateInput {
-\ttitle: string;
-\tcontent?: string;
-\ttype?: Document["type"];
-\tpath?: string;
-\tlabels?: string[];
-\ttags?: string[];
+export type DocumentCreateInput = {};
+\ttitle: string
+\tcontent?: string
+\ttype?: Document["type"]
+\tpath?: string
+\tlabels?: string[]
+\ttags?: string[]
 }
 
-export interface DocumentUpdateInput {
-\tid: string;
-\tcontent: string;
-\ttitle?: string;
-\ttype?: Document["type"];
-\tpath?: string | null;
-\tlabels?: string[];
-\ttags?: string[];
+export type DocumentUpdateInput = {};
+\tid: string
+\tcontent: string
+\ttitle?: string
+\ttype?: Document["type"]
+\tpath?: string | null
+\tlabels?: string[]
+\ttags?: string[]
 }
 
 export type SearchResultType = "task" | "document" | "decision";

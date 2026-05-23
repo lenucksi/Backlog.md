@@ -5,7 +5,15 @@ import lockfile from "proper-lockfile";
 import { DEFAULT_DIRECTORIES, DEFAULT_FILES, DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
 import { parseDecision, parseDocument, parseMilestone, parseTask } from "../markdown/parser.ts";
 import { serializeDecision, serializeDocument, serializeTask } from "../markdown/serializer.ts";
-import type { BacklogConfig, Decision, Document, LabelConfig, Milestone, Task, TaskListFilter } from "../types/index.ts";
+import type {
+	BacklogConfig,
+	Decision,
+	Document,
+	LabelConfig,
+	Milestone,
+	Task,
+	TaskListFilter,
+} from "../types/index.ts";
 import type { BacklogConfigSource } from "../utils/backlog-directory.ts";
 import { normalizeProjectBacklogDirectory, resolveBacklogDirectory } from "../utils/backlog-directory.ts";
 import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
@@ -1025,9 +1033,7 @@ export class FileSystem {
 			const files = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
 			const normalizedId = normalizeId(taskId, taskPrefix);
 			const filenameId = idForFilename(normalizedId);
-			const completedFile = files.find(
-				(f) => f.startsWith(`${filenameId} -`) || f.startsWith(`${filenameId}-`),
-			);
+			const completedFile = files.find((f) => f.startsWith(`${filenameId} -`) || f.startsWith(`${filenameId}-`));
 			if (!completedFile) return false;
 
 			const sourcePath = join(completedDir, completedFile);

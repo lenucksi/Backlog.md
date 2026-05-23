@@ -475,9 +475,7 @@ async function handleConfigSetCommand(key: string, value: string) {
 		}
 		case "statuses":
 		case "labels":
-			console.error(
-				"Use 'backlog label add/remove' to manage labels.",
-			);
+			console.error("Use 'backlog label add/remove' to manage labels.");
 			process.exit(1);
 			break;
 		case "milestones":

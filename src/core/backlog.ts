@@ -2509,26 +2509,35 @@ export class Core {
 \t\t\t\tlabels: existingDoc.labels,
 				content,
 				...(existingDoc.path !== undefined && { path: getDocumentSubPathFromRelativePath(existingDoc.path) }),
-			},
-			autoCommit,
-		);
+	}
+	,
+	autoCommit;
+	,
+		)
+}
+
+async;
+createDocumentWithId(title: string, content: string, autoCommit?: boolean)
+: Promise<Document>
+{
+	return await this.createDocumentFromInput({ title, content }, autoCommit);
+}
+
+async;
+createDocumentFromInput(input: DocumentCreateInput, autoCommit?: boolean)
+: Promise<Document>
+{
+	const title = input.title.trim();
+	if (!title) {
+		throw new Error("Title is required to create a document.");
 	}
 
-	async createDocumentWithId(title: string, content: string, autoCommit?: boolean): Promise<Document> {
-		return await this.createDocumentFromInput({ title, content }, autoCommit);
-	}
-
-	async createDocumentFromInput(input: DocumentCreateInput, autoCommit?: boolean): Promise<Document> {
-		const title = input.title.trim();
-		if (!title) {
-			throw new Error("Title is required to create a document.");
-		}
-
-		const subPath = normalizeDocumentSubPath(input.path);
-		const labels = normalizeStringList(input.labels);
-\t\tconst tags = normalizeStringList(input.tags);
-\t\tconst type = normalizeDocumentTypeInput(input.type) ?? "other";
-		const document = await this.withCreateLock(async () => {
+	const subPath = normalizeDocumentSubPath(input.path);
+	const labels = normalizeStringList(input.labels);
+	\t\tconst tags = normalizeStringList(input.tags)
+	\t\tconst
+	type = normalizeDocumentTypeInput(input.type) ?? "other";
+	const document = await this.withCreateLock(async () => {
 			const id = normalizeDocumentId(await generateNextDocId(this));
 			const document: Document = {
 				id,
@@ -2536,55 +2545,63 @@ export class Core {
 				type,
 				createdDate: new Date().toISOString().slice(0, 16).replace("T", " "),
 				rawContent: input.content ?? "",
-\t\t\t\t...(labels && labels.length > 0 && { labels }),
-\t\t\t\t...(tags && tags.length > 0 && { tags }),
+\t\t\t\t...(labels && labels.length > 0 && labels ),
+\t\t\t\t...(tags && tags.length > 0 && tags ),
 \t\t\t};
 
-			await this.createDocument(document, autoCommit, subPath);
-			return document;
-		});
+	await this.createDocument(document, autoCommit, subPath);
+	return document;
+}
+)
 
-		return (await this.getDocument(document.id)) ?? document;
+return (await this.getDocument(document.id)) ?? document;
+}
+
+	async updateDocumentFromInput(input: DocumentUpdateInput, autoCommit?: boolean): Promise<Document>
+{
+	const existingDoc = await this.getDocument(input.id);
+	if (!existingDoc) {
+		throw new Error(`Document not found: ${input.id}`);
 	}
 
-	async updateDocumentFromInput(input: DocumentUpdateInput, autoCommit?: boolean): Promise<Document> {
-		const existingDoc = await this.getDocument(input.id);
-		if (!existingDoc) {
-			throw new Error(`Document not found: ${input.id}`);
-		}
+	const normalizedTitle = input.title?.trim();
+	if (input.title !== undefined && !normalizedTitle) {
+		throw new Error("Document title cannot be empty.");
+	}
 
-		const normalizedTitle = input.title?.trim();
-		if (input.title !== undefined && !normalizedTitle) {
-			throw new Error("Document title cannot be empty.");
-		}
-
-		const labels = input.labels !== undefined ? normalizeStringList(input.labels) : existingDoc.labels;
-\t\tconst tags = input.tags !== undefined ? normalizeStringList(input.tags) : existingDoc.tags;
-		const type = normalizeDocumentTypeInput(input.type) ?? existingDoc.type;
-		const subPath =
-			input.path === undefined
-				? getDocumentSubPathFromRelativePath(existingDoc.path)
-				: normalizeDocumentSubPath(input.path);
-		const updatedDoc: Document = {
+	const labels = input.labels !== undefined ? normalizeStringList(input.labels) : existingDoc.labels;
+	\t\tconst tags = input.tags !== undefined ? normalizeStringList(input.tags) : existingDoc.tags
+	const type = normalizeDocumentTypeInput(input.type) ?? existingDoc.type;
+	const subPath =
+		input.path === undefined
+			? getDocumentSubPathFromRelativePath(existingDoc.path)
+			: normalizeDocumentSubPath(input.path);
+	const updatedDoc: Document = {
 			...existingDoc,
 			id: normalizeDocumentId(existingDoc.id),
 			title: normalizedTitle ?? existingDoc.title,
 			type,
 			rawContent: input.content,
 			updatedDate: new Date().toISOString().slice(0, 16).replace("T", " "),
-\t\t\tlabels: labels && labels.length > 0 ? labels : undefined,
+	\t\t\tlabels: labels && labels.length > 0 ? labels : undefined,
 \t\t\ttags: tags && tags.length > 0 ? tags : undefined,
-		};
+}
 
-		await this.createDocument(updatedDoc, autoCommit, subPath);
-		return (await this.getDocument(existingDoc.id)) ?? updatedDoc;
-	}
+await this.createDocument(updatedDoc, autoCommit, subPath);
+return (await this.getDocument(existingDoc.id)) ?? updatedDoc;
+}
 
 	async listTasksWithMetadata(
 		includeBranchMeta = false,
-	): Promise<Array<Task & { lastModified?: Date; branch?: string }>> {
-		const tasks = await this.fs.listTasks();
-		return await Promise.all(
+	): Promise<Array<Task &
+{
+	lastModified?: Date;
+	branch?: string
+}
+>>
+{
+	const tasks = await this.fs.listTasks();
+	return await Promise.all(
 			tasks.map(async (task) => {
 				const filePath = await getTaskPath(task.id, this);
 
@@ -2603,311 +2620,319 @@ export class Core {
 				return task;
 			}),
 		);
+}
+
+/**
+ * Open a file in the configured editor with minimal interference
+ * @param filePath - Path to the file to edit
+ * @param screen - Optional blessed screen to suspend (for TUI contexts)
+ */
+async;
+editTaskInTui(taskId: string, screen: BlessedScreen, selectedTask?: Task)
+: Promise<TuiTaskEditResult>
+{
+	const contextualTask = selectedTask && taskIdsEqual(selectedTask.id, taskId) ? selectedTask : undefined;
+
+	if (contextualTask && (!isLocalEditableTask(contextualTask) || contextualTask.branch)) {
+		return { changed: false, task: contextualTask, reason: "read_only" };
 	}
 
-	/**
-	 * Open a file in the configured editor with minimal interference
-	 * @param filePath - Path to the file to edit
-	 * @param screen - Optional blessed screen to suspend (for TUI contexts)
-	 */
-	async editTaskInTui(taskId: string, screen: BlessedScreen, selectedTask?: Task): Promise<TuiTaskEditResult> {
-		const contextualTask = selectedTask && taskIdsEqual(selectedTask.id, taskId) ? selectedTask : undefined;
+	const resolvedTask = contextualTask ?? (await this.getTask(taskId));
+	if (!resolvedTask) {
+		return { changed: false, reason: "not_found" };
+	}
+	if (!isLocalEditableTask(resolvedTask) || resolvedTask.branch) {
+		return { changed: false, task: resolvedTask, reason: "read_only" };
+	}
 
-		if (contextualTask && (!isLocalEditableTask(contextualTask) || contextualTask.branch)) {
-			return { changed: false, task: contextualTask, reason: "read_only" };
-		}
+	const localTask = await this.fs.loadTask(resolvedTask.id);
+	const editableTask = localTask ?? resolvedTask;
 
-		const resolvedTask = contextualTask ?? (await this.getTask(taskId));
-		if (!resolvedTask) {
-			return { changed: false, reason: "not_found" };
-		}
-		if (!isLocalEditableTask(resolvedTask) || resolvedTask.branch) {
-			return { changed: false, task: resolvedTask, reason: "read_only" };
-		}
+	const filePath = await getTaskPath(editableTask.id, this);
+	if (!filePath) {
+		return { changed: false, task: editableTask, reason: "not_found" };
+	}
 
-		const localTask = await this.fs.loadTask(resolvedTask.id);
-		const editableTask = localTask ?? resolvedTask;
+	let beforeContent: string;
+	try {
+		beforeContent = await Bun.file(filePath).text();
+	} catch {
+		return { changed: false, task: editableTask, reason: "not_found" };
+	}
 
-		const filePath = await getTaskPath(editableTask.id, this);
-		if (!filePath) {
-			return { changed: false, task: editableTask, reason: "not_found" };
-		}
+	const opened = await this.openEditor(filePath, screen);
+	if (!opened) {
+		return { changed: false, task: editableTask, reason: "editor_failed" };
+	}
 
-		let beforeContent: string;
-		try {
-			beforeContent = await Bun.file(filePath).text();
-		} catch {
-			return { changed: false, task: editableTask, reason: "not_found" };
-		}
+	let afterContent: string;
+	try {
+		afterContent = await Bun.file(filePath).text();
+	} catch {
+		return { changed: false, task: editableTask, reason: "not_found" };
+	}
 
-		const opened = await this.openEditor(filePath, screen);
-		if (!opened) {
-			return { changed: false, task: editableTask, reason: "editor_failed" };
-		}
-
-		let afterContent: string;
-		try {
-			afterContent = await Bun.file(filePath).text();
-		} catch {
-			return { changed: false, task: editableTask, reason: "not_found" };
-		}
-
-		if (afterContent === beforeContent) {
-			const refreshedTask = await this.fs.loadTask(editableTask.id);
-			return { changed: false, task: refreshedTask ?? editableTask };
-		}
-
-		const now = new Date().toISOString().slice(0, 16).replace("T", " ");
-		const withUpdatedDate = upsertTaskUpdatedDate(afterContent, now);
-		await Bun.write(filePath, withUpdatedDate);
-
+	if (afterContent === beforeContent) {
 		const refreshedTask = await this.fs.loadTask(editableTask.id);
-		if (refreshedTask && this.contentStore) {
-			this.contentStore.upsertTask(refreshedTask);
-		}
+		return { changed: false, task: refreshedTask ?? editableTask };
+	}
 
-		return {
+	const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+	const withUpdatedDate = upsertTaskUpdatedDate(afterContent, now);
+	await Bun.write(filePath, withUpdatedDate);
+
+	const refreshedTask = await this.fs.loadTask(editableTask.id);
+	if (refreshedTask && this.contentStore) {
+		this.contentStore.upsertTask(refreshedTask);
+	}
+
+	return {
 			changed: true,
 			task: refreshedTask ?? { ...editableTask, updatedDate: now },
 		};
+}
+
+async;
+openEditor(filePath: string, screen?: BlessedScreen)
+: Promise<boolean>
+{
+	const config = await this.fs.loadConfig();
+
+	// If no screen provided, use simple editor opening
+	if (!screen) {
+		return await openInEditor(filePath, config);
 	}
 
-	async openEditor(filePath: string, screen?: BlessedScreen): Promise<boolean> {
-		const config = await this.fs.loadConfig();
+	const program = screen.program;
 
-		// If no screen provided, use simple editor opening
-		if (!screen) {
-			return await openInEditor(filePath, config);
+	// Leave alternate screen buffer FIRST
+	screen.leave();
+
+	// Reset keypad/cursor mode using terminfo if available
+	if (typeof program.put?.keypad_local === "function") {
+		program.put.keypad_local();
+		if (typeof program.flush === "function") {
+			program.flush();
 		}
+	}
 
-		const program = screen.program;
+	// Send escape sequences directly as reinforcement
+	// ESC[0m   = Reset all SGR attributes (fixes white background in nano)
+	// ESC[?25h = Show cursor (ensure cursor is visible)
+	// ESC[?1l  = Reset DECCKM (cursor keys send CSI sequences)
+	// ESC>     = DECKPNM (numeric keypad mode)
+	const fs = await import("node:fs");
+	fs.writeSync(1, "\u001b[0m\u001b[?25h\u001b[?1l\u001b>");
 
-		// Leave alternate screen buffer FIRST
-		screen.leave();
-
-		// Reset keypad/cursor mode using terminfo if available
-		if (typeof program.put?.keypad_local === "function") {
-			program.put.keypad_local();
+	// Pause the terminal AFTER leaving alt buffer (disables raw mode, releases terminal)
+	const resume = typeof program.pause === "function" ? program.pause() : undefined;
+	try {
+		return await openInEditor(filePath, config);
+	} finally {
+		// Resume terminal state FIRST (re-enables raw mode)
+		if (typeof resume === "function") {
+			resume();
+		}
+		// Re-enter alternate screen buffer
+		screen.enter();
+		// Restore application cursor mode
+		if (typeof program.put?.keypad_xmit === "function") {
+			program.put.keypad_xmit();
 			if (typeof program.flush === "function") {
 				program.flush();
 			}
 		}
-
-		// Send escape sequences directly as reinforcement
-		// ESC[0m   = Reset all SGR attributes (fixes white background in nano)
-		// ESC[?25h = Show cursor (ensure cursor is visible)
-		// ESC[?1l  = Reset DECCKM (cursor keys send CSI sequences)
-		// ESC>     = DECKPNM (numeric keypad mode)
-		const fs = await import("node:fs");
-		fs.writeSync(1, "\u001b[0m\u001b[?25h\u001b[?1l\u001b>");
-
-		// Pause the terminal AFTER leaving alt buffer (disables raw mode, releases terminal)
-		const resume = typeof program.pause === "function" ? program.pause() : undefined;
-		try {
-			return await openInEditor(filePath, config);
-		} finally {
-			// Resume terminal state FIRST (re-enables raw mode)
-			if (typeof resume === "function") {
-				resume();
-			}
-			// Re-enter alternate screen buffer
-			screen.enter();
-			// Restore application cursor mode
-			if (typeof program.put?.keypad_xmit === "function") {
-				program.put.keypad_xmit();
-				if (typeof program.flush === "function") {
-					program.flush();
-				}
-			}
-			// Full redraw
-			screen.render();
-		}
+		// Full redraw
+		screen.render();
 	}
+}
 
-	/**
-	 * Load and process all tasks with the same logic as CLI overview
-	 * This method extracts the common task loading logic for reuse
-	 */
-	async loadAllTasksForStatistics(
+/**
+ * Load and process all tasks with the same logic as CLI overview
+ * This method extracts the common task loading logic for reuse
+ */
+async;
+loadAllTasksForStatistics(
 		progressCallback?: (msg: string) => void,
-	): Promise<{ tasks: Task[]; drafts: Task[]; statuses: string[]; terminalStatuses?: string[] }> {
-		const config = await this.fs.loadConfig();
-		const statuses = (config?.statuses || DEFAULT_STATUSES) as string[];
-		const resolutionStrategy = config?.taskResolutionStrategy || "most_progressed";
+	)
+: Promise<
+{
+	tasks: Task[];
+	drafts: Task[];
+	statuses: string[];
+	terminalStatuses?: string[]
+}
+>
+{
+	const config = await this.fs.loadConfig();
+	const statuses = (config?.statuses || DEFAULT_STATUSES) as string[];
+	const resolutionStrategy = config?.taskResolutionStrategy || "most_progressed";
 
-		// Load local and completed tasks first
-		progressCallback?.("Loading local tasks...");
-		const [localTasks, completedTasks] = await Promise.all([
-			this.listTasksWithMetadata(),
-			this.fs.listCompletedTasks(),
+	// Load local and completed tasks first
+	progressCallback?.("Loading local tasks...");
+	const [localTasks, completedTasks] = await Promise.all([this.listTasksWithMetadata(), this.fs.listCompletedTasks()]);
+
+	// Load remote tasks and local branch tasks in parallel
+	// Skip entirely when cross-branch scanning is disabled
+	let remoteTasks: Task[] = [];
+	let localBranchTasks: Task[] = [];
+	let branchStateEntries: BranchTaskStateEntry[] | undefined;
+
+	if (config?.checkActiveBranches !== false) {
+		const backlogDir = await this.getBacklogDirectoryName();
+		branchStateEntries = [];
+		[remoteTasks, localBranchTasks] = await Promise.all([
+			loadRemoteTasks(this.git, config, progressCallback, localTasks, branchStateEntries, false, backlogDir),
+			loadLocalBranchTasks(this.git, config, progressCallback, localTasks, branchStateEntries, false, backlogDir),
 		]);
+	}
+	progressCallback?.("Loaded tasks");
 
-		// Load remote tasks and local branch tasks in parallel
-		// Skip entirely when cross-branch scanning is disabled
-		let remoteTasks: Task[] = [];
-		let localBranchTasks: Task[] = [];
-		let branchStateEntries: BranchTaskStateEntry[] | undefined;
+	// Create map with local tasks
+	const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
 
-		if (config?.checkActiveBranches !== false) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			branchStateEntries = [];
-			[remoteTasks, localBranchTasks] = await Promise.all([
-				loadRemoteTasks(this.git, config, progressCallback, localTasks, branchStateEntries, false, backlogDir),
-				loadLocalBranchTasks(this.git, config, progressCallback, localTasks, branchStateEntries, false, backlogDir),
-			]);
+	// Add completed tasks to the map
+	for (const completedTask of completedTasks) {
+		if (!tasksById.has(completedTask.id)) {
+			tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
 		}
-		progressCallback?.("Loaded tasks");
-
-		// Create map with local tasks
-		const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
-
-		// Add completed tasks to the map
-		for (const completedTask of completedTasks) {
-			if (!tasksById.has(completedTask.id)) {
-				tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
-			}
-		}
-
-		// Merge tasks from other local branches
-		progressCallback?.("Merging tasks...");
-		for (const branchTask of localBranchTasks) {
-			const existing = tasksById.get(branchTask.id);
-			if (!existing) {
-				tasksById.set(branchTask.id, branchTask);
-			} else {
-				const resolved = resolveTaskConflict(existing, branchTask, statuses, resolutionStrategy);
-				tasksById.set(branchTask.id, resolved);
-			}
-		}
-
-		// Merge remote tasks with local tasks
-		for (const remoteTask of remoteTasks) {
-			const existing = tasksById.get(remoteTask.id);
-			if (!existing) {
-				tasksById.set(remoteTask.id, remoteTask);
-			} else {
-				const resolved = resolveTaskConflict(existing, remoteTask, statuses, resolutionStrategy);
-				tasksById.set(remoteTask.id, resolved);
-			}
-		}
-
-		// Get all tasks as array
-		const tasks = Array.from(tasksById.values());
-		let activeTasks: Task[];
-
-		if (config?.checkActiveBranches === false) {
-			activeTasks = tasks;
-		} else {
-			progressCallback?.("Applying latest task states from branch scans...");
-			activeTasks = filterTasksByStateSnapshots(tasks, buildLatestStateMap(branchStateEntries || [], localTasks));
-		}
-
-		// Load drafts
-		progressCallback?.("Loading drafts...");
-		const drafts = await this.fs.listDrafts();
-
-		return { tasks: activeTasks, drafts, statuses: statuses as string[], terminalStatuses: config?.terminalStatuses };
 	}
 
-	/**
-	 * Load all tasks with cross-branch support
-	 * This is the single entry point for loading tasks across all interfaces
-	 */
-	async loadTasks(
+	// Merge tasks from other local branches
+	progressCallback?.("Merging tasks...");
+	for (const branchTask of localBranchTasks) {
+		const existing = tasksById.get(branchTask.id);
+		if (!existing) {
+			tasksById.set(branchTask.id, branchTask);
+		} else {
+			const resolved = resolveTaskConflict(existing, branchTask, statuses, resolutionStrategy);
+			tasksById.set(branchTask.id, resolved);
+		}
+	}
+
+	// Merge remote tasks with local tasks
+	for (const remoteTask of remoteTasks) {
+		const existing = tasksById.get(remoteTask.id);
+		if (!existing) {
+			tasksById.set(remoteTask.id, remoteTask);
+		} else {
+			const resolved = resolveTaskConflict(existing, remoteTask, statuses, resolutionStrategy);
+			tasksById.set(remoteTask.id, resolved);
+		}
+	}
+
+	// Get all tasks as array
+	const tasks = Array.from(tasksById.values());
+	let activeTasks: Task[];
+
+	if (config?.checkActiveBranches === false) {
+		activeTasks = tasks;
+	} else {
+		progressCallback?.("Applying latest task states from branch scans...");
+		activeTasks = filterTasksByStateSnapshots(tasks, buildLatestStateMap(branchStateEntries || [], localTasks));
+	}
+
+	// Load drafts
+	progressCallback?.("Loading drafts...");
+	const drafts = await this.fs.listDrafts();
+
+	return { tasks: activeTasks, drafts, statuses: statuses as string[], terminalStatuses: config?.terminalStatuses };
+}
+
+/**
+ * Load all tasks with cross-branch support
+ * This is the single entry point for loading tasks across all interfaces
+ */
+async;
+loadTasks(
 		progressCallback?: (msg: string) => void,
 		abortSignal?: AbortSignal,
 		options?: { includeCompleted?: boolean },
-	): Promise<Task[]> {
-		const config = await this.fs.loadConfig();
-		const statuses = config?.statuses || [...DEFAULT_STATUSES];
-		const resolutionStrategy: "most_recent" | "most_progressed" =
-			(config?.taskResolutionStrategy as "most_recent" | "most_progressed") || "most_progressed";
-		const includeCompleted = options?.includeCompleted ?? false;
+	)
+: Promise<Task[]>
+{
+	const config = await this.fs.loadConfig();
+	const statuses = config?.statuses || [...DEFAULT_STATUSES];
+	const resolutionStrategy: "most_recent" | "most_progressed" =
+		(config?.taskResolutionStrategy as "most_recent" | "most_progressed") || "most_progressed";
+	const includeCompleted = options?.includeCompleted ?? false;
 
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
-
-		const [localTasks, completedTasks] = await Promise.all([
-			this.listTasksWithMetadata(),
-			includeCompleted ? this.fs.listCompletedTasks() : Promise.resolve([]),
-		]);
-
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
-
-		let remoteTasks: Task[] = [];
-		let localBranchTasks: Task[] = [];
-		let branchStateEntries: BranchTaskStateEntry[] | undefined;
-
-		if (config?.checkActiveBranches !== false) {
-			progressCallback?.(getTaskLoadingMessage(config));
-			branchStateEntries = [];
-			const backlogDir = await this.getBacklogDirectoryName();
-			[remoteTasks, localBranchTasks] = await Promise.all([
-				loadRemoteTasks(
-					this.git,
-					config,
-					progressCallback,
-					localTasks,
-					branchStateEntries,
-					includeCompleted,
-					backlogDir,
-				),
-				loadLocalBranchTasks(
-					this.git,
-					config,
-					progressCallback,
-					localTasks,
-					branchStateEntries,
-					includeCompleted,
-					backlogDir,
-				),
-			]);
-		}
-
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
-
-		const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
-
-		if (includeCompleted) {
-			for (const completedTask of completedTasks) {
-				tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
-			}
-		}
-
-		mergeTaskArray(tasksById, localBranchTasks, abortSignal, statuses, resolutionStrategy);
-		mergeTaskArray(tasksById, remoteTasks, abortSignal, statuses, resolutionStrategy);
-
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
-
-		const tasks = Array.from(tasksById.values());
-
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
-
-		let filteredTasks: Task[];
-
-		if (config?.checkActiveBranches === false) {
-			filteredTasks = tasks;
-		} else {
-			progressCallback?.("Applying latest task states from branch scans...");
-			filteredTasks = filterTasksWithCompleted(
-				tasks,
-				branchStateEntries,
-				localTasks,
-				completedTasks,
-				abortSignal,
-				includeCompleted,
-			);
-		}
-
-		return filteredTasks;
+	if (abortSignal?.aborted) {
+		throw new Error("Loading cancelled");
 	}
+
+	const [localTasks, completedTasks] = await Promise.all([
+		this.listTasksWithMetadata(),
+		includeCompleted ? this.fs.listCompletedTasks() : Promise.resolve([]),
+	]);
+
+	if (abortSignal?.aborted) {
+		throw new Error("Loading cancelled");
+	}
+
+	let remoteTasks: Task[] = [];
+	let localBranchTasks: Task[] = [];
+	let branchStateEntries: BranchTaskStateEntry[] | undefined;
+
+	if (config?.checkActiveBranches !== false) {
+		progressCallback?.(getTaskLoadingMessage(config));
+		branchStateEntries = [];
+		const backlogDir = await this.getBacklogDirectoryName();
+		[remoteTasks, localBranchTasks] = await Promise.all([
+			loadRemoteTasks(this.git, config, progressCallback, localTasks, branchStateEntries, includeCompleted, backlogDir),
+			loadLocalBranchTasks(
+				this.git,
+				config,
+				progressCallback,
+				localTasks,
+				branchStateEntries,
+				includeCompleted,
+				backlogDir,
+			),
+		]);
+	}
+
+	if (abortSignal?.aborted) {
+		throw new Error("Loading cancelled");
+	}
+
+	const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
+
+	if (includeCompleted) {
+		for (const completedTask of completedTasks) {
+			tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
+		}
+	}
+
+	mergeTaskArray(tasksById, localBranchTasks, abortSignal, statuses, resolutionStrategy);
+	mergeTaskArray(tasksById, remoteTasks, abortSignal, statuses, resolutionStrategy);
+
+	if (abortSignal?.aborted) {
+		throw new Error("Loading cancelled");
+	}
+
+	const tasks = Array.from(tasksById.values());
+
+	if (abortSignal?.aborted) {
+		throw new Error("Loading cancelled");
+	}
+
+	let filteredTasks: Task[];
+
+	if (config?.checkActiveBranches === false) {
+		filteredTasks = tasks;
+	} else {
+		progressCallback?.("Applying latest task states from branch scans...");
+		filteredTasks = filterTasksWithCompleted(
+			tasks,
+			branchStateEntries,
+			localTasks,
+			completedTasks,
+			abortSignal,
+			includeCompleted,
+		);
+	}
+
+	return filteredTasks;
+}
 }
