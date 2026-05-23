@@ -110,6 +110,8 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 	const cwd = await requireProjectRoot();
 	const core = new Core(cwd);
 	await core.ensureConfigLoaded();
+	const config = await core.filesystem.loadConfig();
+	const managedLabels = config?.labels ?? [];
 
 	if (shouldUseWizard) {
 		const statuses = await getValidStatuses(core);
@@ -154,12 +156,26 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 			description: options.description || options.desc ? String(options.description || options.desc) : undefined,
 			status: createAsDraft ? "Draft" : options.status ? String(options.status) : undefined,
 			assignee: options.assignee ? [String(options.assignee)] : undefined,
-			labels: options.labels
-				? String(options.labels)
-						.split(",")
-						.map((label: string) => label.trim())
-						.filter(Boolean)
-				: undefined,
+			labels: (() => {
+				const parsedLabels = options.labels
+					? String(options.labels)
+							.split(",")
+							.map((l: string) => l.trim())
+							.filter(Boolean)
+					: undefined;
+				if (parsedLabels && parsedLabels.length > 0) {
+					const managed = config?.labels ?? [];
+					const unmanaged = parsedLabels.filter(
+						(l: string) => !managed.some((m: string) => m.toLowerCase() === l.toLowerCase()),
+					);
+					if (unmanaged.length > 0) {
+						console.warn(
+							`Warning: "${unmanaged.join(", ")}" not in managed label list. Use "backlog label add" to manage labels.`,
+						);
+					}
+				}
+				return parsedLabels;
+			})(),
 			dependencies:
 				options.dependsOn || options.dep ? normalizeDependencies(options.dependsOn || options.dep) : undefined,
 			references: parseDelimitedStringList(options.ref),
@@ -625,6 +641,15 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 	const labelValues = parseDelimitedStringList(options.label) ?? [];
 	const addLabelValues = parseDelimitedStringList(options.addLabel) ?? [];
 	const removeLabelValues = parseDelimitedStringList(options.removeLabel) ?? [];
+	const config = await core.filesystem.loadConfig();
+	const managedLabels = config?.labels ?? [];
+	const allNewLabels = [...labelValues, ...addLabelValues];
+	const unmanaged = allNewLabels.filter((l) => !managedLabels.some((m) => m.toLowerCase() === l.toLowerCase()));
+	if (unmanaged.length > 0) {
+		console.warn(
+			`Warning: "${unmanaged.join(", ")}" not in managed label list. Use "backlog label add" to manage labels.`,
+		);
+	}
 	const assigneeValues = parseDelimitedStringList(options.assignee) ?? [];
 	const acceptanceAdditions = processAcceptanceCriteriaOptions(options);
 	const definitionOfDoneAdditions = toStringArray(options.dod)

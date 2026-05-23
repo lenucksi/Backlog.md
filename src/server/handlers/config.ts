@@ -7,6 +7,42 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		return Response.json(statuses);
 	}
 
+	async function ensureLabelsMigrated(
+		core: import("../types.ts").ServerHandlerContext["core"],
+	): Promise<import("../../types/index.ts").BacklogConfig> {
+		const config = await core.filesystem.loadConfig();
+		if (!config) throw new Error("Configuration not found");
+		if (config.labels && config.labels.length > 0) return config;
+
+		const knownLabels = new Set<string>();
+		const tasks = await core.filesystem.listTasks();
+		for (const task of tasks) {
+			for (const label of task.labels ?? []) {
+				if (label) knownLabels.add(label);
+			}
+		}
+
+		const docs = await core.filesystem.listDocs();
+		for (const doc of docs) {
+			for (const label of doc.labels ?? []) {
+				if (label) knownLabels.add(label);
+			}
+		}
+
+		const decisions = await core.filesystem.listDecisions();
+		for (const decision of decisions) {
+			for (const label of decision.labels ?? []) {
+				if (label) knownLabels.add(label);
+			}
+		}
+
+		if (knownLabels.size > 0) {
+			config.labels = Array.from(knownLabels).sort((a, b) => a.localeCompare(b));
+			await core.filesystem.saveConfig(config);
+		}
+		return config;
+	}
+
 	async function handleGetConfig(): Promise<Response> {
 		try {
 			const config = await ctx.core.filesystem.loadConfig();
@@ -49,7 +85,13 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 
 	async function handleListLabels(): Promise<Response> {
 		try {
-			const config = await ctx.core.filesystem.loadConfig();
+			let config = await ctx.core.filesystem.loadConfig();
+			if (!config) {
+				return Response.json([]);
+			}
+			if (!config.labels || config.labels.length === 0) {
+				config = await ensureLabelsMigrated(ctx.core);
+			}
 			return Response.json(config?.labels ?? []);
 		} catch (error) {
 			console.error("Error listing labels:", error);
@@ -63,9 +105,12 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			if (!name || typeof name !== "string" || !name.trim()) {
 				return Response.json({ error: "Label name is required" }, { status: 400 });
 			}
-			const config = await ctx.core.filesystem.loadConfig();
+			let config = await ctx.core.filesystem.loadConfig();
 			if (!config) {
 				return Response.json({ error: "Configuration not found" }, { status: 404 });
+			}
+			if (!config.labels || config.labels.length === 0) {
+				config = await ensureLabelsMigrated(ctx.core);
 			}
 			const trimmedName = name.trim();
 			if ((config.labels ?? []).some((l) => l.toLowerCase() === trimmedName.toLowerCase())) {
@@ -96,7 +141,9 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				return Response.json({ error: `Label not found: ${oldName}` }, { status: 404 });
 			}
 			const trimmedNew = newName.trim();
-			if ((config.labels ?? []).some((l) => l.toLowerCase() === trimmedNew.toLowerCase() && l !== config.labels![idx])) {
+			if (
+				(config.labels ?? []).some((l) => l.toLowerCase() === trimmedNew.toLowerCase() && l !== config.labels![idx])
+			) {
 				return Response.json({ error: `Target label already exists: ${trimmedNew}` }, { status: 409 });
 			}
 			config.labels[idx] = trimmedNew;
@@ -168,9 +215,5 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		handleAddLabel,
 		handleRenameLabel,
 		handleRemoveLabel,
-	};
-		handleGetStatuses,
-		handleGetConfig,
-		handleUpdateConfig,
 	};
 }

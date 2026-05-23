@@ -122,11 +122,25 @@ function prepareBoardColumns(
 	});
 }
 
-export function formatTaskListItem(task: Task, isMoving = false): string {
+export function formatTaskListItem(
+	task: Task,
+	isMoving = false,
+	labelColorMap?: Record<string, string>,
+): string {
 	const assignee = task.assignee?.[0]
 		? ` {cyan-fg}${task.assignee[0].startsWith("@") ? task.assignee[0] : `@${task.assignee[0]}`}{/}`
 		: "";
-	const labels = task.labels?.length ? ` {yellow-fg}[${task.labels.join(", ")}]{/}` : "";
+	const labels = task.labels?.length
+		? ` ${task.labels
+				.map((l) => {
+					const color = labelColorMap?.[l];
+					if (color) {
+						return `{${color}-fg}[${l}]{/}`;
+					}
+					return `{yellow-fg}[${l}]{/}`;
+				})
+				.join(" ")}`
+		: "";
 	const isCrossBranch = Boolean((task as Task & { branch?: string }).branch);
 	const branch = isCrossBranch ? ` {green-fg}(${(task as Task & { branch?: string }).branch}){/}` : "";
 

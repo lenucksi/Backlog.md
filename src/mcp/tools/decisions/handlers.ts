@@ -8,6 +8,7 @@ export type DecisionListArgs = {
 	status?: string;
 	supersedes?: string;
 	supersededBy?: string;
+	labels?: string[];
 };
 
 export type DecisionViewArgs = {
@@ -26,11 +27,13 @@ export type DecisionCreateArgs = {
 	decision?: string;
 	consequences?: string;
 	alternatives?: string;
+	labels?: string[];
 };
 
 export type DecisionSearchArgs = {
 	query: string;
 	limit?: number;
+	labels?: string[];
 };
 
 export type DecisionResolveArgs = {
@@ -64,12 +67,15 @@ export class DecisionHandlers {
 		if (decision.supersededBy) {
 			tags.push("superseded-by:" + decision.supersededBy);
 		}
+		if (decision.labels && decision.labels.length > 0) {
+			tags.push("labels:" + decision.labels.join(","));
+		}
 		return "  " + decision.id + " - " + decision.title + " (" + tags.join(", ") + ")" + suffix;
 	}
 
 	async listDecisions(args: DecisionListArgs = {}): Promise<CallToolResult> {
 		const decisions = await this.core.filesystem.listDecisions();
-		const { search, status, supersedes, supersededBy } = args;
+		const { search, status, supersedes, supersededBy, labels } = args;
 
 		const filtered = decisions.filter((d) => {
 			if (search) {
@@ -82,6 +88,12 @@ export class DecisionHandlers {
 			if (status && d.status !== status) return false;
 			if (supersedes && d.supersedes !== supersedes) return false;
 			if (supersededBy && d.supersededBy !== supersededBy) return false;
+			if (labels && labels.length > 0) {
+				const decisionLabels = (d.labels ?? []).map((l) => l.toLowerCase());
+				if (!labels.every((l) => decisionLabels.includes(l.toLowerCase()))) {
+					return false;
+				}
+			}
 			return true;
 		});
 
@@ -110,6 +122,10 @@ export class DecisionHandlers {
 			"Date: " + decision.date,
 			"Status: " + decision.status,
 		];
+
+		if (decision.labels && decision.labels.length > 0) {
+			lines.push("Labels: " + decision.labels.join(", "));
+		}
 
 		if (decision.supersedes) {
 			const title = await this.resolveTitle(decision.supersedes);
@@ -153,6 +169,7 @@ export class DecisionHandlers {
 			decision: args.decision || "",
 			consequences: args.consequences || "",
 			alternatives: args.alternatives,
+			labels: args.labels,
 			rawContent: "",
 		};
 
@@ -174,12 +191,19 @@ export class DecisionHandlers {
 		const searchFields = ["id", "title", "context", "decision", "consequences"] as const;
 		const limit = args.limit ?? 20;
 
-		const filtered = decisions.filter((d) =>
+		let filtered = decisions.filter((d) =>
 			searchFields.some((field) => {
 				const value = d[field];
 				return typeof value === "string" && value.toLowerCase().includes(q);
 			}),
 		);
+
+		if (args.labels && args.labels.length > 0) {
+			filtered = filtered.filter((d) => {
+				const decisionLabels = (d.labels ?? []).map((l) => l.toLowerCase());
+				return args.labels!.every((l) => decisionLabels.includes(l.toLowerCase()));
+			});
+		}
 
 		if (filtered.length === 0) {
 			return {

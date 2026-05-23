@@ -43,7 +43,7 @@ const Settings: React.FC = () => {
 
 	const handleInputChange = (field: keyof BacklogConfig, value: any) => {
 		if (!config) return;
-		
+
 		setConfig({
 			...config,
 			[field]: value
@@ -158,8 +158,8 @@ const Settings: React.FC = () => {
 									value={config.projectName}
 									onChange={(e) => handleInputChange('projectName', e.target.value)}
 									className={`w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200 ${
-										validationErrors.projectName 
-											? 'border-red-500 dark:border-red-400' 
+										validationErrors.projectName
+											? 'border-red-500 dark:border-red-400'
 											: 'border-gray-300 dark:border-gray-600'
 									}`}
 								/>
@@ -272,11 +272,20 @@ const Settings: React.FC = () => {
 					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Labels</h2>
 						<div className="space-y-3">
-							{config.labels.map((label, index) => (
-								<div key={`label-${index}`} className="flex items-center gap-2">
-									<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
-										{label}
-									</span>
+							{config.labels.map((label, index) => {
+                const labelName = typeof label === "string" ? label : label.name;
+                const labelColor = typeof label === "object" && label.color ? label.color : null;
+                return (
+                  <div key={`label-${index}`} className="flex items-center gap-2">
+                    <span className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
+                      {labelColor && (
+                        <span
+                          className="inline-block w-3 h-3 rounded-circle flex-shrink-0"
+                          style={{ backgroundColor: labelColor }}
+                        />
+                      )}
+                      {labelName}
+                    </span>
 									<button
 										type="button"
 										onClick={async () => {
@@ -402,8 +411,8 @@ const Settings: React.FC = () => {
 									value={config.defaultPort || 6420}
 									onChange={(e) => handleInputChange('defaultPort', parseInt(e.target.value) || 6420)}
 									className={`w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200 ${
-										validationErrors.defaultPort 
-											? 'border-red-500 dark:border-red-400' 
+										validationErrors.defaultPort
+											? 'border-red-500 dark:border-red-400'
 											: 'border-gray-300 dark:border-gray-600'
 									}`}
 								/>

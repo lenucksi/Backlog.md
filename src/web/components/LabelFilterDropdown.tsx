@@ -8,6 +8,8 @@ interface LabelFilterDropdownProps {
 	className?: string;
 }
 
+import { getCachedLabelColors } from "../lib/api";
+
 export default function LabelFilterDropdown({
 	availableLabels,
 	selectedLabels,
@@ -73,24 +75,33 @@ export default function LabelFilterDropdown({
 					{availableLabels.length === 0 ? (
 						<div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No labels</div>
 					) : (
-						availableLabels.map((label) => {
-							const isSelected = selectedLabels.includes(label);
-							return (
-								<label
-									key={label}
-									className="flex items-center gap-2 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-								>
-									<input
-										type="checkbox"
-										checked={isSelected}
-										onChange={() => toggleLabel(label)}
-										className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
-									/>
-									<span className="truncate">{label}</span>
-								</label>
-							);
-						})
-					)}
+						{(() => {
+                        const labelColors = getCachedLabelColors();
+                        return availableLabels.map((label) => {
+                          const isSelected = selectedLabels.includes(label);
+                          const color = labelColors[label];
+                          return (
+                            <label
+                              key={label}
+                              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleLabel(label)}
+                                className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+                              />
+                              {color && (
+                                <span
+                                  className="inline-block w-2.5 h-2.5 rounded-circle flex-shrink-0"
+                                  style={{ backgroundColor: color }}
+                                />
+                              )}
+                              <span className="truncate">{label}</span>
+                            </label>
+                          );
+                        });
+                      })()}
 					{selectedLabels.length > 0 && (
 						<button
 							type="button"

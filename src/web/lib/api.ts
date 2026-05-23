@@ -306,8 +306,32 @@ export class ApiClient {
 		return this.getJson<string[]>(`${API_BASE}/statuses`, "Failed to fetch statuses");
 	}
 
-	async fetchLabels(): Promise<string[]> {
-		return this.getJson<string[]>(`${API_BASE}/config/labels`, "Failed to fetch labels");
+	async fetchLabels(): Promise<Array<{ name: string; color?: string | null }>> {
+		return this.getJson<Array<{ name: string; color?: string | null }>>(`${API_BASE}/config/labels`, "Failed to fetch labels");
+	}
+
+	private labelColorCache: Record<string, string> | null = null;
+
+	getCachedLabelColors(): Record<string, string> {
+		if (this.labelColorCache) return this.labelColorCache;
+		return {};
+	}
+
+	async populateLabelColorCache(): Promise<Record<string, string>> {
+		try {
+			const labels = await this.fetchLabels();
+			const map: Record<string, string> = {};
+			for (const label of labels) {
+				if (typeof label === "object" && label.color) {
+					map[label.name] = label.color;
+				}
+			}
+			this.labelColorCache = map;
+			return map;
+		} catch {
+			this.labelColorCache = {};
+			return {};
+		}
 	}
 
 	async addLabel(name: string): Promise<string[]> {

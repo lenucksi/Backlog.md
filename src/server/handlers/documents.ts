@@ -1,18 +1,29 @@
 import type { ServerHandlerContext } from "../types.ts";
 import {
-	handleDocumentUpdateError,
-	isDocumentValidationError,
-	parseCreateDocumentPath,
-	parseDocumentTags,
-	parseDocumentType,
-	parseUpdateDocumentPath,
+\thandleDocumentUpdateError,
+\tisDocumentValidationError,
+\tparseCreateDocumentPath,
+\tparseDocumentLabels,
+\tparseDocumentTags,
+\tparseDocumentType,
+\tparseUpdateDocumentPath,
 } from "../utils.ts";
 
 export function createDocumentHandlers(ctx: ServerHandlerContext) {
-	async function handleListDocs(): Promise<Response> {
+	async function handleListDocs(req: Request): Promise<Response> {
 		try {
 			const store = await ctx.getContentStore();
-			const docs = store.getDocuments();
+			const url = new URL(req.url);
+			const labelParams = url.searchParams.getAll("label").concat(url.searchParams.getAll("labels"));
+			const labelFilters = labelParams.map((l) => l.toLowerCase()).filter(Boolean);
+
+			let docs = store.getDocuments();
+			if (labelFilters.length > 0) {
+				docs = docs.filter((doc) => {
+					const docLabels = (doc.labels ?? []).map((l) => l.toLowerCase());
+					return labelFilters.every((filter) => docLabels.includes(filter));
+				});
+			}
 			const docFiles = docs.map((doc) => ({
 				name: doc.path?.split(/[\\/]+/).pop() ?? `${doc.title}.md`,
 				id: doc.id,
@@ -23,6 +34,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 				updatedDate: doc.updatedDate,
 				lastModified: doc.updatedDate || doc.createdDate,
 				tags: doc.tags || [],
+				labels: doc.labels || [],
 			}));
 			return Response.json(docFiles);
 		} catch (error) {
@@ -55,6 +67,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			const type = parseDocumentType(body?.type);
 			const path = parseCreateDocumentPath(body?.path);
 			const tags = parseDocumentTags(body?.tags);
+			const labels = parseDocumentLabels(body?.labels);
 
 			const document = await ctx.core.createDocumentFromInput({
 				title,
@@ -62,6 +75,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 				type,
 				path,
 				tags,
+				labels,
 			});
 			return Response.json({ success: true, ...document }, { status: 201 });
 		} catch (error) {
@@ -84,6 +98,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			const path = parseUpdateDocumentPath(body?.path);
 			const type = parseDocumentType(body?.type);
 			const tags = parseDocumentTags(body?.tags);
+			const labels = parseDocumentLabels(body?.labels);
 
 			if (typeof content !== "string") {
 				return Response.json({ error: "Document content is required" }, { status: 400 });
@@ -105,6 +120,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 				...(path !== undefined && { path }),
 				...(type !== undefined && { type }),
 				...(tags !== undefined && { tags }),
+				...(labels !== undefined && { labels }),
 			});
 			return Response.json({ success: true, ...document });
 		} catch (error) {

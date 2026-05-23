@@ -381,6 +381,21 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
                                             <span>Created: {document.createdDate}</span>
                                         </div>
                                     )}
+                                    {document?.labels && document.labels.length > 0 && (
+                                        <div className="flex items-center space-x-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
+                                            </svg>
+                                            {document.labels.map((label) => (
+                                                <span
+                                                    key={label}
+                                                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border border-stone-200 dark:border-stone-700"
+                                                >
+                                                    {label}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3 ml-6">
