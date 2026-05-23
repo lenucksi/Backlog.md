@@ -18,16 +18,23 @@ export function registerDocCommand(program: Command): void {
 	docCmd
 		.command("create <title>")
 		.option("-p, --path <path>")
-		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
-		.action(async (title: string, options) => {
+\t\t.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
+\t\t.option("-l, --labels <labels>", "set labels (comma-separated)")
+\t\t.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const document = await core.createDocumentFromInput({
 				title: title as string,
 				type: (options.type || "other") as DocType["type"],
-				path: options.path,
-				content: "",
-			});
+\t\t\t\tpath: options.path,
+\t\t\t\tlabels: options.labels
+\t\t\t\t\t? String(options.labels)
+\t\t\t\t\t\t	.split(",")
+\t\t\t\t\t\t	.map((label: string) => label.trim())
+\t\t\t\t\t\t	.filter(Boolean)
+\t\t\t\t\t: undefined,
+\t\t\t\tcontent: "",
+\t\t\t});
 			console.log(`Created document ${document.id}`);
 			if (document.path) {
 				console.log(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
@@ -42,6 +49,7 @@ export function registerDocCommand(program: Command): void {
 		.option("-p, --path <path>", "move document under a docs-relative path (absolute paths and .. are rejected)")
 		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
 		.option("--tags <tags>", "set tags (comma-separated or use multiple times)", createMultiValueAccumulator())
+		.option("--labels <labels>", "set labels (comma-separated or use multiple times)", createMultiValueAccumulator())
 		.action(async (docId: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
@@ -57,6 +65,7 @@ export function registerDocCommand(program: Command): void {
 				type: options.type,
 				path: options.path,
 				...(options.tags !== undefined && { tags: parseDelimitedStringList(options.tags) ?? [] }),
+				...(options.labels !== undefined && { labels: parseDelimitedStringList(options.labels) ?? [] }),
 			});
 
 			console.log(`Updated document ${document.id}`);
@@ -69,11 +78,21 @@ export function registerDocCommand(program: Command): void {
 		.command("list")
 		.option("--plain", "use plain text output instead of interactive UI")
 		.option("--json", "output as JSON")
+		.option("-l, --label <labels>", "filter by labels (comma-separated)")
 		.action(async (options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
-			const docs = await core.filesystem.listDocuments();
-			if (docs.length === 0) {
+			let docs = await core.filesystem.listDocuments();
+\t\t\tconst labelFilters = options.label
+\t\t\t\t? String(options.label).split(",").map((l: string) => l.trim().toLowerCase()).filter(Boolean)
+\t\t\t\t: [];
+\t\t\tif (labelFilters.length > 0) {
+\t\t\t\tdocs = docs.filter((d) => {
+\t\t\t\t\tconst docLabels = (d.labels ?? []).map((l: string) => l.toLowerCase());
+\t\t\t\t\treturn labelFilters.every((filter: string) => docLabels.includes(filter));
+\t\t\t\t});
+\t\t\t}
+\t\t\tif (docs.length === 0) {
 				if (options.json) {
 					console.log("[]");
 				} else {
@@ -84,10 +103,11 @@ export function registerDocCommand(program: Command): void {
 
 			if (options.json) {
 				const data = docs.map((d) => ({
-					id: d.id,
-					title: d.title,
-					type: d.type,
-					tags: d.tags,
+\t\t\t\t\tid: d.id,
+\t\t\t\t\ttitle: d.title,
+\t\t\t\t\ttype: d.type,
+\t\t\t\t\tlabels: d.labels,
+\t\t\t\t\ttags: d.tags,
 					createdDate: d.createdDate,
 					updatedDate: d.updatedDate ?? null,
 					path: d.path ?? null,
@@ -97,10 +117,11 @@ export function registerDocCommand(program: Command): void {
 			}
 
 			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
-			if (usePlainOutput) {
-				for (const d of docs) {
-					console.log(`${d.id} - ${d.title}`);
-				}
+\t\t\tif (usePlainOutput) {
+\t\t\t\tfor (const d of docs) {
+\t\t\t\t\tconst labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";
+\t\t\t\t\tconsole.log(`${d.id} - ${d.title}${labelStr}`);
+\t\t\t\t}
 				return;
 			}
 

@@ -306,6 +306,29 @@ export class ApiClient {
 		return this.getJson<string[]>(`${API_BASE}/statuses`, "Failed to fetch statuses");
 	}
 
+	async fetchLabels(): Promise<string[]> {
+		return this.getJson<string[]>(`${API_BASE}/config/labels`, "Failed to fetch labels");
+	}
+
+	async addLabel(name: string): Promise<string[]> {
+		return this.sendJson<string[]>(`${API_BASE}/config/labels`, "POST", { name }, "Failed to add label");
+	}
+
+	async renameLabel(oldName: string, newName: string): Promise<string[]> {
+		return this.sendJson<string[]>(
+			`${API_BASE}/config/labels/${encodeURIComponent(oldName)}`,
+			"PUT",
+			{ name: newName },
+			"Failed to rename label",
+		);
+	}
+
+	async removeLabel(name: string): Promise<string[]> {
+		return this.fetchJson<string[]>(`${API_BASE}/config/labels/${encodeURIComponent(name)}`, {
+			method: "DELETE",
+		});
+	}
+
 	async fetchConfig(): Promise<BacklogConfig> {
 		return this.getJson<BacklogConfig>(`${API_BASE}/config`, "Failed to fetch config");
 	}
