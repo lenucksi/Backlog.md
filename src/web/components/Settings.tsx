@@ -174,8 +174,8 @@ const Settings: React.FC = () => {
 								</label>
 								<select
 									id="dateFormat"
-									value={config.dateFormat}
-									onChange={(e) => handleInputChange('dateFormat', e.target.value)}
+									value={(config as any).dateFormat}
+									onChange={(e) => handleInputChange('dateFormat' as any, e.target.value)}
 									className="w-full h-10 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
 								>
 									<option value="yyyy-mm-dd">yyyy-mm-dd</option>
