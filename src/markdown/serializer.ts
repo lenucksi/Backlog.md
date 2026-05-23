@@ -131,6 +131,10 @@ export function serializeDecision(decision: Decision): string {
 		status: decision.status,
 	};
 
+	if (decision.labels && decision.labels.length > 0) {
+		frontmatter.labels = decision.labels;
+	}
+
 	if (decision.supersedes) {
 		frontmatter.supersedes = decision.supersedes;
 	}
@@ -156,6 +160,7 @@ export function serializeDocument(document: Document): string {
 		type: document.type,
 		created_date: document.createdDate,
 		...(document.updatedDate && { updated_date: document.updatedDate }),
+		...(document.labels && document.labels.length > 0 && { labels: document.labels }),
 		...(document.tags && document.tags.length > 0 && { tags: document.tags }),
 	};
 

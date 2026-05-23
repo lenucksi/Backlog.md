@@ -482,6 +482,11 @@ async function handleConfigSetCommand(key: string, value: string) {
 		}
 		case "statuses":
 		case "labels":
+			console.error(
+				"Use 'backlog label add/remove' to manage labels.",
+			);
+			process.exit(1);
+			break;
 		case "milestones":
 		case "definitionOfDone":
 			if (key === "milestones") {
@@ -494,9 +499,6 @@ async function handleConfigSetCommand(key: string, value: string) {
 				console.error(
 					"Use `backlog config` for interactive editing, update the project config file (`backlog/config.yml`, `.backlog/config.yml`, or `backlog.config.yml`), or use Web UI Settings.",
 				);
-			} else {
-				console.error(`${key} cannot be set directly. Use 'backlog config list-${key}' to view current values.`);
-				console.error("Array values should be edited in the config file directly.");
 			}
 			process.exit(1);
 			break;

@@ -11,6 +11,7 @@ import { registerDecisionCommand } from "./commands/decision.ts";
 import { registerDocCommand } from "./commands/doc.ts";
 import { registerDraftCommand } from "./commands/draft.ts";
 import { registerInitCommand } from "./commands/init.ts";
+import { registerLabelCommand } from "./commands/label.ts";
 import { registerMcpCommand } from "./commands/mcp.ts";
 import { registerMilestoneCommand } from "./commands/milestone.ts";
 import { registerOverviewCommand } from "./commands/overview.ts";
@@ -147,6 +148,7 @@ program
 
 // Register all command groups
 registerInitCommand(program);
+registerLabelCommand(program);
 registerTaskCommand(program);
 registerSearchCommand(program);
 registerDraftCommand(program);
