@@ -380,13 +380,6 @@ function App() {
     setEditingTask(task);
     setShowModal(true);
   };
-  const handleNavigateToTask = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    if (task) {
-      setEditingTask(task);
-      setShowModal(true);
-    }
-  };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -581,7 +574,6 @@ function App() {
           archivedMilestoneEntities={archivedMilestones}
           isDraftMode={isDraftMode}
           definitionOfDoneDefaults={config?.definitionOfDone ?? []}
-          onNavigateToTask={handleNavigateToTask}
         />
 
         {/* Task Creation Confirmation Toast */}

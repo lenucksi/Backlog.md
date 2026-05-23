@@ -135,7 +135,8 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 				await decisions.handleUpdateDecision(req, req.params.id),
 		},
 		"/api/decisions/:id/resolve": {
-			POST: async (req: Request & { params: { id: string } }) => await decisions.handleResolveDecision(req.params.id),
+			POST: async (req: Request & { params: { id: string } }) =>
+				await decisions.handleResolveDecision(req.params.id),
 		},
 		"/api/drafts": {
 			GET: async () => await drafts.handleListDrafts(),

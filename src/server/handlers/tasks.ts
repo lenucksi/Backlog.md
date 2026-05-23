@@ -52,14 +52,14 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		}
 
 		const tasks = await ctx.core.queryTasks({
-			filters: { status, assignee, priority, parentTaskId, labels: labels.length > 0 ? labels : undefined },
-			includeCrossBranch: crossBranch,
-		});
+				filters: { status, assignee, priority, parentTaskId, labels: labels.length > 0 ? labels : undefined },
+				includeCrossBranch: crossBranch,
+			});
 
-		const store = await ctx.getContentStore();
-		const allTasks = store.getTasks();
-		const enriched = tasks.map((t) => attachSubtaskSummaries(t, allTasks));
-		return Response.json(enriched);
+			const store = await ctx.getContentStore();
+			const allTasks = store.getTasks();
+			const enriched = tasks.map((t) => attachSubtaskSummaries(t, allTasks));
+			return Response.json(enriched);
 	}
 
 	async function handleSearch(req: Request): Promise<Response> {
@@ -183,14 +183,14 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		const localTask = await ctx.core.filesystem.loadTask(taskId);
 		if (localTask) {
 			store.upsertTask(localTask);
-			const allTasks = store.getTasks();
-			return Response.json(attachSubtaskSummaries(localTask, allTasks));
+				const allTasks = store.getTasks();
+				return Response.json(attachSubtaskSummaries(localTask, allTasks));
 		}
 
 		const allTasks = store.getTasks();
-		const task = findTaskByLooseId(allTasks, taskId);
+			const task = findTaskByLooseId(allTasks, taskId);
 		if (task) {
-			return Response.json(attachSubtaskSummaries(task, allTasks));
+				return Response.json(attachSubtaskSummaries(task, allTasks));
 		}
 
 		return Response.json({ error: "Task not found" }, { status: 404 });

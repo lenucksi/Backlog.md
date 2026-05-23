@@ -15,9 +15,10 @@ import { parseDelimitedStringList } from "../utils/task-builders.ts";
 export function registerDocCommand(program: Command): void {
 	const docCmd = program.command("doc");
 
-	docCmd.command("create <title>").option("-p, --path <path>");
-	\t\t.option("-t, --type <type>", `document
-	type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
+	docCmd
+		.command("create <title>")
+		.option("-p, --path <path>")
+\t\t.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
 \t\t.option("-l, --labels <labels>", "set labels (comma-separated)")
 \t\t.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
@@ -34,19 +35,9 @@ export function registerDocCommand(program: Command): void {
 \t\t\t\t\t: undefined,
 \t\t\t\tcontent: "",
 \t\t\t});
-			console.log(`
-	Created;
-	document;
-	$;
-	document.id;
-	`);
+			console.log(`Created document ${document.id}`);
 			if (document.path) {
-				console.log(`;
-	Path: $;
-	core.filesystem.backlogDirName;
-	/docs/$;
-	document.path;
-	`);
+				console.log(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
 			}
 		});
 
@@ -56,9 +47,7 @@ export function registerDocCommand(program: Command): void {
 		.option("--title <title>", "update document title")
 		.option("--content <content>", "replace document markdown content")
 		.option("-p, --path <path>", "move document under a docs-relative path (absolute paths and .. are rejected)")
-		.option("-t, --type <type>", `;
-	document;
-	type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
+		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
 		.option("--tags <tags>", "set tags (comma-separated or use multiple times)", createMultiValueAccumulator())
 		.option("--labels <labels>", "set labels (comma-separated or use multiple times)", createMultiValueAccumulator())
 		.action(async (docId: string, options) => {
@@ -66,12 +55,7 @@ export function registerDocCommand(program: Command): void {
 			const core = new Core(cwd);
 			const existingDocument = await core.getDocument(docId);
 			if (!existingDocument) {
-				throw new Error(`
-	Document;
-	not;
-	found: $;
-	docId;
-	`);
+				throw new Error(`Document not found: ${docId}`);
 			}
 
 			const document = await core.updateDocumentFromInput({
@@ -84,19 +68,9 @@ export function registerDocCommand(program: Command): void {
 				...(options.labels !== undefined && { labels: parseDelimitedStringList(options.labels) ?? [] }),
 			});
 
-			console.log(`;
-	Updated;
-	document;
-	$;
-	document.id;
-	`);
+			console.log(`Updated document ${document.id}`);
 			if (document.path) {
-				console.log(`;
-	Path: $;
-	core.filesystem.backlogDirName;
-	/docs/$;
-	document.path;
-	`);
+				console.log(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
 			}
 		});
 
@@ -145,16 +119,8 @@ export function registerDocCommand(program: Command): void {
 			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
 \t\t\tif (usePlainOutput) {
 \t\t\t\tfor (const d of docs) {
-\t\t\t\t\tconst labelStr = d.labels && d.labels.length > 0 ? ` [$
-	d.labels.join(", ");
-	]` : ""
-	\t\t\t\t\tconsole.log(`$
-	d.id;
-	-$;
-	d.title;
-	$;
-	labelStr;
-	`);
+\t\t\t\t\tconst labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";
+\t\t\t\t\tconsole.log(`${d.id} - ${d.title}${labelStr}`);
 \t\t\t\t}
 				return;
 			}
@@ -165,92 +131,85 @@ export function registerDocCommand(program: Command): void {
 					new Bun.Glob("**/*.md").scan({ cwd: core.filesystem.docsDir, followSymlinks: true }),
 				);
 				const docFile = files.find(
-					(f) => f.startsWith(`;
-	$;
-	selected.id;
-	-") || f.endsWith(" / $;
-	selected.id;
-	.md`) || f === `$
-	selected.id;
-	.md`,
-				)
-	if (docFile) {
-		const filePath = join(core.filesystem.docsDir, docFile);
-		const content = await Bun.file(filePath).text();
-		await scrollableViewer(content);
-	}
-}
-})
+					(f) => f.startsWith(`${selected.id} -`) || f.endsWith(`/${selected.id}.md`) || f === `${selected.id}.md`,
+				);
+				if (docFile) {
+					const filePath = join(core.filesystem.docsDir, docFile);
+					const content = await Bun.file(filePath).text();
+					await scrollableViewer(content);
+				}
+			}
+		});
 
-docCmd
-	.command("view <docId>")
-	.description("view a document")
-	.option("--json", "output as JSON")
-	.action(async (docId: string, options) => {
-		const cwd = await requireProjectRoot();
-		const core = new Core(cwd);
-		try {
+	docCmd
+		.command("view <docId>")
+		.description("view a document")
+		.option("--json", "output as JSON")
+		.action(async (docId: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			try {
+				const doc = await core.filesystem.loadDocument(docId).catch(() => null);
+				if (!doc) {
+					console.error(`Document ${docId} not found.`);
+					return;
+				}
+				if (options.json) {
+					console.log(JSON.stringify(doc, null, 2));
+					return;
+				}
+				const content = doc.rawContent || "";
+				await scrollableViewer(content);
+			} catch {
+				console.error(`Document ${docId} not found.`);
+			}
+		});
+
+	docCmd
+		.command("archive <docId>")
+		.description("archive a document")
+		.option("--force", "skip confirmation")
+		.action(async (docId: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
 			const doc = await core.filesystem.loadDocument(docId).catch(() => null);
 			if (!doc) {
 				console.error(`Document ${docId} not found.`);
 				return;
 			}
-			if (options.json) {
-				console.log(JSON.stringify(doc, null, 2));
+			if (!options.force) {
+				console.log(`Archiving document "${doc.title}" (${doc.id})...`);
+			}
+			const success = await core.filesystem.archiveDocument(docId);
+			if (success) {
+				console.log(`Archived document ${docId} — ${doc.title}`);
+			} else {
+				console.error(`Failed to archive document ${docId}.`);
+				process.exitCode = 1;
+			}
+		});
+
+	docCmd
+		.command("delete <docId>")
+		.description("permanently delete a document")
+		.option("--force", "skip confirmation")
+		.action(async (docId: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const doc = await core.filesystem.loadDocument(docId).catch(() => null);
+			if (!doc) {
+				console.error(`Document ${docId} not found.`);
 				return;
 			}
-			const content = doc.rawContent || "";
-			await scrollableViewer(content);
-		} catch {
-			console.error(`Document ${docId} not found.`);
-		}
-	});
-
-docCmd
-	.command("archive <docId>")
-	.description("archive a document")
-	.option("--force", "skip confirmation")
-	.action(async (docId: string, options) => {
-		const cwd = await requireProjectRoot();
-		const core = new Core(cwd);
-		const doc = await core.filesystem.loadDocument(docId).catch(() => null);
-		if (!doc) {
-			console.error(`Document ${docId} not found.`);
-			return;
-		}
-		if (!options.force) {
-			console.log(`Archiving document "${doc.title}" (${doc.id})...`);
-		}
-		const success = await core.filesystem.archiveDocument(docId);
-		if (success) {
-			console.log(`Archived document ${docId} — ${doc.title}`);
-		} else {
-			console.error(`Failed to archive document ${docId}.`);
-			process.exitCode = 1;
-		}
-	});
-
-docCmd
-	.command("delete <docId>")
-	.description("permanently delete a document")
-	.option("--force", "skip confirmation")
-	.action(async (docId: string, options) => {
-		const cwd = await requireProjectRoot();
-		const core = new Core(cwd);
-		const doc = await core.filesystem.loadDocument(docId).catch(() => null);
-		if (!doc) {
-			console.error(`Document ${docId} not found.`);
-			return;
-		}
-		if (!options.force) {
-			console.log(`Deleting document "${doc.title}" (${doc.id})...`);
-		}
-		const success = await core.filesystem.deleteDocument(docId);
-		if (success) {
-			console.log(`Deleted document ${docId} — ${doc.title}`);
-		} else {
-			console.error(`Failed to delete document ${docId}.`);
-			process.exitCode = 1;
-		}
-	});
+			if (!options.force) {
+				console.log(`Deleting document "${doc.title}" (${doc.id})...`);
+			}
+			const success = await core.filesystem.deleteDocument(docId);
+			if (success) {
+				console.log(`Deleted document ${docId} — ${doc.title}`);
+			} else {
+				console.error(`Failed to delete document ${docId}.`);
+				process.exitCode = 1;
+			}
+		});
 }
