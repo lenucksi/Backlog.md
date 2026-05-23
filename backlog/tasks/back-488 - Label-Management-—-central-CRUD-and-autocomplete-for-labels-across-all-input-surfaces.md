@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-17 20:27'
+updated_date: '2026-05-22 20:10'
 labels:
   - labels
   - ux
@@ -52,7 +52,19 @@ Labels can be arbitrary strings today, causing label sprawl (typos, near-duplica
 - [ ] #8 CLI: at minimum, label input validation warns on submit if the value is not in the managed list; interactive prompt offers suggestions where feasible
 - [ ] #9 One-time migration: on first use (or `backlog init`), all distinct labels found in existing task/doc/decision frontmatter are added to config.yml labels list
 - [ ] #10 All 5 modalities (CLI, TUI, WebUI, MCP, REST) covered or explicitly marked N/A with justification in implementation notes
+- [ ] #11 Remove `config set labels` blocker: after this ticket, the canonical path is `backlog label add/remove`. The existing `config set labels` error message is replaced to redirect users to `backlog label`.
 <!-- AC:END -->
+
+
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Migration trigger (per plan review)
+Runs lazily on first `backlog label` CRUD operation (not on init). In WebUI, triggers when the user opens the Labels settings section.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

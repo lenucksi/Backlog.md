@@ -49,6 +49,7 @@ export function getTaskStatistics(
 	drafts: Task[],
 	statuses: string[],
 	terminalStatuses?: string[],
+	archivedTasks?: Task[],
 ): TaskStatistics {
 	const statusCounts = new Map<string, number>();
 	for (const status of statuses) {
@@ -124,6 +125,8 @@ export function getTaskStatistics(
 		completedTasks,
 		completionPercentage,
 		draftCount: drafts.length,
+		archivedCount: archivedTasks?.length ?? 0,
+		archivedTasks: archivedTasks ?? [],
 		recentActivity: {
 			created: recentlyCreated.slice(0, 5),
 			updated: recentlyUpdated.slice(0, 5),

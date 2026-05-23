@@ -21,7 +21,9 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 		try {
 			const { tasks, drafts, statuses, terminalStatuses } = await ctx.core.loadAllTasksForStatistics();
 
-			const statistics = getTaskStatistics(tasks, drafts, statuses, terminalStatuses);
+			const archivedTasks = await ctx.core.filesystem.listArchivedTasks();
+
+			const statistics = getTaskStatistics(tasks, drafts, statuses, terminalStatuses, archivedTasks);
 
 			const response = {
 				...statistics,

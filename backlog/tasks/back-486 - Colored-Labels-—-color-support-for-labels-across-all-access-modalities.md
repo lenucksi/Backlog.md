@@ -4,7 +4,7 @@ title: Colored Labels — color support for labels across all access modalities
 status: To Do
 assignee: []
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-17 20:27'
+updated_date: '2026-05-22 20:09'
 labels:
   - labels
   - web-ui
@@ -43,6 +43,16 @@ Labels currently exist as plain strings. Add optional color (hex) per label so t
 - [ ] #7 Color picker/editor is simple — no full design tool; pick a color, see the badge preview, save
 - [ ] #8 All 5 modalities (CLI, TUI, WebUI, MCP, REST /api/config) covered or explicitly marked N/A with justification in implementation notes
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## ANSI color conversion (per plan review)
+Use Euclidean distance in RGB space (standard, no extra deps) to map hex → closest ANSI 256-color. No additional dependency.
+
+## MCP label format (per plan review)
+The Task type's `labels: string[]` stays unchanged. Transport-layer expansion: tool responses include a top-level `labelColors` map or inline `{ name, color }` objects, resolved from config at serialization time. The color field is `string` (hex) or `null`.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

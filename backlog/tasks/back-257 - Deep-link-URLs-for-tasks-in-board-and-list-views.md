@@ -1,10 +1,10 @@
 ---
 id: BACK-257
 title: Deep link URLs for tasks in board and list views
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-09-06 22:11'
-updated_date: '2026-05-17 20:27'
+updated_date: '2026-05-22 20:02'
 labels: []
 milestone: m-8
 dependencies: []
@@ -48,13 +48,13 @@ Out of scope
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Add client routes: /board/:id/:title and /tasks/:id/:title (both optional :title)
-- [ ] #2 Board: clicking a task navigates to /board/123/title and opens popup; closing returns to /board; Back closes popup
-- [ ] #3 All Tasks: clicking a task navigates to /tasks/123/title and opens popup; closing returns to /tasks; Back closes popup
-- [ ] #4 Direct visit to /board/123/title loads board and opens task-123 popup (even if tasks not yet loaded)
-- [ ] #5 Direct visit to /tasks/123/title loads list and opens task-123 popup (even if tasks not yet loaded)
-- [ ] #6 Keep supporting ?highlight=task-123 as a fallback
-- [ ] #7 Sanitize title with existing helper; ID is source of truth; ignore slug mismatches
-- [ ] #8 Server: route /board and /board/* and /tasks/* to SPA index
-- [ ] #9 Graceful handling for invalid IDs (no crash, no popup)
+- [x] #1 Add client routes: /board/:id/:title and /tasks/:id/:title (both optional :title)
+- [x] #2 Board: clicking a task navigates to /board/123/title and opens popup; closing returns to /board; Back closes popup
+- [x] #3 All Tasks: clicking a task navigates to /tasks/123/title and opens popup; closing returns to /tasks; Back closes popup
+- [x] #4 Direct visit to /board/123/title loads board and opens task-123 popup (even if tasks not yet loaded)
+- [x] #5 Direct visit to /tasks/123/title loads list and opens task-123 popup (even if tasks not yet loaded)
+- [x] #6 Keep supporting ?highlight=task-123 as a fallback
+- [x] #7 Sanitize title with existing helper; ID is source of truth; ignore slug mismatches
+- [x] #8 Server: route /board and /board/* and /tasks/* to SPA index
+- [x] #9 Graceful handling for invalid IDs (no crash, no popup)
 <!-- AC:END -->

@@ -2220,14 +2220,14 @@ export class Core {
 
 	async completeTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
 		// Get paths before moving the file
-		const completedDir = this.fs.completedDir;
+		const archiveTasksDir = this.fs.archiveTasksDir;
 		const taskPath = await getTaskPath(taskId, this);
 		const taskFilename = await getTaskFilename(taskId, this);
 
 		if (!taskPath || !taskFilename) return false;
 
 		const fromPath = taskPath;
-		const toPath = join(completedDir, taskFilename);
+		const toPath = join(archiveTasksDir, taskFilename);
 
 		const success = await this.fs.completeTask(taskId);
 

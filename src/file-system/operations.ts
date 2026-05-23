@@ -472,9 +472,9 @@ export class FileSystem {
 	}
 
 	async listCompletedTasks(): Promise<Task[]> {
-		let completedDir: string;
+		let archiveTasksDir: string;
 		try {
-			completedDir = await this.getCompletedDir();
+			archiveTasksDir = await this.getArchiveTasksDir();
 		} catch (_error) {
 			return [];
 		}
@@ -486,14 +486,14 @@ export class FileSystem {
 
 		let taskFiles: string[];
 		try {
-			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
+			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }));
 		} catch (_error) {
 			return [];
 		}
 
 		const tasks: Task[] = [];
 		for (const file of taskFiles) {
-			const filepath = join(completedDir, file);
+			const filepath = join(archiveTasksDir, file);
 			try {
 				const content = await Bun.file(filepath).text();
 				const task = parseTask(content);
@@ -572,14 +572,14 @@ export class FileSystem {
 	async completeTask(taskId: string): Promise<boolean> {
 		try {
 			const tasksDir = await this.getTasksDir();
-			const completedDir = await this.getCompletedDir();
+			const archiveTasksDir = await this.getArchiveTasksDir();
 			const core = { filesystem: { tasksDir } };
 			const sourcePath = await getTaskPath(taskId, core as TaskPathContext);
 			const taskFile = await getTaskFilename(taskId, core as TaskPathContext);
 
 			if (!sourcePath || !taskFile) return false;
 
-			const targetPath = join(completedDir, taskFile);
+			const targetPath = join(archiveTasksDir, taskFile);
 
 			// Ensure target directory exists
 			await this.ensureDirectoryExists(dirname(targetPath));
@@ -977,11 +977,11 @@ export class FileSystem {
 
 	async reopenTask(taskId: string): Promise<boolean> {
 		try {
-			const completedDir = await this.getCompletedDir();
+			const archiveTasksDir = await this.getArchiveTasksDir();
 			const config = await this.loadConfig();
 			const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
 			const globPattern = buildGlobPattern(taskPrefix);
-			const files = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
+			const files = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }));
 			const normalizedId = normalizeId(taskId, taskPrefix);
 			const filenameId = idForFilename(normalizedId);
 			const completedFile = files.find(
@@ -989,7 +989,7 @@ export class FileSystem {
 			);
 			if (!completedFile) return false;
 
-			const sourcePath = join(completedDir, completedFile);
+			const sourcePath = join(archiveTasksDir, completedFile);
 			const content = await Bun.file(sourcePath).text();
 			const task = parseTask(content);
 			task.status = "To Do";

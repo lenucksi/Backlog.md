@@ -1,6 +1,7 @@
 import type { Server, ServerWebSocket } from "bun";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
+import { openUrlInBrowser } from "../utils/browser-opener.ts";
 import type { ContentStore } from "../core/content-store.ts";
 import type { SearchService } from "../core/search-service.ts";
 import { AppError } from "../utils/app-error.ts";
@@ -205,7 +206,7 @@ export class BacklogServer {
 
 			if (shouldOpenBrowser) {
 				console.log("🌐 Opening browser...");
-				await this.openBrowser(url);
+				await openUrlInBrowser(url);
 			} else {
 				console.log("💡 Open your browser and navigate to the URL above");
 			}
@@ -267,29 +268,7 @@ export class BacklogServer {
 		this._stopping = false;
 	}
 
-	private async openBrowser(url: string): Promise<void> {
-		try {
-			const platform = process.platform;
-			let cmd: string[];
 
-			switch (platform) {
-				case "darwin":
-					cmd = ["open", url];
-					break;
-				case "win32":
-					cmd = ["cmd", "/c", "start", "", url];
-					break;
-				default:
-					cmd = ["xdg-open", url];
-					break;
-			}
-
-			await $`${cmd}`.quiet();
-		} catch (error) {
-			console.warn("⚠️  Failed to open browser automatically:", error);
-			console.log("💡 Please open your browser manually and navigate to the URL above");
-		}
-	}
 
 	private async handleRequest(req: Request, server: Server<unknown>): Promise<Response> {
 		const url = new URL(req.url);

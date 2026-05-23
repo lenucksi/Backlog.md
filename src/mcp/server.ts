@@ -260,6 +260,8 @@ export class McpServer extends Core {
 		return true;
 	}
 
+		registerOpenTools(this, config);
+
 	/**
 	 * Revert from an upgraded project back to fallback mode.
 	 * Called when roots change and no valid project is found in the new roots.
