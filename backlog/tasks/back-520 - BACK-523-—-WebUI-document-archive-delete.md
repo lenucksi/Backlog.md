@@ -1,10 +1,11 @@
 ---
 id: BACK-520
 title: 'BACK-523 — WebUI: document archive/delete'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 11:29'
+updated_date: '2026-05-22 16:48'
 labels:
   - web-ui
   - document
@@ -14,6 +15,11 @@ milestone: m-8
 dependencies: []
 documentation:
   - doc-005
+modified_files:
+  - src/server/handlers/documents.ts
+  - src/server/router.ts
+  - src/web/lib/api.ts
+  - src/web/components/DocumentationDetail.tsx
 priority: medium
 ordinal: 222000
 ---
@@ -66,3 +72,9 @@ WebUI hat create, read, update für documents — aber kein archive oder delete.
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added REST endpoints (DELETE /api/docs/:id, POST /api/docs/:id/archive) and WebUI Archive/Delete buttons in DocumentationDetail.tsx with confirmation modal. Follows CLI doc archive/delete semantics (BACK-516).
+<!-- SECTION:FINAL_SUMMARY:END -->

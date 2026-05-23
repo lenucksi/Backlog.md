@@ -332,10 +332,10 @@ Invalid content`,
 		});
 
 		it("should not reuse completed task IDs when promoting draft", async () => {
-			// Create a completed task directly in the completed directory
+			// Create a completed task directly in the archive/tasks directory
 			// This simulates a task that was created and completed before the draft
-			const completedDir = join(TEST_DIR, "backlog", "completed");
-			await mkdir(completedDir, { recursive: true });
+			const archiveTasksDir = join(TEST_DIR, "backlog", "archive", "tasks");
+			await mkdir(archiveTasksDir, { recursive: true });
 
 			const completedTask: Task = {
 				id: "TASK-1",
@@ -347,7 +347,7 @@ Invalid content`,
 				dependencies: [],
 			};
 			const content = serializeTask(completedTask);
-			await Bun.write(join(completedDir, "task-1 - Completed Task.md"), content);
+			await Bun.write(join(archiveTasksDir, "task-1 - Completed Task.md"), content);
 
 			// Verify no active tasks exist
 			const activeTasks = await filesystem.listTasks();
@@ -855,7 +855,7 @@ Invalid content`,
 				},
 				{
 					id: "task-bad-4",
-					title: "Tabs\tand\nnewlines",
+					title: "Tabs	and\nnewlines",
 					expected: "Tabs-and-newlines",
 				},
 				{

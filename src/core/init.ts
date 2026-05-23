@@ -290,6 +290,7 @@ async function setupBacklogStructure(
 	core.filesystem.setBacklogDirectory(selectedBacklogDirectory);
 	core.filesystem.setConfigLocation(effectiveConfigLocation);
 	await core.filesystem.ensureBacklogStructure();
+	await core.filesystem.migrateCompletedTasks();
 	await core.filesystem.saveConfig(config);
 	await core.ensureConfigLoaded();
 }

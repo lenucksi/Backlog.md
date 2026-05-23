@@ -1,4 +1,4 @@
-import { mkdir, rename, unlink } from "node:fs/promises";
+import { mkdir, readdir, rename, rmdir, stat, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import matter from "gray-matter";
 import lockfile from "proper-lockfile";
@@ -266,8 +266,7 @@ export class FileSystem {
 			backlogDir,
 			join(backlogDir, DEFAULT_DIRECTORIES.TASKS),
 			join(backlogDir, DEFAULT_DIRECTORIES.DRAFTS),
-			join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED),
-			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS),
+						join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DRAFTS),
 			join(backlogDir, DEFAULT_DIRECTORIES.MILESTONES),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_MILESTONES),
@@ -280,6 +279,36 @@ export class FileSystem {
 			await mkdir(dir, { recursive: true }).catch((err: NodeJS.ErrnoException) => {
 				if (err.code !== "EEXIST") throw err;
 			});
+		}
+	}
+
+async migrateCompletedTasks(): Promise<void> {
+		try {
+			const backlogDir = await this.getBacklogDir();
+			const completedDir = join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
+			const archiveTasksDir = await this.getArchiveTasksDir();
+
+			const completedDirExists = await stat(completedDir).then(() => true).catch(() => false);
+			if (!completedDirExists) return;
+
+			await this.ensureDirectoryExists(archiveTasksDir);
+
+			for await (const entry of readdir(completedDir)) {
+				if (entry.endsWith(".md")) {
+					const source = join(completedDir, entry);
+					const target = join(archiveTasksDir, entry);
+					await rename(source, target);
+				}
+			}
+
+			const remaining = await readdir(completedDir);
+			if (remaining.length === 0) {
+				await rmdir(completedDir);
+			}
+		} catch (_error) {
+			if (process.env.DEBUG) {
+				console.error("Failed to migrate completed tasks:", _error);
+			}
 		}
 	}
 
@@ -472,9 +501,9 @@ export class FileSystem {
 	}
 
 	async listCompletedTasks(): Promise<Task[]> {
-		let completedDir: string;
+		let archiveTasksDir: string;
 		try {
-			completedDir = await this.getCompletedDir();
+			archiveTasksDir = await this.getArchiveTasksDir();
 		} catch (_error) {
 			return [];
 		}
@@ -486,14 +515,14 @@ export class FileSystem {
 
 		let taskFiles: string[];
 		try {
-			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }));
+			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }));
 		} catch (_error) {
 			return [];
 		}
 
 		const tasks: Task[] = [];
 		for (const file of taskFiles) {
-			const filepath = join(completedDir, file);
+			const filepath = join(archiveTasksDir, file);
 			try {
 				const content = await Bun.file(filepath).text();
 				const task = parseTask(content);
@@ -572,14 +601,14 @@ export class FileSystem {
 	async completeTask(taskId: string): Promise<boolean> {
 		try {
 			const tasksDir = await this.getTasksDir();
-			const completedDir = await this.getCompletedDir();
+			const archiveTasksDir = await this.getArchiveTasksDir();
 			const core = { filesystem: { tasksDir } };
 			const sourcePath = await getTaskPath(taskId, core as TaskPathContext);
 			const taskFile = await getTaskFilename(taskId, core as TaskPathContext);
 
 			if (!sourcePath || !taskFile) return false;
 
-			const targetPath = join(completedDir, taskFile);
+			const targetPath = join(archiveTasksDir, taskFile);
 
 			// Ensure target directory exists
 			await this.ensureDirectoryExists(dirname(targetPath));

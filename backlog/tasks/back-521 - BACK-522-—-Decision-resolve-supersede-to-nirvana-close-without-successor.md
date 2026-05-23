@@ -1,10 +1,11 @@
 ---
 id: BACK-521
 title: 'BACK-522 — Decision resolve: supersede to nirvana (close without successor)'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 11:29'
+updated_date: '2026-05-22 16:48'
 labels:
   - decisions
   - feature
@@ -15,6 +16,16 @@ milestone: m-13
 dependencies: []
 documentation:
   - doc-005
+modified_files:
+  - src/core/backlog.ts
+  - src/commands/decision.ts
+  - src/mcp/tools/decisions/schemas.ts
+  - src/mcp/tools/decisions/handlers.ts
+  - src/mcp/tools/decisions/index.ts
+  - src/server/handlers/decisions.ts
+  - src/server/router.ts
+  - src/web/lib/api.ts
+  - src/web/components/DecisionDetail.tsx
 priority: medium
 ordinal: 224000
 ---
@@ -71,3 +82,9 @@ Neuer status `resolved` (oder `closed`) für decisions:
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Implemented decision resolve (supersede-to-nirvana) across all modalities: core.resolveDecision() in backlog.ts, CLI `decision resolve <id>`, MCP decision_resolve tool, WebUI resolve button with confirmation modal. Completes the decision lifecycle: create → supersede → resolve.
+<!-- SECTION:FINAL_SUMMARY:END -->

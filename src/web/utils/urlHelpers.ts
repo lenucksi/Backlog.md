@@ -28,6 +28,6 @@ export function sanitizeUrlTitle(title: string): string {
 export function createUrlPath(basePath: string, id: string, title: string): string {
 	const sanitizedTitle = sanitizeUrlTitle(title);
 	// Remove prefix from ID for cleaner URLs
-	const cleanId = id.replace(/^(doc-|decision-)/, "");
+	const cleanId = id.replace(/^(doc-|decision-|task-)/, "");
 	return `${basePath}/${cleanId}/${sanitizedTitle}`;
 }

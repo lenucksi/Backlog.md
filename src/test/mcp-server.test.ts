@@ -174,6 +174,7 @@ describe("McpServer bootstrap", () => {
 			"task_create",
 			"task_edit",
 			"task_list",
+			"task_reorder",
 			"task_search",
 			"task_view",
 		]);
@@ -215,6 +216,7 @@ describe("McpServer bootstrap", () => {
 			"task_edit",
 			"task_view",
 			"task_archive",
+			"task_reorder",
 			"task_complete",
 			"milestone_list",
 			"milestone_add",
@@ -232,7 +234,11 @@ describe("McpServer bootstrap", () => {
 			"document_delete",
 			"decision_list",
 			"decision_view",
+			"decision_create",
+			"decision_search",
 			"decision_supersede",
+			"decision_resolve",
+			"backlog_get_statistics",
 		]);
 
 		const resources = await server.testInterface.listResources();

@@ -1,10 +1,11 @@
 ---
 id: BACK-519.5
 title: 'BACK-519.5 — Paste-as-markdown support (PR #646)'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 15:12'
+updated_date: '2026-05-22 16:48'
 labels:
   - upstream
   - feature
@@ -13,6 +14,13 @@ milestone: m-14
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/pull/646'
+modified_files:
+  - package.json
+  - src/types/turndown.d.ts
+  - src/web/utils/paste-as-markdown.ts
+  - src/web/components/PasteAwareMDEditor.tsx
+  - src/web/components/TaskDetailsModal.tsx
+  - src/web/components/DocumentationDetail.tsx
 parent_task_id: BACK-519
 priority: medium
 ordinal: 223000
@@ -49,3 +57,9 @@ PR #646 by kuwork. Full rewrite needed against current server architecture.
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added paste-as-markdown support: PasteAwareMDEditor wraps MDEditor, intercepts paste events, converts HTML→Markdown via Turndown+GFM. Integrated into TaskDetailsModal.tsx and DocumentationDetail.tsx. turndown + turndown-plugin-gfm deps added. Based on upstream PR #646 by kuwork (full rewrite against current architecture).
+<!-- SECTION:FINAL_SUMMARY:END -->
