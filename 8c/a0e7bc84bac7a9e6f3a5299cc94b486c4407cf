@@ -1,0 +1,207 @@
+"backlog/tasks/back-529.2 - BACK-529.2-—-completeTask-CLI-WebUI-vereinheitlichen.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-47
+src/utils/url-helpers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-19
+src/web/App.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 2-3,189-190,387-394,399-402,435-475,560-579,598-614,668
+"backlog/tasks/back-422 - Support-XDG_CONFIG_HOME-for-global-user-config.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 8,18
+"backlog/tasks/back-418 - Publish-supported-container-runtime-for-backlog-browser.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 8,18
+"backlog/tasks/back-529.1 - BACK-529.1-—-backlog-completed-→-archive-tasks-Migration.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-48
+"backlog/tasks/back-532 - backlog-open-CLI-command-MCP-tool-—-entity-aware-browser-navigation.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-150
+"backlog/tasks/back-423.2 - BACK-423.2-—-Archived-Docs-Superseded-Decisions-Browsing.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-92
+"backlog/tasks/back-529 - BACK-531-—-Completion-Archive-Semantik-konsolidieren.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-107
+src/markdown/serializer.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 134-137,163
+"backlog/tasks/back-524 - BACK-521-—-CLI-milestone-create-rename-remove-commands.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,8,18-19,73-78
+"backlog/tasks/back-529.4 - BACK-529.5-—-Statistics-Archived-Tasks-Liste.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-57
+src/core/backlog.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 2223,2230,2509,2528,2539,2561,2575
+src/mcp/tools/labels/index.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-72
+src/server/handlers/system.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 23,25
+src/test/open-command.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-57
+src/commands/open.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-101
+src/web/components/TaskDetailsModal.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 27,231,300,316,463,542,678-714,1122-1137
+src/core/init.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 293
+src/utils/browser-opener.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-18
+src/commands/decision.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 83,93-95,110
+src/mcp/server.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 31,34-35,251-252,268-269,530,536
+"backlog/tasks/back-428 - Document-npx-backlog.md-usage.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 8,17
+src/commands/config.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 196-200,202,310-313,485-489
+src/commands/doc.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 22,30-35,52,68,81,85-94,109,122-123
+src/server/handlers/tasks.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 4,55-57,59-62,186-187,190-191,193
+"backlog/tasks/back-530 - BACK-532-—-Project-Health-Blocked-Deadlocked-Tasks-Analyse-Umsetzung.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-94
+src/mcp/tools/labels/schemas.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-56
+"backlog/tasks/back-423 - Add-folder-grouping-for-docs-in-Web-UI.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 3-4,8,24-60,65-67,70-74
+"backlog/tasks/back-519.5 - BACK-519.5-—-Paste-as-markdown-support-PR-646.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,17-23,60-65
+"backlog/tasks/back-529.3 - BACK-529.3-—-Grüner-Button-Logik-Copy.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-50
+src/cli.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 14,17,152,167
+src/test/markdown-test-helpers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 387-388
+src/server/router.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 53,74-76,114-116,171-177
+src/web/components/Settings.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 46,161-162,177-178,271-346,405-406
+src/web/components/TaskCard.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 94-95,119-126
+"backlog/tasks/back-529.6 - BACK-529.6-—-Frontmatter-status-Archived-setzen-beim-Archivieren.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-46
+"backlog/tasks/back-240 - Improve-binary-resolution-on-Apple-Silicon-(Rosetta-arch-mismatch).md"
+  s_de2fedf3c189d3::t_1c6388a86418be 8,16
+src/commands/statistics.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 15,52,61,69
+src/mcp/tools/open/index.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-23
+src/agent-instructions.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 94
+"backlog/docs/doc-009 - Project-Health-Blocked-Deadlocked-Tasks-Analysis.md/doc-9 - Project-Health-Blocked-Deadlocked-Tasks-Analysis.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-233
+src/mcp/tools/open/handlers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-100
+src/mcp/tools/tasks/handlers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 403
+src/test/mcp-task-complete.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 81
+src/commands/label.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-180
+src/mcp/tools/open/schemas.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-11
+"backlog/tasks/back-430 - Create-tasks-from-the-TUI-board.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,8,16-19,62-65,68,70-72
+"backlog/tasks/back-257 - Deep-link-URLs-for-tasks-in-board-and-list-views.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,7,9,51-59
+src/web/lib/api.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 309-331
+"backlog/tasks/back-519.4 - BACK-519.2-—-Duplicate-task-ID-detection-PR-632.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,17-26,58-95,98-100
+src/commands/cleanup.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 106
+src/file-system/operations.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1,8,95-135,310,326-355,545,547,559,566,645,652,1050,1054,1062,1668-1678
+src/utils/ansi.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-77
+"backlog/tasks/back-519.2 - BACK-519.3-—-Inline-code-HTML-escaping-fix-PR-650.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,8,17-18,46-51
+src/server/index.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 4,209
+"backlog/tasks/back-529.5 - BACK-529.4-—-Sidebar-Completed-Counter-fixen.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-48
+"backlog/tasks/back-531 - BACK-531-—-Dependency-Write-Guard-Cycle-Detection-bei-Dependency-Änderungen.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-111
+"backlog/tasks/back-519.1 - BACK-519.1-—-EEXIST-OneDrive-fix-PR-656.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,8,17-18,54-59
+"backlog/tasks/back-520 - BACK-523-—-WebUI-document-archive-delete.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,18-22,75-80
+"backlog/tasks/back-487 - Labels-for-Documents-and-Decisions-—-apply-task-label-system-to-docs-and-ADRs.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,40-42,44-48,51-154
+src/server/handlers/config.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 50-272,277-280
+src/test/mcp-server.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 177,219,237-238,240-241
+"backlog/tasks/back-423.3 - BACK-423.3-—-Completed-Tasks-Section-in-Sidebar.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-90
+"backlog/tasks/back-423.1 - BACK-423.1-—-CollapsibleGroup-Shared-Component-extrahieren.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-92
+"backlog/tasks/back-529.7 - BACK-529.7-—-Reopen-Guard-für-Archivierte-Tasks.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-48
+src/core/statistics.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 11-12,54,130-131
+src/web/components/Statistics.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 7-8,473-480,491,493,547-568
+"backlog/tasks/back-521 - BACK-522-—-Decision-resolve-supersede-to-nirvana-close-without-successor.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,19-28,85-90
+"backlog/tasks/back-486 - Colored-Labels-—-color-support-for-labels-across-all-access-modalities.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 7,47-55
+"backlog/tasks/back-488 - Label-Management-—-central-CRUD-and-autocomplete-for-labels-across-all-input-surfaces.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 9,55,58-67
+"backlog/tasks/back-270 - Prevent-command-substitution-in-task-creation-inputs.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 8,13
+src/markdown/parser.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 214,229
+src/mcp/tools/labels/handlers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-134
+"backlog/tasks/back-522 - BACK-526-—-WebUI-decision-edit-guard-modal-edit-vs-supersede-with-diff.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,8,18-19,78-83
+src/web/components/TaskColumn.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 6,106,109,111,166,176-177,180-210,234,251,274,276-355,357,361,374,383
+src/web/utils/urlHelpers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 31
+"backlog/tasks/back-430.1 - BACK-430.1-—-TUI-milestone-draft-document-create-screens.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 1-72
+src/ui/components/label-manager.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1-178
+src/test/definition-of-done.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 136,141
+src/utils/label-filter.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 1,7-31,45
+src/web/components/TaskList.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 11,587-618,787,810-832
+src/web/components/CleanupModal.tsx
+  s_de2fedf3c189d3::t_1c6388a86418be 122,188
+"backlog/tasks/back-519.3 - BACK-519.6-—-Decision-MCP-create-search-tools-PR-633-partial.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,18-21,50-55
+"backlog/tasks/back-525 - BACK-520-—-Ordinal-Reorder-Draft-create-APIs-konsolidieren-dokumentieren.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,22-27,107-112
+src/mcp/tools/statistics/handlers.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 15,24,31
+"backlog/tasks/back-490 - REST-API-OpenAPI-Documentation-—-self-documenting-Swagger-OpenAPI-spec-for-existing-server.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 9,17
+src/test/core.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 590
+src/test/id-generation.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 48,50,53,105,107,109-111,129,131
+src/types/index.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 174,195,208,218,291-306,314
+src/test/filesystem.test.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 335,337-338,350,858
+"backlog/tasks/back-523 - BACK-524-—-MCP-statistics-tool-backlog_get_statistics.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4,8,18-22,78-83
+src/ui/overview-tui.ts
+  s_de2fedf3c189d3::t_1c6388a86418be 189-197,288-290
+"backlog/tasks/back-519.7 - BACK-519.4-—-Local-file-preview-with-syntax-highlighting-PR-634.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 4-6,8,17-25,58-63
+"backlog/tasks/back-491 - Cross-Modality-CI-—-enforce-feature-parity-across-CLI-TUI-WebUI-MCP-REST.md"
+  s_de2fedf3c189d3::t_1c6388a86418be 6-8,10,22-27,91-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "8ca0e7bc84bac7a9e6f3a5299cc94b486c4407cf",
+  "prompts": {},
+  "sessions": {
+    "s_de2fedf3c189d3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aecc772affeEhNUMZJjwDD2S1",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
