@@ -161,16 +161,17 @@ export interface TaskListFilter {
 }
 
 export interface Decision {
-	id: string;
-	title: string;
-	date: string;
-	status: "proposed" | "accepted" | "rejected" | "superseded";
-	context: string;
-	decision: string;
-	consequences: string;
-	alternatives?: string;
-	supersedes?: string;
-	supersededBy?: string;
+\tid: string;
+\ttitle: string;
+\tdate: string;
+\tstatus: "proposed" | "accepted" | "rejected" | "superseded";
+\tcontext: string;
+\tdecision: string;
+\tconsequences: string;
+\talternatives?: string;
+\tsupersedes?: string;
+\tsupersededBy?: string;
+\tlabels?: string[];
 	readonly rawContent: string; // Raw markdown content without frontmatter
 }
 
@@ -185,13 +186,14 @@ export const DOCUMENT_TYPE_VALUES = ["readme", "guide", "specification", "other"
 export type DocumentType = (typeof DOCUMENT_TYPE_VALUES)[number];
 
 export interface Document {
-	id: string;
-	title: string;
-	type: DocumentType;
-	createdDate: string;
-	updatedDate?: string;
-	rawContent: string; // Raw markdown content without frontmatter
-	tags?: string[];
+\tid: string;
+\ttitle: string;
+\ttype: DocumentType;
+\tcreatedDate: string;
+\tupdatedDate?: string;
+\trawContent: string; // Raw markdown content without frontmatter
+\tlabels?: string[];
+\ttags?: string[];
 	// Web UI specific fields
 	name?: string;
 	path?: string;
@@ -199,20 +201,22 @@ export interface Document {
 }
 
 export interface DocumentCreateInput {
-	title: string;
-	content?: string;
-	type?: Document["type"];
-	path?: string;
-	tags?: string[];
+\ttitle: string;
+\tcontent?: string;
+\ttype?: Document["type"];
+\tpath?: string;
+\tlabels?: string[];
+\ttags?: string[];
 }
 
 export interface DocumentUpdateInput {
-	id: string;
-	content: string;
-	title?: string;
-	type?: Document["type"];
-	path?: string | null;
-	tags?: string[];
+\tid: string;
+\tcontent: string;
+\ttitle?: string;
+\ttype?: Document["type"];
+\tpath?: string | null;
+\tlabels?: string[];
+\ttags?: string[];
 }
 
 export type SearchResultType = "task" | "document" | "decision";
@@ -284,6 +288,22 @@ export interface PrefixConfig {
 	task: string;
 }
 
+export interface LabelConfig {
+	name: string;
+	color?: string;
+}
+
+export function resolveLabelColor(name: string, config: BacklogConfig): string | null {
+	for (const label of config.labels) {
+		if (typeof label === "string") {
+			if (label === name) return null;
+		} else {
+			if (label.name === name) return label.color ?? null;
+		}
+	}
+	return null;
+}
+
 export interface BacklogConfig {
 	projectName: string;
 	defaultAssignee?: string;
@@ -291,7 +311,7 @@ export interface BacklogConfig {
 	statuses: string[];
 	terminalStatuses?: string[];
 	blockedStatuses?: string[];
-	labels: string[];
+	labels: Array<string | LabelConfig>;
 	/** @deprecated Milestones are sourced from milestone files, not config. */
 	milestones?: string[];
 	definitionOfDone?: string[];

@@ -161,6 +161,14 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		"/api/milestones/:id/archive": {
 			POST: async (req: Request & { params: { id: string } }) => await milestones.handleArchiveMilestone(req.params.id),
 		},
+		"/api/config/labels": {
+			GET: async () => await config.handleListLabels(),
+			POST: async (req: Request) => await config.handleAddLabel(req),
+		},
+		"/api/config/labels/:name": {
+			PUT: async (req: Request & { params: { name: string } }) => await config.handleRenameLabel(req),
+			DELETE: async (req: Request & { params: { name: string } }) => await config.handleRemoveLabel(req),
+		},
 		"/api/tasks/reorder": {
 			POST: async (req: Request) => await tasks.handleReorderTask(req),
 		},
