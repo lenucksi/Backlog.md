@@ -86,13 +86,13 @@ export function registerDecisionCommand(program: Command): void {
 			const core = new Core(cwd);
 			const id = await generateNextDecisionId(core);
 			const decision: Decision = {
-\t\t\t\tid,
-\t\t\t\ttitle: title as string,
-\t\t\t\tdate: new Date().toISOString().slice(0, 16).replace("T", " "),
-\t\t\t\tstatus: (options.status || "proposed") as Decision["status"],
-\t\t\t\tlabels: options.labels
-\t\t\t\t\t? String(options.labels).split(",").map((label: string) => label.trim()).filter(Boolean)
-\t\t\t\t\t: undefined,
+				id,
+				title: title as string,
+				date: new Date().toISOString().slice(0, 16).replace("T", " "),
+				status: (options.status || "proposed") as Decision["status"],
+				labels: options.labels
+					? String(options.labels).split(",").map((label: string) => label.trim()).filter(Boolean)
+					: undefined,
 				context: "",
 				decision: "",
 				consequences: "",

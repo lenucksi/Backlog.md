@@ -91,7 +91,7 @@ function stripGuidelineSection(
 		}
 
 		let removalStart = startIndex;
-		while (removalStart > 0 && (result[removalStart - 1] === " " || result[removalStart - 1] === "\t")) {
+		while (removalStart > 0 && (result[removalStart - 1] === " " || result[removalStart - 1] === "	")) {
 			removalStart -= 1;
 		}
 		if (removalStart > 0 && result[removalStart - 1] === "\n") {

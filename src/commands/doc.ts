@@ -18,23 +18,23 @@ export function registerDocCommand(program: Command): void {
 	docCmd
 		.command("create <title>")
 		.option("-p, --path <path>")
-\t\t.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
-\t\t.option("-l, --labels <labels>", "set labels (comma-separated)")
-\t\t.action(async (title: string, options) => {
+		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
+		.option("-l, --labels <labels>", "set labels (comma-separated)")
+		.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const document = await core.createDocumentFromInput({
 				title: title as string,
 				type: (options.type || "other") as DocType["type"],
-\t\t\t\tpath: options.path,
-\t\t\t\tlabels: options.labels
-\t\t\t\t\t? String(options.labels)
-\t\t\t\t\t\t	.split(",")
-\t\t\t\t\t\t	.map((label: string) => label.trim())
-\t\t\t\t\t\t	.filter(Boolean)
-\t\t\t\t\t: undefined,
-\t\t\t\tcontent: "",
-\t\t\t});
+				path: options.path,
+				labels: options.labels
+					? String(options.labels)
+							.split(",")
+							.map((label: string) => label.trim())
+							.filter(Boolean)
+					: undefined,
+				content: "",
+			});
 			console.log(`Created document ${document.id}`);
 			if (document.path) {
 				console.log(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
@@ -83,16 +83,16 @@ export function registerDocCommand(program: Command): void {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			let docs = await core.filesystem.listDocuments();
-\t\t\tconst labelFilters = options.label
-\t\t\t\t? String(options.label).split(",").map((l: string) => l.trim().toLowerCase()).filter(Boolean)
-\t\t\t\t: [];
-\t\t\tif (labelFilters.length > 0) {
-\t\t\t\tdocs = docs.filter((d) => {
-\t\t\t\t\tconst docLabels = (d.labels ?? []).map((l: string) => l.toLowerCase());
-\t\t\t\t\treturn labelFilters.every((filter: string) => docLabels.includes(filter));
-\t\t\t\t});
-\t\t\t}
-\t\t\tif (docs.length === 0) {
+			const labelFilters = options.label
+				? String(options.label).split(",").map((l: string) => l.trim().toLowerCase()).filter(Boolean)
+				: [];
+			if (labelFilters.length > 0) {
+				docs = docs.filter((d) => {
+					const docLabels = (d.labels ?? []).map((l: string) => l.toLowerCase());
+					return labelFilters.every((filter: string) => docLabels.includes(filter));
+				});
+			}
+			if (docs.length === 0) {
 				if (options.json) {
 					console.log("[]");
 				} else {
@@ -103,11 +103,11 @@ export function registerDocCommand(program: Command): void {
 
 			if (options.json) {
 				const data = docs.map((d) => ({
-\t\t\t\t\tid: d.id,
-\t\t\t\t\ttitle: d.title,
-\t\t\t\t\ttype: d.type,
-\t\t\t\t\tlabels: d.labels,
-\t\t\t\t\ttags: d.tags,
+					id: d.id,
+					title: d.title,
+					type: d.type,
+					labels: d.labels,
+					tags: d.tags,
 					createdDate: d.createdDate,
 					updatedDate: d.updatedDate ?? null,
 					path: d.path ?? null,
@@ -117,11 +117,11 @@ export function registerDocCommand(program: Command): void {
 			}
 
 			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
-\t\t\tif (usePlainOutput) {
-\t\t\t\tfor (const d of docs) {
-\t\t\t\t\tconst labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";
-\t\t\t\t\tconsole.log(`${d.id} - ${d.title}${labelStr}`);
-\t\t\t\t}
+			if (usePlainOutput) {
+				for (const d of docs) {
+					const labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";
+					console.log(`${d.id} - ${d.title}${labelStr}`);
+				}
 				return;
 			}
 

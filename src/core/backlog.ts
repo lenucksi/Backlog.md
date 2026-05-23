@@ -2502,11 +2502,11 @@ export class Core {
 	async updateDocument(existingDoc: Document, content: string, autoCommit?: boolean): Promise<void> {
 		await this.updateDocumentFromInput(
 			{
-\t\t\t\tid: existingDoc.id,
-\t\t\t\ttitle: existingDoc.title,
-\t\t\t\ttype: existingDoc.type,
-\t\t\t\ttags: existingDoc.tags,
-\t\t\t\tlabels: existingDoc.labels,
+				id: existingDoc.id,
+				title: existingDoc.title,
+				type: existingDoc.type,
+				tags: existingDoc.tags,
+				labels: existingDoc.labels,
 				content,
 				...(existingDoc.path !== undefined && { path: getDocumentSubPathFromRelativePath(existingDoc.path) }),
 			},
@@ -2526,8 +2526,8 @@ export class Core {
 
 		const subPath = normalizeDocumentSubPath(input.path);
 		const labels = normalizeStringList(input.labels);
-\t\tconst tags = normalizeStringList(input.tags);
-\t\tconst type = normalizeDocumentTypeInput(input.type) ?? "other";
+		const tags = normalizeStringList(input.tags);
+		const type = normalizeDocumentTypeInput(input.type) ?? "other";
 		const document = await this.withCreateLock(async () => {
 			const id = normalizeDocumentId(await generateNextDocId(this));
 			const document: Document = {
@@ -2536,9 +2536,9 @@ export class Core {
 				type,
 				createdDate: new Date().toISOString().slice(0, 16).replace("T", " "),
 				rawContent: input.content ?? "",
-\t\t\t\t...(labels && labels.length > 0 && { labels }),
-\t\t\t\t...(tags && tags.length > 0 && { tags }),
-\t\t\t};
+				...(labels && labels.length > 0 && { labels }),
+				...(tags && tags.length > 0 && { tags }),
+			};
 
 			await this.createDocument(document, autoCommit, subPath);
 			return document;
@@ -2559,7 +2559,7 @@ export class Core {
 		}
 
 		const labels = input.labels !== undefined ? normalizeStringList(input.labels) : existingDoc.labels;
-\t\tconst tags = input.tags !== undefined ? normalizeStringList(input.tags) : existingDoc.tags;
+		const tags = input.tags !== undefined ? normalizeStringList(input.tags) : existingDoc.tags;
 		const type = normalizeDocumentTypeInput(input.type) ?? existingDoc.type;
 		const subPath =
 			input.path === undefined
@@ -2572,8 +2572,8 @@ export class Core {
 			type,
 			rawContent: input.content,
 			updatedDate: new Date().toISOString().slice(0, 16).replace("T", " "),
-\t\t\tlabels: labels && labels.length > 0 ? labels : undefined,
-\t\t\ttags: tags && tags.length > 0 ? tags : undefined,
+			labels: labels && labels.length > 0 ? labels : undefined,
+			tags: tags && tags.length > 0 ? tags : undefined,
 		};
 
 		await this.createDocument(updatedDoc, autoCommit, subPath);

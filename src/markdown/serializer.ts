@@ -124,16 +124,16 @@ export function serializeTask(task: Task): string {
 }
 
 export function serializeDecision(decision: Decision): string {
-\tconst frontmatter: Record<string, unknown> = {
-\t\tid: decision.id,
-\t\ttitle: decision.title,
-\t\tdate: decision.date,
-\t\tstatus: decision.status,
-\t};
+	const frontmatter: Record<string, unknown> = {
+		id: decision.id,
+		title: decision.title,
+		date: decision.date,
+		status: decision.status,
+	};
 
-\tif (decision.labels && decision.labels.length > 0) {
-\t\tfrontmatter.labels = decision.labels;
-\t}
+	if (decision.labels && decision.labels.length > 0) {
+		frontmatter.labels = decision.labels;
+	}
 
 	if (decision.supersedes) {
 		frontmatter.supersedes = decision.supersedes;
@@ -154,14 +154,14 @@ export function serializeDecision(decision: Decision): string {
 }
 
 export function serializeDocument(document: Document): string {
-\tconst frontmatter = {
-\t\tid: document.id,
-\t\ttitle: document.title,
-\t\ttype: document.type,
-\t\tcreated_date: document.createdDate,
-\t\t...(document.updatedDate && { updated_date: document.updatedDate }),
-\t\t...(document.labels && document.labels.length > 0 && { labels: document.labels }),
-\t\t...(document.tags && document.tags.length > 0 && { tags: document.tags }),
+	const frontmatter = {
+		id: document.id,
+		title: document.title,
+		type: document.type,
+		created_date: document.createdDate,
+		...(document.updatedDate && { updated_date: document.updatedDate }),
+		...(document.labels && document.labels.length > 0 && { labels: document.labels }),
+		...(document.tags && document.tags.length > 0 && { tags: document.tags }),
 	};
 
 	return matter.stringify(document.rawContent, frontmatter);
