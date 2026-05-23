@@ -171,6 +171,7 @@ export interface Decision {
 	alternatives?: string;
 	supersedes?: string;
 	supersededBy?: string;
+	labels?: string[];
 	readonly rawContent: string; // Raw markdown content without frontmatter
 }
 
@@ -191,6 +192,7 @@ export interface Document {
 	createdDate: string;
 	updatedDate?: string;
 	rawContent: string; // Raw markdown content without frontmatter
+	labels?: string[];
 	tags?: string[];
 	// Web UI specific fields
 	name?: string;
@@ -203,6 +205,7 @@ export interface DocumentCreateInput {
 	content?: string;
 	type?: Document["type"];
 	path?: string;
+	labels?: string[];
 	tags?: string[];
 }
 
@@ -212,6 +215,7 @@ export interface DocumentUpdateInput {
 	title?: string;
 	type?: Document["type"];
 	path?: string | null;
+	labels?: string[];
 	tags?: string[];
 }
 
@@ -284,6 +288,22 @@ export interface PrefixConfig {
 	task: string;
 }
 
+export interface LabelConfig {
+	name: string;
+	color?: string;
+}
+
+export function resolveLabelColor(name: string, config: BacklogConfig): string | null {
+	for (const label of config.labels) {
+		if (typeof label === "string") {
+			if (label === name) return null;
+		} else {
+			if (label.name === name) return label.color ?? null;
+		}
+	}
+	return null;
+}
+
 export interface BacklogConfig {
 	projectName: string;
 	defaultAssignee?: string;
@@ -291,7 +311,7 @@ export interface BacklogConfig {
 	statuses: string[];
 	terminalStatuses?: string[];
 	blockedStatuses?: string[];
-	labels: string[];
+	labels: Array<string | LabelConfig>;
 	/** @deprecated Milestones are sourced from milestone files, not config. */
 	milestones?: string[];
 	definitionOfDone?: string[];

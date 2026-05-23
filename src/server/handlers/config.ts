@@ -47,9 +47,27 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleListLabels(): Promise<Response> {
+		try {
+			const config = await ctx.core.filesystem.loadConfig();
+			const labels = config?.labels ?? [];
+			const resolved = labels.map((label) => {
+				if (typeof label === "string") {
+					return { name: label, color: null };
+				}
+				return { name: label.name, color: label.color ?? null };
+			});
+			return Response.json(resolved);
+		} catch (error) {
+			console.error("Error listing labels:", error);
+			return Response.json({ error: "Failed to list labels" }, { status: 500 });
+		}
+	}
+
 	return {
 		handleGetStatuses,
 		handleGetConfig,
 		handleUpdateConfig,
+		handleListLabels,
 	};
 }

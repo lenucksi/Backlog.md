@@ -855,7 +855,7 @@ Invalid content`,
 				},
 				{
 					id: "task-bad-4",
-					title: "Tabs\tand\nnewlines",
+					title: "Tabs	and\nnewlines",
 					expected: "Tabs-and-newlines",
 				},
 				{

@@ -92,6 +92,47 @@ async function cleanupDocumentDuplicates(docsDir: string, matchesForId: string[]
 	}
 }
 
+export 
+function parseLabelArray(content: string): Array<string | LabelConfig> {
+	if (!content || content.trim().length === 0) return [];
+	const items: Array<string | LabelConfig> = [];
+	let depth = 0;
+	let current = "";
+	for (const ch of content) {
+		if (ch === "{" || ch === "[") depth++;
+		else if (ch === "}" || ch === "]") depth--;
+		if (ch === "," && depth === 0) {
+			const trimmed = current.trim();
+			if (trimmed) {
+				if (trimmed.startsWith("{")) {
+					const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
+					const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
+					if (nameMatch) {
+						items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
+					}
+				} else {
+					items.push(trimmed.replace(/['"]/g, ""));
+				}
+			}
+			current = "";
+		} else {
+			current += ch;
+		}
+	}
+	const trimmed = current.trim();
+	if (trimmed) {
+		if (trimmed.startsWith("{")) {
+			const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
+			const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
+			if (nameMatch) {
+				items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
+			}
+		} else {
+			items.push(trimmed.replace(/['"]/g, ""));
+		}
+	}
+	return items;
+}
 export class FileSystem {
 	private resolvedBacklogDir: string;
 	private resolvedBacklogDirName: string;
@@ -1587,13 +1628,25 @@ ${description || `Milestone: ${title}`}`,
 					config.defaultStatus = value.replace(/['"]/g, "");
 					break;
 				case "statuses":
-				case "labels":
 					if (value.startsWith("[") && value.endsWith("]")) {
 						const arrayContent = value.slice(1, -1);
 						config[key] = arrayContent
 							.split(",")
 							.map((item) => item.trim().replace(/['"]/g, ""))
 							.filter(Boolean);
+					}
+					break;
+				case "labels":
+					if (value.startsWith("[") && value.endsWith("]")) {
+						const arrayContent = value.slice(1, -1);
+						if (arrayContent.includes("name:") || arrayContent.includes("{")) {
+							config.labels = parseLabelArray(arrayContent);
+						} else {
+							config.labels = arrayContent
+								.split(",")
+								.map((item) => item.trim().replace(/['"]/g, ""))
+								.filter(Boolean);
+						}
 					}
 					break;
 				case "terminal_statuses":

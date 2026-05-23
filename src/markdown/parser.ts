@@ -211,6 +211,7 @@ export function parseDecision(content: string): Decision {
 		alternatives: extractSection(rawContent, "Alternatives"),
 		supersedes: frontmatter.supersedes ? String(frontmatter.supersedes) : undefined,
 		supersededBy: frontmatter.supersededBy ? String(frontmatter.supersededBy) : undefined,
+		labels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
 		rawContent,
 	};
 }
@@ -225,6 +226,7 @@ export function parseDocument(content: string): Document {
 		createdDate: normalizeDate(frontmatter.created_date),
 		updatedDate: frontmatter.updated_date ? normalizeDate(frontmatter.updated_date) : undefined,
 		rawContent,
+		labels: Array.isArray(frontmatter.labels) ? frontmatter.labels.map(String) : undefined,
 		tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.map(String) : undefined,
 	};
 }

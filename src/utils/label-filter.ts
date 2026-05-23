@@ -1,14 +1,34 @@
-import type { Task } from "../types/index.ts";
+import type { BacklogConfig, LabelConfig, Task } from "../types/index.ts";
 
 function normalizeLabel(label: string): string {
 	return label.trim().toLowerCase();
 }
 
-/**
- * Collect available labels from configuration and tasks, de-duplicated but preserving
- * the first-seen casing so UI surfaces familiar labels.
- */
-export function collectAvailableLabels(tasks: Task[], configured: string[] = []): string[] {
+export function extractLabelNames(
+	labels: Array<string | LabelConfig> | undefined,
+): string[] {
+	if (!labels) return [];
+	return labels.map((l) => (typeof l === "string" ? l : l.name));
+}
+
+export function getLabelConfigMap(
+	config: BacklogConfig,
+): Map<string, string | null> {
+	const map = new Map<string, string | null>();
+	for (const label of config.labels) {
+		if (typeof label === "string") {
+			map.set(label.toLowerCase(), null);
+		} else {
+			map.set(label.name.toLowerCase(), label.color ?? null);
+		}
+	}
+	return map;
+}
+
+export function collectAvailableLabels(
+	tasks: Task[],
+	configured: Array<string | LabelConfig> = [],
+): string[] {
 	const seen = new Set<string>();
 	const ordered: string[] = [];
 
@@ -22,7 +42,7 @@ export function collectAvailableLabels(tasks: Task[], configured: string[] = [])
 	};
 
 	for (const label of configured) {
-		addLabel(label);
+		addLabel(typeof label === "string" ? label : label.name);
 	}
 
 	for (const task of tasks) {
@@ -34,14 +54,6 @@ export function collectAvailableLabels(tasks: Task[], configured: string[] = [])
 	return ordered;
 }
 
-/**
- * Build a short, footer-friendly summary for the current label filter selection.
- * Examples:
- * - [] => "Labels: All"
- * - ["bug"] => "Labels: bug"
- * - ["bug", "ui"] => "Labels: bug, ui"
- * - ["bug", "ui", "infra"] => "Labels: bug, ui +1"
- */
 export function formatLabelSummary(selected: string[]): string {
 	if (!selected || selected.length === 0) {
 		return "Labels: All";

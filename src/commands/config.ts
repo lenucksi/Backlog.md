@@ -193,9 +193,13 @@ export function registerConfigCommand(program: Command): void {
 					case "statuses":
 						console.log(config.statuses.join(", "));
 						break;
-					case "labels":
-						console.log(config.labels.join(", "));
+					case "labels": {
+						const labelStrings = config.labels.map((l) =>
+							typeof l === "string" ? l : `${l.name}${l.color ? ` (${l.color})` : ""}`,
+						);
+						console.log(labelStrings.join(", "));
 						break;
+					}
 					case "milestones": {
 						const milestones = await core.filesystem.listMilestones();
 						console.log(milestones.map((milestone) => milestone.id).join(", "));
@@ -303,7 +307,10 @@ export function registerConfigCommand(program: Command): void {
 				console.log(`  defaultEditor: ${config.defaultEditor || "(not set)"}`);
 				console.log(`  defaultStatus: ${config.defaultStatus || "(not set)"}`);
 				console.log(`  statuses: [${config.statuses.join(", ")}]`);
-				console.log(`  labels: [${config.labels.join(", ")}]`);
+				const labelStrs = config.labels.map((l) =>
+					typeof l === "string" ? l : `${l.name}${l.color ? ` (${l.color})` : ""}`,
+				);
+				console.log(`  labels: [${labelStrs.join(", ")}]`);
 				const milestones = await core.filesystem.listMilestones();
 				console.log(`  milestones: [${milestones.map((milestone) => milestone.id).join(", ")}]`);
 				console.log(`  definitionOfDone: [${(config.definitionOfDone ?? []).join(", ")}]`);
