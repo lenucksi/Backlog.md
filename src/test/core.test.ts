@@ -587,7 +587,7 @@ describe("Core", () => {
 			const renamedPath = "backlog/docs/doc-1 - Operations-Guide-Renamed.md";
 			const escapeForRegex = (value: string) => value.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&");
 			expect(diff).toMatch(
-				new RegExp(`^R\\d*\\t${escapeForRegex(previousPath)}\\t${escapeForRegex(renamedPath)}`, "m"),
+				new RegExp(`^R\\d*\	${escapeForRegex(previousPath)}\	${escapeForRegex(renamedPath)}`, "m"),
 			);
 		});
 	});

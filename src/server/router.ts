@@ -50,6 +50,7 @@ export type RouteHandlers = {
 		handleGetStatuses: () => Promise<Response>;
 		handleGetConfig: () => Promise<Response>;
 		handleUpdateConfig: (req: Request) => Promise<Response>;
+		handleListLabels: () => Promise<Response>;
 	};
 	system: {
 		handleGetVersion: () => Promise<Response>;
@@ -106,6 +107,9 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 		"/api/config": {
 			GET: async () => await config.handleGetConfig(),
 			PUT: async (req: Request) => await config.handleUpdateConfig(req),
+		},
+		"/api/config/labels": {
+			GET: async () => await config.handleListLabels(),
 		},
 		"/api/docs": {
 			GET: async () => await documents.handleListDocs(),
