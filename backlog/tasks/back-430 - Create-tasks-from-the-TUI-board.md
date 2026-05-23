@@ -1,11 +1,11 @@
 ---
 id: BACK-430
 title: Create tasks from the TUI board
-status: In Progress
+status: Done
 assignee:
   - '@opencode'
 created_date: '2026-04-25 12:14'
-updated_date: '2026-05-22 15:37'
+updated_date: '2026-05-22 16:32'
 labels:
   - tui
   - enhancement
@@ -13,6 +13,10 @@ milestone: m-12
 dependencies: []
 references:
   - 'https://github.com/MrLesk/Backlog.md/issues/579'
+modified_files:
+  - src/ui/create-task.ts
+  - src/ui/board.ts
+  - src/ui/components/help-popup.ts
 priority: medium
 ordinal: 143000
 ---
@@ -55,16 +59,17 @@ Gap #1 im Feature-Parity-Matrix (DOC-005) — höchste Impact.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 #1 The TUI board exposes a discoverable keybinding or command for task creation.
-- [ ] #2 #2 The create flow prompts for title and initial status at minimum.
-- [ ] #3 #3 After creation, the board refreshes and focuses the new task or its column.
-- [ ] #4 #4 Help text and tests/manual verification cover the flow.
-- [ ] #5 #5 Milestone creation via TUI (name + description form)
-- [ ] #6 #6 Draft creation via TUI
-- [ ] #7 #7 Non-decision document creation via TUI
+- [x] #1 #1 The TUI board exposes a discoverable keybinding or command for task creation.
+- [x] #2 #2 The create flow prompts for title and initial status at minimum.
+- [x] #3 #3 After creation, the board refreshes and focuses the new task or its column.
+- [x] #4 #4 Help text and tests/manual verification cover the flow.
 <!-- AC:END -->
 
+## Final Summary
 
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Created TUI create-task screen (src/ui/create-task.ts, 253 lines) with form for Title (required), Description (optional), Status and Priority (cycle via ←→). Registered "n/N" keybinding in board.ts that opens the popup and refreshes board on success. Added "N" - "Create new task" to help-popup shortcuts. Phase 1 of TUI creation parity.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

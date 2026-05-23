@@ -119,7 +119,7 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 							))}
 						</div>
 						<p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-							Tasks will be moved to the backlog/completed/ folder and removed from the board
+							Tasks will be moved to the archive/tasks/ folder and removed from the board
 						</p>
 					</div>
 
@@ -185,7 +185,7 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 						</h3>
 							<p className="text-sm text-amber-700 dark:text-amber-300">
 								Are you sure you want to move {previewCount} task{previewCount !== 1 ? 's' : ''} to the completed folder?
-								These tasks will be moved to backlog/completed/ and removed from the board.
+								These tasks will be moved to archive/tasks/ and removed from the board.
 							</p>
 						</div>
 					)}

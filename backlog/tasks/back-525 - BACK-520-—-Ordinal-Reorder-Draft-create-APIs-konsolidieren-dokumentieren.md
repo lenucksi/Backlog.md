@@ -1,10 +1,11 @@
 ---
 id: BACK-525
 title: 'BACK-520 — Ordinal/Reorder + Draft-create: APIs konsolidieren & dokumentieren'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@opencode'
 created_date: '2026-05-22 10:25'
-updated_date: '2026-05-22 11:29'
+updated_date: '2026-05-22 16:48'
 labels:
   - cleanup
   - parity
@@ -18,6 +19,12 @@ references:
   - DOC-005 (Feature Parity Matrix)
   - src/core/reorder.ts
   - src/mcp/tools/tasks/handlers.ts
+modified_files:
+  - src/commands/task.ts
+  - src/mcp/tools/tasks/handlers.ts
+  - src/mcp/tools/tasks/index.ts
+  - src/mcp/tools/tasks/schemas.ts
+  - src/guidelines/agent-guidelines.md
 priority: medium
 ordinal: 229000
 ---
@@ -97,3 +104,9 @@ Die ordinal/reorder + draft-create API-Oberfläche ist über mehrere Modi hinweg
 - [ ] #2 bun run check . passes when formatting/linting touched
 - [ ] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added CLI `task reorder` with --after/--before/--ordinal flags and MCP `task_reorder` tool. Both use existing core.reorderTask() engine. Added reorder documentation to agent-guidelines.md.
+<!-- SECTION:FINAL_SUMMARY:END -->

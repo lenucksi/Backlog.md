@@ -12,6 +12,7 @@ function renderTable(stats: ReturnType<typeof getTaskStatistics>, milestoneLabel
 	lines.push(`Completed tasks:   ${stats.completedTasks}`);
 	lines.push(`Completion:        ${stats.completionPercentage}%`);
 	lines.push(`Drafts:            ${stats.draftCount}`);
+	lines.push(`Archived tasks:    ${stats.archivedCount}`);
 	lines.push("");
 
 	lines.push("By Status:");
@@ -48,6 +49,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 	await core.ensureConfigLoaded();
 
 	const { tasks, drafts, statuses, terminalStatuses } = await core.loadAllTasksForStatistics();
+	const archivedTasks = await core.fs.listArchivedTasks();
 
 	const filteredTasks = options.milestone
 		? tasks.filter((t) => {
@@ -56,7 +58,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 			})
 		: tasks;
 
-	const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses);
+	const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks);
 
 	if (options.json) {
 		const data = {
@@ -64,6 +66,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 			completedTasks: stats.completedTasks,
 			completionPercentage: stats.completionPercentage,
 			draftCount: stats.draftCount,
+			archivedTaskCount: stats.archivedCount,
 			statusCounts: Object.fromEntries(stats.statusCounts),
 			priorityCounts: Object.fromEntries(stats.priorityCounts),
 			averageTaskAge: stats.projectHealth.averageTaskAge,

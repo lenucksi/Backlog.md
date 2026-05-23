@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { sanitizeUrlTitle } from './utils/urlHelpers';
 import Layout from './components/Layout';
 import BoardPage from './components/BoardPage';
 import DocumentationDetail from './components/DocumentationDetail';
@@ -185,6 +186,8 @@ function App() {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isOnline } = useHealthCheckContext();
   const previousOnlineRef = useRef<boolean | null>(null);
   const hasBeenRunningRef = useRef(false);
@@ -381,10 +384,22 @@ function App() {
     setShowModal(true);
   };
 
+  const handleNavigateToTask = (taskId: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      setEditingTask(task);
+      setShowModal(true);
+    }
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingTask(null);
     setIsDraftMode(false);
+    const pathname = window.location.pathname;
+    if (pathname.startsWith("/board/") || ((pathname.startsWith("/tasks/") && pathname !== "/tasks"))) {
+      navigate(-1);
+    }
   };
 
   const refreshData = useCallback(async () => {
@@ -416,6 +431,47 @@ function App() {
     };
     return () => ws.close();
   }, [refreshData, loadAllData]);
+
+  // Deep link support: open modal when URL matches /board/:id/:title or /tasks/:id/:title
+  useEffect(() => {
+    const match = location.pathname.match(/^\/(board|tasks)\/([^/]+)/);
+    if (!match) return;
+
+    const id = match[2];
+    if (!id) return;
+
+    const taskId = id.startsWith("task-") ? id : `task-${id}`;
+    const existingTask = tasks.find((t) => t.id === taskId);
+
+    if (existingTask) {
+      setEditingTask(existingTask);
+      setShowModal(true);
+      return;
+    }
+
+    apiClient.fetchTask(taskId).then((t) => {
+      if (t) {
+        setEditingTask(t);
+        setShowModal(true);
+      }
+    }).catch(() => {
+      // Graceful handling for invalid IDs - no crash, no popup
+    });
+  }, [location.pathname, tasks]);
+
+  const handleDeepLinkEditTask = useCallback((task: Task) => {
+    setEditingTask(task);
+    setShowModal(true);
+
+    const pathname = window.location.pathname;
+    if (pathname === "/" || pathname.startsWith("/board")) {
+      const cleanId = task.id.replace("task-", "");
+      navigate(`/board/${cleanId}/${sanitizeUrlTitle(task.title)}${window.location.search}`, { state: { fromNavigation: true } });
+    } else if (pathname.startsWith("/tasks")) {
+      const cleanId = task.id.replace("task-", "");
+      navigate(`/tasks/${cleanId}/${sanitizeUrlTitle(task.title)}${window.location.search}`, { state: { fromNavigation: true } });
+    }
+  }, [navigate]);
 
   const handleSubmitTask = async (taskData: Partial<Task>) => {
     // Don't catch errors here - let TaskDetailsModal handle them
@@ -501,7 +557,26 @@ function App() {
               index
               element={
                 <BoardPage
-                  onEditTask={handleEditTask}
+                  onEditTask={handleDeepLinkEditTask}
+                  onNewTask={handleNewTask}
+                tasks={tasks}
+                onRefreshData={refreshData}
+                statuses={statuses}
+                terminalStatuses={config?.terminalStatuses}
+                blockedStatuses={config?.blockedStatuses}
+                milestones={milestones}
+                availableLabels={availableLabels}
+                milestoneEntities={milestoneEntities}
+                archivedMilestones={archivedMilestones}
+                isLoading={isLoading}
+              />
+            }
+          />
+            <Route
+              path="board/:id/:title"
+              element={
+                <BoardPage
+                  onEditTask={handleDeepLinkEditTask}
                   onNewTask={handleNewTask}
                 tasks={tasks}
                 onRefreshData={refreshData}
@@ -520,7 +595,23 @@ function App() {
               path="tasks"
               element={
 	                <TaskList
-	                  onEditTask={handleEditTask}
+	                  onEditTask={handleDeepLinkEditTask}
+	                  onNewTask={handleNewTask}
+	                  tasks={tasks}
+	                  availableStatuses={statuses}
+	                  availableLabels={availableLabels}
+	                  availableMilestones={milestones}
+	                  milestoneEntities={milestoneEntities}
+	                  archivedMilestones={archivedMilestones}
+	                  onRefreshData={refreshData}
+	                />
+	              }
+	            />
+            <Route
+              path="tasks/:id/:title"
+              element={
+	                <TaskList
+	                  onEditTask={handleDeepLinkEditTask}
 	                  onNewTask={handleNewTask}
 	                  tasks={tasks}
 	                  availableStatuses={statuses}
@@ -574,6 +665,7 @@ function App() {
           archivedMilestoneEntities={archivedMilestones}
           isDraftMode={isDraftMode}
           definitionOfDoneDefaults={config?.definitionOfDone ?? []}
+          onNavigateToTask={handleNavigateToTask}
         />
 
         {/* Task Creation Confirmation Toast */}

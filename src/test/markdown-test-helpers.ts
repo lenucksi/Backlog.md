@@ -384,6 +384,8 @@ export function parseProjectOverviewMarkdown(markdown: string) {
 			completedTasks: statistics["Completed Tasks"] || 0,
 			completionPercentage: statistics["Completion Rate"] || 0,
 			draftCount: statistics["Draft Tasks"] || 0,
+			archivedCount: statistics["Archived Tasks"] || 0,
+			archivedTasks: [],
 			recentActivity,
 			projectHealth,
 		},

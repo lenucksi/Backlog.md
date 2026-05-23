@@ -186,6 +186,15 @@ export async function renderOverviewTui(statistics: TaskStatistics, projectName:
 		} else {
 			healthContent += "  {green-fg}No blocked tasks{/green-fg}\n";
 		}
+
+		healthContent += "\n{bold}Archived Tasks:{/bold} {gray-fg}(moved to archive){/gray-fg}\n";
+		if (statistics.archivedTasks.length > 0) {
+			for (const task of statistics.archivedTasks) {
+				healthContent += `  {gray-fg}${task.id}{/gray-fg} - ${task.title.substring(0, 35)}${task.title.length > 35 ? "..." : ""}\n`;
+			}
+		} else {
+			healthContent += "  {green-fg}No archived tasks{/green-fg}\n";
+		}
 		healthBox.setContent(healthContent);
 
 		// Instructions at bottom
@@ -276,6 +285,9 @@ function printProjectHealth(s: TaskStatistics): void {
 
 	console.log("\n  Blocked Tasks (waiting on dependencies):");
 	printTaskList(s.projectHealth.blockedTasks, "No blocked tasks");
+
+	console.log("\n  Archived Tasks:");
+	printTaskList(s.archivedTasks, "No archived tasks");
 }
 
 /**

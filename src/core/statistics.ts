@@ -8,6 +8,8 @@ export interface TaskStatistics {
 	completedTasks: number;
 	completionPercentage: number;
 	draftCount: number;
+	archivedCount: number;
+	archivedTasks: Task[];
 	recentActivity: {
 		created: Task[];
 		updated: Task[];

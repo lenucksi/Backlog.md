@@ -332,7 +332,7 @@ Invalid content`,
 		});
 
 		it("should not reuse completed task IDs when promoting draft", async () => {
-			// Create a completed task directly in the completed directory
+			// Create a completed task directly in the archive/tasks directory
 			// This simulates a task that was created and completed before the draft
 			const archiveTasksDir = join(TEST_DIR, "backlog", "archive", "tasks");
 			await mkdir(archiveTasksDir, { recursive: true });

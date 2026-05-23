@@ -3,10 +3,11 @@ id: BACK-491
 title: >-
   Cross-Modality CI — enforce feature parity across CLI / TUI / WebUI / MCP /
   REST
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@opencode'
 created_date: '2026-05-13 10:14'
-updated_date: '2026-05-22 09:52'
+updated_date: '2026-05-22 17:45'
 labels:
   - ci
   - testing
@@ -18,6 +19,12 @@ labels:
   - rest-api
 milestone: m-13
 dependencies: []
+modified_files:
+  - backlog/config.yml
+  - AGENTS.md
+  - src/test/modality-parity.test.ts
+  - .github/workflows/ci.yml
+  - .codex/skills/modality-parity-check.md
 priority: high
 ordinal: 178000
 ---
@@ -80,6 +87,12 @@ After DOC-005 re-audit, these are the gaps that cross-modality CI should priorit
 - Sequences management missing in CLI, TUI, MCP
 - TUI lacks milestone list/view
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Implemented cross-modality CI enforcement: DoD updated with modality parity item, AGENTS.md gained Cross-Modality Checklist, src/test/modality-parity.test.ts exercises status filtering across CLI/API/MCP, CI step added to run parity tests, .codex/skills/modality-parity-check.md skill created for automated modality-coverage review.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

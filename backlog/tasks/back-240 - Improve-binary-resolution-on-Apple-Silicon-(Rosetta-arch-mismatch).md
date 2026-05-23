@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@codex'
 created_date: '2025-08-17 17:00'
-updated_date: '2026-05-17 20:10'
+updated_date: '2026-05-22 16:54'
 labels:
   - packaging
   - bug
@@ -13,7 +13,7 @@ labels:
 milestone: m-13
 dependencies: []
 priority: high
-ordinal: 1000
+ordinal: 89000
 ---
 
 ## Description

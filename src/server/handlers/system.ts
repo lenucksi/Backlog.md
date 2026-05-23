@@ -20,7 +20,6 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 	async function handleGetStatistics(): Promise<Response> {
 		try {
 			const { tasks, drafts, statuses, terminalStatuses } = await ctx.core.loadAllTasksForStatistics();
-
 			const archivedTasks = await ctx.core.filesystem.listArchivedTasks();
 
 			const statistics = getTaskStatistics(tasks, drafts, statuses, terminalStatuses, archivedTasks);

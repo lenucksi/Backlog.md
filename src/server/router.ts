@@ -71,6 +71,9 @@ export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Rec
 	return {
 		"/": spaIndexHtml,
 		"/tasks": spaIndexHtml,
+		"/tasks/*": spaIndexHtml,
+		"/board": spaIndexHtml,
+		"/board/*": spaIndexHtml,
 		"/milestones": spaIndexHtml,
 		"/drafts": spaIndexHtml,
 		"/documentation": spaIndexHtml,

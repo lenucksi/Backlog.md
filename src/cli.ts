@@ -14,6 +14,7 @@ import { registerInitCommand } from "./commands/init.ts";
 import { registerLabelCommand } from "./commands/label.ts";
 import { registerMcpCommand } from "./commands/mcp.ts";
 import { registerMilestoneCommand } from "./commands/milestone.ts";
+import { registerOpenCommand } from "./commands/open.ts";
 import { registerOverviewCommand } from "./commands/overview.ts";
 import { registerSearchCommand } from "./commands/search.ts";
 import { registerSequenceCommand } from "./commands/sequence.ts";
@@ -163,6 +164,7 @@ registerStatsCommand(program);
 registerCleanupCommand(program);
 registerBrowserCommand(program);
 registerOverviewCommand(program);
+registerOpenCommand(program);
 registerCompletionCommand(program);
 registerMcpCommand(program);
 

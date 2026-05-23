@@ -1,4 +1,4 @@
-import { mkdir, rename, unlink } from "node:fs/promises";
+import { mkdir, readdir, rename, rmdir, stat, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import matter from "gray-matter";
 import lockfile from "proper-lockfile";
@@ -307,8 +307,7 @@ export class FileSystem {
 			backlogDir,
 			join(backlogDir, DEFAULT_DIRECTORIES.TASKS),
 			join(backlogDir, DEFAULT_DIRECTORIES.DRAFTS),
-			join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED),
-			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS),
+						join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_DRAFTS),
 			join(backlogDir, DEFAULT_DIRECTORIES.MILESTONES),
 			join(backlogDir, DEFAULT_DIRECTORIES.ARCHIVE_MILESTONES),
@@ -321,6 +320,36 @@ export class FileSystem {
 			await mkdir(dir, { recursive: true }).catch((err: NodeJS.ErrnoException) => {
 				if (err.code !== "EEXIST") throw err;
 			});
+		}
+	}
+
+async migrateCompletedTasks(): Promise<void> {
+		try {
+			const backlogDir = await this.getBacklogDir();
+			const completedDir = join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
+			const archiveTasksDir = await this.getArchiveTasksDir();
+
+			const completedDirExists = await stat(completedDir).then(() => true).catch(() => false);
+			if (!completedDirExists) return;
+
+			await this.ensureDirectoryExists(archiveTasksDir);
+
+			for await (const entry of readdir(completedDir)) {
+				if (entry.endsWith(".md")) {
+					const source = join(completedDir, entry);
+					const target = join(archiveTasksDir, entry);
+					await rename(source, target);
+				}
+			}
+
+			const remaining = await readdir(completedDir);
+			if (remaining.length === 0) {
+				await rmdir(completedDir);
+			}
+		} catch (_error) {
+			if (process.env.DEBUG) {
+				console.error("Failed to migrate completed tasks:", _error);
+			}
 		}
 	}
 

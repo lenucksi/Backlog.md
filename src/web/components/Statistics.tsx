@@ -4,7 +4,8 @@ import type { TaskStatistics } from '../../core/statistics';
 import type { Task } from '../../types';
 import LoadingSpinner from './LoadingSpinner';
 
-interface StatisticsData extends Omit<TaskStatistics, 'statusCounts' | 'priorityCounts'> {
+interface StatisticsData extends Omit<TaskStatistics, 'statusCounts' | 'priorityCounts' | 'archivedTasks'> {
+	archivedTasks: Task[];
 	statusCounts: Record<string, number>;
 	priorityCounts: Record<string, number>;
 }
@@ -469,7 +470,14 @@ const Statistics: React.FC<StatisticsProps> = ({
 								<span className="font-medium text-red-700 dark:text-red-400">{statistics.projectHealth.blockedTasks.length} blocked</span>
 							</div>
 						)}
-						
+
+						{statistics.archivedTasks.length > 0 && (
+							<div className="flex items-center space-x-1">
+								<div className="w-2 h-2 bg-gray-500 rounded-circle"></div>
+								<span className="font-medium text-gray-700 dark:text-gray-400">{statistics.archivedTasks.length} archived</span>
+							</div>
+						)}
+
 						{statistics.projectHealth.staleTasks.length === 0 && statistics.projectHealth.blockedTasks.length === 0 && (
 							<div className="flex items-center space-x-1">
 								<div className="w-2 h-2 bg-green-500 rounded-circle"></div>
@@ -480,9 +488,9 @@ const Statistics: React.FC<StatisticsProps> = ({
 				</div>
 				
 				{/* Expandable task lists - only show if there are issues */}
-				{(statistics.projectHealth.staleTasks.length > 0 || statistics.projectHealth.blockedTasks.length > 0) && (
+				{(statistics.projectHealth.staleTasks.length > 0 || statistics.projectHealth.blockedTasks.length > 0 || statistics.archivedTasks.length > 0) && (
 					<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-						<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+						<div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${statistics.archivedTasks.length > 0 ? 'lg:grid-cols-3' : ''}`}>
 							{/* Stale Tasks */}
 							{statistics.projectHealth.staleTasks.length > 0 && (
 								<div>
@@ -531,6 +539,33 @@ const Statistics: React.FC<StatisticsProps> = ({
 										{statistics.projectHealth.blockedTasks.length > 3 && (
 											<p className="text-xs text-gray-500 dark:text-gray-400 px-3">
 												+{statistics.projectHealth.blockedTasks.length - 3} more blocked tasks
+											</p>
+										)}
+									</div>
+								</div>
+							)}
+
+							{/* Archived Tasks */}
+							{statistics.archivedTasks.length > 0 && (
+								<div>
+									<h4 className="font-medium text-gray-700 dark:text-gray-400 mb-3 text-sm">
+										Archived Tasks
+									</h4>
+									<p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+										Tasks that have been archived
+									</p>
+									<div className="space-y-2">
+										{statistics.archivedTasks.slice(0, 3).map((task) => (
+											<TaskPreview 
+												key={task.id}
+												task={task} 
+												showDate="created" 
+												onClick={onEditTask ? () => onEditTask(task) : undefined}
+											/>
+										))}
+										{statistics.archivedTasks.length > 3 && (
+											<p className="text-xs text-gray-500 dark:text-gray-400 px-3">
+												+{statistics.archivedTasks.length - 3} more archived tasks
 											</p>
 										)}
 									</div>

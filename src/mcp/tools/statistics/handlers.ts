@@ -12,6 +12,7 @@ export class StatisticsHandlers {
 	async getStatistics(args: StatisticsArgs = {}): Promise<CallToolResult> {
 		await this.core.ensureConfigLoaded();
 		const { tasks, drafts, statuses, terminalStatuses } = await this.core.loadAllTasksForStatistics();
+		const archivedTasks = await this.core.fs.listArchivedTasks();
 
 		const filteredTasks = args.milestone
 			? tasks.filter((t) => {
@@ -20,13 +21,14 @@ export class StatisticsHandlers {
 				})
 			: tasks;
 
-		const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses);
+		const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks);
 
 		const data = {
 			totalTasks: stats.totalTasks,
 			completedTasks: stats.completedTasks,
 			completionPercentage: stats.completionPercentage,
 			draftCount: stats.draftCount,
+			archivedTaskCount: stats.archivedCount,
 			statusCounts: Object.fromEntries(stats.statusCounts),
 			priorityCounts: Object.fromEntries(stats.priorityCounts),
 			averageTaskAge: stats.projectHealth.averageTaskAge,
