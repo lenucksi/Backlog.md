@@ -22,25 +22,17 @@ const ver = Bun.spawnSync(["jq", "-r", ".version", "package.json"]).stdout.toStr
 const ext = plat === "win32" ? ".exe" : "";
 const outfile = "dist/backlog" + ext;
 
-// --external bun: workaround for bun 1.3.x --target regression with "bun" builtin imports.
-// bun is a runtime builtin in compiled binaries, so external is safe.
-const result = await Bun.build({
-	entrypoints: ["./src/cli.ts"],
-	outfile,
-	target: target as any,
-	compile: true,
-	minify: true,
-	external: ["bun"],
-	define: {
-		__EMBEDDED_VERSION__: JSON.stringify(ver),
-	},
-});
+// Use CLI instead of API: Bun.build({compile:true}) ignores outfile
+const result = Bun.spawnSync(["bun", "build", "src/cli.ts",
+	"--compile", "--minify",
+	"--target=" + target,
+	"--external=bun",
+	"--define=__EMBEDDED_VERSION__=" + JSON.stringify(ver),
+	"--outfile=" + outfile,
+]);
 
 if (!result.success) {
-	for (const log of result.logs) {
-		console.error(log);
-	}
-	process.exit(1);
+	process.exit(result.exitCode);
 }
 
 console.log("Built " + outfile + " (target: " + target + ")");

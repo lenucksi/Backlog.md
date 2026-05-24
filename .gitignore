@@ -33,7 +33,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .*.bun-build
 
 # generated Tailwind CSS (rebuilt by build:css before every build/cli run)
-src/web/styles/style.css
+web/styles/style.css
 
 # IntelliJ based IDEs
 .idea
@@ -48,40 +48,7 @@ src/web/styles/style.css
 !.claude/agents/**
 # and include the skills directory
 !.claude/skills
-!.claude/skills/**
-
-# Gemini CLI session data
-.gemini
-
-# Example project folder
-example-project/
-
-# blessed resources
-
-# Test temp directories created by bun tests
+... more matches
 tmp/
-.tmp-test-*
-
-# Local files
-*.local.*
-
-# Performance benchmark artifacts
-test-benchmark-report.json
-
-.conductor
-
-# Local archive / reference documents
-archive/
-
-# prek internal hooks
-.husky/_
-
-# Agent memory/state store
 data/
-
-# Python cache
-__pycache__/
-*.pyc
-.npmrc
-packages/backlog-guard/opencode-plugin.js
 tools/
