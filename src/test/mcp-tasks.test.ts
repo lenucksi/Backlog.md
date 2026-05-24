@@ -316,7 +316,7 @@ describe("MCP task tools (MVP)", () => {
 
 		const searchText = getText(searchResult.content);
 		expect(searchText).toContain("TASK-2 - Completed task");
-		expect(searchText).toContain("(Done)");
+		expect(searchText).toContain("(Archived)");
 		expect(searchText).not.toContain("TASK-3 - Archived task");
 	});
 
