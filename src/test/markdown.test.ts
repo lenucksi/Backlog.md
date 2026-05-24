@@ -392,7 +392,7 @@ describe("Markdown Serializer", () => {
 			expect(result).toContain("id: task-1");
 			expect(result).toContain("title: Test Task");
 			expect(result).toContain("status: To Do");
-			expect(result).toContain("created_date: '2025-06-03'");
+			expect(result).toContain("created_date: 2025-06-03");
 			expect(result).toContain("labels:");
 			expect(result).toContain("- bug");
 			expect(result).toContain("- frontend");
@@ -562,8 +562,8 @@ describe("Markdown Serializer", () => {
 			expect(result).toContain("id: doc-1");
 			expect(result).toContain("title: API Documentation");
 			expect(result).toContain("type: specification");
-			expect(result).toContain("created_date: '2025-06-07'");
-			expect(result).toContain("updated_date: '2025-06-08'");
+			expect(result).toContain("created_date: 2025-06-07");
+			expect(result).toContain("updated_date: 2025-06-08");
 			expect(result).toContain("tags:");
 			expect(result).toContain("- api");
 			expect(result).toContain("- docs");
