@@ -55,7 +55,7 @@
 		"vterm.js": "^0.4.0"
 	},
 	"scripts": {
-		"test": "bun test",
+		"test": "bun test --path-ignore-patterns='worktrees/*'",
 		"format": "biome format --write .",
 		"lint": "biome lint --write .",
 		"check": "biome check .",
