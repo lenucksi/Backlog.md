@@ -42,7 +42,7 @@
         # Read version from package.json
         packageJson = builtins.fromJSON (builtins.readFile ./package.json);
         version = packageJson.version;
-        
+
         ldLibraryPath = ''
           LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
             pkgs.stdenv.cc.cc.lib
@@ -57,13 +57,13 @@
           bunNix = ./bun.nix;
 
           nativeBuildInputs = with pkgs; [ bun git rsync ];
-          
+
           preBuild = ''
             export HOME=$TMPDIR
             export HUSKY=0
             export ${ldLibraryPath}
           '';
-          
+
           buildPhase = ''
             runHook preBuild
 
@@ -73,17 +73,17 @@
 
             runHook postBuild
           '';
-          
+
           installPhase = ''
             runHook preInstall
-            
+
             mkdir -p $out/bin
             cp dist/backlog $out/bin/backlog
             chmod +x $out/bin/backlog
-            
+
             runHook postInstall
           '';
-          
+
           meta = with pkgs.lib; {
             description = "A markdown-based task management CLI tool with Kanban board";
             longDescription = ''
@@ -111,14 +111,14 @@
           default = backlog-md;
           "backlog-md" = backlog-md;
         };
-        
+
         apps = {
           default = flake-utils.lib.mkApp {
             drv = backlog-md;
             name = "backlog";
           };
         };
-        
+
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             bun
@@ -131,7 +131,7 @@
             git
             biome
           ];
-          
+
           shellHook = ''
             export ${ldLibraryPath}
 

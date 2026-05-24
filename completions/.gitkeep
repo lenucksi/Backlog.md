@@ -8,7 +8,7 @@ otherwise it falls back to the embedded versions.
 
 Files:
 - backlog.bash - Bash completion reference
-- _backlog - Zsh completion reference  
+- _backlog - Zsh completion reference
 - backlog.fish - Fish completion reference
 - backlog.ps1 - PowerShell completion reference
 - README.md - Installation and usage guide

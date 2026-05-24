@@ -12,7 +12,7 @@ const HealthCheckContext = createContext<HealthCheckContextType | undefined>(und
 
 export function HealthCheckProvider({ children }: { children: ReactNode }) {
 	const healthCheck = useHealthCheck();
-	
+
 	return (
 		<HealthCheckContext.Provider value={healthCheck}>
 			{children}

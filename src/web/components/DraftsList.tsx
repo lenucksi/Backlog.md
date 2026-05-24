@@ -13,12 +13,12 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 
   useEffect(() => {
     loadDrafts();
-    
+
     // Listen for draft updates
     const handleDraftsUpdated = () => {
       loadDrafts();
     };
-    
+
     window.addEventListener('drafts-updated', handleDraftsUpdated);
     return () => {
       window.removeEventListener('drafts-updated', handleDraftsUpdated);
@@ -54,11 +54,11 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
       const response = await fetch(`/api/drafts/${draftId}/promote`, {
         method: 'POST',
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to promote draft: ${response.statusText}`);
       }
-      
+
       // Reload drafts after successful promotion
       await loadDrafts();
     } catch (err) {
@@ -91,7 +91,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 	    return (
 	      <div className="flex-1 flex items-center justify-center">
 	        <div className="text-red-600 dark:text-red-400">Error: {error}</div>
-	        <button 
+	        <button
 	          onClick={loadDrafts}
 	          className="ml-4 inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors"
 	        >
@@ -109,8 +109,8 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {drafts.length} draft{drafts.length !== 1 ? 's' : ''}
             </div>
-	            <button 
-	              className="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900 transition-colors duration-200" 
+	            <button
+	              className="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 	              onClick={onNewDraft}
 	            >
 	              + New Draft
@@ -129,7 +129,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
         ) : (
           <div className="space-y-4">
             {drafts.map((draft) => (
-              <div 
+              <div
                 key={draft.id}
                 className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
               >

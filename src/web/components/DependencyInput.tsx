@@ -26,7 +26,7 @@ const DependencyInput: React.FC<DependencyInputProps> = ({ value, onChange, avai
   // Filter tasks based on input
   useEffect(() => {
     if (inputValue.trim()) {
-      const filtered = availableTasks.filter(task => 
+      const filtered = availableTasks.filter(task =>
         task.id !== currentTaskId && // Don't suggest current task
         !value.includes(task.id) && // Don't suggest already added tasks
         (task.id.toLowerCase().includes(inputValue.toLowerCase()) ||
@@ -138,7 +138,7 @@ const DependencyInput: React.FC<DependencyInputProps> = ({ value, onChange, avai
               ))}
             </div>
           )}
-          
+
           {/* Input field */}
           <textarea
             ref={textareaRef}

@@ -30,8 +30,8 @@ export function HealthIndicator() {
 // Success toast component for when connection is restored
 export function HealthSuccessToast({ onDismiss }: { onDismiss: () => void }) {
 	return (
-		<SuccessToast 
-			message="Connection restored!" 
+		<SuccessToast
+			message="Connection restored!"
 			onDismiss={onDismiss}
 		/>
 	);

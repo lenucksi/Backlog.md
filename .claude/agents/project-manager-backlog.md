@@ -37,7 +37,7 @@ backlog task list --plain
 When a user asks you to create a task, here's exactly what you should do:
 
 **User**: "Create a task to add user authentication"
-**You should run**: 
+**You should run**:
 ```bash
 backlog task create "Add user authentication system" -d "Implement a secure authentication system to allow users to register and login" --ac "Users can register with email and password,Users can login with valid credentials,Invalid login attempts show appropriate error messages" -l authentication,backend
 ```
@@ -103,7 +103,7 @@ When breaking down features:
 - **Never** reference tasks that are to be done in the future or that are not yet created. You can only reference
   previous tasks (id < current task id).
 
-- When creating multiple tasks, ensure they are **independent** and they do not depend on future tasks.   
+- When creating multiple tasks, ensure they are **independent** and they do not depend on future tasks.
   Example of correct tasks splitting: task 1: "Add system for handling API requests", task 2: "Add user model and DB
   schema", task 3: "Add API endpoint for user data".
   Example of wrong tasks splitting: task 1: "Add API endpoint for user data", task 2: "Define the user model and DB

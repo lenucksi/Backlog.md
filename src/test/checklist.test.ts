@@ -196,7 +196,7 @@ Regular note
 			const criteriaSection = `- [x] First item
 
 - [ ] Second item
-   
+
 - [x] Third item`;
 
 			const result = alignAcceptanceCriteria(criteriaSection);

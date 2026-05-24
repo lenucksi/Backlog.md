@@ -49,7 +49,7 @@ export const SidebarSkeleton = memo(function SidebarSkeleton({ isCollapsed = fal
 		<div className="px-4 py-4 space-y-4 animate-pulse">
 			{/* Search skeleton */}
 			<div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors duration-200" />
-			
+
 			{/* Navigation items */}
 			{Array.from({ length: 3 }, (_, i) => (
 				<div key={i} className="flex items-center space-x-3 px-3 py-2">

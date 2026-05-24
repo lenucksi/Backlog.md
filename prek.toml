@@ -6,7 +6,7 @@ hooks = [
 	{ id = "trailing-whitespace", exclude = "backlog/" },
 	{ id = "end-of-file-fixer", exclude = "backlog/" },
 	{ id = "check-yaml" },
-	{ id = "check-json" },
+	{ id = "check-json", exclude = "tsconfig.json" },
 	{ id = "check-toml" },
 	{ id = "check-added-large-files" },
 	{ id = "check-merge-conflict" },
