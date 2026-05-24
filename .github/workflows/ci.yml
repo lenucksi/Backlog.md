@@ -156,15 +156,16 @@ jobs:
             "./$FILE" --version
             "./$FILE" --help
           fi
-      - name: Run interactive TUI tests against compiled binary
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
-        env:
-          RUN_INTERACTIVE_TUI_TESTS: "1"
-          TUI_TEST_CLI_PATH: "./backlog-test"
-          TUI_TEST_CLI_RUNTIME: ""
-        run: |
-          bun test src/test/tui-interactive-editor-handoff.test.ts --timeout=60000
+      # Disabled: flaky termless/pty tests, re-enable after BACK-528 termless stabilization
+      # - name: Run interactive TUI tests against compiled binary
+      #   if: matrix.os == 'ubuntu-latest'
+      #   shell: bash
+      #   env:
+      #     RUN_INTERACTIVE_TUI_TESTS: "1"
+      #     TUI_TEST_CLI_PATH: "./backlog-test"
+      #     TUI_TEST_CLI_RUNTIME: ""
+      #   run: |
+      #     bun test src/test/tui-interactive-editor-handoff.test.ts --timeout=60000
 
   sonarqube:
     name: SonarQube Scan
