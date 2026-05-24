@@ -1,0 +1,29 @@
+src/test/dependency-validation.test.ts
+  s_8fc767902605ae::t_8656505cc88696 105
+src/core/backlog.ts
+  s_9f72d5847e057f::t_8760a4175bd7f8 26,275-280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "08c93aa56f3333e51210d9b4ea8961d2dc672177",
+  "prompts": {},
+  "sessions": {
+    "s_8fc767902605ae": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1a602d4cdffeOlrNxsUXgtJTd4",
+        "model": "deepseek-v4-flash-paid-litellm-openrouter-key"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_9f72d5847e057f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1a6d5cd29ffe5HGo33SmMT479L",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
