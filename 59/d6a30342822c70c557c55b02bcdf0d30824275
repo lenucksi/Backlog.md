@@ -1,0 +1,49 @@
+src/web/components/HealthIndicator.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 33-34
+src/web/contexts/HealthCheckContext.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 15
+src/web/contexts/ThemeContext.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 31,36,43,49,63
+src/web/components/DraftsList.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 16,21,57,61,94,112-113,132
+prek.toml
+  s_b0d8f729495e47::t_49d0811fb2c5b4 9
+src/web/components/LoadingSpinner.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 52
+src/web/components/DependencyInput.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 29,141
+bun.nix
+  s_b0d8f729495e47::t_69749dc804b07b 4041
+.npmignore
+  s_b0d8f729495e47::t_69749dc804b07b 33
+bunfig.toml
+  s_b0d8f729495e47::t_69749dc804b07b 9
+completions/.gitkeep
+  s_b0d8f729495e47::t_69749dc804b07b 11
+src/web/components/Navigation.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 30
+.claude/agents/project-manager-backlog.md
+  ai_agent 40,106
+src/web/hooks/useHealthCheck.tsx
+  s_b0d8f729495e47::t_69749dc804b07b 8,32,73,82,85,103
+flake.nix
+  s_b0d8f729495e47::t_69749dc804b07b 45,60,66,76,79,83,86,114,121,134
+src/test/checklist.test.ts
+  s_b0d8f729495e47::t_69749dc804b07b 199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "59d6a30342822c70c557c55b02bcdf0d30824275",
+  "prompts": {},
+  "sessions": {
+    "s_b0d8f729495e47": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1a5c85cdfffe9TieWoy1MgVqOm",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
