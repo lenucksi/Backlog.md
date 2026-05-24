@@ -9,7 +9,6 @@ import { watchConfig } from "../utils/config-watcher.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
 // @ts-expect-error
 import favicon from "../web/favicon.png" with { type: "file" };
-import indexHtml from "../web/index.html";
 import { createConfigHandlers } from "./handlers/config.ts";
 import { createDecisionHandlers } from "./handlers/decisions.ts";
 import { createDocumentHandlers } from "./handlers/documents.ts";
@@ -18,11 +17,9 @@ import { createFileHandlers } from "./handlers/files.ts";
 import { createMilestoneHandlers } from "./handlers/milestones.ts";
 import { createSystemHandlers } from "./handlers/system.ts";
 import { createTaskHandlers } from "./handlers/tasks.ts";
-import { applyNoStoreHeaders, findNextAvailablePort, isPortAvailable, markHtmlBundleNoStore } from "./middleware.ts";
+import { applyNoStoreHeaders, findNextAvailablePort, isPortAvailable } from "./middleware.ts";
 import { buildRoutes } from "./router.ts";
 import type { ServerHandlerContext } from "./types.ts";
-
-const spaIndexHtml = markHtmlBundleNoStore(indexHtml);
 
 export { findNextAvailablePort, isPortAvailable, markHtmlBundleNoStore };
 
@@ -155,19 +152,29 @@ export class BacklogServer {
 
 			const ctx = this.createHandlerContext();
 
-			const routes = buildRoutes(
-				{
-					tasks: createTaskHandlers(ctx),
-					documents: createDocumentHandlers(ctx),
-					decisions: createDecisionHandlers(ctx),
-					drafts: createDraftHandlers(ctx),
-					milestones: createMilestoneHandlers(ctx),
-					files: createFileHandlers(ctx),
-					config: createConfigHandlers(ctx),
-					system: createSystemHandlers(ctx),
+			const routes = buildRoutes({
+				tasks: createTaskHandlers(ctx),
+				documents: createDocumentHandlers(ctx),
+				decisions: createDecisionHandlers(ctx),
+				drafts: createDraftHandlers(ctx),
+				milestones: createMilestoneHandlers(ctx),
+				files: createFileHandlers(ctx),
+				config: createConfigHandlers(ctx),
+				system: createSystemHandlers(ctx),
+			});
+
+			const indexHtmlPath = new URL("../web/index.html", import.meta.url).pathname;
+			const spaHandler: Record<string, unknown> = {
+				GET: async () => {
+					const htmlFile = Bun.file(indexHtmlPath);
+					return new Response(htmlFile, {
+						headers: { "Content-Type": "text/html" },
+					});
 				},
-				spaIndexHtml,
-			);
+			};
+			for (const path of ["/", "/tasks", "/tasks/*", "/board", "/board/*", "/milestones", "/drafts", "/documentation", "/documentation/*", "/decisions", "/decisions/*", "/statistics", "/settings"]) {
+				(routes as Record<string, unknown>)[path] = spaHandler;
+			}
 
 			const serveOptions = {
 				port: finalPort,

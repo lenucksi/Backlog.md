@@ -65,24 +65,10 @@ export type RouteHandlers = {
 	};
 };
 
-export function buildRoutes(handlers: RouteHandlers, spaIndexHtml: unknown): Record<string, unknown> {
+export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
 	const { tasks, documents, decisions, drafts, milestones, config, system, files } = handlers;
 
 	return {
-		"/": spaIndexHtml,
-		"/tasks": spaIndexHtml,
-		"/tasks/*": spaIndexHtml,
-		"/board": spaIndexHtml,
-		"/board/*": spaIndexHtml,
-		"/milestones": spaIndexHtml,
-		"/drafts": spaIndexHtml,
-		"/documentation": spaIndexHtml,
-		"/documentation/*": spaIndexHtml,
-		"/decisions": spaIndexHtml,
-		"/decisions/*": spaIndexHtml,
-		"/statistics": spaIndexHtml,
-		"/settings": spaIndexHtml,
-
 		"/api/tasks": {
 			GET: async (req: Request) => await tasks.handleListTasks(req),
 			POST: async (req: Request) => await tasks.handleCreateTask(req),
