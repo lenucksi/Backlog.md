@@ -1,0 +1,33 @@
+src/web/styles/style.css
+  s_b0d8f729495e47::t_dc8e6f5b074592 1-2
+archive/backlog-md-blocked-status-report.md
+  s_b0d8f729495e47::t_dc8e6f5b074592 1-99
+.husky/_/pre-commit
+  s_b0d8f729495e47::t_dc8e6f5b074592 1-13
+.husky/_/commit-msg
+  s_b0d8f729495e47::t_dc8e6f5b074592 1-13
+scripts/build.ts
+  s_b0d8f729495e47::t_16b01219c9ec07 25-32,35
+.gitignore
+  s_b0d8f729495e47::t_b39392ec671d3a 36,51
+archive/backlog-md-fix-startprompt.md
+  ai_agent 1-218
+archive/backlog-md-i18n-bug-report.md
+  s_b0d8f729495e47::t_dc8e6f5b074592 1-414
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "407a096b6de253f153cfa1a8eb18bda839de394f",
+  "prompts": {},
+  "sessions": {
+    "s_b0d8f729495e47": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1a5c85cdfffe9TieWoy1MgVqOm",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
