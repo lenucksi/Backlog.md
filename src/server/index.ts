@@ -163,10 +163,9 @@ export class BacklogServer {
 				system: createSystemHandlers(ctx),
 			});
 
-			const indexHtmlPath = new URL("../web/index.html", import.meta.url).pathname;
 			const spaHandler: Record<string, unknown> = {
 				GET: async () => {
-					const htmlFile = Bun.file(indexHtmlPath);
+					const htmlFile = Bun.file("src/web/index.html");
 					return new Response(htmlFile, {
 						headers: { "Content-Type": "text/html" },
 					});
