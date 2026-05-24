@@ -22,7 +22,43 @@ const ver = Bun.spawnSync(["jq", "-r", ".version", "package.json"]).stdout.toStr
 const ext = plat === "win32" ? ".exe" : "";
 const outfile = "dist/backlog" + ext;
 
-// Use CLI instead of API: Bun.build({compile:true}) ignores outfile
+// Bundle web app for SPA using plugin to stub bun imports
+const webBuild = await Bun.build({
+	entrypoints: ["./src/web/main.tsx"],
+	outdir: "dist/web",
+	target: "browser",
+	minify: true,
+	define: {
+		"process.env.NODE_ENV": '"production"',
+	},
+	plugins: [
+		{
+			name: "stub-bun",
+			setup(build) {
+				build.onResolve({ filter: /^bun$/ }, () => ({
+					path: "bun-stub",
+					namespace: "stub",
+				}));
+				build.onLoad({ filter: /.*/, namespace: "stub" }, () => ({
+					contents: "export const $ = () => {}; export const spawn = () => {}; export default { $, spawn };",
+					loader: "js",
+				}));
+			},
+		},
+	],
+});
+if (!webBuild.success) {
+	for (const log of webBuild.logs) console.error(log);
+	process.exit(1);
+}
+
+await Bun.write("dist/web/main.css", Bun.file("src/web/styles/style.css"));
+const html = await Bun.file("src/web/index.html").text();
+const bundledHtml = html
+	.replace('src="./main.tsx"', 'src="./web/main.js"')
+	.replace('href="./styles/style.css"', 'href="./web/main.css"');
+await Bun.write("dist/index.html", bundledHtml);
+
 const result = Bun.spawnSync(["bun", "build", "src/cli.ts",
 	"--compile", "--minify",
 	"--target=" + target,

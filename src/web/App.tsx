@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { sanitizeUrlTitle } from './utils/urlHelpers';
 import Layout from './components/Layout';
 import BoardPage from './components/BoardPage';
@@ -534,7 +534,6 @@ function App() {
 
   return (
     <ThemeProvider>
-      <BrowserRouter>
         <Routes>
             <Route
             path="/"
@@ -680,7 +679,6 @@ function App() {
             }
           />
         )}
-      </BrowserRouter>
     </ThemeProvider>
   );
 }

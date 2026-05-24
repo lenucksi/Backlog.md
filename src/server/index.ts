@@ -165,7 +165,9 @@ export class BacklogServer {
 
 			const spaHandler: Record<string, unknown> = {
 				GET: async () => {
-					const htmlFile = Bun.file("src/web/index.html");
+					const bundledHtml = Bun.file("dist/index.html");
+					const useBundled = await bundledHtml.exists().catch(() => false);
+					const htmlFile = useBundled ? bundledHtml : Bun.file("src/web/index.html");
 					return new Response(htmlFile, {
 						headers: { "Content-Type": "text/html" },
 					});
@@ -275,6 +277,15 @@ export class BacklogServer {
 	}
 
 	private async handleRequest(req: Request, server: Server<unknown>): Promise<Response> {
+		const getContentType = (path: string): string => {
+			if (path.endsWith(".css")) return "text/css";
+			if (path.endsWith(".tsx") || path.endsWith(".ts")) return "application/typescript";
+			if (path.endsWith(".js")) return "application/javascript";
+			if (path.endsWith(".png")) return "image/png";
+			if (path.endsWith(".svg")) return "image/svg+xml";
+			return "application/octet-stream";
+		};
+
 		const url = new URL(req.url);
 		const pathname = url.pathname;
 
@@ -286,11 +297,25 @@ export class BacklogServer {
 			return new Response("WebSocket upgrade failed", { status: 400 });
 		}
 
-		if (pathname.startsWith("/favicon")) {
+		if (pathname === "/favicon.png") {
 			const faviconFile = Bun.file(favicon);
 			return new Response(faviconFile, {
 				headers: { "Content-Type": "image/png" },
 			});
+		}
+
+		// Serve web source files for SPA (check dist/web/ first, then src/web/)
+		if (pathname.startsWith("/web/") || pathname.startsWith("/styles/") || pathname.endsWith(".tsx") || pathname.endsWith(".js")) {
+			const webPath = pathname.replace(/^\//, "");
+			for (const dir of ["dist", "src/web"]) {
+				const file = Bun.file(dir + "/" + webPath);
+				const exists = await file.exists().catch(() => false);
+				if (exists) {
+					return new Response(file, {
+						headers: { "Content-Type": getContentType(webPath) },
+					});
+				}
+			}
 		}
 
 		return new Response("Not Found", { status: 404 });
