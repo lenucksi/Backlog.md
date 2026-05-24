@@ -56,6 +56,7 @@
 	},
 	"scripts": {
 		"test": "bun test --path-ignore-patterns='worktrees/*'",
+"test:fails": "bun test --only-failures --path-ignore-patterns='worktrees/*'",
 		"format": "biome format --write .",
 		"lint": "biome lint --write .",
 		"check": "biome check .",
