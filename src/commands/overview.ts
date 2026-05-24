@@ -24,6 +24,7 @@ export async function runOverviewCommand(core: Core): Promise<void> {
 			drafts,
 			statuses,
 			terminalStatuses,
+			blockedStatuses,
 		} = await core.loadAllTasksForStatistics((msg) =>
 			loadingScreen?.update(`${msg} in ${formatTime(performance.now() - loadStart)}`),
 		);
@@ -32,7 +33,7 @@ export async function runOverviewCommand(core: Core): Promise<void> {
 
 		// Calculate statistics
 		const statsStart = performance.now();
-		const statistics = getTaskStatistics(activeTasks, drafts, statuses, terminalStatuses);
+		const statistics = getTaskStatistics(activeTasks, drafts, statuses, terminalStatuses, undefined, blockedStatuses);
 		const statsTime = Math.round(performance.now() - statsStart);
 
 		// Display the TUI

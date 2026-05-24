@@ -307,7 +307,13 @@ export function parseProjectOverviewMarkdown(markdown: string) {
 
 	// Extract recent activity and project health data
 	const recentActivity = { created: [], updated: [] };
-	const projectHealth = { averageTaskAge: 0, staleTasks: [], blockedTasks: [] };
+	const projectHealth = {
+		averageTaskAge: 0,
+		staleTasks: [],
+		blockedTasks: [],
+		blockedByStatus: [],
+		deadlockedTaskGroups: [],
+	};
 
 	for (const line of lines) {
 		// Project Statistics section

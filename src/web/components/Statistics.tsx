@@ -34,11 +34,11 @@ const Statistics: React.FC<StatisticsProps> = ({
 
 		const fetchStatistics = async () => {
 			if (!isMounted) return;
-			
+
 			try {
 				setLoading(true);
 				setError(null);
-				
+
 				// Loading messages that reflect actual backend operations
 				const loadingMessages = [
 					'Building statistics...',
@@ -66,12 +66,12 @@ const Statistics: React.FC<StatisticsProps> = ({
 
 				// Fetch data (this happens in parallel with message cycling)
 				const data = await apiClient.fetchStatistics();
-				
+
 				// Stop the message cycling once data arrives
 				if (messageInterval) {
 					clearInterval(messageInterval);
 				}
-				
+
 				if (isMounted) {
 					setStatistics(data);
 				}
@@ -136,7 +136,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 		const formatDate = (dateStr: string) => {
 			const hasTime = dateStr.includes(" ") || dateStr.includes("T");
 			const date = new Date(dateStr.replace(" ", "T") + (hasTime ? ":00Z" : "T00:00:00Z"));
-			
+
 			if (hasTime) {
 				return date.toLocaleString(undefined, {
 					year: 'numeric',
@@ -153,8 +153,8 @@ const Statistics: React.FC<StatisticsProps> = ({
 		const displayDate = showDate === 'created' ? task.createdDate : task.updatedDate || task.createdDate;
 
 		return (
-			<div 
-				key={task.id} 
+			<div
+				key={task.id}
 				className={`flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg transition-colors duration-200 ${
 					onClick ? 'hover:bg-gray-100 dark:hover:bg-gray-600/50 cursor-pointer' : ''
 				}`}
@@ -327,7 +327,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 				<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Overall Progress</h3>
 				<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-circle h-4 mb-2">
-					<div 
+					<div
 						className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-circle transition-all duration-300"
 						style={{ width: `${statistics.completionPercentage}%` }}
 					></div>
@@ -362,7 +362,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 										</div>
 									</div>
 									<div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-circle h-2">
-										<div 
+										<div
 											className="bg-blue-500 h-2 rounded-circle transition-all duration-300"
 											style={{ width: `${(count / statistics.totalTasks) * 100}%` }}
 										></div>
@@ -395,7 +395,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 										</div>
 									</div>
 									<div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-circle h-2">
-										<div 
+										<div
 											className="bg-yellow-500 h-2 rounded-circle transition-all duration-300"
 											style={{ width: `${(count / statistics.totalTasks) * 100}%` }}
 										></div>
@@ -415,9 +415,9 @@ const Statistics: React.FC<StatisticsProps> = ({
 					{statistics.recentActivity.created.length > 0 ? (
 						<div className="space-y-3">
 							{statistics.recentActivity.created.map((task) => (
-								<TaskPreview 
-									task={task} 
-									showDate="created" 
+								<TaskPreview
+									task={task}
+									showDate="created"
 									onClick={onEditTask ? () => onEditTask(task) : undefined}
 								/>
 							))}
@@ -433,9 +433,9 @@ const Statistics: React.FC<StatisticsProps> = ({
 					{statistics.recentActivity.updated.length > 0 ? (
 						<div className="space-y-3">
 							{statistics.recentActivity.updated.map((task) => (
-								<TaskPreview 
-									task={task} 
-									showDate="updated" 
+								<TaskPreview
+									task={task}
+									showDate="updated"
 									onClick={onEditTask ? () => onEditTask(task) : undefined}
 								/>
 							))}
@@ -450,24 +450,30 @@ const Statistics: React.FC<StatisticsProps> = ({
 			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
 				<div className="flex items-center justify-between">
 					<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Project Health</h3>
-					
+
 					<div className="flex items-center space-x-4 text-sm">
 						<div className="flex items-center space-x-1">
 							<span className="text-gray-600 dark:text-gray-400">Avg age:</span>
 							<span className="font-medium text-gray-900 dark:text-gray-100">{statistics.projectHealth.averageTaskAge}d</span>
 						</div>
-						
+
 						{statistics.projectHealth.staleTasks.length > 0 && (
 							<div className="flex items-center space-x-1">
 								<div className="w-2 h-2 bg-yellow-500 rounded-circle"></div>
 								<span className="font-medium text-yellow-700 dark:text-yellow-400">{statistics.projectHealth.staleTasks.length} stale</span>
 							</div>
 						)}
-						
+
 						{statistics.projectHealth.blockedTasks.length > 0 && (
 							<div className="flex items-center space-x-1">
 								<div className="w-2 h-2 bg-red-500 rounded-circle"></div>
 								<span className="font-medium text-red-700 dark:text-red-400">{statistics.projectHealth.blockedTasks.length} blocked</span>
+							</div>
+						)}
+						{statistics.projectHealth.deadlockedTaskGroups.length > 0 && (
+							<div className="flex items-center space-x-1">
+								<div className="w-2 h-2 bg-purple-500 rounded-circle"></div>
+								<span className="font-medium text-purple-700 dark:text-purple-400">{statistics.projectHealth.deadlockedTaskGroups.length} deadlocked</span>
 							</div>
 						)}
 
@@ -478,7 +484,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 							</div>
 						)}
 
-						{statistics.projectHealth.staleTasks.length === 0 && statistics.projectHealth.blockedTasks.length === 0 && (
+						{statistics.projectHealth.staleTasks.length === 0 && statistics.projectHealth.blockedTasks.length === 0 && statistics.projectHealth.deadlockedTaskGroups.length === 0 && (
 							<div className="flex items-center space-x-1">
 								<div className="w-2 h-2 bg-green-500 rounded-circle"></div>
 								<span className="font-medium text-green-700 dark:text-green-400">All good!</span>
@@ -486,11 +492,11 @@ const Statistics: React.FC<StatisticsProps> = ({
 						)}
 					</div>
 				</div>
-				
+
 				{/* Expandable task lists - only show if there are issues */}
-				{(statistics.projectHealth.staleTasks.length > 0 || statistics.projectHealth.blockedTasks.length > 0 || statistics.archivedTasks.length > 0) && (
+				{(statistics.projectHealth.staleTasks.length > 0 || statistics.projectHealth.blockedTasks.length > 0 || statistics.projectHealth.deadlockedTaskGroups.length > 0 || statistics.archivedTasks.length > 0) && (
 					<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-						<div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${statistics.archivedTasks.length > 0 ? 'lg:grid-cols-3' : ''}`}>
+						<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 							{/* Stale Tasks */}
 							{statistics.projectHealth.staleTasks.length > 0 && (
 								<div>
@@ -502,10 +508,10 @@ const Statistics: React.FC<StatisticsProps> = ({
 									</p>
 									<div className="space-y-2">
 										{statistics.projectHealth.staleTasks.slice(0, 3).map((task) => (
-											<TaskPreview 
+											<TaskPreview
 												key={task.id}
-												task={task} 
-												showDate="updated" 
+												task={task}
+												showDate="updated"
 												onClick={onEditTask ? () => onEditTask(task) : undefined}
 											/>
 										))}
@@ -518,21 +524,21 @@ const Statistics: React.FC<StatisticsProps> = ({
 								</div>
 							)}
 
-							{/* Blocked Tasks */}
+							{/* Blocked Tasks (dependency) */}
 							{statistics.projectHealth.blockedTasks.length > 0 && (
 								<div>
 									<h4 className="font-medium text-red-700 dark:text-red-400 mb-3 text-sm">
-										Blocked Tasks
+										Blocked Tasks (dependency)
 									</h4>
 									<p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
 										Tasks that cannot progress because their dependencies are not yet completed
 									</p>
 									<div className="space-y-2">
 										{statistics.projectHealth.blockedTasks.slice(0, 3).map((task) => (
-											<TaskPreview 
+											<TaskPreview
 												key={task.id}
-												task={task} 
-												showDate="created" 
+												task={task}
+												showDate="created"
 												onClick={onEditTask ? () => onEditTask(task) : undefined}
 											/>
 										))}
@@ -541,6 +547,54 @@ const Statistics: React.FC<StatisticsProps> = ({
 												+{statistics.projectHealth.blockedTasks.length - 3} more blocked tasks
 											</p>
 										)}
+									</div>
+								</div>
+							)}
+
+							{/* Blocked by Status */}
+							{statistics.projectHealth.blockedByStatus.length > 0 && (
+								<div>
+									<h4 className="font-medium text-orange-700 dark:text-orange-400 mb-3 text-sm">
+										Blocked by Status
+									</h4>
+									<p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+										Tasks whose status indicates they are blocked
+									</p>
+									<div className="space-y-2">
+										{statistics.projectHealth.blockedByStatus.slice(0, 3).map((task) => (
+											<TaskPreview
+												key={task.id}
+												task={task}
+												showDate="created"
+												onClick={onEditTask ? () => onEditTask(task) : undefined}
+											/>
+										))}
+										{statistics.projectHealth.blockedByStatus.length > 3 && (
+											<p className="text-xs text-gray-500 dark:text-gray-400 px-3">
+												+{statistics.projectHealth.blockedByStatus.length - 3} more blocked by status
+											</p>
+										)}
+									</div>
+								</div>
+							)}
+
+							{/* Deadlocked Tasks */}
+							{statistics.projectHealth.deadlockedTaskGroups.length > 0 && (
+								<div>
+									<h4 className="font-medium text-purple-700 dark:text-purple-400 mb-3 text-sm">
+										Deadlocked Tasks
+									</h4>
+									<p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+										Tasks in circular dependency chains that cannot be completed
+									</p>
+									<div className="space-y-2">
+										{statistics.projectHealth.deadlockedTaskGroups.map((group, i) => (
+											<div key={i} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+												<p className="text-sm font-mono text-purple-700 dark:text-purple-400">
+													{group.join(" → ")}
+												</p>
+											</div>
+										))}
 									</div>
 								</div>
 							)}
@@ -556,10 +610,10 @@ const Statistics: React.FC<StatisticsProps> = ({
 									</p>
 									<div className="space-y-2">
 										{statistics.archivedTasks.slice(0, 3).map((task) => (
-											<TaskPreview 
+											<TaskPreview
 												key={task.id}
-												task={task} 
-												showDate="created" 
+												task={task}
+												showDate="created"
 												onClick={onEditTask ? () => onEditTask(task) : undefined}
 											/>
 										))}

@@ -11,7 +11,7 @@ export class StatisticsHandlers {
 
 	async getStatistics(args: StatisticsArgs = {}): Promise<CallToolResult> {
 		await this.core.ensureConfigLoaded();
-		const { tasks, drafts, statuses, terminalStatuses } = await this.core.loadAllTasksForStatistics();
+		const { tasks, drafts, statuses, terminalStatuses, blockedStatuses } = await this.core.loadAllTasksForStatistics();
 		const archivedTasks = await this.core.fs.listArchivedTasks();
 
 		const filteredTasks = args.milestone
@@ -21,7 +21,7 @@ export class StatisticsHandlers {
 				})
 			: tasks;
 
-		const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks);
+		const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks, blockedStatuses);
 
 		const data = {
 			totalTasks: stats.totalTasks,
@@ -34,6 +34,8 @@ export class StatisticsHandlers {
 			averageTaskAge: stats.projectHealth.averageTaskAge,
 			staleTaskCount: stats.projectHealth.staleTasks.length,
 			blockedTaskCount: stats.projectHealth.blockedTasks.length,
+			blockedByStatusCount: stats.projectHealth.blockedByStatus.length,
+			deadlockedTaskGroups: stats.projectHealth.deadlockedTaskGroups,
 		};
 
 		return {

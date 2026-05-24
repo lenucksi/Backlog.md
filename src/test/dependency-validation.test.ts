@@ -13,19 +13,13 @@ function makeTask(id: string, dependencies: string[]): Task {
 
 describe("findCyclePath", () => {
 	it("returns null when no cycle exists (simple case)", () => {
-		const tasks = [
-			makeTask("A", ["B"]),
-			makeTask("B", []),
-		];
+		const tasks = [makeTask("A", ["B"]), makeTask("B", [])];
 		const result = findCyclePath("A", ["B"], tasks);
 		expect(result).toBeNull();
 	});
 
 	it("detects a direct cycle (A → B → A)", () => {
-		const tasks = [
-			makeTask("A", ["B"]),
-			makeTask("B", ["A"]),
-		];
+		const tasks = [makeTask("A", ["B"]), makeTask("B", ["A"])];
 		const result = findCyclePath("A", ["B"], tasks);
 		expect(result).not.toBeNull();
 		expect(result![0]).toBe("B");
@@ -33,11 +27,7 @@ describe("findCyclePath", () => {
 	});
 
 	it("detects a complex cycle (A → B → C → A)", () => {
-		const tasks = [
-			makeTask("A", ["B"]),
-			makeTask("B", ["C"]),
-			makeTask("C", ["A"]),
-		];
+		const tasks = [makeTask("A", ["B"]), makeTask("B", ["C"]), makeTask("C", ["A"])];
 		const result = findCyclePath("A", ["B"], tasks);
 		expect(result).not.toBeNull();
 		expect(result![result!.length - 1]).toBe("A");
@@ -61,11 +51,7 @@ describe("findCyclePath", () => {
 	});
 
 	it("escapes cycle via intermediate task deps (B depends on C, C depends on A)", () => {
-		const tasks = [
-			makeTask("A", ["B"]),
-			makeTask("B", ["C"]),
-			makeTask("C", ["A"]),
-		];
+		const tasks = [makeTask("A", ["B"]), makeTask("B", ["C"]), makeTask("C", ["A"])];
 		const result = findCyclePath("A", ["B"], tasks);
 		expect(result).not.toBeNull();
 	});
@@ -73,20 +59,13 @@ describe("findCyclePath", () => {
 
 describe("validateDependencyChange", () => {
 	it("returns { valid: true } when no cycle", () => {
-		const tasks = [
-			makeTask("A", ["B"]),
-			makeTask("B", []),
-		];
+		const tasks = [makeTask("A", ["B"]), makeTask("B", [])];
 		const result = validateDependencyChange("A", ["B"], tasks);
 		expect(result.valid).toBe(true);
 	});
 
 	it("returns { valid: false, cycle } when cycle detected", () => {
-		const tasks = [
-			makeTask("A", ["B"]),
-			makeTask("B", ["C"]),
-			makeTask("C", ["A"]),
-		];
+		const tasks = [makeTask("A", ["B"]), makeTask("B", ["C"]), makeTask("C", ["A"])];
 		const result = validateDependencyChange("A", ["B"], tasks);
 		expect(result.valid).toBe(false);
 		if (!result.valid) {
@@ -95,10 +74,7 @@ describe("validateDependencyChange", () => {
 	});
 
 	it("handles empty newDependencies", () => {
-		const tasks = [
-			makeTask("A", []),
-			makeTask("B", ["A"]),
-		];
+		const tasks = [makeTask("A", []), makeTask("B", ["A"])];
 		const result = validateDependencyChange("A", [], tasks);
 		expect(result.valid).toBe(true);
 	});

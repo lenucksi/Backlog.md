@@ -2744,9 +2744,13 @@ export class Core {
 	 * Load and process all tasks with the same logic as CLI overview
 	 * This method extracts the common task loading logic for reuse
 	 */
-	async loadAllTasksForStatistics(
-		progressCallback?: (msg: string) => void,
-	): Promise<{ tasks: Task[]; drafts: Task[]; statuses: string[]; terminalStatuses?: string[] }> {
+	async loadAllTasksForStatistics(progressCallback?: (msg: string) => void): Promise<{
+		tasks: Task[];
+		drafts: Task[];
+		statuses: string[];
+		terminalStatuses?: string[];
+		blockedStatuses?: string[];
+	}> {
 		const config = await this.fs.loadConfig();
 		const statuses = (config?.statuses || DEFAULT_STATUSES) as string[];
 		const resolutionStrategy = config?.taskResolutionStrategy || "most_progressed";
@@ -2822,7 +2826,13 @@ export class Core {
 		progressCallback?.("Loading drafts...");
 		const drafts = await this.fs.listDrafts();
 
-		return { tasks: activeTasks, drafts, statuses: statuses as string[], terminalStatuses: config?.terminalStatuses };
+		return {
+			tasks: activeTasks,
+			drafts,
+			statuses: statuses as string[],
+			terminalStatuses: config?.terminalStatuses,
+			blockedStatuses: config?.blockedStatuses,
+		};
 	}
 
 	/**

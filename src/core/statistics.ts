@@ -1,4 +1,5 @@
 import type { Task } from "../types/index.ts";
+import { detectDeadlocks } from "../utils/deadlock-detection.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
 
 export interface TaskStatistics {
@@ -18,6 +19,8 @@ export interface TaskStatistics {
 		averageTaskAge: number;
 		staleTasks: Task[];
 		blockedTasks: Task[];
+		blockedByStatus: Task[];
+		deadlockedTaskGroups: string[][];
 	};
 }
 
@@ -52,6 +55,7 @@ export function getTaskStatistics(
 	statuses: string[],
 	terminalStatuses?: string[],
 	archivedTasks?: Task[],
+	blockedStatuses?: string[],
 ): TaskStatistics {
 	const statusCounts = new Map<string, number>();
 	for (const status of statuses) {
@@ -74,6 +78,7 @@ export function getTaskStatistics(
 	const recentlyUpdated: Task[] = [];
 	const staleTasks: Task[] = [];
 	const blockedTasks: Task[] = [];
+	const blockedByStatus: Task[] = [];
 	let totalAge = 0;
 	let taskCount = 0;
 
@@ -111,10 +116,19 @@ export function getTaskStatistics(
 			});
 			if (hasBlocking) blockedTasks.push(task);
 		}
+
+		if (task.status && blockedStatuses && blockedStatuses.length > 0) {
+			const s = task.status;
+			if (blockedStatuses.some((bs) => bs.toLowerCase() === s.toLowerCase())) {
+				blockedByStatus.push(task);
+			}
+		}
 	}
 
 	sortByDateDesc(recentlyCreated, "createdDate");
 	sortByDateDesc(recentlyUpdated, "updatedDate");
+
+	const deadlockedTaskGroups = detectDeadlocks(tasks);
 
 	const averageTaskAge = taskCount > 0 ? Math.round(totalAge / taskCount) : 0;
 	const totalTasks = Array.from(statusCounts.values()).reduce((sum, count) => sum + count, 0);
@@ -137,6 +151,8 @@ export function getTaskStatistics(
 			averageTaskAge,
 			staleTasks: staleTasks.slice(0, 5),
 			blockedTasks: blockedTasks.slice(0, 5),
+			blockedByStatus: blockedByStatus.slice(0, 5),
+			deadlockedTaskGroups,
 		},
 	};
 }

@@ -1,9 +1,11 @@
 ---
 id: BACK-530
 title: 'BACK-532 — Project Health: Blocked/Deadlocked Tasks Analyse + Umsetzung'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - opencode
 created_date: '2026-05-22 18:42'
+updated_date: '2026-05-24 13:57'
 labels:
   - research
   - statistics
@@ -78,13 +80,75 @@ Die "Project Health" Section in Statistics hat aktuell eine "Blocked Tasks" List
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 #1 Research: Aktuelle blocked-Mechanismen dokumentiert (Code + Config)
-- [ ] #2 #2 Research: Topologische Deadlock-Erkennung via Sequences-Engine geprüft
-- [ ] #3 #3 UX-Design: Blocked + Deadlocked Tasks Liste in Statistics festgelegt
-- [ ] #4 #4 Implementierung: Blocked Tasks Liste (status-basiert) in Statistics
-- [ ] #5 #5 Implementierung: Deadlocked Tasks (Zyklus-Erkennung) in Statistics
-- [ ] #6 #6 Implementierung: CLI/WebUI/MCP alle zeigen Blocked+Deadlocked Daten
+- [x] #1 #1 Research: Aktuelle blocked-Mechanismen dokumentiert (Code + Config)
+- [x] #2 #2 Research: Topologische Deadlock-Erkennung via Sequences-Engine geprüft
+- [x] #3 #3 UX-Design: Blocked + Deadlocked Tasks Liste in Statistics festgelegt
+- [x] #4 #4 Implementierung: Blocked Tasks Liste (status-basiert) in Statistics
+- [x] #5 #5 Implementierung: Deadlocked Tasks (Zyklus-Erkennung) in Statistics
+- [x] #6 #6 Implementierung: CLI/WebUI/MCP alle zeigen Blocked+Deadlocked Daten
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+## Implementation Plan (approved)
+
+### Files changed (in order):
+
+1. **New: src/utils/deadlock-detection.ts** — `detectDeadlocks(tasks)` using Tarjan SCC
+2. **Edit: src/core/statistics.ts** — add `blockedStatuses` param, `deadlockedTaskGroups`, `blockedByStatus` to TaskStatistics
+3. **Edit: src/commands/statistics.ts** — pass config, show deadlocks in renderTable
+4. **Edit: src/mcp/tools/statistics/handlers.ts** — pass blockedStatuses, add to response
+5. **Edit: src/mcp/tools/statistics/schemas.ts** — add deadlockedTaskGroups to schema
+6. **Edit: src/server/handlers/system.ts** — pass blockedStatuses
+7. **Edit: src/ui/overview-tui.ts** — show deadlocked section
+8. **Edit: src/web/components/Statistics.tsx** — Deadlocked + BlockedByStatus sections
+9. **New: src/test/deadlock-detection.test.ts** — tests for detectDeadlocks
+10. **Edit: src/test/statistics.test.ts** — tests for new fields
+<!-- SECTION:PLAN:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+## Implementation Summary
+
+### New: `src/utils/deadlock-detection.ts`
+- `detectDeadlocks(tasks: Task[]): string[][]` using Tarjan's SCC algorithm
+- Returns groups of task IDs forming cycles (2+ tasks per group)
+- Filters out self-loops and single-node SCCs
+- 9 tests covering empty lists, linear chains, simple cycles, 3-node cycles, multi-cycle, and edge cases
+
+### Modified: `src/core/statistics.ts`
+- Added `blockedStatuses?: string[]` parameter to `getTaskStatistics()`
+- `TaskStatistics.projectHealth`:
+  - `blockedByStatus: Task[]` — tasks whose status matches `blockedStatuses` config (status-based blocking, separate from the existing dependency-based `blockedTasks`)
+  - `deadlockedTaskGroups: string[][]` — circular dependency groups from `detectDeadlocks()`
+
+### Modified: `src/core/backlog.ts`
+- `loadAllTasksForStatistics()` now returns `blockedStatuses` from config
+
+### Modified callers to pass `blockedStatuses`:
+- `src/commands/statistics.ts` — CLI `backlog stats` shows blocked-by-status count + deadlock groups with cycle paths
+- `src/commands/overview.ts` — passes `blockedStatuses` to `getTaskStatistics`
+- `src/mcp/tools/statistics/handlers.ts` — returns `blockedByStatusCount` + `deadlockedTaskGroups` in MCP response
+- `src/server/handlers/system.ts` — passes `blockedStatuses` to `getTaskStatistics`
+- `src/ui/overview-tui.ts` — TUI shows deadlocked tasks section with cycle paths
+
+### Modified: `src/web/components/Statistics.tsx`
+- Project Health summary row shows deadlocked count (purple dot)
+- Expandable sections: "Blocked by Status" (orange), "Deadlocked Tasks" with cycle paths (purple, monospace)
+
+### Modified tests:
+- `src/test/markdown-test-helpers.ts` — updated mock projectHealth
+- `src/test/deadlock-detection.test.ts` — 9 tests for `detectDeadlocks()`
+
+### Cross-modality coverage:
+- **CLI**: `backlog stats` shows blocked-by-status + deadlocked groups with cycle paths
+- **TUI**: `backlog overview` shows deadlocked section
+- **WebUI**: Statistics page shows Blocked by Status + Deadlocked sections
+- **MCP**: `backlog_get_statistics` returns `blockedByStatusCount` + `deadlockedTaskGroups`
+- **REST**: /api/statistics includes new fields via spread of TaskStatistics
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

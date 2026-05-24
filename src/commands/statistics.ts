@@ -37,7 +37,16 @@ function renderTable(stats: ReturnType<typeof getTaskStatistics>, milestoneLabel
 		lines.push(`Stale tasks:      ${stats.projectHealth.staleTasks.length}`);
 	}
 	if (stats.projectHealth.blockedTasks.length > 0) {
-		lines.push(`Blocked tasks:    ${stats.projectHealth.blockedTasks.length}`);
+		lines.push(`Blocked tasks (dep):    ${stats.projectHealth.blockedTasks.length}`);
+	}
+	if (stats.projectHealth.blockedByStatus.length > 0) {
+		lines.push(`Blocked tasks (status): ${stats.projectHealth.blockedByStatus.length}`);
+	}
+	if (stats.projectHealth.deadlockedTaskGroups.length > 0) {
+		lines.push(`Deadlocked groups:     ${stats.projectHealth.deadlockedTaskGroups.length}`);
+		for (const group of stats.projectHealth.deadlockedTaskGroups) {
+			lines.push(`  ${group.join(" → ")}`);
+		}
 	}
 
 	return lines.join("\n");
@@ -48,7 +57,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 	const core = new Core(cwd);
 	await core.ensureConfigLoaded();
 
-	const { tasks, drafts, statuses, terminalStatuses } = await core.loadAllTasksForStatistics();
+	const { tasks, drafts, statuses, terminalStatuses, blockedStatuses } = await core.loadAllTasksForStatistics();
 	const archivedTasks = await core.fs.listArchivedTasks();
 
 	const filteredTasks = options.milestone
@@ -58,7 +67,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 			})
 		: tasks;
 
-	const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks);
+	const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks, blockedStatuses);
 
 	if (options.json) {
 		const data = {
@@ -72,6 +81,8 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 			averageTaskAge: stats.projectHealth.averageTaskAge,
 			staleTaskCount: stats.projectHealth.staleTasks.length,
 			blockedTaskCount: stats.projectHealth.blockedTasks.length,
+			blockedByStatusCount: stats.projectHealth.blockedByStatus.length,
+			deadlockedTaskGroups: stats.projectHealth.deadlockedTaskGroups,
 		};
 		console.log(JSON.stringify(data, null, 2));
 		return;

@@ -187,6 +187,15 @@ export async function renderOverviewTui(statistics: TaskStatistics, projectName:
 			healthContent += "  {green-fg}No blocked tasks{/green-fg}\n";
 		}
 
+		healthContent += "\n{bold}Deadlocked Tasks:{/bold} {gray-fg}(circular dependencies){/gray-fg}\n";
+		if (statistics.projectHealth.deadlockedTaskGroups.length > 0) {
+			for (const group of statistics.projectHealth.deadlockedTaskGroups) {
+				healthContent += `  {red-fg}${group.join(" → ")}{/red-fg}\n`;
+			}
+		} else {
+			healthContent += "  {green-fg}No deadlocked tasks{/green-fg}\n";
+		}
+
 		healthContent += "\n{bold}Archived Tasks:{/bold} {gray-fg}(moved to archive){/gray-fg}\n";
 		if (statistics.archivedTasks.length > 0) {
 			for (const task of statistics.archivedTasks) {
@@ -285,6 +294,18 @@ function printProjectHealth(s: TaskStatistics): void {
 
 	console.log("\n  Blocked Tasks (waiting on dependencies):");
 	printTaskList(s.projectHealth.blockedTasks, "No blocked tasks");
+
+	console.log("\n  Blocked by Status:");
+	printTaskList(s.projectHealth.blockedByStatus, "No blocked by status");
+
+	console.log("\n  Deadlocked Tasks (circular dependencies):");
+	if (s.projectHealth.deadlockedTaskGroups.length > 0) {
+		for (const group of s.projectHealth.deadlockedTaskGroups) {
+			console.log(`    ${group.join(" → ")}`);
+		}
+	} else {
+		console.log("    No deadlocked tasks");
+	}
 
 	console.log("\n  Archived Tasks:");
 	printTaskList(s.archivedTasks, "No archived tasks");
