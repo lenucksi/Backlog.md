@@ -173,7 +173,7 @@ export class BacklogServer {
 					});
 				},
 			};
-			for (const path of ["/", "/tasks", "/tasks/*", "/board", "/board/*", "/milestones", "/drafts", "/documentation", "/documentation/*", "/decisions", "/decisions/*", "/statistics", "/settings"]) {
+			for (const path of ["/tasks", "/tasks/*", "/board", "/board/*", "/milestones", "/drafts", "/documentation", "/documentation/*", "/decisions", "/decisions/*", "/statistics", "/settings"]) {
 				(routes as Record<string, unknown>)[path] = spaHandler;
 			}
 
@@ -289,12 +289,21 @@ export class BacklogServer {
 		const url = new URL(req.url);
 		const pathname = url.pathname;
 
-		if (req.headers.get("upgrade") === "websocket") {
+		if (req.headers.get("upgrade")?.toLowerCase() === "websocket") {
 			const success = server.upgrade(req, { data: undefined });
 			if (success) {
 				return new Response(null, { status: 101 });
 			}
 			return new Response("WebSocket upgrade failed", { status: 400 });
+		}
+
+		if (pathname === "/") {
+			const bundledHtml = Bun.file("dist/index.html");
+			const useBundled = await bundledHtml.exists().catch(() => false);
+			const htmlFile = useBundled ? bundledHtml : Bun.file("src/web/index.html");
+			return new Response(htmlFile, {
+				headers: { "Content-Type": "text/html" },
+			});
 		}
 
 		if (pathname === "/favicon.png") {
