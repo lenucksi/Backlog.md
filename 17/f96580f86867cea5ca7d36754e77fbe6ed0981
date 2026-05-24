@@ -1,0 +1,20 @@
+.codex/skills/run-tests.md
+  s_b0d8f729495e47::t_c075fff64fb259 7,9,19
+  s_b0d8f729495e47::t_62520db4915555 2,11,14-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "17f96580f86867cea5ca7d36754e77fbe6ed0981",
+  "prompts": {},
+  "sessions": {
+    "s_b0d8f729495e47": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1a5c85cdfffe9TieWoy1MgVqOm",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
