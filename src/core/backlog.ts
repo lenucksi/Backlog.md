@@ -23,6 +23,7 @@ import {
 	type TaskUpdateInput,
 } from "../types/index.ts";
 import { normalizeAssignee } from "../utils/assignee.ts";
+import { validateDependencyChange } from "../utils/dependency-validation.ts";
 import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
 import {
 	getDocumentSubPathFromRelativePath,
@@ -268,6 +269,15 @@ async function resolveDependenciesFromInput(task: Task, input: TaskUpdateInput, 
 		if (!stringArraysEqual(filtered, currentDependencies)) {
 			currentDependencies = filtered;
 			mutated = true;
+		}
+	}
+
+	// Check for cycles when dependencies changed
+	if (mutated && !input.force) {
+		const allTasks = await core.queryTasks();
+		const validation = validateDependencyChange(task.id, currentDependencies, allTasks);
+		if (!validation.valid) {
+			throw new Error(`Circular dependency detected: ${validation.cycle.join(" → ")}`);
 		}
 	}
 
@@ -1923,6 +1933,12 @@ export class Core {
 	}
 
 	async editTask(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
+		// Reopen guard: reject edits on archived tasks
+		const archiveDir = this.fs.archiveTasksDir;
+		const taskPath = await getTaskPath(taskId, this);
+		if (taskPath && taskPath.startsWith(archiveDir)) {
+			throw new Error(`Cannot edit archived task ${normalizeTaskId(taskId)}`);
+		}
 		return await this.updateTaskFromInput(taskId, input, autoCommit);
 	}
 

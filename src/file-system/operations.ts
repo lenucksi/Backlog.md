@@ -659,6 +659,12 @@ export class FileSystem {
 			// Use rename for proper Git move detection
 			await rename(sourcePath, targetPath);
 
+			// Set frontmatter status to "Archived" after move
+			const content = await Bun.file(targetPath).text();
+			const parsed = matter(content);
+			parsed.data.status = "Archived";
+			await Bun.write(targetPath, matter.stringify(parsed.content, parsed.data));
+
 			return true;
 		} catch (_error) {
 			return false;

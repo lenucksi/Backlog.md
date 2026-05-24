@@ -1,9 +1,10 @@
 ---
 id: BACK-529.7
 title: BACK-529.7 — Reopen Guard für Archivierte Tasks
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-05-22 18:42'
+updated_date: '2026-05-24 13:20'
 labels:
   - fix
   - ux
@@ -42,7 +43,28 @@ Archivierte Tasks (in `archive/tasks/`) sollen nicht reopened werden können. Nu
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 bunx tsc --noEmit passes when TypeScript touched
-- [ ] #2 bun run check . passes when formatting/linting touched
-- [ ] #3 bun test (or scoped test) passes
+- [x] #1 bunx tsc --noEmit passes when TypeScript touched
+- [x] #2 bun run check . passes when formatting/linting touched
+- [x] #3 bun test (or scoped test) passes
 <!-- DOD:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [x] #1 core.editTask() wirft Error bei archived Tasks via archiveDir-Check
+- [x] #2 Error-Message: "Cannot edit archived task ID"
+- [x] #3 Keine tsc Fehler
+<!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Core.editTask() in backlog.ts: Vor updateTaskFromInput wird getTaskPath() aufgerufen und mit this.fs.archiveTasksDir verglichen. Wenn taskPath.startsWith(archiveDir) → Error. normalizeTaskId(taskId) für lesbare ID in der Fehlermeldung. Import war bereits vorhanden.
+
+Serena-Tool: serena_replace_symbol_body(Core/editTask) in backlog.ts
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+`core.editTask()` prüft ob der Task-Pfad im archive-Tasks-Verzeichnis liegt. Wenn ja: `Error("Cannot edit archived task ...")`. Zusätzlich ist der WebUI "Mark as completed"-Button jetzt über `isTerminalStatus()` gesteuert (Config-aware).
+<!-- SECTION:FINAL_SUMMARY:END -->

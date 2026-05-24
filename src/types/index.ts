@@ -113,6 +113,7 @@ export interface TaskUpdateInput {
 	title?: string;
 	description?: string;
 	status?: TaskStatus;
+	force?: boolean;
 	priority?: "high" | "medium" | "low";
 	milestone?: string | null;
 	labels?: string[];

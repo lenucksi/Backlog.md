@@ -849,8 +849,8 @@ async function handleTaskCompleteCommand(ids: string[]) {
 				hasError = true;
 				continue;
 			}
-			await core.editTask(task.id, { status: "Done" });
-			console.log(`Task ${task.id} — ${task.title} marked as Done`);
+			await core.completeTask(task.id);
+			console.log(`Task ${task.id} — ${task.title} archived`);
 		} catch (error) {
 			console.error(AppError.formatCLIError(error));
 			hasError = true;

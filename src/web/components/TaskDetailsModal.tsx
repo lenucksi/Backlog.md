@@ -10,6 +10,7 @@ import FilePreviewModal from "./FilePreviewModal";
 import ChipInput from "./ChipInput";
 import DependencyInput from "./DependencyInput";
 import { formatStoredUtcDateForDisplay } from "../utils/date-display";
+import { isTerminalStatus } from "../../utils/terminal-status.ts";
 
 interface Props {
   task?: Task; // Optional for create mode
@@ -275,7 +276,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
         e.stopPropagation();
         setMode("edit");
       }
-      if (mode === "preview" && isDoneStatus && (e.key.toLowerCase() === "c") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (mode === "preview" && isTerminal && (e.key.toLowerCase() === "c") && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         e.stopPropagation();
         void handleComplete();
@@ -590,7 +591,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
   const totalCount = (criteria || []).length;
   const definitionCheckedCount = (definitionOfDone || []).filter((c) => c.checked).length;
   const definitionTotalCount = (definitionOfDone || []).length;
-  const isDoneStatus = (status || "").toLowerCase().includes("done");
+  const isTerminal = isTerminalStatus(status || "", availableStatuses || []);
 
   const displayId = task?.id ?? "";
   const documentation = task?.documentation ?? [];
@@ -610,13 +611,13 @@ export const TaskDetailsModal: React.FC<Props> = ({
       disableEscapeClose={mode === "edit" || mode === "create"}
       actions={
         <div className="flex items-center gap-2">
-		          {isDoneStatus && mode === "preview" && !isCreateMode && !isFromOtherBranch && (
+		          {isTerminal && mode === "preview" && !isCreateMode && !isFromOtherBranch && (
 		            <button
 		              onClick={handleComplete}
 		              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-		              title="Move to completed folder (removes from board)"
+		              title="Move this task to the archive. It cannot be reopened."
 		            >
-		              Mark as completed
+		              Finish & Archive
 		            </button>
 		          )}
 		          {mode === "preview" && !isCreateMode && !isFromOtherBranch ? (

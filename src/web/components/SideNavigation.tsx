@@ -544,9 +544,9 @@ const SideNavigation = memo(function SideNavigation({
 					<>
 						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
 						<CollapsibleGroup
-							title={`Completed (${completedTasks.length})`}
+							title="Completed"
 							icon={<span className="text-gray-400 dark:text-gray-500"><Icons.Tasks /></span>}
-							count={0}
+							count={completedTasks.length}
 							storageKey="completedTasksCollapsed"
 							defaultCollapsed={true}
 						>
