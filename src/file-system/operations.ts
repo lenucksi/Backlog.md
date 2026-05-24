@@ -1,7 +1,5 @@
 import { mkdir, readdir, rename, rmdir, stat, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import matter from "gray-matter";
-import lockfile from "proper-lockfile";
 import { DEFAULT_DIRECTORIES, DEFAULT_FILES, DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
 import { parseDecision, parseDocument, parseMilestone, parseTask } from "../markdown/parser.ts";
 import { serializeDecision, serializeDocument, serializeTask } from "../markdown/serializer.ts";
@@ -18,6 +16,8 @@ import type { BacklogConfigSource } from "../utils/backlog-directory.ts";
 import { normalizeProjectBacklogDirectory, resolveBacklogDirectory } from "../utils/backlog-directory.ts";
 import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
 import { normalizeDocumentRelativePath, normalizeDocumentSubPath } from "../utils/document-path.ts";
+import { lockDirectory } from "../utils/file-lock.ts";
+import { parseFrontmatter, stringifyFrontmatter } from "../utils/frontmatter.ts";
 import {
 	buildGlobPattern,
 	extractAnyPrefix,
@@ -388,17 +388,10 @@ export class FileSystem {
 
 		let release: (() => Promise<void>) | undefined;
 		try {
-			release = await lockfile.lock(backlogDir, {
-				lockfilePath: lockDir,
-				realpath: true,
+			release = await lockDirectory(lockDir, {
 				stale: staleMs,
-				retries: {
-					retries,
-					factor: 1,
-					minTimeout: retryDelayMs,
-					maxTimeout: retryDelayMs,
-					randomize: false,
-				},
+				retries,
+				retryDelay: retryDelayMs,
 			});
 		} catch (error) {
 			throw this.toCreateLockError(error);
@@ -661,9 +654,9 @@ export class FileSystem {
 
 			// Set frontmatter status to "Archived" after move
 			const content = await Bun.file(targetPath).text();
-			const parsed = matter(content);
+			const parsed = parseFrontmatter(content);
 			parsed.data.status = "Archived";
-			await Bun.write(targetPath, matter.stringify(parsed.content, parsed.data));
+			await Bun.write(targetPath, stringifyFrontmatter(parsed.content, parsed.data));
 
 			return true;
 		} catch (_error) {
@@ -1019,7 +1012,7 @@ export class FileSystem {
 			for (const file of files) {
 				const filepath = join(archiveDir, file);
 				const content = await Bun.file(filepath).text();
-				const parsed = matter(content);
+				const parsed = parseFrontmatter(content);
 				const id = (parsed.data.id as string) || file.replace(/\.md$/, "");
 				const title = (parsed.data.title as string) || file;
 				docs.push({ id, title, path: file });
@@ -1039,7 +1032,7 @@ export class FileSystem {
 			for (const file of files) {
 				const filepath = join(archiveDir, file);
 				const content = await Bun.file(filepath).text();
-				const parsed = matter(content);
+				const parsed = parseFrontmatter(content);
 				if (parsed.data.id === id || file.startsWith(`${id} -`) || file.startsWith(`doc-${id} -`)) {
 					const targetPath = join(docsDir, file);
 					await this.ensureDirectoryExists(dirname(targetPath));
@@ -1847,7 +1840,7 @@ ${description || `Milestone: ${title}`}`,
 
 	private parseDefinitionOfDoneFromYaml(content: string): string[] | undefined {
 		try {
-			const data = matter(`---\n${content.trimEnd()}\n---\n`).data as Record<string, unknown>;
+			const data = parseFrontmatter(`---\n${content.trimEnd()}\n---\n`).data as Record<string, unknown>;
 			if (!Object.hasOwn(data, "definition_of_done")) {
 				return undefined;
 			}

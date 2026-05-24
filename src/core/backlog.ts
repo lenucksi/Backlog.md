@@ -2459,8 +2459,8 @@ export class Core {
 		}
 
 		// Parse the markdown content to extract the decision data
-		const matter = await import("gray-matter");
-		const { data } = matter.default(content);
+		const { parseFrontmatter: parseFm } = await import("../utils/frontmatter.ts");
+		const { data } = parseFm(content);
 
 		const extractSection = (content: string, sectionName: string): string | undefined => {
 			const regex = new RegExp(`## ${sectionName}\\s*([\\s\\S]*?)(?=## |$)`, "i");

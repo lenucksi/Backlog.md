@@ -22,34 +22,25 @@ const ver = Bun.spawnSync(["jq", "-r", ".version", "package.json"]).stdout.toStr
 const ext = plat === "win32" ? ".exe" : "";
 const outfile = "dist/backlog" + ext;
 
-// Prefer bun 1.2.x until 1.3.x --target bug is fixed
-const bunExe = [
-	"tools/bun-1.2.4",
-	"/usr/bin/bun",
-	"/usr/local/bin/bun",
-].find((p) => {
-	try {
-		const v = Bun.spawnSync([p, "--version"]).stdout.toString().trim();
-		return v.startsWith("1.2");
-	} catch {
-		return false;
-	}
+// --external bun: workaround for bun 1.3.x --target regression with "bun" builtin imports.
+// bun is a runtime builtin in compiled binaries, so external is safe.
+const result = await Bun.build({
+	entrypoints: ["./src/cli.ts"],
+	outfile,
+	target: target as any,
+	compile: true,
+	minify: true,
+	external: ["bun"],
+	define: {
+		__EMBEDDED_VERSION__: JSON.stringify(ver),
+	},
 });
 
-if (!bunExe) {
-	console.error("No compatible bun 1.2.x binary found. Try: tools/bun-1.2.4 --version");
-	process.exit(1);
-}
-
-const result = Bun.spawnSync([bunExe, "build", "src/cli.ts",
-	"--compile", "--minify",
-	"--target=" + target,
-	"--define=__EMBEDDED_VERSION__=" + JSON.stringify(ver),
-	"--outfile=" + outfile,
-]);
-
 if (!result.success) {
-	process.exit(result.exitCode);
+	for (const log of result.logs) {
+		console.error(log);
+	}
+	process.exit(1);
 }
 
 console.log("Built " + outfile + " (target: " + target + ")");

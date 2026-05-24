@@ -9,10 +9,18 @@
 		"sonarqube": {
 			"type": "local",
 			"command": [
-				"docker", "run", "--init", "--pull=always", "-i", "--rm",
-				"-e", "SONARQUBE_TOKEN",
-				"-e", "SONARQUBE_ORG",
-				"-v", "{env:PWD}:/app/mcp-workspace",
+				"docker",
+				"run",
+				"--init",
+				"--pull=always",
+				"-i",
+				"--rm",
+				"-e",
+				"SONARQUBE_TOKEN",
+				"-e",
+				"SONARQUBE_ORG",
+				"-v",
+				"{env:PWD}:/app/mcp-workspace",
 				"mcp/sonarqube"
 			],
 			"enabled": true,
