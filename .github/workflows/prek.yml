@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: j178/prek-action@571681a27580db5f7636d74f27d01f6e67c68c1b # v2
+      - uses: j178/prek-action@01345c78b7de7d79edf368729212760396ba9345 # v2

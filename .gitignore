@@ -84,3 +84,4 @@ __pycache__/
 *.pyc
 .npmrc
 packages/backlog-guard/opencode-plugin.js
+tools/

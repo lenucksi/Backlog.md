@@ -68,7 +68,7 @@
     "guard:build": "bun build hooks/backlog-guard/opencode-plugin.ts --outfile hooks/backlog-guard/opencode-plugin.js --target=node --format=esm && bun build hooks/backlog-guard/claude-hook.ts --outfile hooks/backlog-guard/claude-hook.js --target=node --format=esm --external=yaml --external=shell-quote",
     "guard:dev": "bun run guard:test && bun run guard:build",
     "build:guard": "bun run guard:build",
-    "build": "bun run build:guard && bun run build:css && VER=$(bun -e 'console.log(require(\"./package.json\").version)') && bun build --production --compile --minify --define __EMBEDDED_VERSION__=\"\\\"$VER\\\"\" --outfile=dist/backlog src/cli.ts",
+    "build": "bun run scripts/build.ts",
     "cli": "bun run build:css && bun src/cli.ts",
     "mcp": "bun src/cli.ts mcp start",
     "update-nix": "sh scripts/update-nix.sh",

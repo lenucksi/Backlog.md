@@ -63,6 +63,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.os }}-bun-${{ env.BUN_VERSION }}-
       - run: bun install --frozen-lockfile --linker=isolated
+      - name: Run prek checks
+        uses: j178/prek-action@01345c78b7de7d79edf368729212760396ba9345 # v2
       - run: bun run lint
       - name: Run knip
         run: bunx knip --no-exit-code --reporter compact
@@ -175,7 +177,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - uses: actions/download-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.1
         with:
           name: coverage-report
           path: coverage/
@@ -186,7 +188,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
