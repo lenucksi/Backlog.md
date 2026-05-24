@@ -64,6 +64,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.os }}-bun-${{ env.BUN_VERSION }}-
       - run: bun install --frozen-lockfile --linker=isolated
       - name: Run prek checks
+        if: matrix.os != 'windows-latest'
         uses: j178/prek-action@01345c78b7de7d79edf368729212760396ba9345 # v2
       - run: bun run lint
       - name: Run knip
