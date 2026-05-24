@@ -317,7 +317,7 @@ export class BacklogServer {
 		if (pathname.startsWith("/web/") || pathname.startsWith("/styles/") || pathname.endsWith(".tsx") || pathname.endsWith(".js")) {
 			const webPath = pathname.replace(/^\//, "");
 			for (const dir of ["dist", "src/web"]) {
-				const file = Bun.file(dir + "/" + webPath);
+				const file = Bun.file(`${dir}/${webPath}`);
 				const exists = await file.exists().catch(() => false);
 				if (exists) {
 					return new Response(file, {
