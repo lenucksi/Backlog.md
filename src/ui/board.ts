@@ -1234,7 +1234,7 @@ export async function renderBoardTui(
 			renderView();
 		};
 
-		screen.key(["m"], async () => {
+		screen.key(["C-m"], async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || moveOp || currentFocus === "filters") return;
 			await runWithModalGuard(async () => {
 				await openCreateMilestoneScreen(screen);

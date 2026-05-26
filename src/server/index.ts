@@ -17,7 +17,7 @@ import { createFileHandlers } from "./handlers/files.ts";
 import { createMilestoneHandlers } from "./handlers/milestones.ts";
 import { createSystemHandlers } from "./handlers/system.ts";
 import { createTaskHandlers } from "./handlers/tasks.ts";
-import { applyNoStoreHeaders, findNextAvailablePort, isPortAvailable } from "./middleware.ts";
+import { applyNoStoreHeaders, findNextAvailablePort, isPortAvailable, markHtmlBundleNoStore } from "./middleware.ts";
 import { buildRoutes } from "./router.ts";
 import type { ServerHandlerContext } from "./types.ts";
 
@@ -306,7 +306,7 @@ export class BacklogServer {
 			});
 		}
 
-		if (pathname === "/favicon.png") {
+		if (pathname.startsWith("/favicon")) {
 			const faviconFile = Bun.file(favicon);
 			return new Response(faviconFile, {
 				headers: { "Content-Type": "image/png" },

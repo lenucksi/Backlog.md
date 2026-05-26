@@ -218,6 +218,10 @@ describe("McpServer bootstrap", () => {
 			"task_archive",
 			"task_reorder",
 			"task_complete",
+			"backlog_label_list",
+			"backlog_label_add",
+			"backlog_label_rename",
+			"backlog_label_remove",
 			"milestone_list",
 			"milestone_add",
 			"milestone_rename",
@@ -239,6 +243,7 @@ describe("McpServer bootstrap", () => {
 			"decision_supersede",
 			"decision_resolve",
 			"backlog_get_statistics",
+			"backlog_open_in_browser",
 		]);
 
 		const resources = await server.testInterface.listResources();

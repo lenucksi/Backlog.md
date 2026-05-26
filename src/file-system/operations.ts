@@ -172,6 +172,11 @@ export class FileSystem {
 	get tasksDir(): string {
 		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.TASKS);
 	}
+
+	get completedDir(): string {
+		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.COMPLETED);
+	}
+
 	get archiveTasksDir(): string {
 		return join(this.resolvedBacklogDir, DEFAULT_DIRECTORIES.ARCHIVE_TASKS);
 	}
