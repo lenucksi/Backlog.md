@@ -204,7 +204,8 @@ describe("config command coverage", () => {
 		for (const key of ["statuses", "labels"]) {
 			const r = await runBacklogCli(["config", "set", key, "new-value"], TEST_DIR);
 			expect(r.exitCode).not.toBe(0);
-			expect(r.stderr).toContain("cannot be set directly");
+			const expected = key === "labels" ? "Use 'backlog label add/remove' to manage labels." : "cannot be set directly";
+			expect(r.stderr).toContain(expected);
 		}
 	});
 

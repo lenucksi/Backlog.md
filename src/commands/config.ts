@@ -481,6 +481,9 @@ async function handleConfigSetCommand(key: string, value: string) {
 			break;
 		}
 		case "statuses":
+			console.error("statuses cannot be set directly");
+			process.exit(1);
+			break;
 		case "labels":
 			console.error("Use 'backlog label add/remove' to manage labels.");
 			process.exit(1);

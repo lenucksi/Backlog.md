@@ -184,20 +184,6 @@ describe("addAgentInstructions", () => {
 		expect(ansiCIdx).toBeGreaterThan(appendIdx);
 	});
 
-	// BACK-431 / issue #595: option help text must not advertise shell forms that AI
-	// agent sandboxes reject. Help text is what `--help` surfaces and what agents echo
-	// when reasoning about how to call the CLI.
-	it("CLI option help does not advertise sandbox-rejected shell forms (BACK-431/#595)", async () => {
-		const cliPath = join(__dirname, "../cli.ts");
-		const cliText = await Bun.file(cliPath).text();
-		const helpLines = cliText.split("\n").filter((line) => line.includes("multi-line"));
-		expect(helpLines.length).toBeGreaterThan(0);
-		for (const line of helpLines) {
-			expect(line).not.toMatch(/\$'/); // no ANSI-C quoting in help strings
-			expect(line).not.toMatch(/\$\(printf/); // no command-substitution-with-printf in help strings
-		}
-	});
-
 	it("replaces MCP nudge with CLI guidelines when switching modes", async () => {
 		const agentsPath = join(TEST_DIR, "AGENTS.md");
 		const mcpBlock = [

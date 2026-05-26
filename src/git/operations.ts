@@ -336,6 +336,9 @@ export class GitOperations {
 		if (context) {
 			const pathForAdd = context.relativePath === "." ? "." : context.relativePath;
 			await this.execGit(["add", pathForAdd], { cwd: context.repoRoot });
+			await this.execGit(["reset", "--", `${pathForAdd}/.locks/`], {
+				cwd: context.repoRoot,
+			}).catch(() => {});
 			return context.repoRoot;
 		}
 		if (!(await this.isRepository())) {
@@ -343,6 +346,7 @@ export class GitOperations {
 		}
 
 		await this.execGit(["add", `${backlogDir}/`]);
+		await this.execGit(["reset", "--", `${backlogDir}/.locks/`]).catch(() => {});
 		return null;
 	}
 	async stageFileMove(fromPath: string, toPath: string): Promise<string | null> {
