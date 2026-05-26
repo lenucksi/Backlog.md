@@ -1,0 +1,19 @@
+package.json
+  s_b0d8f729495e47::t_4d13f950506845 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "5c04e9e448e1099b3e798f2e83aed5229969a2ae",
+  "prompts": {},
+  "sessions": {
+    "s_b0d8f729495e47": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1a5c85cdfffe9TieWoy1MgVqOm",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
