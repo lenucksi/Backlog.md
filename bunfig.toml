@@ -1,3 +1,8 @@
+[install]
+# MUST use hoisted — isolated (.bun/ flat structure) breaks CJS packages
+# that expect nested node_modules, e.g. neo-neo-bblessed, graceful-fs, etc.
+linker = "hoisted"
+
 [test]
 # Timeout for individual tests - increased for Windows compatibility
 timeout = "10s"

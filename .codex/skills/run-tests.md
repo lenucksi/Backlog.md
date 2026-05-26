@@ -4,7 +4,12 @@ context: fork
 model: haiku
 ---
 
-bunfig.toml sets `pathIgnorePatterns = ["worktrees/*"]` — worktrees excluded automatically.
+bunfig.toml sets `linker = "hoisted"` and `pathIgnorePatterns = ["worktrees/*"]`.
+
+First-time setup:
+```bash
+rm -rf node_modules && bun install
+```
 
 Run all tests:
 ```bash
