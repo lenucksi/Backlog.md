@@ -4,7 +4,7 @@ default_install_hook_types = ["pre-commit", "commit-msg"]
 repo = "builtin"
 hooks = [
 	{ id = "trailing-whitespace", exclude = "backlog/" },
-	{ id = "end-of-file-fixer", exclude = "backlog/" },
+	{ id = "end-of-file-fixer", exclude = "backlog/|src/web/styles/style.css" },
 	{ id = "check-yaml" },
 	{ id = "check-json", exclude = "tsconfig.json" },
 	{ id = "check-toml" },
