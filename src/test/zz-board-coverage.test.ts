@@ -67,6 +67,13 @@ function createMockWidget() {
 		strWidth: (_s: string): number => 0,
 		readInput: () => {},
 		cancel: () => {},
+		getListBox: (): { ritems: string[]; focus: () => void; destroy: () => void } => ({
+			ritems: [],
+			focus: () => {},
+			destroy: () => {},
+		}),
+		getContent: (): string => "",
+		content: "",
 		_handlers: { key: kh, event: eh },
 	};
 }
