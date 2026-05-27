@@ -100,6 +100,7 @@ mock.module("neo-neo-bblessed", () => ({
 			_screenKeyHandlers.push({ keys, handler });
 			_allKeyHandlers.push({ keys, handler });
 		};
+		(s as Record<string, unknown>).on = () => {};
 		return s;
 	},
 	program: () => ({}),
