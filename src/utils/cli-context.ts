@@ -3,12 +3,20 @@ import { findBacklogRoot } from "./find-backlog-root.ts";
 import type { RuntimeCwdResolution } from "./runtime-cwd.ts";
 import { resolveRuntimeCwd } from "./runtime-cwd.ts";
 
-export const hasInteractiveTTY = Boolean(process.stdout.isTTY && process.stdin.isTTY);
-export const shouldAutoPlain = !hasInteractiveTTY;
-const plainFlagInArgv = process.argv.includes("--plain");
+export function hasInteractiveTTY(): boolean {
+	return Boolean(process.stdout.isTTY && process.stdin.isTTY);
+}
+
+export function shouldAutoPlain(): boolean {
+	return !hasInteractiveTTY();
+}
+
+function hasPlainArgv(): boolean {
+	return process.argv.includes("--plain");
+}
 
 export function isPlainRequested(options?: { plain?: boolean }): boolean {
-	return Boolean(options?.plain || plainFlagInArgv);
+	return Boolean(options?.plain || hasPlainArgv());
 }
 
 export function createMultiValueAccumulator() {

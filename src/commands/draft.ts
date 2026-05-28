@@ -39,7 +39,7 @@ function registerDraftListCommand(draftCmd: Command): void {
 				sortedDrafts = sortTasks(drafts, "priority");
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				console.log("Drafts:");
 				for (const draft of sortedDrafts) {
@@ -157,7 +157,7 @@ function registerDraftViewCommand(draftCmd: Command): void {
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				console.log(formatTaskPlainText(draft));
 				return;
@@ -192,7 +192,7 @@ function registerDraftDefaultCommand(draftCmd: Command): void {
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				console.log(formatTaskPlainText(draft, { filePathOverride: filePath }));
 				return;

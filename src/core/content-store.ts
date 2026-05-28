@@ -47,6 +47,11 @@ export class ContentStore {
 	private chainTail: Promise<void> = Promise.resolve();
 	private watchersInitialized = false;
 	private configWatcherActive = false;
+	private pollingTimer: ReturnType<typeof setInterval> | null = null;
+	private lastKnownTaskSignature = "";
+	private lastKnownDecisionSignature = "";
+	private lastKnownDocumentSignature = "";
+	private static readonly POLL_INTERVAL_MS = 3000;
 
 	private attachWatcherErrorHandler(watcher: FSWatcher, context: string): void {
 		watcher.on("error", (error) => {
@@ -140,6 +145,7 @@ export class ContentStore {
 	}
 
 	dispose(): void {
+		this.stopPolling();
 		if (this.restoreFilesystemPatch) {
 			this.restoreFilesystemPatch();
 			this.restoreFilesystemPatch = undefined;
@@ -198,8 +204,18 @@ export class ContentStore {
 		this.replaceDocuments(documents);
 		this.replaceDecisions(decisions);
 
+		const [taskSig, decisionSig, documentSig] = await Promise.all([
+			this.pollDirSignature(this.filesystem.tasksDir),
+			this.pollDirSignature(this.filesystem.decisionsDir),
+			this.filesystem.docsDir ? this.pollDirSignature(this.filesystem.docsDir) : Promise.resolve(""),
+		]);
+		this.lastKnownTaskSignature = taskSig;
+		this.lastKnownDecisionSignature = decisionSig;
+		this.lastKnownDocumentSignature = documentSig;
+
 		if (this.enableWatchers) {
 			await this.setupWatchers();
+			this.startPolling();
 		}
 		this.notify("ready");
 		return this.getSnapshot();
@@ -244,6 +260,73 @@ export class ContentStore {
 			if (process.env.DEBUG) {
 				console.error("Failed to initialize config watcher", error);
 			}
+		}
+	}
+
+	private startPolling(): void {
+		if (this.pollingTimer !== null) return;
+		this.pollingTimer = setInterval(() => {
+			this.enqueue(async () => {
+				await this.pollChanges();
+			});
+		}, ContentStore.POLL_INTERVAL_MS);
+	}
+
+	private stopPolling(): void {
+		if (this.pollingTimer !== null) {
+			clearInterval(this.pollingTimer);
+			this.pollingTimer = null;
+		}
+	}
+
+	private async pollDirSignature(dir: string): Promise<string> {
+		try {
+			const entries = await readdir(dir, { withFileTypes: true });
+			const parts = await Promise.all(
+				entries
+					.filter((e) => e.isFile())
+					.sort((a, b) => a.name.localeCompare(b.name))
+					.map(async (entry) => {
+						try {
+							const s = await stat(join(dir, entry.name));
+							return `${entry.name}:${s.mtimeMs}`;
+						} catch {
+							return `${entry.name}:0`;
+						}
+					}),
+			);
+			return parts.join(",");
+		} catch {
+			return "";
+		}
+	}
+
+	private async pollChanges(): Promise<void> {
+		if (!this.initializer.isInitialized) return;
+
+		try {
+			const [taskSig, decisionSig, documentSig] = await Promise.all([
+				this.pollDirSignature(this.filesystem.tasksDir),
+				this.pollDirSignature(this.filesystem.decisionsDir),
+				this.filesystem.docsDir ? this.pollDirSignature(this.filesystem.docsDir) : Promise.resolve(""),
+			]);
+
+			if (taskSig !== this.lastKnownTaskSignature) {
+				this.lastKnownTaskSignature = taskSig;
+				await this.refreshTasksFromDisk();
+			}
+
+			if (decisionSig !== this.lastKnownDecisionSignature) {
+				this.lastKnownDecisionSignature = decisionSig;
+				await this.refreshDecisionsFromDisk();
+			}
+
+			if (documentSig !== this.lastKnownDocumentSignature) {
+				this.lastKnownDocumentSignature = documentSig;
+				await this.refreshDocumentsFromDisk();
+			}
+		} catch {
+			// Ignore transient poll errors
 		}
 	}
 

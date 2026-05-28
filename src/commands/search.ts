@@ -214,7 +214,7 @@ export function registerSearchCommand(program: Command): void {
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				printSearchResults(searchResults);
 				cleanup();

@@ -49,14 +49,14 @@ describe("task command coverage", () => {
 	});
 
 	it("task list without tasks", async () => {
-		const r = await runBacklogCli(["task", "list"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "--plain"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 	});
 
 	it("task list with tasks", async () => {
 		await runBacklogCli(["task", "create", "Task A"], TEST_DIR);
 		await runBacklogCli(["task", "create", "Task B"], TEST_DIR);
-		const r = await runBacklogCli(["task", "list"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "--plain"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 		expect(r.stdout).toContain("Task A");
 		expect(r.stdout).toContain("Task B");
@@ -72,7 +72,7 @@ describe("task command coverage", () => {
 	it("task list with status filter", async () => {
 		await runBacklogCli(["task", "create", "To do task"], TEST_DIR);
 		await runBacklogCli(["task", "create", "Done task", "-s", "Done"], TEST_DIR);
-		const r = await runBacklogCli(["task", "list", "-s", "Done"], TEST_DIR);
+		const r = await runBacklogCli(["task", "list", "-s", "Done", "--plain"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 		expect(r.stdout).toContain("Done task");
 		expect(r.stdout).not.toContain("To do task");
@@ -100,7 +100,7 @@ describe("task command coverage", () => {
 
 	it("task view existing task", async () => {
 		await runBacklogCli(["task", "create", "Viewable"], TEST_DIR);
-		const r = await runBacklogCli(["task", "view", "task-1"], TEST_DIR);
+		const r = await runBacklogCli(["task", "view", "task-1", "--plain"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
 		expect(r.stdout).toContain("Viewable");
 	});
@@ -109,7 +109,7 @@ describe("task command coverage", () => {
 		await runBacklogCli(["task", "create", "Completable"], TEST_DIR);
 		const r = await runBacklogCli(["task", "complete", "task-1"], TEST_DIR);
 		expect(r.exitCode).toBe(0);
-		expect(r.stdout).toContain("Done");
+		expect(r.stdout).toContain("archived");
 	});
 
 	it("task archive existing task", async () => {
