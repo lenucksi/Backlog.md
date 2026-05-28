@@ -287,8 +287,20 @@ async function setupBacklogStructure(
 
 	const selectedBacklogDirectory = resolveBacklogDirectory(normalizedBacklogDirectory, effectiveSource);
 
-	core.filesystem.setBacklogDirectory(selectedBacklogDirectory);
-	core.filesystem.setConfigLocation(effectiveConfigLocation);
+	const fs = core.filesystem;
+	if (typeof fs.setBacklogDirectory !== "function") {
+		const proto = Object.getPrototypeOf(fs);
+		const protoMethods = Object.getOwnPropertyNames(proto).filter((k) => typeof proto[k] === "function");
+		const ownKeys = Object.getOwnPropertyNames(fs);
+		throw new TypeError(
+			`FileSystem missing setBacklogDirectory. ` +
+				`constructor: ${fs.constructor?.name ?? "unknown"}, ` +
+				`proto methods: ${protoMethods.join(", ")}, ` +
+				`own keys: ${ownKeys.join(", ")}`,
+		);
+	}
+	fs.setBacklogDirectory(selectedBacklogDirectory);
+	fs.setConfigLocation(effectiveConfigLocation);
 	await core.filesystem.ensureBacklogStructure();
 	await core.filesystem.migrateCompletedTasks();
 	await core.filesystem.saveConfig(config);
