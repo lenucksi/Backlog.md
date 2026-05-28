@@ -5,7 +5,7 @@ title: "Fix test isolation failures: ~37 tests fail in full suite but pass
 status: Done
 assignee: []
 created_date: 2026-05-27 12:06
-updated_date: 2026-05-28 22:58
+updated_date: 2026-05-28 23:34
 labels:
   - testing
   - infrastructure
@@ -69,6 +69,8 @@ The `task list` tests fail with exit code 1 ONLY in the full test suite (not in 
 Session 2026-05-29: Implemented polling fallback in ContentStore. Added `startPolling()`, `stopPolling()`, `pollChanges()` methods. Every 3s the poll checks directory contents via `readdir` and compares against last known entries. If change detected, triggers refresh+notify. This catches file changes that `fs.watch` (inotify) misses under parallel test suite load. All 58 previously-failing tests now pass together (content-store + server-search-endpoint + commands-task-cov).
 
 Fix v2: Polling vergleicht jetzt nicht nur Dateinamen (readdir) sondern auch mtimes (stat) via `pollDirSignature()`. Erkennt Content-Änderungen in bestehenden Dateien. Alle 4 Core-Files (content-store + server-search-endpoint + commands-task-cov + cli-priority-filtering) = 69 Tests passen ✅
+
+Cross-branch flaky fix: mock gab new Date() für beide Branches → lastModified-Vergleich random. Fix: konsistente Daten (main=2026-01-01, feature-x=2026-06-01).
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
