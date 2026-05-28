@@ -119,7 +119,7 @@ export function registerDocCommand(program: Command): void {
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				for (const d of docs) {
 					const labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";

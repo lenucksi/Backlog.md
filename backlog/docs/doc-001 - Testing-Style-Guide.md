@@ -2,9 +2,9 @@
 id: doc-001
 title: Testing Style Guide
 type: guide
-created_date: '2025-07-21'
+created_date: 2025-07-21
+updated_date: 2026-05-28 22:58
 ---
-
 # Testing Style Guide
 
 This document establishes consistent patterns for test files in the Backlog.md project.
@@ -181,6 +181,109 @@ describe("task operations", () => {
 - **Organized imports:** Easy to scan and maintain
 - **Error handling:** Graceful failure without masking real issues
 
+## Failure Patterns & Lessons Learned
+
+Lessons from production incidents and full-suite isolation failures. Refer to task `BACK-536` for the complete case study.
+
+### Module-Level `const` is a Trap
+
+When a module-level `const` depends on mutable global state (process.argv, process.stdout.isTTY), it is evaluated ONCE at import time. If import order varies between test runs, the constant captures an incorrect value.
+
+```typescript
+// WRONG — evaluated at import time, value frozen
+const plainFlagInArgv = process.argv.includes("--plain");
+
+// RIGHT — evaluated at call time
+function hasPlainArgv(): boolean {
+    return process.argv.includes("--plain");
+}
+```
+
+Applies to: process.argv, process.stdout.isTTY, process.env, process.cwd(), Date.now() — anything that can change between module load and actual use.
+
+### Exit Code `||` vs `??`
+
+`process.exitCode` can be 0. `exitCode || 1` treats 0 as falsy and replaces it with 1, silently turning a clean exit into a failure.
+
+```typescript
+// WRONG
+exitCode = err.code || 1;  // 0 → 1 (bug!)
+
+// RIGHT
+exitCode = err.code ?? 1;  // 0 → 0, undefined → 1
+```
+
+### Mock/Override Hygiene
+
+When overriding globals (process.exit, process.argv, console.log), the restore MUST always run—even when an error is thrown. Pattern:
+
+```typescript
+let caught: unknown;
+try {
+    await operation();
+} catch (e) {
+    caught = e;
+} finally {
+    // Always restore, even on error
+    process.exit = originalExit;
+    process.argv = originalArgv;
+    process.exitCode = originalExitCode;
+    console.log = originalLog;
+}
+if (caught) throw caught;
+```
+
+Never throw before restore. Capture the error, restore, re-throw.
+
+### `fs.watch` (inotify) is Unreliable Under Parallel Load
+
+When multiple test workers create `fs.watch` instances simultaneously, inotify can silently drop events. File watcher tests that pass in isolation may fail in the full suite.
+
+Mitigation: use a **polling fallback** in addition to `fs.watch`. Periodically compare directory contents via `readdir` + per-file `stat` (mtime). The ContentStore in `src/core/content-store.ts` implements this pattern:
+
+```typescript
+// Periodically check directory for changes (catch what fs.watch missed)
+private async pollChanges(): Promise<void> {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const sig = await computeDirSignature(entries);
+    if (sig !== lastKnown) {
+        await refreshFromDisk();
+    }
+}
+```
+
+### Explicit Flags > Auto-Detection in Tests
+
+Tests should not rely on environment auto-detection (`shouldAutoPlain()`, `isTTY`) when the test's intent is to test a specific code path. Pass explicit flags:
+
+```typescript
+// FRAGILE — depends on test environment having no TTY
+const r = await runBacklogCli(["task", "list"], TEST_DIR);
+
+// ROBUST — explicitly requests the code path under test
+const r = await runBacklogCli(["task", "list", "--plain"], TEST_DIR);
+```
+
+Keep auto-detection tests separate (e.g., `cli-auto-plain-non-tty.test.ts`) where the feature under test IS the detection logic.
+
+### Process-Wide State: Save & Restore Per-Call
+
+When a helper overrides `process.*` or `console.*`, save originals at function entry, not module scope. Module-level `const originalExitCode = process.exitCode` captures a value from an unpredictable point in time.
+
+```typescript
+// WRONG — module scope
+const originalExitCode = process.exitCode; // frozen at import time
+
+// RIGHT — per-call scope
+export async function runBacklogCli(args, cwd) {
+    const originalExitCode = process.exitCode;
+    process.exitCode = 0;
+    try { /* ... */ } finally {
+        process.exitCode = originalExitCode;
+    }
+}
+```
+
 ## Migration Notes
 
 When updating existing test files:
@@ -189,3 +292,6 @@ When updating existing test files:
 3. Update cleanup to use `safeCleanup()` with try/catch
 4. Ensure consistent import order
 5. Move TEST_DIR declaration outside describe blocks
+6. Audit module-level consts that depend on mutable globals
+7. Check exit code handling for `||` vs `??` patterns
+8. Verify mock restore happens in `finally` blocks

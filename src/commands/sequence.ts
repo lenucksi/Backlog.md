@@ -22,7 +22,7 @@ export function registerSequenceCommand(program: Command): void {
 			const activeTasks = tasks.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 			const { unsequenced, sequences } = computeSequences(activeTasks);
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				if (unsequenced.length > 0) {
 					console.log("Unsequenced:");

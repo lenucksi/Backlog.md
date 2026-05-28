@@ -101,7 +101,7 @@ async function resolveCliMilestoneInput(core: Core, milestone: string): Promise<
 }
 
 async function handleTaskCreateCommand(title: string | undefined, options: Record<string, unknown>) {
-	const shouldUseWizard = hasInteractiveTTY && title === undefined && !hasCreateFieldFlags(options);
+	const shouldUseWizard = hasInteractiveTTY() && title === undefined && !hasCreateFieldFlags(options);
 	if (!shouldUseWizard && (title === undefined || title.trim().length === 0)) {
 		printMissingRequiredArgument("title");
 		return;
@@ -259,7 +259,7 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		return;
 	}
 
-	const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+	const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 	if (usePlainOutput) {
 		const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
 		const config = await core.filesystem.loadConfig();
@@ -473,7 +473,7 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 }
 
 async function handleTaskEditCommand(taskId: string | undefined, options: Record<string, unknown>) {
-	const shouldUseWizard = hasInteractiveTTY && !hasEditFieldFlags(options);
+	const shouldUseWizard = hasInteractiveTTY() && !hasEditFieldFlags(options);
 	if (!shouldUseWizard && !taskId) {
 		printMissingRequiredArgument("taskId");
 		return;
@@ -1045,7 +1045,7 @@ export function registerTaskCommand(program: Command): void {
 				? localTasks
 				: [...localTasks, task];
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				console.log(formatTaskPlainText(task));
 				return;
@@ -1134,7 +1134,7 @@ export function registerTaskCommand(program: Command): void {
 				? localTasks
 				: [...localTasks, task];
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain;
+			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
 			if (usePlainOutput) {
 				console.log(formatTaskPlainText(task));
 				return;

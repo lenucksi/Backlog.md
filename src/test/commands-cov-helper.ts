@@ -48,6 +48,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		throw new CliExitError(code);
 	}) as (code?: number) => never;
 
+	let caught: Error | undefined;
 	try {
 		await initHelpers();
 		const program = new Command();
@@ -57,19 +58,19 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		registerTask?.(program);
 		registerConfig?.(program);
 
-		await program.parseAsync(process.argv);
+			await program.parseAsync(process.argv);
 		if (process.exitCode) {
 			exitCode = process.exitCode;
 		}
 	} catch (err: unknown) {
 		if (err instanceof CliExitError) {
-			exitCode = exitCode || 1;
+			exitCode = err.code ?? 1;
 		} else if (err instanceof Error && (err as { code?: string }).code === "commander.exit") {
 			exitCode = (err as { exitCode?: number }).exitCode ?? 1;
 		} else if (err instanceof Error && (err as { code?: string }).code === "commander.help") {
 			exitCode = 0;
 		} else {
-			throw err;
+			caught = err;
 		}
 	} finally {
 		process.chdir(originalCwd);
@@ -79,6 +80,10 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		console.log = originalLog;
 		console.error = originalError;
 		console.warn = originalWarn;
+	}
+
+	if (caught) {
+		throw caught;
 	}
 
 	return { stdout: stdout.join("\n"), stderr: stderr.join("\n"), exitCode };
