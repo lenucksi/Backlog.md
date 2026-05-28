@@ -174,8 +174,9 @@ describe("getLatestTaskStatesForIds", () => {
 				if (path === "backlog/tasks") return ["backlog/tasks/task-1.md"];
 				return [];
 			}),
-			getBranchLastModifiedMap: async (_branch: string) => {
-				return new Map([["backlog/tasks/task-1.md", new Date()]]);
+			getBranchLastModifiedMap: async (branch: string) => {
+				const date = branch === "main" ? new Date("2026-01-01") : new Date("2026-06-01");
+				return new Map([["backlog/tasks/task-1.md", date]]);
 			},
 			getCurrentBranch: async () => "feature-x",
 		});
