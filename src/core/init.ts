@@ -287,11 +287,12 @@ async function setupBacklogStructure(
 
 	const selectedBacklogDirectory = resolveBacklogDirectory(normalizedBacklogDirectory, effectiveSource);
 
-	core.filesystem.setBacklogDirectory(selectedBacklogDirectory);
-	core.filesystem.setConfigLocation(effectiveConfigLocation);
-	await core.filesystem.ensureBacklogStructure();
-	await core.filesystem.migrateCompletedTasks();
-	await core.filesystem.saveConfig(config);
+	const fs = core.filesystem;
+	fs.setBacklogDirectory(selectedBacklogDirectory);
+	fs.setConfigLocation(effectiveConfigLocation);
+	await fs.ensureBacklogStructure();
+	await fs.migrateCompletedTasks();
+	await fs.saveConfig(config);
 	await core.ensureConfigLoaded();
 }
 
