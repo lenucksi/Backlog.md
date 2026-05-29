@@ -1,0 +1,19 @@
+.github/workflows/ci.yml
+  s_e9c63c235fde23::t_1dcc4eb3e5c94c 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "15c0998a3e0e87958b05b7e2e7dcdf31ada81759",
+  "prompts": {},
+  "sessions": {
+    "s_e9c63c235fde23": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1971548eaffeTzMV54aErJvBKz",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
