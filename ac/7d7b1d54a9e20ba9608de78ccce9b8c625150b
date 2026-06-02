@@ -1,0 +1,37 @@
+src/test/zz-board-coverage.test.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 1-5,7-8,254,257-283,285-292,294,296,298-305,307,311-314,317-322,325-332,335-342,345-350,353-358,361-368,371-378,381-386
+src/ui/sequences.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 2,19,43-44,338-340,352,437
+src/test/zz-ui-components-coverage.test.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 77
+src/test/tui-definition-of-done.test.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 35-38
+src/ui/board.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 1,217,234-236,238,1314,1322,1447,1466
+src/test/zz-sequences-coverage.test.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 1-10,14-16,18,20,94,96-134,136-140,142-146,148-160
+src/test/zz-task-viewer-coverage.test.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 1-5,15-16,25-56,335,337,339-340,342-353,355-376,378-379,381,383,385,387,389,391-394,396,398,400,404-408,410-414,416,418,420-428,430-437
+src/ui/task-viewer-with-search.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 187,278-279,1250,1267,1281
+src/server/index.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 2-3,170,279-318,341,356-360
+src/test/cli-priority-filtering.test.ts
+  s_e9c63c235fde23::t_d6bd1b23844866 1,3-8,11-28,30,32,41,43,51,53,61,63,67,69-71,76,81,83,87,89,96,98-99,105,107-109,115-117,120,125-128,132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ac7d7b1d54a9e20ba9608de78ccce9b8c625150b",
+  "prompts": {},
+  "sessions": {
+    "s_e9c63c235fde23": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1971548eaffeTzMV54aErJvBKz",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
