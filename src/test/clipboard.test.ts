@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+
+const itIfNotWin32 = process.platform !== "win32" ? it : it.skip;
 import { copyToClipboard } from "../utils/clipboard.ts";
 
 describe("copyToClipboard", () => {
@@ -44,7 +46,7 @@ describe("copyToClipboard", () => {
 		}
 	});
 
-	it("runs on win32 platform (clip.exe unavailable on linux, returns false)", async () => {
+	itIfNotWin32("runs on win32 platform (clip.exe unavailable on linux, returns false)", async () => {
 		const orig = process.platform;
 		Object.defineProperty(process, "platform", {
 			value: "win32",

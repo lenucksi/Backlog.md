@@ -94,7 +94,8 @@ describe("isEditorAvailable", () => {
 
 describe("openInEditor", () => {
 	it("returns true when editor exits successfully", async () => {
-		const config = { defaultEditor: "true" } as Partial<BacklogConfig>;
+		const noopCmd = process.platform === "win32" ? "ver" : "true";
+		const config = { defaultEditor: noopCmd } as Partial<BacklogConfig>;
 		const result = await openInEditor("/dev/null", config as BacklogConfig);
 		expect(result).toBe(true);
 	});

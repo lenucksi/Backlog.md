@@ -93,7 +93,7 @@ describe("runSequencesView", () => {
 	});
 });
 
-const canRunShell = process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true";
+const canRunShell = process.platform !== "win32" && (process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true");
 (canRunShell ? describe : describe.skip)("runSequencesView termless", () => {
 	let testDir: string;
 

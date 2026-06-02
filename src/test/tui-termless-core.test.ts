@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+
+const itIfPty = process.platform !== "win32" ? it : it.skip;
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createTerminal } from "@termless/core";
@@ -38,7 +40,7 @@ describe("vterm.js backend for termless", () => {
 		term.close();
 	});
 
-	it("spawns CLI --plain and reads output", async () => {
+	itIfPty("spawns CLI --plain and reads output", async () => {
 		const backend = createVtermBackend({ cols: 120, rows: 40 });
 		const term = createTerminal({ backend, cols: 120, rows: 40 });
 
@@ -57,7 +59,7 @@ describe("vterm.js backend for termless", () => {
 		await term.close();
 	});
 
-	it("spawns blessed TUI board and renders content", async () => {
+	itIfPty("spawns blessed TUI board and renders content", async () => {
 		const testDir = createUniqueTestDir("vterm-board");
 		mkdirSync(testDir, { recursive: true });
 

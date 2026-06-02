@@ -334,7 +334,7 @@ describe("viewTaskEnhanced non-TTY", () => {
 // ---------------------------------------------------------------------------
 // viewTaskEnhanced — termless-based TUI tests
 // ---------------------------------------------------------------------------
-const canRunShell = process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true";
+const canRunShell = process.platform !== "win32" && (process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true");
 
 (canRunShell ? describe : describe.skip)("viewTaskEnhanced termless", () => {
 	let testDir: string;

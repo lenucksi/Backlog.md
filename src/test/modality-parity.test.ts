@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { randomUUID } from "node:crypto";
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { createUniqueTestDir, safeCleanup } from "../test/test-utils.ts";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { McpServer } from "../mcp/server.ts";
@@ -39,8 +39,7 @@ const getMcpText = (content: unknown[] | undefined, index = 0): string => {
 };
 
 describe("cross-modality parity", () => {
-	const testId = randomUUID().slice(0, 8);
-	const testDir = join("/tmp/opencode", `modality-parity-${testId}`);
+\tconst testDir = createUniqueTestDir("modality-parity");
 	let core: Core;
 
 	beforeEach(async () => {
@@ -86,7 +85,7 @@ describe("cross-modality parity", () => {
 	});
 
 	afterEach(async () => {
-		await rm(testDir, { recursive: true, force: true, maxRetries: 3 });
+		await safeCleanup(testDir);
 	});
 
 	it("returns identical task lists across CLI, API, and MCP when filtering by status", async () => {
