@@ -91,7 +91,7 @@ jobs:
         shell: bash
       - name: Run interactive TUI regression tests
         if: matrix.os == 'ubuntu-latest'
-        run: bun run test:interactive
+        run: bun run test:interactive:handoff
       - name: Cross-Modality Parity Tests
         if: matrix.os == 'ubuntu-latest'
         run: bun test src/test/modality-parity.test.ts --timeout=10000

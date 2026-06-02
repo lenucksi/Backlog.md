@@ -4,9 +4,8 @@
 linker = "hoisted"
 
 [test]
-# Timeout for individual tests - increased for Windows compatibility
-timeout = "10s"
-
+# NOTE: timeout must be set via --timeout CLI flag in package.json.
+# bunfig [test].timeout is silently ignored in Bun 1.3.x.
 # Reduce memory usage during test runs to prevent WSL2 crashes
 smol = true
 

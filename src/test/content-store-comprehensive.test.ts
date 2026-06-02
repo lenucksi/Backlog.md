@@ -113,7 +113,6 @@ describe("ContentStore - comprehensive coverage", () => {
 				title: "Child Task",
 				parentTaskId: "TASK-1",
 			};
-			await filesystem.saveTask(sampleTask);
 			await filesystem.saveTask(child);
 			store.dispose();
 			store = new ContentStore(filesystem);
