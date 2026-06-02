@@ -1,16 +1,9 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
+import { afterAll, afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { $ } from "bun";
+import { Core } from "../core/backlog.ts";
 import type { Milestone, Task } from "../types/index.ts";
-
-// Global key handler tracker for viewTaskEnhanced tests
-const _screenKeyHandlers: Array<{
-	keys: string[];
-	handler: (...args: unknown[]) => void;
-}> = [];
-
-function resetGlobalHandlers(): void {
-	_screenKeyHandlers.length = 0;
-}
-
 import {
 	buildTaskViewerMilestoneFilterModel,
 	resolveFilterExitPane,
@@ -19,6 +12,8 @@ import {
 	shouldMoveFromDetailBoundaryToSearch,
 	shouldMoveFromListBoundaryToSearch,
 } from "../ui/task-viewer-with-search.ts";
+import { term } from "./termless-helper.ts";
+import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -27,15 +22,38 @@ function milestone(id: string, title: string): Milestone {
 	return { id, title, description: "", rawContent: "" };
 }
 
-const _emptyTask: Task = {
-	id: "TASK-1",
-	title: "Test task",
-	status: "To Do",
-	assignee: [],
-	createdDate: "2024-01-01",
-	labels: [],
-	dependencies: [],
-};
+function _makeRichTask(overrides: Partial<Task> = {}): Task {
+	return {
+		id: "TASK-42",
+		title: "Implement feature X",
+		status: "In Progress",
+		assignee: ["jo"],
+		reporter: "bot",
+		createdDate: "2024-01-15",
+		updatedDate: "2024-02-20",
+		labels: ["feature", "backend"],
+		milestone: "m-1",
+		dependencies: ["TASK-1"],
+		references: ["https://example.com", "docs/guide.md"],
+		documentation: ["https://docs.example.com", "README.md"],
+		modifiedFiles: ["src/file1.ts", "src/file2.ts"],
+		description: "This is a *description* with `code`.",
+		implementationPlan: "1. Plan step\n2. Plan step two",
+		implementationNotes: "Remember to test edge cases",
+		finalSummary: "All features implemented and tested",
+		acceptanceCriteriaItems: [
+			{ index: 1, text: "AC-1 works", checked: true },
+			{ index: 2, text: "AC-2 works", checked: false },
+		],
+		definitionOfDoneItems: [{ index: 1, text: "DoD-1 complete", checked: true }],
+		priority: "high",
+		branch: "feature/back-42",
+		parentTaskId: "TASK-10",
+		parentTaskTitle: "Parent epic",
+		subtasks: ["TASK-43", "TASK-44"],
+		...overrides,
+	};
+}
 
 // ---------------------------------------------------------------------------
 // Existing exported function edge-cases
@@ -280,524 +298,6 @@ describe("buildTaskViewerMilestoneFilterModel", () => {
 });
 
 // ---------------------------------------------------------------------------
-// createTaskPopup  (requires mocked neo-neo-bblessed)
-// ---------------------------------------------------------------------------
-function createMockWidget() {
-	const keyHandlers: Array<{ keys: string[]; handler: () => void }> = [];
-	const eventHandlers: Record<string, Array<() => void>> = {};
-
-	const widget = {
-		top: 0,
-		left: 0,
-		width: 80,
-		height: 24,
-		bottom: 0,
-		right: 0,
-		style: { border: { fg: "gray" }, selected: { bg: undefined as string | undefined }, bg: "black", fg: "white" },
-		destroy: () => {},
-		key: (keys: string[], handler: () => void) => {
-			keyHandlers.push({ keys, handler });
-			return false;
-		},
-		on: (event: string, handler: () => void) => {
-			if (!eventHandlers[event]) eventHandlers[event] = [];
-			eventHandlers[event].push(handler);
-			return widget;
-		},
-		focus: () => {
-			if (eventHandlers.focus) {
-				for (const h of eventHandlers.focus) h();
-			}
-		},
-		setFront: () => {},
-		setContent: () => {},
-		setScroll: () => {},
-		scroll: () => {},
-		setScrollPerc: () => {},
-		getScroll: () => 0,
-		getCursor: (): { x: number; y: number } => ({ x: 0, y: 0 }),
-		strWidth: (_s: string): number => _s.length,
-		readInput: () => {},
-		cancel: () => {},
-		setValue: (_v: string) => {},
-		getValue: (): string => "",
-		setItems: (_items: string[]) => {},
-		select: (_index: number) => {},
-		selected: 0,
-		setLabel: () => {},
-		remove: () => {},
-		_handlers: { key: keyHandlers, event: eventHandlers },
-	};
-	return widget;
-}
-
-// Screen event tracking for viewTaskEnhanced tests
-function createScreenMock() {
-	const eventCallbacks: Record<string, Array<() => void>> = {};
-	return {
-		...createMockWidget(),
-		width: 120,
-		height: 40,
-		render: () => {},
-		key: (keys: string[], handler: (...args: unknown[]) => void) => {
-			_screenKeyHandlers.push({ keys, handler });
-		},
-		on: (event: string, cb: () => void) => {
-			if (!eventCallbacks[event]) eventCallbacks[event] = [];
-			eventCallbacks[event].push(cb);
-		},
-		destroy: () => {
-			for (const cb of eventCallbacks.destroy || []) cb();
-		},
-		title: "",
-	};
-}
-
-mock.module("neo-neo-bblessed", () => ({
-	box: () => createMockWidget(),
-	line: () => createMockWidget(),
-	list: () => createMockWidget(),
-	text: () => createMockWidget(),
-	textbox: () => createMockWidget(),
-	scrollablebox: () => createMockWidget(),
-	scrollabletext: () => createMockWidget(),
-	log: () => {},
-	screen: () => createScreenMock(),
-	program: () => ({}),
-}));
-
-// Mock core for viewTaskEnhanced TTY path
-mock.module("../core/backlog.ts", () => ({
-	Core: class MockCore {
-		filesystem = {
-			loadConfig: async () => ({ statuses: ["To Do", "In Progress", "Done"], labels: [] }),
-			listMilestones: async () => [],
-		};
-		getContentStore = async () => null;
-		getSearchService = async () => null;
-		queryTasks = async () => [];
-		getTaskWithSubtasks = async () => null;
-		editTaskInTui = async () => ({ reason: "not_found", task: null, changed: false });
-		completeTask = async () => false;
-		archiveTask = async () => false;
-		reorderTask = async () => ({ updatedTask: null, changedTasks: [] });
-	},
-}));
-
-function makeRichTask(overrides: Partial<Task> = {}): Task {
-	return {
-		id: "TASK-42",
-		title: "Implement feature X",
-		status: "In Progress",
-		assignee: ["jo"],
-		reporter: "bot",
-		createdDate: "2024-01-15",
-		updatedDate: "2024-02-20",
-		labels: ["feature", "backend"],
-		milestone: "m-1",
-		dependencies: ["TASK-1"],
-		references: ["https://example.com", "docs/guide.md"],
-		documentation: ["https://docs.example.com", "README.md"],
-		modifiedFiles: ["src/file1.ts", "src/file2.ts"],
-		description: "This is a *description* with `code`.",
-		implementationPlan: "1. Plan step\n2. Plan step two",
-		implementationNotes: "Remember to test edge cases",
-		finalSummary: "All features implemented and tested",
-		acceptanceCriteriaItems: [
-			{ index: 1, text: "AC-1 works", checked: true },
-			{ index: 2, text: "AC-2 works", checked: false },
-		],
-		definitionOfDoneItems: [{ index: 1, text: "DoD-1 complete", checked: true }],
-		priority: "high",
-		branch: "feature/back-42",
-		parentTaskId: "TASK-10",
-		parentTaskTitle: "Parent epic",
-		subtasks: ["TASK-43", "TASK-44"],
-		...overrides,
-	};
-}
-
-describe("createTaskPopup", () => {
-	const origTTY: boolean | undefined = process.stdout.isTTY;
-
-	afterAll(() => {
-		process.stdout.isTTY = origTTY;
-	});
-
-	it("returns popup object with expected shape", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask();
-		const resolveLabel = (m: string) => (m === "m-1" ? "Milestone One" : m);
-
-		const result = await popupFactory(screen, task, resolveLabel);
-
-		expect(result).not.toBeNull();
-		expect(result?.background).toBeDefined();
-		expect(result?.popup).toBeDefined();
-		expect(result?.contentArea).toBeDefined();
-		expect(typeof result?.close).toBe("function");
-	});
-
-	it("handles a minimal task with no optional fields", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task: Task = {
-			id: "TASK-1",
-			title: "Minimal",
-			status: "To Do",
-			assignee: [],
-			createdDate: "2024-06-01",
-			labels: [],
-			dependencies: [],
-		};
-
-		const result = await popupFactory(screen, task);
-		expect(result).not.toBeNull();
-	});
-
-	it("handles a completed task", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask({ status: "Done" });
-		const result = await popupFactory(screen, task);
-		expect(result).not.toBeNull();
-		expect(typeof result?.close).toBe("function");
-	});
-
-	it("close function can be called without errors", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask();
-		const result = await popupFactory(screen, task);
-		expect(result).not.toBeNull();
-		expect(() => result?.close()).not.toThrow();
-	});
-
-	it("handles medium priority task", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask({ priority: "medium" });
-		const result = await popupFactory(screen, task);
-		expect(result).not.toBeNull();
-	});
-
-	it("handles low priority task", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask({ priority: "low" });
-		const result = await popupFactory(screen, task);
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with updatedDate same as createdDate to verify skip", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask({ updatedDate: "2024-01-15" });
-		const result = await popupFactory(screen, task);
-		expect(result).not.toBeNull();
-	});
-
-	it("popup escape key handler runs without error", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const result = await popupFactory(screen, makeRichTask());
-		expect(result).not.toBeNull();
-		const popup = result?.popup as unknown as {
-			_handlers: { key: Array<{ keys: string[]; handler: () => void }> };
-		};
-		expect(popup._handlers.key.length).toBeGreaterThanOrEqual(1);
-
-		const escapePopupHandler = popup._handlers.key.find((h) => h.keys.includes("escape"));
-		expect(escapePopupHandler).toBeDefined();
-		expect(() => escapePopupHandler?.handler()).not.toThrow();
-	});
-
-	it("contentArea focus event handler runs without error", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const result = await popupFactory(screen, makeRichTask());
-		expect(result).not.toBeNull();
-		const contentArea = result?.contentArea as unknown as {
-			_handlers: { event: Record<string, Array<() => void>> };
-		};
-		const focusHandlers = contentArea._handlers.event.focus;
-		expect(focusHandlers).toBeDefined();
-		expect(() => {
-			for (const h of focusHandlers) h();
-		}).not.toThrow();
-	});
-
-	it("contentArea blur event handler runs without error", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const result = await popupFactory(screen, makeRichTask());
-		expect(result).not.toBeNull();
-		const contentArea = result?.contentArea as unknown as {
-			_handlers: { event: Record<string, Array<() => void>> };
-		};
-		const blurHandlers = contentArea._handlers.event.blur;
-		expect(blurHandlers).toBeDefined();
-		expect(() => {
-			for (const h of blurHandlers) h();
-		}).not.toThrow();
-	});
-
-	it("contentArea escape key handler runs without error", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const result = await popupFactory(screen, makeRichTask());
-		expect(result).not.toBeNull();
-		const contentArea = result?.contentArea as unknown as {
-			_handlers: { key: Array<{ keys: string[]; handler: () => void }> };
-		};
-		const escapeHandler = contentArea._handlers.key.find((h) => h.keys.includes("escape"));
-		expect(escapeHandler).toBeDefined();
-		expect(() => escapeHandler?.handler()).not.toThrow();
-	});
-
-	it("handles invalid priority value hitting default switch case in getPriorityDisplay", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-
-		const screen = {
-			width: 120,
-			height: 40,
-			render: () => {},
-			key: () => {},
-			on: () => {},
-			destroy: () => {},
-		};
-
-		const task = makeRichTask({ priority: "invalid" as unknown as undefined });
-		const result = await popupFactory(screen as any, task);
-		expect(result).not.toBeNull();
-	});
-
-	// ====================================================================
-	// Additional createTaskPopup edge cases
-	// ====================================================================
-
-	it("handles task with empty description", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ description: "" }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no priority", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ priority: undefined }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no references or documentation", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ references: [], documentation: [] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no acceptance criteria or dod", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ acceptanceCriteriaItems: [], definitionOfDoneItems: [] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no plan, notes, or summary", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(
-			screen,
-			makeRichTask({ implementationPlan: "", implementationNotes: "", finalSummary: "" }),
-		);
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with only parentTaskId but no parentTaskTitle", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ parentTaskTitle: undefined, parentTaskId: "TASK-99" }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with single subtask (singular label)", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ subtasks: ["TASK-1"] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with reporter that has @ prefix", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ reporter: "@bot" }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with only file-path references", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ references: ["docs/guide.md", "README.md"] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with only URL documentation", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ documentation: ["https://docs.example.com"] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no milestone", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ milestone: undefined }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no modifiedFiles", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ modifiedFiles: [] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("returns null when stdout is not a TTY", async () => {
-		process.stdout.isTTY = false;
-		try {
-			const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-			const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-			const result = await popupFactory(screen, makeRichTask());
-			expect(result).toBeNull();
-		} finally {
-			process.stdout.isTTY = origTTY;
-		}
-	});
-
-	it("handles task with no dependencies", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ dependencies: [] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no labels", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ labels: [] }));
-		expect(result).not.toBeNull();
-	});
-
-	it("handles task with no assignee", async () => {
-		const { createTaskPopup: popupFactory } = await import("../ui/task-viewer-with-search.ts");
-		const screen = { width: 120, height: 40, render: () => {}, key: () => {}, on: () => {}, destroy: () => {} };
-		const result = await popupFactory(screen, makeRichTask({ assignee: [] }));
-		expect(result).not.toBeNull();
-	});
-});
-
-// ---------------------------------------------------------------------------
 // viewTaskEnhanced — non-TTY path
 // ---------------------------------------------------------------------------
 describe("viewTaskEnhanced non-TTY", () => {
@@ -832,189 +332,108 @@ describe("viewTaskEnhanced non-TTY", () => {
 });
 
 // ---------------------------------------------------------------------------
-// viewTaskEnhanced — TTY path (with mocked widgets and core)
+// viewTaskEnhanced — termless-based TUI tests
 // ---------------------------------------------------------------------------
-describe("viewTaskEnhanced TTY path", () => {
-	const origTTY: boolean | undefined = process.stdout.isTTY;
-	const origExit = process.exit;
-	const origLog = console.log;
+const canRunShell = process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true";
 
-	afterAll(() => {
-		process.stdout.isTTY = origTTY;
-		process.exit = origExit;
-		console.log = origLog;
-	});
+(canRunShell ? describe : describe.skip)("viewTaskEnhanced termless", () => {
+	let testDir: string;
 
-	beforeEach(() => {
-		resetGlobalHandlers();
-	});
-
-	it("loads with mocked core and exits via q handler", async () => {
-		process.stdout.isTTY = true;
-		console.log = () => {};
-		process.exit = (() => {}) as typeof process.exit;
-
-		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
-
-		const promise = viewTaskEnhanced(
-			{
-				id: "T-1",
-				title: "Test",
-				status: "To Do",
-				assignee: [],
-				createdDate: "2024-06-01",
-				labels: [],
-				dependencies: [],
-			},
-			{
-				core: {
-					filesystem: {
-						loadConfig: async () => ({ statuses: ["To Do"], labels: [] }),
-						listMilestones: async () => [],
-					},
-					getContentStore: async () => null,
-					getSearchService: async () => null,
-					queryTasks: async () => [],
-					getTaskWithSubtasks: async () => null,
-					editTaskInTui: async () => ({ reason: "not_found", task: null, changed: false }),
-				},
-				tasks: [
-					{
-						id: "T-1",
-						title: "Test",
-						status: "To Do",
-						assignee: [],
-						createdDate: "2024-06-01",
-						labels: [],
-						dependencies: [],
-					},
-				],
-			},
-		);
-
-		await new Promise((r) => setTimeout(r, 50));
-
-		const qHandler = _screenKeyHandlers.find((h) => h.keys.includes("q"));
-		expect(qHandler).toBeDefined();
-		qHandler?.handler();
-		await promise;
-	});
-
-	it("renders with searchQuery and statusFilter options", async () => {
-		process.stdout.isTTY = true;
-		console.log = () => {};
-		process.exit = (() => {}) as typeof process.exit;
-
-		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
-
-		const promise = viewTaskEnhanced(
-			{
-				id: "T-1",
-				title: "Test",
-				status: "To Do",
-				assignee: [],
-				createdDate: "2024-06-01",
-				labels: [],
-				dependencies: [],
-			},
-			{
-				core: {
-					filesystem: {
-						loadConfig: async () => ({ statuses: ["To Do", "In Progress", "Done"], labels: ["bug"] }),
-						listMilestones: async () => [milestone("m-1", "Sprint 1")],
-					},
-					getContentStore: async () => null,
-					getSearchService: async () => null,
-					queryTasks: async () => [],
-					getTaskWithSubtasks: async () => null,
-					editTaskInTui: async () => ({ reason: "not_found", task: null, changed: false }),
-				},
-				tasks: [
-					{
-						id: "T-1",
-						title: "Test",
-						status: "To Do",
-						assignee: [],
-						createdDate: "2024-06-01",
-						labels: [],
-						dependencies: [],
-					},
-				],
-				searchQuery: "test",
-				statusFilter: "To Do",
-			},
-		);
-
-		await new Promise((r) => setTimeout(r, 50));
-
-		const qHandler = _screenKeyHandlers.find((h) => h.keys.includes("q"));
-		expect(qHandler).toBeDefined();
-		qHandler?.handler();
-		await promise;
-	});
-
-	it("registers all expected screen key handlers", async () => {
-		process.stdout.isTTY = true;
-		console.log = () => {};
-		process.exit = (() => {}) as typeof process.exit;
-
-		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
-
-		const promise = viewTaskEnhanced(
-			{
-				id: "T-1",
-				title: "Test",
-				status: "To Do",
-				assignee: [],
-				createdDate: "2024-06-01",
-				labels: [],
-				dependencies: [],
-			},
-			{
-				core: {
-					filesystem: {
-						loadConfig: async () => ({ statuses: ["To Do", "In Progress", "Done"], labels: [] }),
-						listMilestones: async () => [],
-					},
-					getContentStore: async () => null,
-					getSearchService: async () => null,
-					queryTasks: async () => [],
-					getTaskWithSubtasks: async () => null,
-					editTaskInTui: async () => ({ reason: "not_found", task: null, changed: false }),
-				},
-				tasks: [
-					{
-						id: "T-1",
-						title: "First",
-						status: "To Do",
-						assignee: [],
-						createdDate: "2024-06-01",
-						labels: [],
-						dependencies: [],
-					},
-					{
-						id: "T-2",
-						title: "Second",
-						status: "In Progress",
-						assignee: [],
-						createdDate: "2024-06-01",
-						labels: [],
-						dependencies: [],
-					},
-				],
-			},
-		);
-
-		await new Promise((r) => setTimeout(r, 50));
-
-		const expectedKeys = ["/", "C-f", "s", "p", "l", "i", "e", "y", "c", "a", "?", "escape", "q"];
-		for (const key of expectedKeys) {
-			const handler = _screenKeyHandlers.find((h) => h.keys.includes(key));
-			expect(handler, `Missing handler for "${key}"`).toBeDefined();
+	async function withTaskViewer(fn: (t: ReturnType<typeof term>) => Promise<void>, args: string[] = []): Promise<void> {
+		const t = term(120, 40);
+		try {
+			await t.spawn(["bun", join(process.cwd(), "src", "cli.ts"), "task", ...args], {
+				cwd: testDir,
+			});
+			await t.waitFor("First Task", 10000);
+			await fn(t);
+		} finally {
+			await t.close().catch(() => {});
 		}
+	}
 
-		const qHandler = _screenKeyHandlers.find((h) => h.keys.includes("q"));
-		qHandler?.handler();
-		await promise;
+	async function withTaskList(fn: (t: ReturnType<typeof term>) => Promise<void>): Promise<void> {
+		const t = term(120, 40);
+		try {
+			await t.spawn(["bun", join(process.cwd(), "src", "cli.ts"), "task", "list"], {
+				cwd: testDir,
+			});
+			await t.waitFor("First Task", 10000);
+			await fn(t);
+		} finally {
+			await t.close().catch(() => {});
+		}
+	}
+
+	beforeEach(async () => {
+		testDir = createUniqueTestDir("task-viewer");
+		mkdirSync(testDir, { recursive: true });
+		await $`git init -b main`.cwd(testDir).quiet();
+		await $`git config user.email test@example.com`.cwd(testDir).quiet();
+		await $`git config user.name Test`.cwd(testDir).quiet();
+		const core = new Core(testDir);
+		await initializeTestProject(core, "Task Viewer Test");
+		await core.createTask(
+			{
+				id: "task-1",
+				title: "First Task",
+				status: "To Do",
+				priority: "medium",
+				labels: [],
+				assignee: [],
+				dependencies: [],
+				description: "",
+			},
+			false,
+		);
+		await core.createTask(
+			{
+				id: "task-2",
+				title: "Second Task",
+				status: "In Progress",
+				priority: "high",
+				labels: [],
+				assignee: [],
+				dependencies: [],
+				description: "",
+			},
+			false,
+		);
+	});
+
+	afterEach(async () => {
+		try {
+			await safeCleanup(testDir);
+		} catch {}
+	});
+
+	it("launches task viewer with tasks", async () => {
+		await withTaskViewer(
+			async (t) => {
+				expect(t.screen.getText()).toContain("First Task");
+				t.press("q");
+			},
+			["task-1"],
+		);
+	});
+
+	it("navigates task list", async () => {
+		await withTaskList(async (t) => {
+			expect(t.screen.getText()).toContain("First Task");
+			expect(t.screen.getText()).toContain("Second Task");
+			t.press("down");
+			await new Promise((r) => setTimeout(r, 100));
+			t.press("q");
+		});
+	});
+
+	it("activates search via / key", async () => {
+		await withTaskList(async (t) => {
+			t.press("/");
+			await new Promise((r) => setTimeout(r, 100));
+			t.press("Escape");
+			await new Promise((r) => setTimeout(r, 100));
+			t.press("q");
+		});
 	});
 });

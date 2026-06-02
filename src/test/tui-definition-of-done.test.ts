@@ -32,14 +32,10 @@ describe("TUI Definition of Done display", () => {
 			const popup = await createTaskPopup(screen, task);
 			expect(popup).not.toBeNull();
 
-			const contentArea = popup?.contentArea as
-				| {
-						getContent?: () => string;
-						content?: string;
-				  }
-				| undefined;
-			const content = contentArea?.getContent ? contentArea.getContent() : (contentArea?.content ?? "");
-			const contentText = String(content);
+			screen.render();
+
+			const contentArea = popup?.contentArea;
+			const contentText = String(contentArea?.content ?? "");
 			expect(contentText).toContain("Definition of Done");
 			expect(contentText).toContain("Ship notes");
 			expect(contentText).toContain("Run tests");

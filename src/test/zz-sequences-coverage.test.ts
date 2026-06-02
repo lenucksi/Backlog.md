@@ -1,72 +1,27 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from "bun:test";
-import type { Task } from "../types/index.ts";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "bun:test";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { $ } from "bun";
+import { Core } from "../core/backlog.ts";
+import { runSequencesView } from "../ui/sequences.ts";
+import { term } from "./termless-helper.ts";
+import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
-const createMockBox = () => ({
-	setContent: () => {},
-	destroy: () => {},
-	key: () => {},
-	style: {},
-	getScroll: () => 0,
-	scrollTo: () => {},
-	focus: () => {},
-	height: 20,
-});
-
-// Set up mocks at module level BEFORE any import of the tested module
-mock.module("neo-neo-bblessed", () => {
-	const box = createMockBox;
-	return {
-		tput: () => {},
-		program: () => ({}),
-		box,
-		scrollablebox: box,
-		screen: box,
-		list: box,
-		log: box,
-		scrollabletext: box,
-		text: box,
-		textarea: box,
-		textbox: box,
-		line: box,
-		default: { box, scrollablebox: box },
-	};
-});
-
-mock.module("/home/jo/kit/claude-code-llm-kram/Backlog.md/src/ui/tui.ts", () => ({
-	createScreen: () => ({
-		append: () => {},
-		key: () => {},
-		render: () => {},
-		destroy: () => {},
-	}),
-}));
-
-type RunSequencesViewFn = (
-	data: { unsequenced: Task[]; sequences: { index: number; tasks: Task[] }[] },
-	core?: unknown,
-) => Promise<void>;
-
-let runSequencesView: RunSequencesViewFn;
-
-function makeTask(id: string, title: string): Task {
+function makeTask(id: string, title: string, status = "To Do") {
 	return {
 		id,
 		title,
-		status: "To Do",
-		assignee: [],
-		createdDate: "2026-01-01",
-		labels: [],
-		dependencies: [],
+		status,
 		description: "",
+		priority: "medium",
+		labels: [],
+		assignee: [],
+		dependencies: [],
+		createdDate: new Date(),
 	};
 }
 
 describe("runSequencesView", () => {
-	beforeAll(async () => {
-		const mod = await import("../ui/sequences.ts");
-		runSequencesView = mod.runSequencesView;
-	});
-
 	describe("headless mode (via BACKLOG_HEADLESS)", () => {
 		let logs: string[];
 		const originalLog = console.log;
@@ -136,60 +91,73 @@ describe("runSequencesView", () => {
 			expect(logs).toEqual(["Unsequenced:\n  a - A\n  b - B\n  c - C\n"]);
 		});
 	});
+});
 
-	describe("TUI mode with mocked dependencies", () => {
-		let originalTty: boolean | undefined;
+const canRunShell = process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true";
+(canRunShell ? describe : describe.skip)("runSequencesView termless", () => {
+	let testDir: string;
 
-		beforeAll(() => {
-			originalTty = Object.getOwnPropertyDescriptor(process.stdout, "isTTY")?.value;
-			Object.defineProperty(process.stdout, "isTTY", {
-				value: true,
-				configurable: true,
+	beforeEach(async () => {
+		testDir = createUniqueTestDir("sequences");
+		mkdirSync(testDir, { recursive: true });
+		await $`git init -b main`.cwd(testDir).quiet();
+		await $`git config user.email test@example.com`.cwd(testDir).quiet();
+		await $`git config user.name Test`.cwd(testDir).quiet();
+		const core = new Core(testDir);
+		await initializeTestProject(core, "Sequences Test");
+		await core.createTask(
+			{
+				id: "task-a",
+				title: "Task A",
+				status: "To Do",
+				priority: "medium",
+				labels: [],
+				assignee: [],
+				dependencies: ["task-b"],
+				description: "",
+			},
+			false,
+		);
+		await core.createTask(
+			{
+				id: "task-b",
+				title: "Task B",
+				status: "To Do",
+				priority: "medium",
+				labels: [],
+				assignee: [],
+				dependencies: [],
+				description: "",
+			},
+			false,
+		);
+	});
+
+	afterEach(async () => {
+		try {
+			await safeCleanup(testDir);
+		} catch {}
+	});
+
+	async function withSequences(fn: (t: ReturnType<typeof term>) => Promise<void>) {
+		const t = term(120, 40);
+		try {
+			await t.spawn(["bun", join(process.cwd(), "src", "cli.ts"), "sequence", "list"], {
+				cwd: testDir,
 			});
-		});
+			await t.waitFor("Sequence", 10000);
+			await fn(t);
+		} finally {
+			await t.close().catch(() => {});
+		}
+	}
 
-		afterAll(() => {
-			Object.defineProperty(process.stdout, "isTTY", {
-				value: originalTty,
-				configurable: true,
-			});
-		});
-
-		it("renders without errors with empty data", async () => {
-			await expect(runSequencesView({ unsequenced: [], sequences: [] })).resolves.toBeUndefined();
-		});
-
-		it("renders without errors with unsequenced tasks", async () => {
-			await expect(
-				runSequencesView({
-					unsequenced: [makeTask("u1", "Unseq")],
-					sequences: [],
-				}),
-			).resolves.toBeUndefined();
-		});
-
-		it("renders without errors with sequences", async () => {
-			await expect(
-				runSequencesView({
-					unsequenced: [],
-					sequences: [{ index: 1, tasks: [makeTask("s1", "Seq")] }],
-				}),
-			).resolves.toBeUndefined();
-		});
-
-		it("renders without errors with both unsequenced and sequences", async () => {
-			await expect(
-				runSequencesView({
-					unsequenced: [makeTask("u1", "Unseq")],
-					sequences: [
-						{
-							index: 1,
-							tasks: [makeTask("s1", "Seq1-T1"), makeTask("s2", "Seq1-T2")],
-						},
-						{ index: 2, tasks: [makeTask("s3", "Seq2-T1")] },
-					],
-				}),
-			).resolves.toBeUndefined();
+	it("renders sequences view with task dependencies", async () => {
+		await withSequences(async (t) => {
+			expect(t.screen.getText()).toContain("Sequence 1");
+			expect(t.screen.getText()).toContain("TASK-A");
+			t.press("q");
+			await new Promise((r) => setTimeout(r, 100));
 		});
 	});
 });

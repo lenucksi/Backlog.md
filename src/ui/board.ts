@@ -1,4 +1,4 @@
-import type { BoxInterface, ListInterface } from "neo-neo-bblessed";
+import type { BoxInterface, ListInterface, ScreenInterface } from "neo-neo-bblessed";
 import { box, list } from "neo-neo-bblessed";
 import {
 	type BoardLayout,
@@ -214,6 +214,7 @@ export async function renderBoardTui(
 		milestoneEntities?: Milestone[];
 		terminalStatuses?: readonly string[] | null;
 	},
+	injectedScreen?: ScreenInterface,
 ): Promise<void> {
 	if (!process.stdout.isTTY) {
 		if (options?.milestoneMode) {
@@ -230,8 +231,11 @@ export async function renderBoardTui(
 		return;
 	}
 
+	const managedScreen = injectedScreen ?? createScreen({ title: "Backlog Board" });
+	const ownedScreen = !injectedScreen;
+
 	await new Promise<void>((resolve) => {
-		const screen = createScreen({ title: "Backlog Board" });
+		const screen = managedScreen;
 		const container = box({
 			parent: screen,
 			width: "100%",
@@ -1307,7 +1311,7 @@ export async function renderBoardTui(
 
 			if (options?.onTabPress) {
 				clearFooterTimer();
-				screen.destroy();
+				if (ownedScreen) screen.destroy();
 				await options.onTabPress();
 				resolve();
 				return;
@@ -1315,7 +1319,7 @@ export async function renderBoardTui(
 
 			if (options?.viewSwitcher) {
 				clearFooterTimer();
-				screen.destroy();
+				if (ownedScreen) screen.destroy();
 				await options.viewSwitcher.switchView();
 				resolve();
 			}
@@ -1440,7 +1444,7 @@ export async function renderBoardTui(
 		screen.key(["q", "C-c"], () => {
 			if (popupOpen || filterPopupOpen || modalOpen) return;
 			clearFooterTimer();
-			screen.destroy();
+			if (ownedScreen) screen.destroy();
 			resolve();
 		});
 
@@ -1459,7 +1463,7 @@ export async function renderBoardTui(
 
 			if (!popupOpen) {
 				clearFooterTimer();
-				screen.destroy();
+				if (ownedScreen) screen.destroy();
 				resolve();
 			}
 		});

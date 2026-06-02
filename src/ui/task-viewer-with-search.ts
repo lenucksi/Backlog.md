@@ -184,6 +184,7 @@ export async function viewTaskEnhanced(
 			milestoneFilter: string;
 		}) => void;
 	} = {},
+	injectedScreen?: ScreenInterface,
 ): Promise<void> {
 	if (output.isTTY === false) {
 		console.log(formatTaskPlainText(task));
@@ -274,7 +275,8 @@ export async function viewTaskEnhanced(
 	let selectionRequestId = 0;
 	let noResultsMessage: string | null = null;
 
-	const screen = createScreen({ title: options.title || "Backlog Tasks" });
+	const screen = injectedScreen ?? createScreen({ title: options.title || "Backlog Tasks" });
+	const ownedScreen = !injectedScreen;
 
 	// Main container
 	const container = box({
@@ -1245,7 +1247,7 @@ export async function viewTaskEnhanced(
 			searchService?.dispose();
 			contentStore?.dispose();
 			filterHeader.destroy();
-			screen.destroy();
+			if (ownedScreen) screen.destroy();
 			process.exit(0);
 		}
 	});
@@ -1262,7 +1264,7 @@ export async function viewTaskEnhanced(
 				searchService?.dispose();
 				contentStore?.dispose();
 				filterHeader.destroy();
-				screen.destroy();
+				if (ownedScreen) screen.destroy();
 				await options.onTabPress?.();
 			}
 		});
@@ -1276,7 +1278,7 @@ export async function viewTaskEnhanced(
 		searchService?.dispose();
 		contentStore?.dispose();
 		filterHeader.destroy();
-		screen.destroy();
+		if (ownedScreen) screen.destroy();
 		process.exit(0);
 	});
 

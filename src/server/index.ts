@@ -1,4 +1,6 @@
 import type { Server, ServerWebSocket } from "bun";
+import { dirname, join } from "node:path";
+import { realpathSync } from "node:fs";
 
 import { Core } from "../core/backlog.ts";
 import type { ContentStore } from "../core/content-store.ts";
@@ -165,9 +167,7 @@ export class BacklogServer {
 
 			const spaHandler: Record<string, unknown> = {
 				GET: async () => {
-					const bundledHtml = Bun.file("dist/index.html");
-					const useBundled = await bundledHtml.exists().catch(() => false);
-					const htmlFile = useBundled ? bundledHtml : Bun.file("src/web/index.html");
+					const htmlFile = await this.resolveHtml();
 					return new Response(htmlFile, {
 						headers: { "Content-Type": "text/html" },
 					});
@@ -276,6 +276,46 @@ export class BacklogServer {
 		this._stopping = false;
 	}
 
+	private get binaryDir(): string | null {
+		try {
+			return dirname(realpathSync("/proc/self/exe"));
+		} catch {
+			return null;
+		}
+	}
+
+	private async resolveHtml(): Promise<BunFile> {
+		const binDir = this.binaryDir;
+		const cwd = process.cwd();
+
+		if (binDir) {
+			const bundled = Bun.file(join(binDir, "index.html"));
+			if (await bundled.exists().catch(() => false)) return bundled;
+		}
+
+		const dist = Bun.file(join(cwd, "dist/index.html"));
+		if (await dist.exists().catch(() => false)) return dist;
+
+		return Bun.file(join(cwd, "src/web/index.html"));
+	}
+
+	private async resolveAsset(webPath: string): Promise<BunFile | null> {
+		const binDir = this.binaryDir;
+		const cwd = process.cwd();
+
+		if (binDir) {
+			const file = Bun.file(join(binDir, webPath));
+			if (await file.exists().catch(() => false)) return file;
+		}
+
+		for (const dir of ["dist", "src/web"]) {
+			const file = Bun.file(join(cwd, dir, webPath));
+			if (await file.exists().catch(() => false)) return file;
+		}
+
+		return null;
+	}
+
 	private async handleRequest(req: Request, server: Server<unknown>): Promise<Response> {
 		const getContentType = (path: string): string => {
 			if (path.endsWith(".css")) return "text/css";
@@ -298,9 +338,7 @@ export class BacklogServer {
 		}
 
 		if (pathname === "/") {
-			const bundledHtml = Bun.file("dist/index.html");
-			const useBundled = await bundledHtml.exists().catch(() => false);
-			const htmlFile = useBundled ? bundledHtml : Bun.file("src/web/index.html");
+			const htmlFile = await this.resolveHtml();
 			return new Response(htmlFile, {
 				headers: { "Content-Type": "text/html" },
 			});
@@ -313,17 +351,13 @@ export class BacklogServer {
 			});
 		}
 
-		// Serve web source files for SPA (check dist/web/ first, then src/web/)
 		if (pathname.startsWith("/web/") || pathname.startsWith("/styles/") || pathname.endsWith(".tsx") || pathname.endsWith(".js")) {
 			const webPath = pathname.replace(/^\//, "");
-			for (const dir of ["dist", "src/web"]) {
-				const file = Bun.file(`${dir}/${webPath}`);
-				const exists = await file.exists().catch(() => false);
-				if (exists) {
-					return new Response(file, {
-						headers: { "Content-Type": getContentType(webPath) },
-					});
-				}
+			const asset = await this.resolveAsset(webPath);
+			if (asset) {
+				return new Response(asset, {
+					headers: { "Content-Type": getContentType(webPath) },
+				});
 			}
 		}
 

@@ -1,5 +1,5 @@
 import { stdout as output } from "node:process";
-import type { BoxInterface } from "neo-neo-bblessed";
+import type { BoxInterface, ScreenInterface } from "neo-neo-bblessed";
 import { box, scrollablebox } from "neo-neo-bblessed";
 import { DEFAULT_STATUSES } from "../constants/index.ts";
 import type { Core } from "../index.ts";
@@ -16,6 +16,7 @@ import { createScreen } from "./tui.ts";
 export async function runSequencesView(
 	data: { unsequenced: Task[]; sequences: Sequence[] },
 	core?: Core,
+	injectedScreen?: ScreenInterface,
 ): Promise<void> {
 	// Build content string first so we can also support headless environments (CI/tests)
 	const lines: string[] = [];
@@ -39,7 +40,8 @@ export async function runSequencesView(
 		return;
 	}
 
-	const screen = createScreen({ smartCSR: true });
+	const screen = injectedScreen ?? createScreen({ smartCSR: true });
+	const ownedScreen = !injectedScreen;
 
 	const container = scrollablebox({
 		top: 0,
@@ -333,7 +335,9 @@ export async function runSequencesView(
 	}
 
 	container.focus();
-	screen.key(["q", "C-c"], () => screen.destroy());
+	screen.key(["q", "C-c"], () => {
+		if (ownedScreen) screen.destroy();
+	});
 	// Unified Esc: popup closes itself; else cancel move mode, else quit
 	screen.key(["escape"], () => {
 		if (popupOpen) return;
@@ -345,7 +349,7 @@ export async function runSequencesView(
 			refreshMoveIndicators();
 			return;
 		}
-		screen.destroy();
+		if (ownedScreen) screen.destroy();
 	});
 	screen.key(["up", "k"], () => move(-1));
 	screen.key(["down", "j"], () => move(1));
@@ -430,7 +434,7 @@ export async function runSequencesView(
 		const active = tasksNew.filter((t) => !isTerminalStatus(t.status, seqStatuses, cfg?.terminalStatuses));
 		const { computeSequences: recompute } = await import("../core/sequences.ts");
 		const next = recompute(active);
-		screen.destroy();
+		if (ownedScreen) screen.destroy();
 		await runSequencesView(next, core);
 	});
 

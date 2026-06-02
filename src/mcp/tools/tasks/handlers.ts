@@ -327,7 +327,7 @@ export class TaskHandlers {
 			matches = matches.slice(0, args.limit);
 		}
 
-		const taskResults = matches.filter((task) => isLocalEditableTask(task));
+		const taskResults = matches.filter((task) => isLocalEditableTask(task) && (task.source !== "completed" || task.status === "Archived"));
 		return taskResults.length === 0
 			? this.noTasksFoundMessage(query, modifiedFiles)
 			: this.formatSearchResults(taskResults);
