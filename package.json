@@ -57,6 +57,7 @@
 		"test:fails": "bun test --only-failures --path-ignore-patterns='worktrees/*'",
 		"test:interactive": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --path-ignore-patterns='worktrees/*'",
 		"test:interactive:fails": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --only-failures --path-ignore-patterns='worktrees/*'",
+		"test:ci": "CI=true bun test --path-ignore-patterns='worktrees/*'",
 		"format": "biome format --write .",
 		"lint": "biome lint --write .",
 		"check": "biome check .",
