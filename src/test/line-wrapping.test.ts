@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+
+const testIfTty = process.stdout.isTTY ? test : test.skip;
 import { box, list } from "neo-neo-bblessed";
 import { WRAP_LIMIT } from "../constants/index.ts";
 import { createScreen } from "../ui/tui.ts";
@@ -8,7 +10,7 @@ describe("Line Wrapping", () => {
 		expect(WRAP_LIMIT).toBe(72);
 	});
 
-	test("blessed box with wrap:true enables text wrapping", async () => {
+	testIfTty("blessed box with wrap:true enables text wrapping", async () => {
 		const screen = createScreen({ smartCSR: false });
 
 		// Create a long text that should wrap
@@ -79,7 +81,7 @@ describe("Line Wrapping", () => {
 		screen.destroy();
 	});
 
-	test("task viewer boxes have wrap enabled", async () => {
+	testIfTty("task viewer boxes have wrap enabled", async () => {
 		const screen = createScreen({ smartCSR: false });
 
 		// Simulate task viewer boxes
@@ -157,7 +159,7 @@ describe("Line Wrapping", () => {
 		screen.destroy();
 	});
 
-	test("popup content boxes have wrap enabled", async () => {
+	testIfTty("popup content boxes have wrap enabled", async () => {
 		const screen = createScreen({ smartCSR: false });
 
 		// Simulate popup boxes

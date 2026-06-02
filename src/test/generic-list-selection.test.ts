@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+
+const itIfTty = process.stdout.isTTY ? it : it.skip;
 import type { ListInterface, ScreenInterface } from "neo-neo-bblessed";
 import { GenericList } from "../ui/components/generic-list.ts";
 import { createScreen } from "../ui/tui.ts";
@@ -24,7 +26,7 @@ function withTtyScreen(run: (screen: ScreenInterface) => void): void {
 }
 
 describe("GenericList selection rendering", () => {
-	it("syncs highlighted content when the blessed list selection changes", () => {
+	itIfTty("syncs highlighted content when the blessed list selection changes", () => {
 		withTtyScreen((screen) => {
 			const highlighted: number[] = [];
 			const list = new GenericList({
