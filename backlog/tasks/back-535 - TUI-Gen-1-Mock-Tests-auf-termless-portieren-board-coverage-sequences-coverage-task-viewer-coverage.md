@@ -2,9 +2,11 @@
 id: BACK-535
 title: "TUI: Gen 1 Mock-Tests auf termless portieren (board-coverage,
   sequences-coverage, task-viewer-coverage)"
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - "@jo"
 created_date: 2026-05-26 14:38
+updated_date: 2026-05-27 10:20
 labels:
   - refactor
   - tui
