@@ -21,31 +21,23 @@ describe("renderMermaidIn", () => {
 		const { JSDOM } = await import("jsdom");
 		dom = new JSDOM("<!doctype html><html><body></body></html>");
 		// attach globals
-		// biome-ignore lint/suspicious/noExplicitAny: Testing environment setup
 		globalThis.window = dom.window as any;
-		// biome-ignore lint/suspicious/noExplicitAny: Testing environment setup
 		globalThis.document = dom.window.document as any;
 		// remove any mock if present
-		// biome-ignore lint/suspicious/noExplicitAny: Mock cleanup
 		delete (globalThis as any).__MERMAID_MOCK__;
 	});
 
 	afterEach(() => {
 		// cleanup
-		// biome-ignore lint/suspicious/noExplicitAny: Mock cleanup
 		delete (globalThis as any).__MERMAID_MOCK__;
-		// biome-ignore lint/suspicious/noExplicitAny: Testing environment cleanup
 		delete (globalThis as any).window;
-		// biome-ignore lint/suspicious/noExplicitAny: Testing environment cleanup
 		delete (globalThis as any).document;
 		dom.window.close();
 	});
 
 	it("uses run API when available", async () => {
-		// biome-ignore lint/suspicious/noExplicitAny: Mock needed for testing
 		(globalThis as any).__MERMAID_MOCK__ = {
 			default: {
-				// biome-ignore lint/suspicious/noExplicitAny: Mock signature flexibility
 				run: async ({ nodes }: any) => {
 					const el = nodes?.[0] || dom.window.document.querySelector(".mermaid");
 					if (el) {
@@ -65,7 +57,6 @@ describe("renderMermaidIn", () => {
 	});
 
 	it("falls back to render API when run is not available", async () => {
-		// biome-ignore lint/suspicious/noExplicitAny: Mock needed for testing
 		(globalThis as any).__MERMAID_MOCK__ = {
 			default: {
 				render: async (_id: string, _txt: string) => ({

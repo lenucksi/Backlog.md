@@ -47,6 +47,16 @@
 		{
 			"includes": ["package.json"],
 			"formatter": { "enabled": false }
+		},
+		{
+			"includes": ["src/test/**"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
 		}
 	]
 }

@@ -133,7 +133,7 @@ describe("Definition of Done", () => {
 
 	it("preserves legacy flow-style definition_of_done entries with unescaped backslashes", async () => {
 		const scriptCheck = String.raw`Run .\scripts\check.ps1`;
-		const tempTasks = String.raw`Run C:	emp	asks`;
+		const tempTasks = "Run C:\temp\tasks";
 		await writeConfigFile(
 			TEST_DIR,
 			[
