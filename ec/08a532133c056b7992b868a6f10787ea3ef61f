@@ -1,0 +1,25 @@
+src/test/dependency-validation.test.ts
+  s_9aa8b5a9e53767::t_e81a18028ab92a 25-26,33
+src/test/modality-parity.test.ts
+  s_9aa8b5a9e53767::t_e81a18028ab92a 4
+  s_9aa8b5a9e53767::t_df249f165bd8ce 127-129
+  s_9aa8b5a9e53767::t_d574652603f503 42
+src/core/backlog.ts
+  s_9aa8b5a9e53767::t_e81a18028ab92a 1939
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ec08a532133c056b7992b868a6f10787ea3ef61f",
+  "prompts": {},
+  "sessions": {
+    "s_9aa8b5a9e53767": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_176f5266bfferYM8pg4GiC4GT2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
