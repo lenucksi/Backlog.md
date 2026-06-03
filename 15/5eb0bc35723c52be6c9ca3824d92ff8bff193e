@@ -1,0 +1,19 @@
+src/test/modality-parity.test.ts
+  s_9aa8b5a9e53767::t_8670fbf21cc228 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "155eb0bc35723c52be6c9ca3824d92ff8bff193e",
+  "prompts": {},
+  "sessions": {
+    "s_9aa8b5a9e53767": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_176f5266bfferYM8pg4GiC4GT2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
