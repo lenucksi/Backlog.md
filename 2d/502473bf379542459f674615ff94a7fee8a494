@@ -1,0 +1,21 @@
+biome.json
+  s_9aa8b5a9e53767::t_680b7a92d27d7b 50-59
+src/test/definition-of-done.test.ts
+  s_9aa8b5a9e53767::t_3ac317afbd51c7 136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2d502473bf379542459f674615ff94a7fee8a494",
+  "prompts": {},
+  "sessions": {
+    "s_9aa8b5a9e53767": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_176f5266bfferYM8pg4GiC4GT2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
