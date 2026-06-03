@@ -22,15 +22,15 @@ describe("findCyclePath", () => {
 		const tasks = [makeTask("A", ["B"]), makeTask("B", ["A"])];
 		const result = findCyclePath("A", ["B"], tasks);
 		expect(result).not.toBeNull();
-		expect(result![0]).toBe("B");
-		expect(result![result!.length - 1]).toBe("A");
+		expect(result?.[0]).toBe("B");
+		expect(result?.[result?.length - 1]).toBe("A");
 	});
 
 	it("detects a complex cycle (A → B → C → A)", () => {
 		const tasks = [makeTask("A", ["B"]), makeTask("B", ["C"]), makeTask("C", ["A"])];
 		const result = findCyclePath("A", ["B"], tasks);
 		expect(result).not.toBeNull();
-		expect(result![result!.length - 1]).toBe("A");
+		expect(result?.[result?.length - 1]).toBe("A");
 	});
 
 	it("detects self-loop (A → A)", () => {

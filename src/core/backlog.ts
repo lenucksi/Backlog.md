@@ -1936,7 +1936,7 @@ export class Core {
 		// Reopen guard: reject edits on archived tasks
 		const archiveDir = this.fs.archiveTasksDir;
 		const taskPath = await getTaskPath(taskId, this);
-		if (taskPath && taskPath.startsWith(archiveDir)) {
+		if (taskPath?.startsWith(archiveDir)) {
 			throw new Error(`Cannot edit archived task ${normalizeTaskId(taskId)}`);
 		}
 		return await this.updateTaskFromInput(taskId, input, autoCommit);

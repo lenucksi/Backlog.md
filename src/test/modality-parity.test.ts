@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { createUniqueTestDir, safeCleanup } from "../test/test-utils.ts";
+import { safeCleanup } from "../test/test-utils.ts";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { McpServer } from "../mcp/server.ts";
@@ -39,7 +39,7 @@ const getMcpText = (content: unknown[] | undefined, index = 0): string => {
 };
 
 describe("cross-modality parity", () => {
-\tconst testDir = createUniqueTestDir("modality-parity");
+	const testDir = createUniqueTestDir("modality-parity");
 	let core: Core;
 
 	beforeEach(async () => {
@@ -124,8 +124,9 @@ describe("cross-modality parity", () => {
 			labels: ["urgent", "backend", "ui", "docs"],
 			milestones: [],
 		});
-		const config = await mcpServer.filesystem.loadConfig()!;
-		registerTaskTools(mcpServer, config!);
+		const config = await mcpServer.filesystem.loadConfig();
+		if (!config) throw new Error("Failed to load config for MCP server");
+		registerTaskTools(mcpServer, config);
 
 		const mcpResult = await mcpServer.testInterface.callTool({
 			params: { name: "task_list", arguments: { status: "Done" } },

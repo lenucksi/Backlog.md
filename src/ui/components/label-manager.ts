@@ -1,9 +1,5 @@
 import { type ElementInterface, type ScreenInterface, textbox } from "neo-neo-bblessed";
 
-interface LabelManagerResult {
-	action: "close";
-}
-
 interface LabelManagerState {
 	labels: string[];
 	statusMessage: string;
