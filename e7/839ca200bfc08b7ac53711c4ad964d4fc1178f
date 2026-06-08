@@ -1,0 +1,74 @@
+src/web/components/ChipInput.tsx
+  s_df0716748b9693::t_bd0b4a22ce9d4b 221,227-232
+  s_df0716748b9693::t_323a704f646deb 24
+  s_df0716748b9693::t_10f28a6f6d95e8 12
+  s_df0716748b9693::t_706e3b35ede012 159-164
+src/web/components/TaskList.tsx
+  s_df0716748b9693::t_7ad29f17d27097 94
+  s_df0716748b9693::t_363872a62393f5 867-881
+  s_df0716748b9693::t_3501fddd8294b4 29
+src/web/components/TaskDetailsModal.tsx
+  s_df0716748b9693::t_6c28f31e0278d7 29-30
+  s_df0716748b9693::t_06909a756863e4 71
+  s_df0716748b9693::t_6cc7826c0540bd 1099
+src/web/App.tsx
+  s_df0716748b9693::t_38b3c998581f4b 172-179
+  s_df0716748b9693::t_2ecfec52247d27 616,633
+  s_df0716748b9693::t_7fe96832c7f55c 681
+  s_df0716748b9693::t_50e3706d3665da 579,599
+  s_df0716748b9693::t_0950de030a1c86 1
+src/web/styles/style.css
+  s_df0716748b9693::t_90b0cb8dc320da 2
+src/server/handlers/config.ts
+  s_df0716748b9693::t_d9331ab766b4fd 69,85-86,90-94
+  s_df0716748b9693::t_0673e8b6d8870a 110,138
+  s_df0716748b9693::t_f6f358d92d455c 56,58
+  s_df0716748b9693::t_af36c3bb26ae2e 104,114-117,122-133,143-145,190-194
+  s_df0716748b9693::t_b6479e25a80e73 111,118-121,146-150
+  s_df0716748b9693::t_a6830a69f7cb58 216-220
+  s_df0716748b9693::t_121ff160f73a70 109,137
+src/web/lib/api.ts
+  s_df0716748b9693::t_0673e8b6d8870a 310
+  s_df0716748b9693::t_a2c931b601e944 315-319,322-325,330,337-340,346-350
+  s_df0716748b9693::t_eb414f1d342be6 309,313-314,326-327,335-336,344-345
+src/web/components/Board.tsx
+  s_df0716748b9693::t_417d41b30a55f3 461
+  s_df0716748b9693::t_8f5d52177c4711 34
+  s_df0716748b9693::t_6f216f491aa580 70
+src/web/components/TaskColumn.tsx
+  s_df0716748b9693::t_d4aae1c6cbf941 22
+  s_df0716748b9693::t_a73ebb267a3bd8 39
+  s_df0716748b9693::t_bf828830ab57b0 316,347,375
+src/web/components/TaskCard.tsx
+  s_df0716748b9693::t_cf4ca597901c14 15
+  s_df0716748b9693::t_086eead80a853a 150-157,159-163
+  s_df0716748b9693::t_9bece862e3bde4 12
+  s_df0716748b9693::t_e58b6c12250da3 158
+src/web/components/BoardPage.tsx
+  s_df0716748b9693::t_33abbd36be0af5 36
+  s_df0716748b9693::t_6258794efe9265 20
+  s_df0716748b9693::t_a5d49aced648c9 150
+src/web/components/Settings.tsx
+  s_df0716748b9693::t_974cd992a9dec3 1,6-18
+  s_df0716748b9693::t_841c63951e2039 414
+  s_df0716748b9693::t_45532ea9afdaba 415-416
+  s_df0716748b9693::t_bb7407f6986c7f 79-89
+  s_df0716748b9693::t_8a1d74f1e8869f 29-32
+  s_df0716748b9693::t_a158c7ab827e47 304-382,384-399,401-408,410-413,417-419,433,437
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "e7839ca200bfc08b7ac53711c4ad964d4fc1178f",
+  "prompts": {},
+  "sessions": {
+    "s_df0716748b9693": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1579b0cb6ffeTjuW41bPlDYszo",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
