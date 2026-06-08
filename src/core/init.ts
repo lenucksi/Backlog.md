@@ -147,9 +147,11 @@ function buildInitConfig(
 	const d = DEFAULT_INIT_CONFIG;
 
 	const config: BacklogConfig = {
-		defaultStatus: "To Do",
-		maxColumnWidth: 20,
 		...(existingConfig ?? ({} as BacklogConfig)),
+		statuses: existingConfig?.statuses ?? ["To Do", "In Progress", "Done"],
+		labels: existingConfig?.labels ?? [],
+		defaultStatus: existingConfig?.defaultStatus ?? "To Do",
+		maxColumnWidth: existingConfig?.maxColumnWidth ?? 20,
 		projectName,
 		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
 		autoCommit: resolveOverrideValue(normalizedAdvancedConfig, "autoCommit", existingConfig?.autoCommit, d.autoCommit),

@@ -22,16 +22,14 @@ describe("watchTasks", () => {
 
 		mockWatcher = { close: () => {} } as FSWatcher;
 
-		spyOn(fs, "watch").mockImplementation(
-			((
-				_path: unknown,
-				_options?: unknown,
-				listener?: (eventType: string, filename: string | Buffer | null) => void,
-			) => {
-				if (listener) watchCallback = listener;
-				return mockWatcher;
-			}) as any,
-		);
+		spyOn(fs, "watch").mockImplementation(((
+			_path: unknown,
+			_options?: unknown,
+			listener?: (eventType: string, filename: string | Buffer | null) => void,
+		) => {
+			if (listener) watchCallback = listener;
+			return mockWatcher;
+		}) as any);
 	});
 
 	afterEach(async () => {

@@ -62,7 +62,7 @@ describe("buildRemoteTaskIndex branch handling", () => {
 			},
 		};
 
-		const index = 		await buildRemoteTaskIndex(
+		const index = await buildRemoteTaskIndex(
 			git as unknown as GitOperations,
 			["main"],
 			"backlog",

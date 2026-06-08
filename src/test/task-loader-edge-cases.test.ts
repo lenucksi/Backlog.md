@@ -426,7 +426,14 @@ dependencies: []
 			},
 		} as unknown as GitOperations;
 
-		const tasks = await loadRemoteTasks(mockGit, config, (m) => progressMessages.push(m), undefined, collector as any, true);
+		const tasks = await loadRemoteTasks(
+			mockGit,
+			config,
+			(m) => progressMessages.push(m),
+			undefined,
+			collector as any,
+			true,
+		);
 		expect(tasks.length).toBe(2);
 		expect(collector.length).toBe(2);
 	});

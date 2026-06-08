@@ -75,10 +75,16 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				return Response.json({ error: "Configuration not found" }, { status: 404 });
 			}
 			const trimmedName = name.trim();
-			if ((config.labels ?? []).some((l) => (typeof l === "string" ? l : l.name).toLowerCase() === trimmedName.toLowerCase())) {
+			if (
+				(config.labels ?? []).some(
+					(l) => (typeof l === "string" ? l : l.name).toLowerCase() === trimmedName.toLowerCase(),
+				)
+			) {
 				return Response.json({ error: `Label already exists: ${trimmedName}` }, { status: 409 });
 			}
-			config.labels = [...(config.labels ?? []), trimmedName].sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
+			config.labels = [...(config.labels ?? []), trimmedName].sort((a, b) =>
+				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
+			);
 			await ctx.core.filesystem.saveConfig(config);
 			return Response.json(config.labels);
 		} catch (error) {
@@ -98,18 +104,26 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			if (!config) {
 				return Response.json({ error: "Configuration not found" }, { status: 404 });
 			}
-			const idx = (config.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name).toLowerCase() === oldName.toLowerCase());
+			const idx = (config.labels ?? []).findIndex(
+				(l) => (typeof l === "string" ? l : l.name).toLowerCase() === oldName.toLowerCase(),
+			);
 			if (idx === -1) {
 				return Response.json({ error: `Label not found: ${oldName}` }, { status: 404 });
 			}
 			const trimmedNew = newName.trim();
 			if (
-				(config.labels ?? []).some((l) => (typeof l === "string" ? l : l.name).toLowerCase() === trimmedNew.toLowerCase() && l !== config.labels?.[idx])
+				(config.labels ?? []).some(
+					(l) =>
+						(typeof l === "string" ? l : l.name).toLowerCase() === trimmedNew.toLowerCase() &&
+						l !== config.labels?.[idx],
+				)
 			) {
 				return Response.json({ error: `Target label already exists: ${trimmedNew}` }, { status: 409 });
 			}
 			config.labels[idx] = trimmedNew;
-			config.labels = config.labels.sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
+			config.labels = config.labels.sort((a, b) =>
+				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
+			);
 			await ctx.core.filesystem.saveConfig(config);
 
 			const renameInEntity = (labels: string[] | undefined): string[] | undefined => {
@@ -160,7 +174,9 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			if (!config) {
 				return Response.json({ error: "Configuration not found" }, { status: 404 });
 			}
-			const idx = (config.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name).toLowerCase() === labelName.toLowerCase());
+			const idx = (config.labels ?? []).findIndex(
+				(l) => (typeof l === "string" ? l : l.name).toLowerCase() === labelName.toLowerCase(),
+			);
 			if (idx === -1) {
 				return Response.json({ error: `Label not found: ${labelName}` }, { status: 404 });
 			}
