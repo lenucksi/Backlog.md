@@ -84,8 +84,8 @@ function CollapsibleGroup({
 					</button>
 					<span className="text-gray-500 dark:text-gray-400">{icon}</span>
 					{to ? (
-						<Link to={to} className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-							{title} ({count})
+						<Link to={to} className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 whitespace-nowrap hover:underline transition-colors">
+							{title} ({count}) →
 						</Link>
 					) : (
 						<span className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap">

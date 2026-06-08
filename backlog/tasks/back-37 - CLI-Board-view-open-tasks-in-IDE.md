@@ -1,14 +1,13 @@
 ---
 id: BACK-37
-title: 'CLI: Board view open tasks in IDE'
-status: In Progress
+title: "CLI: Board view open tasks in IDE"
+status: To Do
 assignee:
-  - '@AI'
-created_date: '2025-06-10'
+  - "@AI"
+created_date: 2025-06-10
 labels: []
 dependencies: []
 ---
-
 
 ## Description
 

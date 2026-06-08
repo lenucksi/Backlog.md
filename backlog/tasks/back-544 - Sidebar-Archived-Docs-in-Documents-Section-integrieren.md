@@ -1,16 +1,18 @@
 ---
 id: BACK-544
 title: "Sidebar: Archived Docs in Documents-Section integrieren"
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 22:06
-updated_date: 2026-06-08 22:28
+updated_date: 2026-06-08 22:31
 labels:
   - web-ui
   - sidebar
   - docs
   - archive
 dependencies: []
+modified_files:
+  - src/web/components/SideNavigation.tsx
 priority: low
 ordinal: 279000
 ---
@@ -34,3 +36,13 @@ Ziel:
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BACK-544 abgeschlossen:
+- Archived Docs aus eigener CollapsibleGroup entfernt
+- In Documents-Section integriert als subtile Zeile "Archived (N)" mit [+]-Toggle
+- Bei Aufklappen: archivierte Docs eingerückt (ml-4) und kleinerem Font (text-xs)
+- Toggle-State via localStorage-unabhängigem useState
+<!-- SECTION:FINAL_SUMMARY:END -->

@@ -698,6 +698,18 @@ export const TaskDetailsModal: React.FC<Props> = ({
         <div className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</div>
       )}
 
+      {/* Archived task indicator */}
+      {task && (task.status === "Archived" || task.status === "archived") && (
+        <div className="mb-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200">
+          <svg className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          <div className="flex-1 font-medium">
+            ARCHIVED — This task has been archived
+          </div>
+        </div>
+      )}
+
       {/* Cross-branch task indicator */}
       {isFromOtherBranch && (
         <div className="mb-4 flex items-center gap-2 px-4 py-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg text-amber-800 dark:text-amber-200">

@@ -647,21 +647,32 @@ const Statistics: React.FC<StatisticsProps> = ({
 											<p className="font-medium text-gray-900 dark:text-gray-100 truncate">{task.title}</p>
 											<p className="text-sm text-gray-500 dark:text-gray-400">{task.id}</p>
 										</div>
-										<button
-											type="button"
-											onClick={async () => {
-												try {
-													await apiClient.reopenTask(task.id);
-													const data = await apiClient.fetchStatistics();
-													setStatistics(data);
-												} catch (err) {
-													console.error("Failed to reopen task:", err);
-												}
-											}}
-											className="px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors flex-shrink-0"
-										>
-											Reopen
-										</button>
+										<div className="flex items-center gap-2 flex-shrink-0">
+											{onEditTask && (
+												<button
+													type="button"
+													onClick={() => onEditTask(task)}
+													className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+												>
+													View
+												</button>
+											)}
+											<button
+												type="button"
+												onClick={async () => {
+													try {
+														await apiClient.reopenTask(task.id);
+														const data = await apiClient.fetchStatistics();
+														setStatistics(data);
+													} catch (err) {
+														console.error("Failed to reopen task:", err);
+													}
+												}}
+												className="px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors"
+											>
+												Reopen
+											</button>
+										</div>
 									</div>
 								))
 							) : (
