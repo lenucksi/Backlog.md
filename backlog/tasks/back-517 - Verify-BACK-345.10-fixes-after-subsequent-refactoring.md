@@ -3,13 +3,13 @@ id: BACK-517
 title: Verify BACK-345.10 fixes after subsequent refactoring
 status: Done
 assignee:
-  - '@opencode'
-created_date: '2026-05-22 09:47'
-updated_date: '2026-05-22 15:39'
+  - "@opencode"
+created_date: 2026-05-22 09:47
+updated_date: 2026-06-08 20:22
 labels:
   - verification
-  - refactor
   - bug
+  - refactoring
 milestone: m-13
 dependencies: []
 priority: low

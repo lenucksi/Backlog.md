@@ -1,20 +1,19 @@
 ---
 id: BACK-489
-title: >-
-  Archive Documents and Decisions — archival workflow for docs and superseded
-  ADRs
+title: Archive Documents and Decisions — archival workflow for docs and
+  superseded ADRs
 status: Done
 assignee: []
-created_date: '2026-05-13 10:14'
-updated_date: '2026-05-22 15:39'
+created_date: 2026-05-13 10:14
+updated_date: 2026-06-08 20:23
 labels:
-  - documents
   - decisions
   - web-ui
   - tui
   - cli
   - mcp
   - archive
+  - doc
 milestone: m-8
 dependencies: []
 priority: medium

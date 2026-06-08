@@ -1,16 +1,16 @@
 ---
 id: BACK-524
-title: 'CLI: milestone create/rename/remove commands'
+title: "CLI: milestone create/rename/remove commands"
 status: Done
 assignee:
-  - '@opencode'
-created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 16:32'
+  - "@opencode"
+created_date: 2026-05-22 10:24
+updated_date: 2026-06-08 20:22
 labels:
   - cli
-  - milestone
   - parity
   - feature
+  - milestones
 milestone: m-12
 dependencies: []
 documentation:

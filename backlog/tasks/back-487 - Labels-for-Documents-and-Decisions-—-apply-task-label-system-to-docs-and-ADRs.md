@@ -3,17 +3,17 @@ id: BACK-487
 title: Labels for Documents and Decisions — apply task label system to docs and ADRs
 status: Done
 assignee:
-  - '@jo'
-created_date: '2026-05-13 10:14'
-updated_date: '2026-05-23 17:35'
+  - "@jo"
+created_date: 2026-05-13 10:14
+updated_date: 2026-06-08 20:23
 labels:
   - labels
-  - documents
   - decisions
   - web-ui
   - tui
   - cli
   - mcp
+  - doc
 milestone: m-9
 dependencies:
   - BACK-486

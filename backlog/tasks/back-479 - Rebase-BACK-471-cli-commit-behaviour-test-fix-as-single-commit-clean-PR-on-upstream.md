@@ -1,24 +1,22 @@
 ---
 id: BACK-479
-title: >-
-  Rebase BACK-471 cli-commit-behaviour test fix as single-commit clean PR on
-  upstream
+title: Rebase BACK-471 cli-commit-behaviour test fix as single-commit clean PR
+  on upstream
 status: Done
 assignee:
-  - '@claude'
-created_date: '2026-05-11 14:00'
-updated_date: '2026-05-22 15:39'
+  - "@claude"
+created_date: 2026-05-11 14:00
+updated_date: 2026-06-08 20:23
 labels:
-  - upstream-pr
-  - tests
   - git-hygiene
+  - testing
+  - upstream
 milestone: m-12
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/638'
+  - https://github.com/MrLesk/Backlog.md/pull/638
   - src/test/cli-commit-behaviour.test.ts
-  - >-
-    backlog/tasks/back-471 -
+  - backlog/tasks/back-471 -
     Fix-CLI-auto-commit-for-doc-decision-task-create-commands.md
   - AGENTS.md
   - CONTRIBUTING.md

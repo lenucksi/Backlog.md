@@ -1,21 +1,21 @@
 ---
 id: BACK-436
-title: 'Align document management across CLI, Web UI, and MCP'
+title: Align document management across CLI, Web UI, and MCP
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-04-25 21:01'
-updated_date: '2026-05-22 15:39'
+  - "@codex"
+created_date: 2026-04-25 21:01
+updated_date: 2026-06-08 20:23
 labels:
-  - docs
   - core
   - cli
   - web
   - mcp
+  - doc
 milestone: m-8
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/598'
+  - https://github.com/MrLesk/Backlog.md/pull/598
   - src/cli.ts
   - src/server/index.ts
   - src/web/lib/api.ts

@@ -3,17 +3,17 @@ id: BACK-378
 title: Fix timezone configuration docs and local date display in task modal
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-09 06:22'
-updated_date: '2026-05-22 15:39'
+  - "@codex"
+created_date: 2026-02-09 06:22
+updated_date: 2026-06-08 20:23
 labels:
   - bug
   - web
-  - docs
+  - doc
 milestone: m-8
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/508'
+  - https://github.com/MrLesk/Backlog.md/issues/508
 priority: high
 ---
 

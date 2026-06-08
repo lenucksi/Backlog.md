@@ -6,12 +6,12 @@ status: In Progress
 assignee:
   - "@jo"
 created_date: 2026-05-26 14:38
-updated_date: 2026-05-27 10:20
+updated_date: 2026-06-08 20:22
 labels:
-  - refactor
   - tui
   - testing
   - termless
+  - refactoring
 dependencies: []
 priority: low
 ordinal: 258000

@@ -4,12 +4,12 @@ title: "zz-coverage files: port to termless + document findings"
 status: Done
 assignee: []
 created_date: 2026-05-27 11:38
-updated_date: 2026-05-27 12:06
+updated_date: 2026-06-08 20:23
 labels:
-  - refactor
   - tui
   - testing
   - termless
+  - refactoring
 dependencies: []
 modified_files:
   - src/test/zz-board-coverage.test.ts

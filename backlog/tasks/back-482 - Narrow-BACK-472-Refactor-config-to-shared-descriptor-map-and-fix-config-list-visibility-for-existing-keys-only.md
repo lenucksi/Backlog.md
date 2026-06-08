@@ -1,22 +1,21 @@
 ---
 id: BACK-482
-title: >-
-  Narrow BACK-472: Refactor config to shared descriptor map and fix config list
-  visibility for existing keys only
+title: "Narrow BACK-472: Refactor config to shared descriptor map and fix config
+  list visibility for existing keys only"
 status: Done
 assignee:
   - claude
-created_date: '2026-05-11 14:00'
-updated_date: '2026-05-22 15:39'
+created_date: 2026-05-11 14:00
+updated_date: 2026-06-08 20:23
 labels:
-  - upstream-pr
   - config
-  - refactor
   - git-hygiene
+  - refactoring
+  - upstream
 milestone: m-12
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/639'
+  - https://github.com/MrLesk/Backlog.md/pull/639
   - src/commands/
   - src/file-system/operations.ts
   - AGENTS.md

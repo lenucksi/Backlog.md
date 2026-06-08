@@ -1,10 +1,10 @@
 ---
 id: BACK-486
 title: Colored Labels — color support for labels across all access modalities
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-05-13 10:14
-updated_date: 2026-06-08 17:59
+updated_date: 2026-06-08 19:03
 labels:
   - labels
   - web-ui
@@ -95,20 +95,14 @@ Labels currently exist as plain strings. Add optional color (hex) per label so t
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-## Final Summary
+BACK-486 vollständig abgeschlossen in 4 Phasen:
 
-Implemented colored label support across all 5 access modalities (CLI, TUI, WebUI, MCP, REST):
+486.1 — Color Picker WebUI + Colored Badges (Settings, API, TaskCard, ChipInput, TaskList)
+486.2 — CLI --color Flag (label add --color, set-color, remove-color, ANSI output, MCP)
+486.3 — Author CRUD alle 5 Modalitäten (Types, CLI, MCP, REST, WebUI Settings)
+486.4 — Author Color Display (badges, merged autocomplete, colorMap)
 
-- **Schema**: Extended `config.yml` labels from `string[]` to `Array<string | { name: string; color?: string }>`
-- **Parser**: Backwards-compatible — parses both plain strings and objects
-- **Colors**: Euclidean RGB distance mapping hex → closest ANSI 256-color; zero dependencies
-- **WebUI**: Colored badges + Settings color picker with pastel palette swatches
-- **TUI**: ANSI truecolor labels with 256-color fallback
-- **CLI**: Colored label output in task list/view
-- **MCP**: `color` field (hex string or null) in all label tool responses
-- **REST**: Color field in `/api/config` responses
-
-95 files changed, 3888 insertions, merged into main as part of integration/labels-and-subtasks.
+Alle Checks: check:types ✅ check . ✅ build ✅
 <!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done

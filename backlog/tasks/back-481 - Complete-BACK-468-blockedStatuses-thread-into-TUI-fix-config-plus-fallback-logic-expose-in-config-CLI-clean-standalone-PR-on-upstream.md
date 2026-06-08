@@ -1,22 +1,22 @@
 ---
 id: BACK-481
-title: >-
-  Complete BACK-468 blockedStatuses: thread into TUI, fix config-plus-fallback
-  logic, expose in config CLI, clean standalone PR on upstream
+title: "Complete BACK-468 blockedStatuses: thread into TUI, fix
+  config-plus-fallback logic, expose in config CLI, clean standalone PR on
+  upstream"
 status: Done
 assignee:
   - claude
-created_date: '2026-05-11 14:00'
-updated_date: '2026-05-22 15:39'
+created_date: 2026-05-11 14:00
+updated_date: 2026-06-08 20:23
 labels:
-  - upstream-pr
   - blocked-status
   - config
   - git-hygiene
+  - upstream
 milestone: m-12
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/637'
+  - https://github.com/MrLesk/Backlog.md/pull/637
   - src/types/index.ts
   - src/file-system/operations.ts
   - src/ui/status-icon.ts

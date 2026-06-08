@@ -1,25 +1,23 @@
 ---
 id: BACK-503
-title: >-
-  Forge Integration Phase 0: Write forge-schema-spec.md — machine-readable
-  Backlog.md task schema for external tools
+title: "Forge Integration Phase 0: Write forge-schema-spec.md — machine-readable
+  Backlog.md task schema for external tools"
 status: To Do
 assignee: []
-created_date: '2026-05-17 19:53'
-updated_date: '2026-05-17 19:58'
+created_date: 2026-05-17 19:53
+updated_date: 2026-06-08 20:23
 labels:
   - forge-schema
   - forge-integration
-  - docs
   - specification
+  - doc
 milestone: m-7
 dependencies:
   - BACK-495
   - BACK-496
   - BACK-497
 references:
-  - >-
-    backlog/docs/doc-5 -
+  - backlog/docs/doc-5 -
     Forge-Integration-Feasibility-Study-—-Backlog.md-↔-Forgejo-GitHub-GitLab.md
 priority: medium
 ordinal: 183000

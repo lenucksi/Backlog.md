@@ -4,9 +4,9 @@ title: Audit and refactor test suite against best practices
 status: To Do
 assignee: []
 created_date: 2026-06-03 17:02
-updated_date: 2026-06-08 10:15
+updated_date: 2026-06-08 20:22
 labels:
-  - test
+  - testing
 dependencies: []
 references:
   - "doc-15: Testing Best Practices & Philosophy"

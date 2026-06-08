@@ -3,17 +3,17 @@ id: BACK-447
 title: Add No milestone option to TUI milestone filters
 status: Done
 assignee:
-  - '@alex-agent'
-created_date: '2026-04-26 08:41'
-updated_date: '2026-05-22 15:39'
+  - "@alex-agent"
+created_date: 2026-04-26 08:41
+updated_date: 2026-06-08 20:22
 labels:
   - tui
-  - milestone
-  - filter
+  - milestones
+  - filters
 milestone: m-12
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/81'
+  - https://github.com/MrLesk/Backlog.md/pull/81
 modified_files:
   - src/utils/milestone-filter.ts
   - src/utils/task-search.ts

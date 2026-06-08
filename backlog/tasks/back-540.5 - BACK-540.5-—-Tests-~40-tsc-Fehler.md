@@ -4,10 +4,10 @@ title: BACK-540.5 — Tests (~40 tsc-Fehler)
 status: Done
 assignee: []
 created_date: 2026-06-08 13:28
-updated_date: 2026-06-08 14:01
+updated_date: 2026-06-08 20:22
 labels:
   - tech-debt
-  - tests
+  - testing
 dependencies: []
 parent_task_id: BACK-540
 priority: high

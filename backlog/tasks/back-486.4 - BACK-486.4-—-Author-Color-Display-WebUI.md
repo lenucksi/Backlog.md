@@ -1,15 +1,24 @@
 ---
 id: BACK-486.4
 title: BACK-486.4 — Author Color Display (WebUI)
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 18:00
-updated_date: 2026-06-08 18:52
+updated_date: 2026-06-08 19:03
 labels:
   - authors
   - web-ui
   - color
 dependencies: []
+modified_files:
+  - src/web/components/TaskCard.tsx
+  - src/web/components/TaskColumn.tsx
+  - src/web/components/Board.tsx
+  - src/web/components/BoardPage.tsx
+  - src/web/App.tsx
+  - src/web/components/TaskDetailsModal.tsx
+  - src/web/components/TaskList.tsx
+  - src/test/TaskCard.test.tsx
 parent_task_id: BACK-486
 priority: medium
 ordinal: 275000
@@ -48,3 +57,9 @@ Abhängigkeit: BACK-486.3 (Author CRUD muss existieren)
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BACK-486.4 abgeschlossen: Author-Farben in TaskCard/TaskList assignee badges, merged assignee suggestions (config authors first + scraped fallback), colorMap für assignee ChipInput, authorColors-Prop durch Komponenten-Hierarchie.
+<!-- SECTION:FINAL_SUMMARY:END -->

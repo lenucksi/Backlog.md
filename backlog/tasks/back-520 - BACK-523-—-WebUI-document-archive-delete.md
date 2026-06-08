@@ -1,16 +1,16 @@
 ---
 id: BACK-520
-title: 'BACK-523 — WebUI: document archive/delete'
+title: "BACK-523 — WebUI: document archive/delete"
 status: Done
 assignee:
-  - '@opencode'
-created_date: '2026-05-22 10:24'
-updated_date: '2026-05-22 16:48'
+  - "@opencode"
+created_date: 2026-05-22 10:24
+updated_date: 2026-06-08 20:23
 labels:
   - web-ui
-  - document
   - parity
   - feature
+  - doc
 milestone: m-8
 dependencies: []
 documentation:

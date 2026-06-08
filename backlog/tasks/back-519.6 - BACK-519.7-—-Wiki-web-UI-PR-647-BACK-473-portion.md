@@ -1,18 +1,18 @@
 ---
 id: BACK-519.6
-title: 'BACK-519.7 — Wiki web UI (PR #647 BACK-473 portion)'
+title: "BACK-519.7 — Wiki web UI (PR #647 BACK-473 portion)"
 status: To Do
 assignee: []
-created_date: '2026-05-22 10:25'
-updated_date: '2026-05-22 15:12'
+created_date: 2026-05-22 10:25
+updated_date: 2026-06-08 20:22
 labels:
   - upstream
   - feature
-  - webui
+  - web-ui
 milestone: m-14
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/647'
+  - https://github.com/MrLesk/Backlog.md/pull/647
 parent_task_id: BACK-519
 priority: low
 ordinal: 228000

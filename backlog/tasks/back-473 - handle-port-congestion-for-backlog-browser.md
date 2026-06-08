@@ -3,11 +3,11 @@ id: BACK-473
 title: handle port congestion for backlog browser
 status: Done
 assignee:
-  - '@claude'
-created_date: '2026-05-08 14:29'
-updated_date: '2026-05-22 15:39'
+  - "@claude"
+created_date: 2026-05-08 14:29
+updated_date: 2026-06-08 20:22
 labels:
-  - webui
+  - web-ui
 milestone: m-8
 dependencies: []
 ordinal: 166000

@@ -3,14 +3,14 @@ id: BACK-398
 title: Add Milestone Filter to TUI Board
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-25 09:00'
-updated_date: '2026-05-22 15:39'
+  - "@codex"
+created_date: 2026-02-25 09:00
+updated_date: 2026-06-08 20:22
 labels:
   - tui
-  - filter
-  - milestone
   - enhancement
+  - milestones
+  - filters
 milestone: m-12
 dependencies: []
 ---

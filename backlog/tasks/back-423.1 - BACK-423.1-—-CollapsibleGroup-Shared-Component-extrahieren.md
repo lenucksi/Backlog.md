@@ -3,13 +3,13 @@ id: BACK-423.1
 title: BACK-423.1 — CollapsibleGroup Shared Component extrahieren
 status: Done
 assignee:
-  - '@opencode'
-created_date: '2026-05-22 17:23'
-updated_date: '2026-05-22 17:45'
+  - "@opencode"
+created_date: 2026-05-22 17:23
+updated_date: 2026-06-08 20:22
 labels:
   - web-ui
-  - refactor
   - ux
+  - refactoring
 milestone: m-8
 dependencies: []
 modified_files:

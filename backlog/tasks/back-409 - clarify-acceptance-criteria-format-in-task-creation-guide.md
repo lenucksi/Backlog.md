@@ -5,11 +5,11 @@ status: Done
 assignee:
   - "@codex"
 created_date: 2026-03-26 13:48
-updated_date: 2026-06-08 16:35
+updated_date: 2026-06-08 20:23
 labels:
   - bug
-  - docs
   - mcp
+  - doc
 milestone: m-9
 dependencies: []
 references:

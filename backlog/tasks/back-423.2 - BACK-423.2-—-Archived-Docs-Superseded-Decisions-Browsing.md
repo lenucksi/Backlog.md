@@ -3,14 +3,14 @@ id: BACK-423.2
 title: BACK-423.2 — Archived Docs + Superseded Decisions Browsing
 status: Done
 assignee:
-  - '@opencode'
-created_date: '2026-05-22 17:23'
-updated_date: '2026-05-22 17:54'
+  - "@opencode"
+created_date: 2026-05-22 17:23
+updated_date: 2026-06-08 20:23
 labels:
   - web-ui
-  - docs
   - decisions
   - feature
+  - doc
 milestone: m-8
 dependencies: []
 references:

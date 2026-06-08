@@ -1,23 +1,22 @@
 ---
 id: BACK-480
-title: >-
-  Complete terminalStatuses feature end-to-end: data-loss fix, full CLI/TUI/Web
-  wiring, clean PR combining BACK-466/467/469/470
+title: "Complete terminalStatuses feature end-to-end: data-loss fix, full
+  CLI/TUI/Web wiring, clean PR combining BACK-466/467/469/470"
 status: Done
 assignee:
-  - '@claude'
-created_date: '2026-05-11 14:00'
-updated_date: '2026-05-22 15:39'
+  - "@claude"
+created_date: 2026-05-11 14:00
+updated_date: 2026-06-08 20:23
 labels:
-  - upstream-pr
   - terminal-status
   - config
   - git-hygiene
+  - upstream
 milestone: m-12
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/635'
-  - 'https://github.com/MrLesk/Backlog.md/pull/636'
+  - https://github.com/MrLesk/Backlog.md/pull/635
+  - https://github.com/MrLesk/Backlog.md/pull/636
   - src/types/index.ts
   - src/file-system/operations.ts
   - src/utils/terminal-status.ts
@@ -32,17 +31,13 @@ references:
   - src/web/lib/lanes.test.ts
   - src/test/terminal-status.test.ts
   - src/test/config-commands.test.ts
-  - >-
-    backlog/tasks/back-466 -
+  - backlog/tasks/back-466 -
     Kern-Fix-isTerminalStatus-in-statistics.ts-handlers.ts-milestones.ts.md
-  - >-
-    backlog/tasks/back-467 -
+  - backlog/tasks/back-467 -
     Sekundär-Fix-Aktiv-Task-Filter-auf-isTerminalStatus-umstellen.md
-  - >-
-    backlog/tasks/back-469 -
+  - backlog/tasks/back-469 -
     Add-terminalStatuses-to-config-get-set-CLI-commands.md
-  - >-
-    backlog/tasks/back-470 -
+  - backlog/tasks/back-470 -
     Add-missing-tests-for-BACK-467-active-filter-isTerminalStatus.md
   - AGENTS.md
   - CONTRIBUTING.md

@@ -3,16 +3,16 @@ id: BACK-461
 title: Add community tools section to README
 status: Done
 assignee:
-  - '@alex-agent'
-created_date: '2026-05-03 10:53'
-updated_date: '2026-05-22 15:56'
+  - "@alex-agent"
+created_date: 2026-05-03 10:53
+updated_date: 2026-06-08 20:23
 labels:
-  - docs
   - community
+  - doc
 milestone: m-16
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/515'
+  - https://github.com/MrLesk/Backlog.md/pull/515
 modified_files:
   - README.md
 priority: low

@@ -1,19 +1,18 @@
 ---
 id: BACK-349
-title: >-
-  Publish Backlog.md as an Agent Skill with bundled guidance (no MCP resources
-  required for instructions)
+title: Publish Backlog.md as an Agent Skill with bundled guidance (no MCP
+  resources required for instructions)
 status: To Do
 assignee:
-  - '@codex'
-  - '@lenucksi'
-created_date: '2025-12-18 21:59'
-updated_date: '2026-05-17 20:20'
+  - "@codex"
+  - "@lenucksi"
+created_date: 2025-12-18 21:59
+updated_date: 2026-06-08 20:23
 labels:
   - agent-skills
   - mcp
-  - docs
   - distribution
+  - doc
 milestone: m-11
 dependencies: []
 references:

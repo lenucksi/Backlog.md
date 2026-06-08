@@ -3,17 +3,17 @@ id: BACK-423
 title: Folder groupings & archived-content browser in WebUI
 status: Done
 assignee:
-  - '@alex-agent'
-created_date: '2026-04-25 12:14'
-updated_date: '2026-05-22 17:54'
+  - "@alex-agent"
+created_date: 2026-04-25 12:14
+updated_date: 2026-06-08 20:23
 labels:
   - web-ui
-  - docs
   - enhancement
+  - doc
 milestone: m-8
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/488'
+  - https://github.com/MrLesk/Backlog.md/issues/488
 priority: medium
 ordinal: 139000
 ---

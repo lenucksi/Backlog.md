@@ -16,7 +16,7 @@ PROJECT_DIR="/home/jo/kit/claude-code-llm-kram/Backlog.md"
 info()  { printf "  %s\n" "$*"; }
 warn()  { printf "  ⚠ %s\n" "$*" >&2; }
 step()  { printf "\n==> %s\n" "$*"; }
-dry()   { [ "$APPLY" = "--apply" ] || return 0; }
+dry()   { [ "$APPLY" != "--apply" ]; }
 
 BACKLOG="bun run cli"
 
