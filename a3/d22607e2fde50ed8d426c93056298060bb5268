@@ -1,0 +1,21 @@
+package.json
+  s_c927adb04e53f2::t_9377417b32014b 83
+scripts/postinstall.sh
+  s_c927adb04e53f2::t_fd44037747b26f 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "a3d22607e2fde50ed8d426c93056298060bb5268",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
