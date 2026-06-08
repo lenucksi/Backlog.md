@@ -5,7 +5,7 @@ title: "BACK-540 — tsc-cleanup: Colored Labels Feature (BACK-486/487/488)
 status: Done
 assignee: []
 created_date: 2026-06-08 13:27
-updated_date: 2026-06-08 14:11
+updated_date: 2026-06-08 14:56
 labels:
   - tech-debt
   - bug
@@ -79,4 +79,12 @@ BACK-486/487/488 (Colored Labels) wurden halbfertig gemerged: **59 tsc-Fehler in
 - ✅ `bun run cli label --help` → CLI funktioniert
 
 ### Tag: `pre-tsc-cleanup`
+
+### BACK-540.8 — Hotfix: initial init crash (745 Tests)
+
+Root Cause: buildInitConfig() hatte keine statuses/labels Defaults mehr nachdem wir die Duplikate entfernt hatten. Spread eines leeren Objekts `...({})` liefert kein statuses-Feld → crash in serializeConfig().
+
+Fix: Spread zuerst, dann ??-Defaults (Option B). Kein @ts-expect-error nötig.
+
+Vorher: 745 fail | Nachher: 0 fail, 19 skip (pre-existing)
 <!-- SECTION:FINAL_SUMMARY:END -->

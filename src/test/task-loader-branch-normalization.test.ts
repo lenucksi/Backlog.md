@@ -42,6 +42,7 @@ describe("buildRemoteTaskIndex branch handling", () => {
 		await buildRemoteTaskIndex(git as unknown as GitOperations, ["main"], "backlog", undefined, collector as any);
 
 		expect(collector.length).toBeGreaterThan(0);
+		// biome-ignore lint/style/noNonNullAssertion: safe after length check
 		const first = collector[0]!;
 		expect(first.type).toBe("task");
 		expect(first.branch).toBe("main");

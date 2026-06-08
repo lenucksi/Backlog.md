@@ -68,6 +68,7 @@
 		"lint": "biome lint --write .",
 		"check": "biome check .",
 		"check:types": "bunx tsc --noEmit",
+		"check-types": "bunx tsc --noEmit",
 		"prepare": "prek install 2>/dev/null || true",
 		"build:css": "bun ./node_modules/@tailwindcss/cli/dist/index.mjs -i src/web/styles/source.css -o src/web/styles/style.css --minify",
 		"guard:test": "bun test hooks/backlog-guard/guard-core.test.ts",
