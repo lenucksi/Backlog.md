@@ -49,6 +49,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 		if (showSuggestions && filteredSuggestions.length > 0) {
 			if (e.key === "ArrowDown") {
 				e.preventDefault();
+				e.stopPropagation();
 				setSelectedSuggestion((prev) =>
 					prev < filteredSuggestions.length - 1 ? prev + 1 : 0,
 				);
@@ -56,6 +57,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 			}
 			if (e.key === "ArrowUp") {
 				e.preventDefault();
+				e.stopPropagation();
 				setSelectedSuggestion((prev) =>
 					prev > 0 ? prev - 1 : filteredSuggestions.length - 1,
 				);
@@ -107,6 +109,12 @@ const ChipInput: React.FC<ChipInputProps> = ({
 			setSelectedSuggestion(-1);
 		}
 	}, [showSuggestions, filteredSuggestions.length]);
+
+	useEffect(() => {
+		if (selectedSuggestion < 0 || !dropdownRef.current) return;
+		const el = dropdownRef.current.children[selectedSuggestion] as HTMLElement | undefined;
+		el?.scrollIntoView({ block: "nearest" });
+	}, [selectedSuggestion]);
 
 	const removeChip = (index: number) => {
 		if (disabled) return;
