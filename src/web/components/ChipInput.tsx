@@ -8,6 +8,7 @@ interface ChipInputProps {
 	name: string;
 	disabled?: boolean;
 	suggestions?: string[];
+	singleSelect?: boolean;
 }
 
 const ChipInput: React.FC<ChipInputProps> = ({
@@ -18,6 +19,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 	name,
 	disabled,
 	suggestions,
+	singleSelect,
 }) => {
 	const [inputValue, setInputValue] = useState("");
 	const [showSuggestions, setShowSuggestions] = useState(false);
@@ -36,7 +38,11 @@ const ChipInput: React.FC<ChipInputProps> = ({
 	const addChip = (text: string) => {
 		const trimmed = text.trim();
 		if (trimmed && !value.includes(trimmed)) {
-			onChange([...value, trimmed]);
+			if (singleSelect) {
+				onChange([trimmed]);
+			} else {
+				onChange([...value, trimmed]);
+			}
 		}
 		setInputValue("");
 		setShowSuggestions(false);
@@ -78,15 +84,21 @@ const ChipInput: React.FC<ChipInputProps> = ({
 
 		if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
 			e.preventDefault();
-			addChip(inputValue);
+			if (!singleSelect || value.length === 0) {
+				addChip(inputValue);
+			}
 		} else if (e.key === "Backspace" && !inputValue && value.length > 0) {
-			onChange(value.slice(0, -1));
+			if (singleSelect) {
+				onChange([]);
+			} else {
+				onChange(value.slice(0, -1));
+			}
 		}
 	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value;
-		if (newValue.endsWith(",")) {
+		if (newValue.endsWith(",") && !singleSelect) {
 			const chipValue = newValue.slice(0, -1).trim();
 			if (chipValue) addChip(chipValue);
 			else setInputValue("");
@@ -118,7 +130,11 @@ const ChipInput: React.FC<ChipInputProps> = ({
 
 	const removeChip = (index: number) => {
 		if (disabled) return;
-		onChange(value.filter((_, i) => i !== index));
+		if (singleSelect) {
+			onChange([]);
+		} else {
+			onChange(value.filter((_, i) => i !== index));
+		}
 	};
 
 	return (
@@ -163,19 +179,21 @@ const ChipInput: React.FC<ChipInputProps> = ({
 							)}
 						</span>
 					))}
-					<input
-						ref={inputRef}
-						id={inputId}
-						type="text"
-						value={inputValue}
-						onChange={handleInputChange}
-						onKeyDown={handleKeyDown}
-						onBlur={handleBlur}
-						onFocus={() => inputValue.length > 0 && setShowSuggestions(true)}
-						placeholder={value.length === 0 ? placeholder : ""}
-						className="flex-1 min-w-[2ch] outline-none text-sm bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-						disabled={disabled}
-					/>
+					{(!singleSelect || value.length === 0) && (
+						<input
+							ref={inputRef}
+							id={inputId}
+							type="text"
+							value={inputValue}
+							onChange={handleInputChange}
+							onKeyDown={handleKeyDown}
+							onBlur={handleBlur}
+							onFocus={() => inputValue.length > 0 && setShowSuggestions(true)}
+							placeholder={value.length === 0 ? placeholder : ""}
+							className="flex-1 min-w-[2ch] outline-none text-sm bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+							disabled={disabled}
+						/>
+					)}
 				</div>
 			</div>
 			{showSuggestions && filteredSuggestions.length > 0 && (

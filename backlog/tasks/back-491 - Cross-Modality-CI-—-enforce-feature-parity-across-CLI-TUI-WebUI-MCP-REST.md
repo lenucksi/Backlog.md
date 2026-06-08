@@ -1,13 +1,12 @@
 ---
 id: BACK-491
-title: >-
-  Cross-Modality CI — enforce feature parity across CLI / TUI / WebUI / MCP /
-  REST
+title: Cross-Modality CI — enforce feature parity across CLI / TUI / WebUI / MCP
+  / REST
 status: Done
 assignee:
-  - '@opencode'
-created_date: '2026-05-13 10:14'
-updated_date: '2026-05-22 17:45'
+  - "@opencode"
+created_date: 2026-05-13 10:14
+updated_date: 2026-06-08 17:31
 labels:
   - ci
   - testing
@@ -86,6 +85,14 @@ After DOC-005 re-audit, these are the gaps that cross-modality CI should priorit
 - Statistics missing in TUI and MCP
 - Sequences management missing in CLI, TUI, MCP
 - TUI lacks milestone list/view
+
+### TUI Autocomplete Gap (2026-06-08)
+
+BACK-484 (Assignee Autocomplete + Parent Task) spezifiziert TUI-Implementierung in AC #2. Die TUI hat aktuell kein Autocomplete/Typeahead für irgendein Eingabefeld (weder Labels noch Assignee noch Parent Task).
+
+Diese Lücke wird hier in BACK-491 als Feature-Parity-Item geführt, sobald BACK-484 WebUI abgeschlossen ist. Die konkrete TUI-Implementierung ist ein separater Subtask (zu eröffnen wenn BACK-484 WebUI done ist).
+
+Verweis: BACK-484.1 (Parent Task), BACK-484 (Assignee) — beide haben TUI-AC, die nach WebUI-Implementierung hierher wandern.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

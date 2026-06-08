@@ -1,16 +1,20 @@
 ---
 id: BACK-484
-title: >-
-  Assignee field should autocomplete-on-type based on the assignees already
+title: Assignee field should autocomplete-on-type based on the assignees already
   found in the data of the board
-status: To Do
+status: In Progress
 assignee:
-  - '@lenucksi'
-created_date: '2026-05-13 09:51'
-updated_date: '2026-05-17 20:27'
+  - "@jo"
+created_date: 2026-05-13 09:51
+updated_date: 2026-06-08 17:30
 labels: []
 milestone: m-8
 dependencies: []
+references:
+  - src/web/components/ChipInput.tsx
+  - src/web/components/TaskDetailsModal.tsx
+  - src/web/components/DependencyInput.tsx
+  - BACK-491 — Cross-Modality CI (TUI Autocomplete dependency)
 priority: medium
 ordinal: 171000
 ---
@@ -36,11 +40,45 @@ This is the assignee equivalent of label autocomplete (see label management tick
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 WebUI: assignee input in task create/edit shows a dropdown of existing assignees after 1+ characters typed; matching is case-insensitive; user can still enter a new assignee not yet in the board
-- [ ] #2 TUI: same typeahead suggestions appear in the assignee input field during task create/edit
-- [ ] #3 CLI: on `backlog task create --assignee` (or interactive prompt equivalent), existing assignees are offered as completions or suggestions; a new value is still accepted without error
-- [ ] #4 MCP: document in task_create / task_edit tool descriptions that assignee suggestions are derived from existing board data; no new MCP tool required unless the suggestion endpoint is reusable
-- [ ] #5 Scraped assignee list is built from task frontmatter at query time — no persistent cache, no config entry
-- [ ] #6 `@`-prefix preserved consistently: existing assignees stored as `@name`; suggestions always display with `@`
-- [ ] #7 All 4 modalities (WebUI, TUI, CLI, MCP) covered or explicitly marked N/A with justification
+- [ ] #1 WebUI: assignee input in task create/edit shows dropdown of existing assignees after 1+ characters typed; matching case-insensitive; free entry still allowed
+- [ ] #2 WebUI: parent task input in task create/edit shows task search dropdown (ID + title) after 1+ characters; single-select via ChipInput
+- [ ] #3 DependencyInput: ArrowDown/ArrowUp scrollDropdown synchron mit Auswahl; stopPropagation verhindert Seiten-Scroll
+- [ ] #4 Scraped assignee list from task frontmatter at query time (availableTasks) — keine config, kein Cache
+- [ ] #5 TUI autocomplete assigned to BACK-491 (Feature Parity) for later implementation
+- [ ] #6 All 5 modalities covered or explicitly N/A with justification
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+## Implementation Plan
+
+### Scope: WebUI Autocomplete für Assignee + Parent Task
+
+**Datenquelle**: `availableTasks` (bereits via `apiClient.fetchTasks()` in TaskDetailsModal geladen, Zeile 325) liefert alle Tasks. Assignees und Task-IDs/-Titel werden daraus extrahiert — kein zusätzlicher API-Call nötig.
+
+### Phase 1 — ChipInput singleSelect-Modus
+- Neue Prop `singleSelect?: boolean`
+- Wenn true: max 1 Chip, kein Multi-Add, Enter/Comma wählt Vorschlag und schließt
+- Notwendig für Parent-Task-Feld (Single-Value)
+
+### Phase 2 — Assignee Autocomplete
+- `availableAssignees` aus `availableTasks` extrahieren (useMemo, flatMap + Set)
+- Assignee-ChipInput erhält `suggestions={availableAssignees}`
+- BACK-484 #1 WebUI ✅
+
+### Phase 3 — Parent Task Autocomplete
+- Plain `<input>` ersetzen durch ChipInput mit `singleSelect`
+- `parentTaskSuggestions` aus `availableTasks` (format: "BACK-123 - Task Title")
+- Bei Auswahl: `parentTaskId = selectedTask.id`
+- Bestehende onBlur-Logik erhalten
+
+### Phase 4 — DependencyInput Scroll-Fix
+- `stopPropagation()` auf ArrowDown/ArrowUp
+- `scrollIntoView`-useEffect auf `selectedIndex`
+
+### Ausgeschlossen (BACK-491)
+- TUI Autocomplete (wird via BACK-491 Feature Parity adressiert)
+- CLI Autocomplete
+- MCP Autocomplete
+<!-- SECTION:PLAN:END -->

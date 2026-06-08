@@ -325,6 +325,19 @@ export const TaskDetailsModal: React.FC<Props> = ({
     apiClient.fetchTasks().then(setAvailableTasks).catch(() => setAvailableTasks([]));
   }, [task, isOpen, mode, isCreateMode, isDraftMode, availableStatuses, defaultDefinitionOfDone]);
 
+  const availableAssignees = useMemo(
+    () => [...new Set(availableTasks.flatMap((t) => t.assignee ?? []).filter(Boolean))].sort(),
+    [availableTasks],
+  );
+
+  const parentTaskSuggestions = useMemo(
+    () =>
+      availableTasks
+        .filter((t) => t.id !== task?.id)
+        .map((t) => `${t.id} - ${t.title}`),
+    [availableTasks, task?.id],
+  );
+
   const handleCancelEdit = () => {
     if (isDirty) {
       const confirmDiscard = window.confirm("Discard unsaved changes?");
@@ -1066,6 +1079,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
               onChange={(value) => handleInlineMetaUpdate({ assignee: value })}
               placeholder="Type name and press Enter"
               disabled={isFromOtherBranch}
+              suggestions={availableAssignees}
             />
           </div>
 
@@ -1127,18 +1141,19 @@ export const TaskDetailsModal: React.FC<Props> = ({
           {/* Parent Task ID */}
           <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
             <SectionHeader title="Parent Task ID" />
-            <input
-              type="text"
-              value={parentTaskId}
-              onChange={(e) => setParentTaskId(e.target.value)}
-              onBlur={() => {
-                if (parentTaskId !== (task?.parentTaskId ?? "")) {
-                  void handleInlineMetaUpdate({ parentTaskId: parentTaskId.trim() || undefined });
-                }
+            <ChipInput
+              name="parentTaskId"
+              label=""
+              value={parentTaskId ? [parentTaskId] : []}
+              onChange={(value) => {
+                const pid = value[0]?.split(" - ")[0] ?? "";
+                setParentTaskId(pid);
+                void handleInlineMetaUpdate({ parentTaskId: pid || undefined });
               }}
-              placeholder="e.g. BACK-123"
+              placeholder="Search task ID or title..."
               disabled={isFromOtherBranch}
-              className={`w-full h-10 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 focus:border-transparent transition-colors duration-200 ${isFromOtherBranch ? 'opacity-60 cursor-not-allowed' : ''}`}
+              singleSelect
+              suggestions={parentTaskSuggestions}
             />
           </div>
 

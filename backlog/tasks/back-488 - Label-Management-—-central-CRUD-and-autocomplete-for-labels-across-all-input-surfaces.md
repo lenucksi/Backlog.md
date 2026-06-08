@@ -1,12 +1,11 @@
 ---
 id: BACK-488
-title: >-
-  Label Management — central CRUD and autocomplete for labels across all input
-  surfaces
+title: Label Management — central CRUD and autocomplete for labels across all
+  input surfaces
 status: Done
 assignee: []
-created_date: '2026-05-13 10:14'
-updated_date: '2026-05-23 17:35'
+created_date: 2026-05-13 10:14
+updated_date: 2026-06-08 17:15
 labels:
   - labels
   - ux
@@ -77,39 +76,38 @@ Labels can be arbitrary strings today, causing label sprawl (typos, near-duplica
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-## Implementation Summary
+## Status Update 2026-06-08
 
-### CLI Label Commands
-- `src/commands/label.ts` — `backlog label list`, `backlog label add <name>`, `backlog label rename <old> <new>`, `backlog label remove <name>`; validation warns on non-managed labels
-- `src/cli.ts` — Registered `registerLabelCommand`
+### WebUI Autocomplete ✅
+- ChipInput (src/web/components/ChipInput.tsx) hat jetzt `suggestions`-Prop
+- Dropdown mit gefilterten Vorschlägen bei Eingabe >0 Zeichen
+- Navigation via Pfeiltasten, Auswahl mit Enter, Schließen mit Escape
+- scrollIntoView + stopPropagation für sauberes Scrollverhalten
+- Labels-ChipInput in TaskDetailsModal bekommt `suggestions={availableLabels}` aus App.tsx
 
-### TUI Label Manager
-- `src/ui/components/label-manager.ts` — Full CRUD accessible from settings panel
+### TUI Autocomplete ❌ (noch offen)
+- BACK-488 spezifiziert Autocomplete auch für TUI
+- `src/ui/` hat kein Autocomplete/Typeahead für Labels oder andere Felder
+- BACK-491 (Feature Parity) erfasst die allgemeine TUI-Lücke nicht explizit für Autocomplete
+- Separate Erfassung empfohlen (Subtasks von BACK-488 oder BACK-491)
 
-### WebUI Label Management
-- `src/web/components/Settings.tsx` — Labels section with list, add, rename, delete
-- `src/web/components/ChipInput.tsx` — Autocomplete/typeahead component; case-insensitive matching after 1+ chars; allows free entry with prompt
-- `src/web/components/LabelFilterDropdown.tsx` — Filter dropdown with label autocomplete
-- `src/web/components/TaskCard.tsx`, `TaskDetailsModal.tsx`, `TaskList.tsx`, `TaskColumn.tsx` — Integrated ChipInput for label editing
-- `src/web/lib/api.ts` — API functions for label CRUD
+### Verwandte offene Tasks
+- BACK-484 (To Do): Assignee Autocomplete WebUI + TUI
+- Für Parent Task + Dependencies gibt es noch kein Autocomplete-Ticket
 
-### MCP Label Tools
-- `src/mcp/tools/labels/` — list/add/rename/delete tools with schemas
+### Lessons Learned (Autocomplete Implementation)
 
-### REST Label Endpoints
-- `src/server/handlers/config.ts` — GET/POST/PUT/DELETE `/api/config/labels` CRUD handlers
+1. **Generic vs. spezifisch**: ChipInput als generische Komponente mit `suggestions`-Prop ist der richtige Ansatz. Wiederverwendbar für assignee, dependencies, parent task — props ergänzen, Komponente bleibt gleich.
 
-### Backend
-- `src/core/backlog.ts` — `addLabel`, `renameLabel`, `removeLabel` core methods
-- `src/file-system/operations.ts` — Load/save label config
-- `src/markdown/parser.ts` — Label parsing
-- `src/markdown/serializer.ts` — Label serialization
+2. **Dropdown-Scroll**: `overflow-y-auto` allein reicht nicht. `scrollIntoView({ block: 'nearest' })` im `useEffect` auf `selectedSuggestion` ist nötig, damit das aktive Element bei Pfeiltasten-Navigation sichtbar bleibt. `stopPropagation()` auf ArrowDown/ArrowUp verhindert Konflikt mit Seiten-Scroll.
 
-### Migration
-- One-time migration on first `backlog label` CRUD operation or opening WebUI Labels settings; harvests distinct labels from task/doc/decision frontmatter into `config.yml`
+3. **Dropdown-Positionierung**: `absolute` + `z-50` im Kontext des Input-Containers funktioniert gut. `relative` auf dem Container ist entscheidend — ohne fliegt das Dropdown aus dem Layout.
 
-### Config Validation
-- `src/commands/config.ts` — `config set labels` now redirects to `backlog label` commands
+4. **Blur-Handling**: `setTimeout(150ms)` auf `onBlur` verhindert dass der Klick auf einen Vorschlag das Dropdown schließt bevor `onMouseDown` feuert. Ohne den Delay registriert der Browser den Klick nicht.
+
+5. **MouseDown statt Click**: `onMouseDown` für die Auswahl von Vorschlägen (statt `onClick`) ist wichtig, weil `onBlur` auf dem Input vor `onClick` feuert und das Dropdown verschwindet bevor der Click registriert wird.
+
+6. **Datenfluss**: `availableLabels` in App.tsx State → Props → TaskDetailsModal → ChipInput `suggestions`. Die Labels werden beim initialen Load aus `configData.labels` gezogen. Für große Projekte (150+ labels) ist das performant genug, da das Filtern clientseitig via `String.includes` läuft.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

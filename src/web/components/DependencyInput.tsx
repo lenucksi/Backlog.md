@@ -15,6 +15,7 @@ const DependencyInput: React.FC<DependencyInputProps> = ({ value, onChange, avai
   const [suggestions, setSuggestions] = useState<Task[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputId = 'dependency-input';
 
   // Get task display text
@@ -64,13 +65,21 @@ const DependencyInput: React.FC<DependencyInputProps> = ({ value, onChange, avai
     onChange(value.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    if (selectedIndex < 0 || !dropdownRef.current) return;
+    const el = dropdownRef.current.children[selectedIndex] as HTMLElement | undefined;
+    el?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (disabled) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
+      e.stopPropagation();
       setSelectedIndex(prev => (prev + 1) % suggestions.length);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      e.stopPropagation();
       setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
     } else if ((e.key === 'Enter' || e.key === ',') && inputValue.trim()) {
       e.preventDefault();
@@ -155,7 +164,7 @@ const DependencyInput: React.FC<DependencyInputProps> = ({ value, onChange, avai
 
         {/* Suggestions dropdown */}
         {suggestions.length > 0 && (
-          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-64 overflow-auto overscroll-contain transition-colors duration-200">
+          <div ref={dropdownRef} className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-64 overflow-auto overscroll-contain transition-colors duration-200">
 	            {suggestions.map((task, index) => (
 	              <button
 	                key={task.id}
