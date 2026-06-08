@@ -1,9 +1,10 @@
 ---
 id: BACK-540.5
 title: BACK-540.5 — Tests (~40 tsc-Fehler)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 13:28
+updated_date: 2026-06-08 13:44
 labels:
   - tech-debt
   - tests

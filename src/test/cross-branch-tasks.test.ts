@@ -92,7 +92,7 @@ describe("filterTasksByLatestState", () => {
 		]);
 		const result = filterTasksByLatestState(tasks, dirs);
 		expect(result).toHaveLength(1);
-		expect(result[0].id).toBe("2");
+		expect(result[0]?.id).toBe("2");
 	});
 });
 

@@ -30,6 +30,7 @@
  *   });
  */
 
+import { expect } from "bun:test";
 import { createTerminal, termlessMatchers } from "@termless/core";
 import { createVtermBackend } from "./vterm-backend.ts";
 

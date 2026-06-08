@@ -41,7 +41,7 @@ describe("config command coverage", () => {
 	});
 
 	it("config get all keys", async () => {
-		const keys: Array<{ key: string }> = [
+		const keys: string[] = [
 			"projectName",
 			"defaultStatus",
 			"statuses",

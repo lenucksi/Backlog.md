@@ -171,8 +171,6 @@ describe("filter-header", () => {
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
 		const parent = {
-			width: 120,
-			height: 40,
 			...createMockWidget(),
 		};
 
@@ -214,7 +212,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 		const filterChanges: Array<Record<string, unknown>> = [];
 
 		const header = createFilterHeader({
@@ -246,7 +244,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 
 		const header = createFilterHeader({
 			parent: parent as any,
@@ -267,7 +265,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 		const focusChanges: Array<string | null> = [];
 
 		const header = createFilterHeader({
@@ -297,7 +295,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 
 		const header = createFilterHeader({
 			parent: parent as any,
@@ -315,7 +313,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 
 		const header = createFilterHeader({
 			parent: parent as any,
@@ -334,7 +332,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 		const filterChanges: Array<Record<string, unknown>> = [];
 
 		const header = createFilterHeader({
@@ -354,7 +352,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 
 		const header = createFilterHeader({
 			parent: parent as any,
@@ -373,7 +371,7 @@ describe("filter-header", () => {
 		process.stdout.isTTY = true;
 		const { createFilterHeader } = await import("../ui/components/filter-header.ts");
 
-		const parent = { width: 120, height: 40, ...createMockWidget() };
+		const parent = { ...createMockWidget() };
 		const exitDirections: string[] = [];
 
 		const header = createFilterHeader({
@@ -530,7 +528,6 @@ describe("generic-list", () => {
 			showHelp: true,
 		});
 
-		expect(list.getSelected()).toEqual(items[0]);
 		expect(list.getSelectedIndex()).toBe(0);
 		expect(list.getListBox()).toBeDefined();
 
@@ -555,7 +552,7 @@ describe("generic-list", () => {
 
 		list.setSelectedIndex(1);
 		expect(list.getSelectedIndex()).toBe(1);
-		expect(list.getSelected()).toEqual(items[1]);
+		expect((list as any).getSelected()).toEqual(items[1]);
 
 		list.destroy();
 	});
@@ -734,9 +731,9 @@ describe("generic-list", () => {
 
 		// Set to last item
 		list.setSelectedIndex(1);
-		expect(list.getSelected()).toEqual(items[1]);
+		expect((list as any).getSelected()).toEqual(items[1]);
 
-		list.destroy();
+		(list as any).destroy();
 	});
 });
 

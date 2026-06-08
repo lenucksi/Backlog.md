@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
-import type { Milestone, Task } from "../types/index.ts";
+import type { Milestone } from "../types/index.ts";
 import {
 	buildTaskViewerMilestoneFilterModel,
 	resolveFilterExitPane,
@@ -20,39 +20,6 @@ import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-
 // ---------------------------------------------------------------------------
 function milestone(id: string, title: string): Milestone {
 	return { id, title, description: "", rawContent: "" };
-}
-
-function _makeRichTask(overrides: Partial<Task> = {}): Task {
-	return {
-		id: "TASK-42",
-		title: "Implement feature X",
-		status: "In Progress",
-		assignee: ["jo"],
-		reporter: "bot",
-		createdDate: "2024-01-15",
-		updatedDate: "2024-02-20",
-		labels: ["feature", "backend"],
-		milestone: "m-1",
-		dependencies: ["TASK-1"],
-		references: ["https://example.com", "docs/guide.md"],
-		documentation: ["https://docs.example.com", "README.md"],
-		modifiedFiles: ["src/file1.ts", "src/file2.ts"],
-		description: "This is a *description* with `code`.",
-		implementationPlan: "1. Plan step\n2. Plan step two",
-		implementationNotes: "Remember to test edge cases",
-		finalSummary: "All features implemented and tested",
-		acceptanceCriteriaItems: [
-			{ index: 1, text: "AC-1 works", checked: true },
-			{ index: 2, text: "AC-2 works", checked: false },
-		],
-		definitionOfDoneItems: [{ index: 1, text: "DoD-1 complete", checked: true }],
-		priority: "high",
-		branch: "feature/back-42",
-		parentTaskId: "TASK-10",
-		parentTaskTitle: "Parent epic",
-		subtasks: ["TASK-43", "TASK-44"],
-		...overrides,
-	};
 }
 
 // ---------------------------------------------------------------------------
@@ -383,6 +350,7 @@ const canRunShell =
 				labels: [],
 				assignee: [],
 				dependencies: [],
+				createdDate: "2024-01-01",
 				description: "",
 			},
 			false,
@@ -396,6 +364,7 @@ const canRunShell =
 				labels: [],
 				assignee: [],
 				dependencies: [],
+				createdDate: "2024-01-01",
 				description: "",
 			},
 			false,

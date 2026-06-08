@@ -453,7 +453,7 @@ describe("Core", () => {
 			await core.createTask(webTask, false);
 
 			const results = await core.queryTasks({
-				filters: { modifiedFiles: ["src/core"] },
+				filters: { modifiedFiles: ["src/core"] } as any,
 			});
 
 			expect(results).toHaveLength(1);

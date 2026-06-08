@@ -24,12 +24,6 @@ function t(id: string, deps: string[] = [], ordinal?: number): Task {
 	};
 }
 
-function _mustGet<T>(arr: T[], idx: number): T {
-	const v = arr[idx];
-	if (v === undefined) throw new Error(`expected element at index ${idx}`);
-	return v;
-}
-
 describe("computeSequences - cycle detection", () => {
 	it("detects cycles and emits remaining tasks as final layer", () => {
 		// A -> B -> C -> A (cycle)
@@ -262,7 +256,7 @@ describe("canMoveToUnsequenced - edge cases", () => {
 	});
 
 	it("considers dependencies from cloned task objects correctly", () => {
-		const tasks: Task[] = [{ ...t("task-1"), dependencies: undefined }, t("task-2")];
+		const tasks: Task[] = [{ ...t("task-1"), dependencies: [] }, t("task-2")];
 		expect(canMoveToUnsequenced(tasks, "task-1")).toBe(true);
 	});
 });

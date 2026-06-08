@@ -39,10 +39,10 @@ describe("buildRemoteTaskIndex branch handling", () => {
 		const collector: Array<{ id: string; type: string; branch: string; path: string; lastModified: Date }> = [];
 		const git = new MockGit();
 
-		await buildRemoteTaskIndex(git as unknown as GitOperations, ["main"], "backlog", undefined, collector);
+		await buildRemoteTaskIndex(git as unknown as GitOperations, ["main"], "backlog", undefined, collector as any);
 
 		expect(collector.length).toBeGreaterThan(0);
-		const first = collector[0];
+		const first = collector[0]!;
 		expect(first.type).toBe("task");
 		expect(first.branch).toBe("main");
 	});
@@ -62,12 +62,12 @@ describe("buildRemoteTaskIndex branch handling", () => {
 			},
 		};
 
-		const index = await buildRemoteTaskIndex(
+		const index = 		await buildRemoteTaskIndex(
 			git as unknown as GitOperations,
 			["main"],
 			"backlog",
 			undefined,
-			collector,
+			collector as any,
 			"task",
 			true,
 		);

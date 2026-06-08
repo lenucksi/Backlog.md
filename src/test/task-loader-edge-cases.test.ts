@@ -380,7 +380,7 @@ dependencies: []
 
 		const tasks = await loadRemoteTasks(mockGit, null, (m) => progressMessages.push(m));
 		expect(tasks.length).toBe(1);
-		expect(tasks[0].id).toBe("TASK-1");
+		expect(tasks[0]?.id).toBe("TASK-1");
 		expect(progressMessages.some((m) => m.includes("Hydrating 1 remote tasks"))).toBe(true);
 	});
 
@@ -426,7 +426,7 @@ dependencies: []
 			},
 		} as unknown as GitOperations;
 
-		const tasks = await loadRemoteTasks(mockGit, config, (m) => progressMessages.push(m), undefined, collector, true);
+		const tasks = await loadRemoteTasks(mockGit, config, (m) => progressMessages.push(m), undefined, collector as any, true);
 		expect(tasks.length).toBe(2);
 		expect(collector.length).toBe(2);
 	});
@@ -467,7 +467,7 @@ dependencies: []
 
 		const tasks = await loadRemoteTasks(mockGit, config, (m) => progressMessages.push(m), [localTask]);
 		expect(tasks.length).toBe(1);
-		expect(tasks[0].title).toBe("Remote Updated");
+		expect(tasks[0]?.title).toBe("Remote Updated");
 		expect(progressMessages.some((m) => m.includes("Hydrating 1 remote candidates"))).toBe(true);
 	});
 
@@ -507,7 +507,7 @@ dependencies: []
 
 		const tasks = await loadRemoteTasks(mockGit, config, undefined, [localTask]);
 		expect(tasks.length).toBe(1);
-		expect(tasks[0].title).toBe("Remote Newer");
+		expect(tasks[0]?.title).toBe("Remote Newer");
 	});
 });
 
@@ -611,8 +611,8 @@ dependencies: []
 
 		const tasks = await loadLocalBranchTasks(mockGit);
 		expect(tasks.length).toBe(1);
-		expect(tasks[0].id).toBe("TASK-2");
-		expect(tasks[0].source).toBe("local-branch");
+		expect(tasks[0]?.id).toBe("TASK-2");
+		expect(tasks[0]?.source).toBe("local-branch");
 	});
 
 	it("hydrates missing tasks when local tasks don't match remote entries", async () => {
@@ -647,7 +647,7 @@ dependencies: []
 
 		const tasks = await loadLocalBranchTasks(mockGit, null, undefined, [localTask]);
 		expect(tasks.length).toBe(1);
-		expect(tasks[0].id).toBe("TASK-3");
+		expect(tasks[0]?.id).toBe("TASK-3");
 	});
 
 	it("uses most_recent strategy when configured", async () => {
@@ -690,6 +690,6 @@ dependencies: []
 
 		const tasks = await loadLocalBranchTasks(mockGit, config, undefined, [localTask]);
 		expect(tasks.length).toBe(1);
-		expect(tasks[0].title).toBe("Newer Version");
+		expect(tasks[0]?.title).toBe("Newer Version");
 	});
 });

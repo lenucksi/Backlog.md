@@ -34,7 +34,7 @@ const DEFAULT_ROWS = 24;
 
 /** Map vterm.js underline style to termless format (false for none). */
 function mapUnderline(style: string): Cell["underline"] {
-	if (style === "none" || style === false) return false;
+	if (style === "none" || style === "false") return false;
 	if (style === "single") return "single";
 	if (style === "double") return "double";
 	if (style === "curly") return "curly";

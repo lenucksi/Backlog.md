@@ -13,11 +13,11 @@ function makeTask(id: string, title: string, status = "To Do") {
 		title,
 		status,
 		description: "",
-		priority: "medium",
-		labels: [],
-		assignee: [],
-		dependencies: [],
-		createdDate: new Date(),
+		priority: "medium" as const,
+		labels: [] as string[],
+		assignee: [] as string[],
+		dependencies: [] as string[],
+		createdDate: "2024-01-01",
 	};
 }
 
@@ -115,6 +115,7 @@ const canRunShell =
 				labels: [],
 				assignee: [],
 				dependencies: ["task-b"],
+				createdDate: "2024-01-01",
 				description: "",
 			},
 			false,
@@ -128,6 +129,7 @@ const canRunShell =
 				labels: [],
 				assignee: [],
 				dependencies: [],
+				createdDate: "2024-01-01",
 				description: "",
 			},
 			false,

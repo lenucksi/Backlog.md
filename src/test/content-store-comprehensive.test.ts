@@ -21,25 +21,6 @@ describe("ContentStore - comprehensive coverage", () => {
 		rawContent: "## Description\nSeed content",
 	};
 
-	const _sampleDecision: Decision = {
-		id: "decision-1",
-		title: "Adopt shared cache",
-		date: "2025-09-19",
-		status: "proposed",
-		context: "Context",
-		decision: "Decision text",
-		consequences: "Consequences",
-		rawContent: "## Context\nContext\n\n## Decision\nDecision text\n\n## Consequences\nConsequences",
-	};
-
-	const _sampleDocument: Document = {
-		id: "doc-1",
-		title: "Architecture Guide",
-		type: "guide",
-		createdDate: "2025-09-19",
-		rawContent: "# Architecture Guide",
-	};
-
 	beforeEach(async () => {
 		TEST_DIR = createUniqueTestDir("content-store-cov");
 		filesystem = new FileSystem(TEST_DIR);

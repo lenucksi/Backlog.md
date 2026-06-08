@@ -13,13 +13,9 @@ export interface RunResult {
 	exitCode: number | null;
 }
 
-let commandCache: Command | null = null;
-let commandRegistered = false;
-
 export async function runBacklogCmd(args: string[], cwd: string): Promise<RunResult> {
 	const logs: string[] = [];
 	const errors: string[] = [];
-	let _exitCode: number | null = null;
 
 	process.chdir(cwd);
 	process.argv = ["bun", "src/cli.ts", ...args];
@@ -27,25 +23,10 @@ export async function runBacklogCmd(args: string[], cwd: string): Promise<RunRes
 	console.error = (...a: unknown[]) => errors.push(a.map(String).join(" "));
 	console.warn = (...a: unknown[]) => errors.push(a.map(String).join(" "));
 	process.exit = ((code?: number) => {
-		_exitCode = code ?? null;
 		throw new ProcessExitError(code);
 	}) as (code?: number) => never;
 	(process as { exitCode: unknown }).exitCode = null;
 
-	if (!commandRegistered) {
-		commandCache = new Command();
-		commandCache.exitOverride();
-		commandRegistered = true;
-	}
-
-	const program = commandCache;
-	program.commands = [];
-	// prevent duplicate name errors
-	for (const key of Object.keys(program)) {
-		if (key === "commands") continue;
-	}
-	// Re-register every time since we need fresh state
-	// We'll rebuild the program each call
 	return await runWithFreshProgram(args, cwd, logs, errors);
 }
 

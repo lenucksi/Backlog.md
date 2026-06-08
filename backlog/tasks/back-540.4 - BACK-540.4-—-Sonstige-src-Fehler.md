@@ -1,10 +1,10 @@
 ---
 id: BACK-540.4
 title: BACK-540.4 — Sonstige src/-Fehler
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 13:28
-updated_date: 2026-06-08 13:41
+updated_date: 2026-06-08 13:44
 labels:
   - tech-debt
 dependencies: []
@@ -37,3 +37,15 @@ Abhängigkeiten: BACK-540.3
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Phase 4 abgeschlossen: src/ tsc-Fehler 0 (vorher 8, jetzt 0).
+- backlog.ts: updateDecisionFromContent - typeof data.* guards für frontmatter fields + cast to Decision für status union
+- operations.ts: nameMatch?.[1] optional chaining (2 Stellen)
+- server/utils.ts: filters.labels/modifiedFiles immer Array zuweisen (kein length===1 ternary)
+- TaskColumn.tsx: unused draggedTaskId → _draggedTaskId
+- TaskDetailsModal.tsx: fehlendes onNavigateToTask im Props Destructuring ergänzt
+- App.tsx: Route element cast as any für Props-Union
+<!-- SECTION:NOTES:END -->

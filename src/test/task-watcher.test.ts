@@ -23,14 +23,14 @@ describe("watchTasks", () => {
 		mockWatcher = { close: () => {} } as FSWatcher;
 
 		spyOn(fs, "watch").mockImplementation(
-			(
+			((
 				_path: unknown,
 				_options?: unknown,
 				listener?: (eventType: string, filename: string | Buffer | null) => void,
 			) => {
 				if (listener) watchCallback = listener;
 				return mockWatcher;
-			},
+			}) as any,
 		);
 	});
 
@@ -60,7 +60,7 @@ describe("watchTasks", () => {
 
 	const triggerEvent = async (eventType: string, filename: string | Buffer | null) => {
 		if (watchCallback) {
-			const result = watchCallback(eventType, filename);
+			const result = (watchCallback as (...args: unknown[]) => unknown)(eventType, filename);
 			if (result instanceof Promise) {
 				await result;
 			}
@@ -112,7 +112,7 @@ describe("watchTasks", () => {
 		watchTasks(makeCore(), { onTaskChanged: onTaskChanged });
 		await triggerEvent("change", "task-1.md");
 		expect(onTaskChanged).toHaveBeenCalledTimes(1);
-		expect(onTaskChanged.mock.calls[0][0]).toBeDefined();
+		expect(onTaskChanged.mock.calls[0]?.[0]).toBeDefined();
 	});
 
 	it("calls onTaskChanged on rename event when file exists on disk", async () => {
@@ -133,7 +133,7 @@ describe("watchTasks", () => {
 
 		await triggerEvent("rename", "task-nonexistent.md");
 		expect(onTaskRemoved).toHaveBeenCalledTimes(1);
-		expect(onTaskRemoved.mock.calls[0][0]).toBe("task-nonexistent.md");
+		expect(onTaskRemoved.mock.calls[0]?.[0]).toBe("task-nonexistent.md");
 	});
 
 	it("does not call onTaskChanged when loadTask returns null on change event", async () => {

@@ -783,7 +783,6 @@ New consequences`,
 				taskId: "TASK-R2",
 				targetStatus: "To Do",
 				orderedTaskIds: ["TASK-R2", "TASK-R1"],
-				newIndex: 0,
 			});
 			expect(result.updatedTask).toBeDefined();
 		});

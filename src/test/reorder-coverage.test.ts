@@ -142,7 +142,7 @@ describe("resolveOrdinalConflicts", () => {
 	});
 
 	it("supports custom startOrdinal and defaultStep", () => {
-		const tasks = [{ id: "task-1" }, { id: "task-2" }];
+		const tasks: Array<{ id: string; ordinal?: number }> = [{ id: "task-1" }, { id: "task-2" }];
 		const result = resolveOrdinalConflicts(tasks, { startOrdinal: 100, defaultStep: 50 });
 		expect(result).toEqual([
 			{ id: "task-1", ordinal: 100 },

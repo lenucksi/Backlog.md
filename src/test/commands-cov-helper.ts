@@ -70,7 +70,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		} else if (err instanceof Error && (err as { code?: string }).code === "commander.help") {
 			exitCode = 0;
 		} else {
-			caught = err;
+			caught = err as Error;
 		}
 	} finally {
 		process.chdir(originalCwd);

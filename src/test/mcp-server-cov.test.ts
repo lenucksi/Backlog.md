@@ -5,11 +5,6 @@ import { createMcpServer, McpServer } from "../mcp/server.ts";
 import { registerWorkflowTools } from "../mcp/tools/workflow/index.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
-const _getText = (content: unknown[] | undefined, index = 0): string => {
-	const item = content?.[index] as { text?: string } | undefined;
-	return item?.text ?? "";
-};
-
 const getContentsText = (contents: unknown[] | undefined, index = 0): string => {
 	const item = contents?.[index] as { text?: string } | undefined;
 	return item?.text ?? "";
