@@ -30,9 +30,7 @@ async function ensureLabelsMigrated(core: Core): Promise<void> {
 	}
 
 	if (knownLabels.size > 0) {
-		config.labels = Array.from(knownLabels).sort((a, b) =>
-			(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
-		);
+		config.labels = Array.from(knownLabels).sort((a, b) => a.localeCompare(b));
 		await core.filesystem.saveConfig(config);
 		console.log(`Migrated ${knownLabels.size} existing label(s) into config.`);
 	}

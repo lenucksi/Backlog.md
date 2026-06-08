@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 const itIfTty = process.stdout.isTTY ? it : it.skip;
+
 import type { ListInterface, ScreenInterface } from "neo-neo-bblessed";
 import { GenericList } from "../ui/components/generic-list.ts";
 import { createScreen } from "../ui/tui.ts";

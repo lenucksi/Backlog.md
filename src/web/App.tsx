@@ -279,7 +279,7 @@ function App() {
 
       setStatuses(statusesData);
       setProjectName(configData.projectName);
-      setAvailableLabels(configData.labels || []);
+      setAvailableLabels((configData.labels || []).map((l) => (typeof l === "string" ? l : l.name)));
       setConfig(configData);
       setMilestoneEntities(milestonesData);
       setArchivedMilestones(archivedMilestonesData);

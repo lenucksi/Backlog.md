@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 const itIfPty = process.platform !== "win32" ? it : it.skip;
+
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createTerminal } from "@termless/core";

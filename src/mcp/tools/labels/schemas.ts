@@ -1,4 +1,4 @@
-import type { JsonSchema } from "../../types.ts";
+import type { JsonSchema } from "../../validation/validators.ts";
 
 export const labelListSchema: JsonSchema = {
 	type: "object",

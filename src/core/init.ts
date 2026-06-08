@@ -147,8 +147,6 @@ function buildInitConfig(
 	const d = DEFAULT_INIT_CONFIG;
 
 	const config: BacklogConfig = {
-		statuses: ["To Do", "In Progress", "Done"],
-		labels: [],
 		defaultStatus: "To Do",
 		maxColumnWidth: 20,
 		...(existingConfig ?? ({} as BacklogConfig)),
@@ -253,7 +251,10 @@ function validateCustomConfigLocation(source: string | undefined, configLocation
 	}
 }
 
-function resolveConfigLocation(source: string | undefined, configOption: string | undefined): "folder" | "root" {
+function resolveConfigLocation(
+	source: string | undefined,
+	configOption: "folder" | "root" | undefined,
+): "folder" | "root" {
 	return configOption ?? (source === "custom" ? "root" : "folder");
 }
 

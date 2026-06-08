@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { McpServer } from "../mcp/server.ts";
 import { registerTaskTools } from "../mcp/tools/tasks/index.ts";
 import { BacklogServer } from "../server/index.ts";
+import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
 
 /*
  * =========================================================================

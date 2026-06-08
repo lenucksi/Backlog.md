@@ -254,7 +254,8 @@ describe("renderBoardTui non-TTY", () => {
 // renderBoardTui — termless-based TUI tests
 // ============================================================================
 
-const canRunShell = process.platform !== "win32" && (process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true");
+const canRunShell =
+	process.platform !== "win32" && (process.env.RUN_INTERACTIVE_TUI_TESTS === "1" || process.env.CI === "true");
 
 (canRunShell ? describe : describe.skip)("renderBoardTui termless", () => {
 	let testDir: string;

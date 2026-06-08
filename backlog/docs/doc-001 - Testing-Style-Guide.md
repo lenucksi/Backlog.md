@@ -3,7 +3,7 @@ id: doc-001
 title: Testing Style Guide
 type: guide
 created_date: 2025-07-21
-updated_date: 2026-05-28 22:58
+updated_date: 2026-06-08 10:15
 ---
 # Testing Style Guide
 
@@ -295,3 +295,71 @@ When updating existing test files:
 6. Audit module-level consts that depend on mutable globals
 7. Check exit code handling for `||` vs `??` patterns
 8. Verify mock restore happens in `finally` blocks
+
+## E2E Testing Patterns
+
+For E2E tests using Playwright (`@playwright/test`), these conventions apply separately from `bun:test` patterns.
+
+### File Location
+
+All E2E tests go in `src/test/e2e/`. Separate test runner (`@playwright/test`), separate config (`playwright.config.ts`).
+
+### Import Organization
+
+```typescript
+import { expect, test } from "@playwright/test";
+```
+
+Note: Biome alphabetizes `{ expect, test }` (not `{ test, expect }`).
+
+### Test Server
+
+E2E tests use a dedicated test server (`scripts/e2e-test-server.ts`) that:
+1. Creates `tmp/e2e-test-project/` with git init + Core init
+2. Seeds 9 tasks with `task-*` IDs (must match default prefix)
+3. Starts `BacklogServer` on port 6420
+4. Handles SIGTERM/SIGINT for cleanup
+
+Port conflicts are handled by killing existing processes before Playwright starts (`lsof -ti:6420 | xargs kill -9` in `package.json` script).
+
+### Test Patterns
+
+**Wait for async rendering** — use `toBeVisible` with timeout, never `waitForTimeout`:
+```typescript
+await expect(page.locator('[draggable="true"]').first()).toBeVisible({ timeout: 5000 });
+```
+
+**Filter testing** — verify visible AND not-visible:
+```typescript
+await page.getByRole("combobox", { name: "Filter board by assignee" }).selectOption("bob");
+await expect(page.getByText("Set up CI pipeline")).toBeVisible();
+await expect(page.getByText("Implement login page")).not.toBeVisible();
+```
+
+**Modal interaction** — locate by role, click, assert visibility lifecycle:
+```typescript
+const modal = page.getByRole("dialog");
+await expect(modal).toBeVisible({ timeout: 3000 });
+await page.getByRole("button", { name: "Close modal" }).click();
+await expect(modal).not.toBeVisible();
+```
+
+### Locator Strategy (important)
+
+Use `getByRole`, `getByText`, `getByLabel` — never CSS class names or XPath. When headings are ambiguous (card h4 vs modal h2), disambiguate with regex:
+```typescript
+// BAD — matches both card and modal heading
+page.getByRole("heading", { name: "Implement login page" });
+
+// GOOD — matches only modal title
+page.getByRole("heading", { name: /TASK-1.*Implement login page/i });
+```
+
+### Task-Id-Prefix Gotcha
+
+`Core.createTask()` writes files with the configured prefix (default: `task`). `listTasks()` globs for `task-*.md`. Seed data IDs must match — using `BACK-*` silently produces an empty board.
+
+### Known Issues
+
+- Drag-and-drop testing is skipped due to browser DnD API flakiness
+- 5 Playwright workers run in parallel, sharing one server — safe for read-only tests, unsafe if tests mutate data

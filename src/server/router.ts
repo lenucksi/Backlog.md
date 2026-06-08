@@ -51,6 +51,9 @@ export type RouteHandlers = {
 		handleGetConfig: () => Promise<Response>;
 		handleUpdateConfig: (req: Request) => Promise<Response>;
 		handleListLabels: () => Promise<Response>;
+		handleAddLabel: (req: Request) => Promise<Response>;
+		handleRenameLabel: (req: Request & { params: { name: string } }) => Promise<Response>;
+		handleRemoveLabel: (req: Request & { params: { name: string } }) => Promise<Response>;
 	};
 	system: {
 		handleGetVersion: () => Promise<Response>;

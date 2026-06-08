@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 const testIfTty = process.stdout.isTTY ? test : test.skip;
+
 import { box } from "neo-neo-bblessed";
 import { createScreen } from "../ui/tui.ts";
 

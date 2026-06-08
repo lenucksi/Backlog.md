@@ -275,15 +275,16 @@ const Settings: React.FC = () => {
 							{config.labels.map((label, index) => (
 								<div key={`label-${index}`} className="flex items-center gap-2">
 									<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
-										{label}
+										{typeof label === "string" ? label : label.name}
 									</span>
 									<button
 										type="button"
 										onClick={async () => {
-											const newName = prompt("Rename label to:", label);
-											if (newName && newName.trim() && newName.trim() !== label) {
+											const labelName = typeof label === "string" ? label : label.name;
+											const newName = prompt("Rename label to:", labelName);
+											if (newName && newName.trim() && newName.trim() !== labelName) {
 												try {
-													await apiClient.renameLabel(label, newName.trim());
+													await apiClient.renameLabel(labelName, newName.trim());
 													const updated = await apiClient.fetchLabels();
 													setConfig({ ...config, labels: updated });
 												} catch (err) {
@@ -298,9 +299,10 @@ const Settings: React.FC = () => {
 									<button
 										type="button"
 										onClick={async () => {
-											if (confirm(`Remove label "${label}" from config?`)) {
+											const labelName = typeof label === "string" ? label : label.name;
+											if (confirm(`Remove label "${labelName}" from config?`)) {
 												try {
-													await apiClient.removeLabel(label);
+													await apiClient.removeLabel(labelName);
 													const updated = await apiClient.fetchLabels();
 													setConfig({ ...config, labels: updated });
 												} catch (err) {

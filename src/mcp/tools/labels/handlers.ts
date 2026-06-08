@@ -33,13 +33,13 @@ export class LabelHandlers {
 				isError: true,
 			};
 		}
-		if ((config.labels ?? []).some((l) => l.toLowerCase() === input.name.toLowerCase())) {
+		if ((config.labels ?? []).some((l) => (typeof l === "string" ? l : l.name).toLowerCase() === input.name.toLowerCase())) {
 			return {
 				content: [{ type: "text", text: `Label already exists: ${input.name}` }],
 				isError: true,
 			};
 		}
-		config.labels = [...(config.labels ?? []), input.name].sort((a, b) => a.localeCompare(b));
+		config.labels = [...(config.labels ?? []), input.name].sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
 		await this.core.filesystem.saveConfig(config);
 		return {
 			content: [{ type: "text", text: `Added label: ${input.name}` }],
@@ -54,7 +54,7 @@ export class LabelHandlers {
 				isError: true,
 			};
 		}
-		const idx = (config.labels ?? []).findIndex((l) => l.toLowerCase() === input.oldName.toLowerCase());
+		const idx = (config.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name).toLowerCase() === input.oldName.toLowerCase());
 		if (idx === -1) {
 			return {
 				content: [{ type: "text", text: `Label not found: ${input.oldName}` }],
@@ -62,7 +62,7 @@ export class LabelHandlers {
 			};
 		}
 		if (
-			(config.labels ?? []).some((l) => l.toLowerCase() === input.newName.toLowerCase() && l !== config.labels?.[idx])
+			(config.labels ?? []).some((l) => (typeof l === "string" ? l : l.name).toLowerCase() === input.newName.toLowerCase() && l !== config.labels?.[idx])
 		) {
 			return {
 				content: [{ type: "text", text: `Target label already exists: ${input.newName}` }],
@@ -70,7 +70,7 @@ export class LabelHandlers {
 			};
 		}
 		config.labels[idx] = input.newName;
-		config.labels = config.labels.sort((a, b) => a.localeCompare(b));
+		config.labels = config.labels.sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
 		await this.core.filesystem.saveConfig(config);
 
 		const renameInEntity = (labels: string[] | undefined): string[] | undefined => {
@@ -118,7 +118,7 @@ export class LabelHandlers {
 				isError: true,
 			};
 		}
-		const idx = (config.labels ?? []).findIndex((l) => l.toLowerCase() === input.name.toLowerCase());
+		const idx = (config.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name).toLowerCase() === input.name.toLowerCase());
 		if (idx === -1) {
 			return {
 				content: [{ type: "text", text: `Label not found: ${input.name}` }],

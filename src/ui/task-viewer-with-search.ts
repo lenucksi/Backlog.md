@@ -10,7 +10,7 @@ import {
 	formatDateForDisplay,
 	formatTaskPlainText,
 } from "../formatters/task-plain-text.ts";
-import type { Milestone, Task, TaskSearchResult } from "../types/index.ts";
+import type { LabelConfig, Milestone, Task, TaskSearchResult } from "../types/index.ts";
 import { copyToClipboard } from "../utils/clipboard.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
 import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/milestone-filter.ts";
@@ -198,7 +198,7 @@ export async function viewTaskEnhanced(
 	// Show loading screen while loading tasks (can be slow with cross-branch loading)
 	let allTasks: Task[];
 	let statuses: string[];
-	let labels: string[];
+	let labels: (string | LabelConfig)[];
 	let availableLabels: string[] = [];
 	// When tasks are provided, use in-memory search; otherwise use ContentStore-backed search
 	let taskSearchIndex: ReturnType<typeof createTaskSearchIndex> | null = null;

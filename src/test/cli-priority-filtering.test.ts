@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { $ } from "bun";
 import { mkdir } from "node:fs/promises";
+import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
@@ -84,7 +84,10 @@ describe("CLI Priority Filtering", () => {
 	});
 
 	test("task list combines priority filter with status filter", async () => {
-		const result = await runBacklogCli(["task", "list", "--priority", "high", "--status", "To Do", "--plain"], TEST_DIR);
+		const result = await runBacklogCli(
+			["task", "list", "--priority", "high", "--status", "To Do", "--plain"],
+			TEST_DIR,
+		);
 		expect(result.exitCode).toBe(0);
 		const output = result.stdout;
 		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {

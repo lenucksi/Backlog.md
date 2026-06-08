@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 const itIfNotWin32 = process.platform !== "win32" ? it : it.skip;
+
 import { copyToClipboard } from "../utils/clipboard.ts";
 
 describe("copyToClipboard", () => {

@@ -17,7 +17,7 @@ function toAcceptanceCriteriaEntries(values: string[] | undefined) {
 	return trimmed.map((text, index) => ({ text, checked: false, index: index + 1 }));
 }
 
-function collectChecklistAdditions(items: string[] | undefined): { text: string; checked: false }[] | undefined {
+function collectChecklistAdditions(items: string[] | undefined): { text: string; checked: boolean }[] | undefined {
 	if (!items?.length) return undefined;
 	const additions = items
 		.map((text) => String(text).trim())

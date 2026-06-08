@@ -27,7 +27,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Add Label", destructiveHint: false },
 		},
 		labelAddSchema,
-		async (input) => handlers.addLabel(input as LabelAddArgs),
+		async (input) => handlers.addLabel(input as unknown as LabelAddArgs),
 	);
 
 	const renameTool: McpToolHandler = createSimpleValidatedTool(
@@ -38,7 +38,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Rename Label", destructiveHint: false },
 		},
 		labelRenameSchema,
-		async (input) => handlers.renameLabel(input as LabelRenameArgs),
+		async (input) => handlers.renameLabel(input as unknown as LabelRenameArgs),
 	);
 
 	const removeTool: McpToolHandler = createSimpleValidatedTool(
@@ -49,7 +49,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Remove Label", destructiveHint: true },
 		},
 		labelRemoveSchema,
-		async (input) => handlers.removeLabel(input as LabelRemoveArgs),
+		async (input) => handlers.removeLabel(input as unknown as LabelRemoveArgs),
 	);
 
 	server.addTool(listTool);

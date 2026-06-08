@@ -1,6 +1,6 @@
-import type { Server, ServerWebSocket } from "bun";
-import { dirname, join } from "node:path";
 import { realpathSync } from "node:fs";
+import { dirname, join } from "node:path";
+import type { BunFile, Server, ServerWebSocket } from "bun";
 
 import { Core } from "../core/backlog.ts";
 import type { ContentStore } from "../core/content-store.ts";
@@ -173,7 +173,20 @@ export class BacklogServer {
 					});
 				},
 			};
-			for (const path of ["/tasks", "/tasks/*", "/board", "/board/*", "/milestones", "/drafts", "/documentation", "/documentation/*", "/decisions", "/decisions/*", "/statistics", "/settings"]) {
+			for (const path of [
+				"/tasks",
+				"/tasks/*",
+				"/board",
+				"/board/*",
+				"/milestones",
+				"/drafts",
+				"/documentation",
+				"/documentation/*",
+				"/decisions",
+				"/decisions/*",
+				"/statistics",
+				"/settings",
+			]) {
 				(routes as Record<string, unknown>)[path] = spaHandler;
 			}
 
@@ -351,7 +364,12 @@ export class BacklogServer {
 			});
 		}
 
-		if (pathname.startsWith("/web/") || pathname.startsWith("/styles/") || pathname.endsWith(".tsx") || pathname.endsWith(".js")) {
+		if (
+			pathname.startsWith("/web/") ||
+			pathname.startsWith("/styles/") ||
+			pathname.endsWith(".tsx") ||
+			pathname.endsWith(".js")
+		) {
 			const webPath = pathname.replace(/^\//, "");
 			const asset = await this.resolveAsset(webPath);
 			if (asset) {

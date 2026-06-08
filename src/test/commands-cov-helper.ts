@@ -58,7 +58,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		registerTask?.(program);
 		registerConfig?.(program);
 
-			await program.parseAsync(process.argv);
+		await program.parseAsync(process.argv);
 		if (process.exitCode) {
 			exitCode = process.exitCode;
 		}
