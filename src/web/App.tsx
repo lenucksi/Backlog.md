@@ -644,7 +644,7 @@ function App() {
               { path: "decisions/:id", Component: DecisionDetail, props: { decisions } },
               { path: "decisions/:id/:title", Component: DecisionDetail, props: { decisions } },
             ].map(({ path, Component, props }) => (
-              <Route key={path} path={path} element={<Component {...props} onRefreshData={refreshData} />} />
+              <Route key={path} path={path} element={<Component {...props as any} onRefreshData={refreshData} />} />
             ))}
             <Route path="statistics" element={<Statistics tasks={tasks} isLoading={isLoading} onEditTask={handleEditTask} projectName={projectName} />} />
             <Route path="settings" element={<Settings />} />

@@ -114,7 +114,7 @@ export function parseLabelArray(content: string): Array<string | LabelConfig> {
 				if (trimmed.startsWith("{")) {
 					const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
 					const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
-					if (nameMatch) {
+					if (nameMatch?.[1]) {
 						items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
 					}
 				} else {
@@ -131,7 +131,7 @@ export function parseLabelArray(content: string): Array<string | LabelConfig> {
 		if (trimmed.startsWith("{")) {
 			const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
 			const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
-			if (nameMatch) {
+			if (nameMatch?.[1]) {
 				items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
 			}
 		} else {

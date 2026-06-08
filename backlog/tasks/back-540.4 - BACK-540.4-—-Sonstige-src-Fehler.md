@@ -1,9 +1,10 @@
 ---
 id: BACK-540.4
 title: BACK-540.4 — Sonstige src/-Fehler
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 13:28
+updated_date: 2026-06-08 13:41
 labels:
   - tech-debt
 dependencies: []

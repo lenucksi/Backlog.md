@@ -37,7 +37,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   blockedStatuses,
 }) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
-  const [draggedTaskId, setDraggedTaskId] = React.useState<string | null>(null);
+  const [_draggedTaskId, setDraggedTaskId] = React.useState<string | null>(null);
   const [dropPosition, setDropPosition] = React.useState<{ index: number; position: 'before' | 'after' } | null>(null);
   const [showMenu, setShowMenu] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);

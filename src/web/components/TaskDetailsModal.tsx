@@ -64,6 +64,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
   archivedMilestoneEntities,
   isDraftMode,
   definitionOfDoneDefaults,
+  onNavigateToTask,
 }) => {
   const { theme } = useTheme();
   const isCreateMode = !task;

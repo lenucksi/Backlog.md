@@ -198,7 +198,7 @@ export function buildSearchFilters(
 	if (labelParamsRaw.length > 0) {
 		const normalizedLabels = labelParamsRaw.map((value) => value.trim()).filter((value) => value.length > 0);
 		if (normalizedLabels.length > 0) {
-			filters.labels = normalizedLabels.length === 1 ? normalizedLabels[0] : normalizedLabels;
+			filters.labels = normalizedLabels;
 		}
 	}
 
@@ -207,8 +207,7 @@ export function buildSearchFilters(
 			.map((value) => value.trim())
 			.filter((value) => value.length > 0);
 		if (normalizedModifiedFiles.length > 0) {
-			filters.modifiedFiles =
-				normalizedModifiedFiles.length === 1 ? normalizedModifiedFiles[0] : normalizedModifiedFiles;
+			filters.modifiedFiles = normalizedModifiedFiles;
 		}
 	}
 

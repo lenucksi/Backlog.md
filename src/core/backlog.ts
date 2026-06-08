@@ -2484,18 +2484,18 @@ export class Core {
 
 		const updatedDecision = {
 			...existingDecision,
-			title: data.title || existingDecision.title,
-			status: data.status || existingDecision.status,
-			date: data.date || existingDecision.date,
+			title: typeof data.title === "string" ? data.title : existingDecision.title,
+			status: typeof data.status === "string" ? data.status : existingDecision.status,
+			date: typeof data.date === "string" ? data.date : existingDecision.date,
 			context: extractSection(content, "Context") || existingDecision.context,
 			decision: extractSection(content, "Decision") || existingDecision.decision,
 			consequences: extractSection(content, "Consequences") || existingDecision.consequences,
 			alternatives: extractSection(content, "Alternatives") || existingDecision.alternatives,
-			supersedes: data.supersedes ?? existingDecision.supersedes,
-			supersededBy: data.supersededBy ?? existingDecision.supersededBy,
+			supersedes: typeof data.supersedes === "string" ? data.supersedes : existingDecision.supersedes,
+			supersededBy: typeof data.supersededBy === "string" ? data.supersededBy : existingDecision.supersededBy,
 		};
 
-		await this.createDecision(updatedDecision, autoCommit);
+		await this.createDecision(updatedDecision as Decision, autoCommit);
 	}
 
 	async createDecisionWithTitle(title: string, autoCommit?: boolean): Promise<Decision> {
