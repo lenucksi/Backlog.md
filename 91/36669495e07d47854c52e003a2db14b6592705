@@ -1,0 +1,21 @@
+src/test/task-loader-branch-normalization.test.ts
+  s_c927adb04e53f2::t_4d169989b653f8 45
+package.json
+  s_c927adb04e53f2::t_97e38320f5b199 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "9136669495e07d47854c52e003a2db14b6592705",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
