@@ -1,0 +1,22 @@
+src/web/components/ChipInput.tsx
+  s_c927adb04e53f2::t_2ab196556ea286 52,60
+  s_c927adb04e53f2::t_73e69cda80ca6e 113-118
+"backlog/tasks/back-537 - Titel-von-tickets-muss-man-ändern-können-im-view..md"
+  s_c927adb04e53f2::t_f020ba562a636c 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "03a362ba49dd3d1ec95e33d0ba0539b714814093",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
