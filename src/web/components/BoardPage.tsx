@@ -16,8 +16,9 @@ interface BoardPageProps {
 	availableLabels: string[];
 	milestoneEntities: Milestone[];
 	archivedMilestones: Milestone[];
-	isLoading: boolean;
-	labelColors?: Record<string, string>;
+  isLoading: boolean;
+  labelColors?: Record<string, string>;
+  authorColors?: Record<string, string>;
 }
 
 export default function BoardPage({
@@ -32,8 +33,9 @@ export default function BoardPage({
 	availableLabels,
 	milestoneEntities,
 	archivedMilestones,
-	isLoading,
-	labelColors,
+  isLoading,
+  labelColors,
+  authorColors,
 }: BoardPageProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export default function BoardPage({
 
 	return (
 		<div className="container mx-auto px-4 py-8 transition-colors duration-200">
-			<Board
+        <Board
 				onEditTask={handleEditTask}
 				onNewTask={onNewTask}
 				highlightTaskId={highlightTaskId}
@@ -148,6 +150,7 @@ export default function BoardPage({
 				filterPriority={filterPriority}
 				onFiltersChange={handleFiltersChange}
 				labelColors={labelColors}
+				authorColors={authorColors}
 			/>
 		</div>
 	);

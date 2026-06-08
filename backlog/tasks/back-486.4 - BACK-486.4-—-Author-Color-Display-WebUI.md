@@ -1,9 +1,10 @@
 ---
 id: BACK-486.4
 title: BACK-486.4 — Author Color Display (WebUI)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 18:00
+updated_date: 2026-06-08 18:52
 labels:
   - authors
   - web-ui

@@ -25,8 +25,9 @@ interface TaskListProps {
 	availableMilestones: string[];
 	milestoneEntities: Milestone[];
 	archivedMilestones: Milestone[];
-	onRefreshData?: () => Promise<void>;
-	labelColors?: Record<string, string>;
+  onRefreshData?: () => Promise<void>;
+  labelColors?: Record<string, string>;
+  authorColors?: Record<string, string>;
 }
 
 const PRIORITY_OPTIONS: Array<{ label: string; value: "" | SearchPriorityFilter }> = [
@@ -90,8 +91,9 @@ const TaskList: React.FC<TaskListProps> = ({
 	availableMilestones,
 	milestoneEntities,
 	archivedMilestones,
-	onRefreshData,
-	labelColors,
+  onRefreshData,
+  labelColors,
+  authorColors,
 }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [statusFilter, setStatusFilter] = useState(() => searchParams.get("status") ?? "");
@@ -889,16 +891,22 @@ const TaskList: React.FC<TaskListProps> = ({
 											</td>
 											<td className="px-3 py-2.5">
 												{visibleAssignees.length > 0 ? (
-													<div className="flex items-center gap-1.5">
-														{visibleAssignees.map((assignee) => (
-															<span
-																key={assignee}
-																title={assignee}
-																className="inline-flex h-6 w-6 items-center justify-center rounded-circle bg-blue-100 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/50 dark:text-blue-200"
-															>
-																{getAssigneeInitials(assignee)}
-															</span>
-														))}
+                  <div className="flex items-center gap-1.5">
+                    {visibleAssignees.map((assignee) => {
+                      const color = authorColors?.[assignee.replace('@', '')];
+                      return (
+                        <span
+                          key={assignee}
+                          title={assignee}
+                          className={`inline-flex h-6 w-6 items-center justify-center rounded-circle text-[10px] font-semibold ${
+                            color ? '' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
+                          }`}
+                          style={color ? { backgroundColor: color, color: '#fff' } : undefined}
+                        >
+                          {getAssigneeInitials(assignee)}
+                        </span>
+                      );
+                    })}
 														{assigneeOverflow > 0 && (
 															<span className="text-[11px] text-gray-500 dark:text-gray-400">+{assigneeOverflow}</span>
 														)}

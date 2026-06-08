@@ -10,9 +10,10 @@ interface TaskCardProps {
   status?: string;
   laneId?: string;
   labelColors?: Record<string, string>;
+  authorColors?: Record<string, string>;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEnd, status, laneId, labelColors }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEnd, status, laneId, labelColors, authorColors }) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const [showBranchTooltip, setShowBranchTooltip] = React.useState(false);
 
@@ -173,8 +174,19 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
         <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-2 pt-1.5 border-t border-gray-100 dark:border-gray-600/50 transition-colors duration-200">
           <span>{formatRelativeDate(task.createdDate)}</span>
           {task.assignee.length > 0 && (
-            <span className="truncate max-w-[80px]" title={task.assignee.join(', ')}>
-              {task.assignee[0]}
+            <span className="flex gap-1 truncate max-w-[80px]" title={task.assignee.join(', ')}>
+              {task.assignee.map((a, i) => {
+                const color = authorColors?.[a.replace('@', '')];
+                return (
+                  <span
+                    key={i}
+                    className={`inline-block px-1 py-0.5 text-[10px] rounded ${color ? '' : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300'}`}
+                    style={color ? { backgroundColor: color, color: '#fff' } : undefined}
+                  >
+                    {a}
+                  </span>
+                );
+              })}
             </span>
           )}
         </div>

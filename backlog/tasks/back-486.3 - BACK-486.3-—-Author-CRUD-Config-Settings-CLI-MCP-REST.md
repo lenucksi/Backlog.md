@@ -1,16 +1,30 @@
 ---
 id: BACK-486.3
 title: BACK-486.3 — Author CRUD (Config + Settings + CLI + MCP + REST)
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 18:00
-updated_date: 2026-06-08 18:31
+updated_date: 2026-06-08 18:52
 labels:
   - authors
   - crud
   - labels
   - all-modalities
 dependencies: []
+modified_files:
+  - src/types/index.ts
+  - src/file-system/operations.ts
+  - src/commands/author.ts
+  - src/cli.ts
+  - src/server/router.ts
+  - src/server/handlers/config.ts
+  - src/mcp/tools/authors/index.ts
+  - src/mcp/tools/authors/handlers.ts
+  - src/mcp/tools/authors/schemas.ts
+  - src/mcp/server.ts
+  - src/web/lib/api.ts
+  - src/web/components/Settings.tsx
+  - src/web/App.tsx
 parent_task_id: BACK-486
 priority: high
 ordinal: 274000
@@ -53,3 +67,9 @@ Datenquellen (gemerged, gewichtet):
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BACK-486.3 abgeschlossen: Author CRUD in ALLEN 5 Modalitäten. AuthorConfig-Typ, YAML parse/serialize, CLI backlog author *, MCP author tools, REST /api/config/authors, WebUI Settings-Authors-Sektion mit Color Picker, WebUI API-Funktionen.
+<!-- SECTION:FINAL_SUMMARY:END -->

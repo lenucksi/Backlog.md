@@ -104,7 +104,7 @@ describe("TaskCard", () => {
 		const html = renderToString(
 			<TaskCard task={task} onUpdate={() => {}} onEdit={() => {}} />,
 		);
-		expect(html).not.toContain("truncate max-w-[80px]");
+		expect(html).not.toContain("flex gap-1 truncate max-w-[80px]");
 	});
 
 	it("renders cross-branch indicator when task has a branch", () => {

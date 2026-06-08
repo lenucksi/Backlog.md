@@ -178,6 +178,14 @@ function App() {
     }
     return map;
   }, [config?.labels]);
+
+  const authorColors = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const a of availableAuthors) {
+      if (a.color) map[a.name] = a.color;
+    }
+    return map;
+  }, [availableAuthors]);
   const [milestones, setMilestones] = useState<string[]>([]);
   const [milestoneEntities, setMilestoneEntities] = useState<Milestone[]>([]);
   const [archivedMilestones, setArchivedMilestones] = useState<Milestone[]>([]);
@@ -580,6 +588,7 @@ function App() {
                 archivedMilestones={archivedMilestones}
                 isLoading={isLoading}
                 labelColors={labelColors}
+                authorColors={authorColors}
               />
             }
           />
@@ -600,6 +609,7 @@ function App() {
                 archivedMilestones={archivedMilestones}
                 isLoading={isLoading}
                 labelColors={labelColors}
+                authorColors={authorColors}
               />
             }
           />
@@ -617,6 +627,7 @@ function App() {
 	                  archivedMilestones={archivedMilestones}
 	                  onRefreshData={refreshData}
 	                  labelColors={labelColors}
+	                  authorColors={authorColors}
 	                />
 	              }
 	            />
@@ -634,6 +645,7 @@ function App() {
 	                  archivedMilestones={archivedMilestones}
 	                  onRefreshData={refreshData}
 	                  labelColors={labelColors}
+	                  authorColors={authorColors}
 	                />
 	              }
 	            />
@@ -682,6 +694,7 @@ function App() {
           onNavigateToTask={handleNavigateToTask}
           availableLabels={availableLabels}
           labelColorMap={labelColors}
+          availableAuthors={availableAuthors}
         />
 
         {/* Task Creation Confirmation Toast */}

@@ -28,6 +28,7 @@ interface Props {
   onNavigateToTask?: (taskId: string) => void;
 	availableLabels?: string[];
 	labelColorMap?: Record<string, string>;
+	availableAuthors?: Array<{ name: string; color: string | null }>;
 }
 
 type Mode = "preview" | "edit" | "create";
@@ -69,6 +70,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
   onNavigateToTask,
   availableLabels,
   labelColorMap,
+  availableAuthors,
 }) => {
   const { theme } = useTheme();
   const isCreateMode = !task;
@@ -331,6 +333,20 @@ export const TaskDetailsModal: React.FC<Props> = ({
     () => [...new Set(availableTasks.flatMap((t) => t.assignee ?? []).filter(Boolean))].sort(),
     [availableTasks],
   );
+
+  const mergedAssigneeSuggestions = useMemo(() => {
+    const configNames = new Set((availableAuthors ?? []).map(a => a.name));
+    const scraped = availableAssignees.filter(a => !configNames.has(a.replace('@', '')));
+    return [...(availableAuthors ?? []).map(a => a.name), ...scraped];
+  }, [availableAuthors, availableAssignees]);
+
+  const authorColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const a of availableAuthors ?? []) {
+      if (a.color) map[a.name] = a.color;
+    }
+    return map;
+  }, [availableAuthors]);
 
   const parentTaskSuggestions = useMemo(
     () =>
@@ -1081,7 +1097,8 @@ export const TaskDetailsModal: React.FC<Props> = ({
               onChange={(value) => handleInlineMetaUpdate({ assignee: value })}
               placeholder="Type name and press Enter"
               disabled={isFromOtherBranch}
-              suggestions={availableAssignees}
+              suggestions={mergedAssigneeSuggestions}
+              colorMap={authorColorMap}
             />
           </div>
 
