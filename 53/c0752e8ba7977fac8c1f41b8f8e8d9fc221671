@@ -1,0 +1,26 @@
+"backlog/tasks/back-537 - Titel-von-tickets-muss-man-ändern-können-im-view..md"
+  s_c927adb04e53f2::t_a431214a6acaf2 8
+backlog/config.yml
+  s_c927adb04e53f2::t_a431214a6acaf2 4
+docs/label-cleanup-proposals.md
+  s_c927adb04e53f2::t_0adaeba251bf6f 1-39,41-50
+  s_c927adb04e53f2::t_b41624d0538320 40
+src/web/App.tsx
+  s_c927adb04e53f2::t_bbf92b93d07df8 185-188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "53c0752e8ba7977fac8c1f41b8f8e8d9fc221671",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
