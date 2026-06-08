@@ -1,0 +1,31 @@
+src/web/components/CollapsibleGroup.tsx
+  s_c927adb04e53f2::t_c3e317ef1253f8 2,12,23
+  s_c927adb04e53f2::t_990926f5a5aec8 86-94
+src/web/components/Statistics.tsx
+  s_c927adb04e53f2::t_8d6d74385fc7d5 612-664,666-668,671-673
+  s_c927adb04e53f2::t_ac2140558aa88e 30
+  s_c927adb04e53f2::t_117c63453cc889 101-109
+  s_c927adb04e53f2::t_4ec098c97be9d6 145-151
+src/web/styles/style.css
+  s_c927adb04e53f2::t_ae4fa332b43afd 2
+src/web/components/SideNavigation.tsx
+  s_c927adb04e53f2::t_8f60b3e22bd899 552
+"backlog/tasks/back-542 - Assignee-Filter-mit-authorColors-im-Dropdown-Board-All-Tasks.md"
+  s_c927adb04e53f2::t_9bfb1ba1290780 4,7,15-18,37-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "b02b6ca1c072f2619bc5ecbfaa54fd4770dccd71",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
