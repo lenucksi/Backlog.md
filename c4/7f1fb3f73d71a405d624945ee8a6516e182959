@@ -1,0 +1,27 @@
+src/web/styles/style.css
+  s_c927adb04e53f2::t_0b135cfb5f618c 2
+"backlog/tasks/back-543 - Statistics-Archived-Tasks-als-eigenständige-Section-Search-Reopen.md"
+  s_c927adb04e53f2::t_88820400f52db6 4,7,14-17,41-53
+"backlog/tasks/back-544 - Sidebar-Archived-Docs-in-Documents-Section-integrieren.md"
+  s_c927adb04e53f2::t_88820400f52db6 4,7
+src/web/components/SideNavigation.tsx
+  s_c927adb04e53f2::t_36444f913f4d40 615-617,652
+  s_c927adb04e53f2::t_e141572164adaa 192
+  s_c927adb04e53f2::t_13f76c1a0a7bdb 618-651
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "c47f1fb3f73d71a405d624945ee8a6516e182959",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
