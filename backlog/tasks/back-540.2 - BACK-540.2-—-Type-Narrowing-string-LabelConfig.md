@@ -1,10 +1,10 @@
 ---
 id: BACK-540.2
 title: BACK-540.2 — Type Narrowing string | LabelConfig
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 13:27
-updated_date: 2026-06-08 13:36
+updated_date: 2026-06-08 13:39
 labels:
   - tech-debt
 dependencies: []
@@ -46,3 +46,16 @@ Abhängigkeiten: BACK-540.1
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Phase 2 abgeschlossen: src-Fehler von 35 auf 14 reduziert (~21 Errors gefixt).
+Alle typeof(l === "string" ? l : l.name)-Guards für toLowerCase/localeCompare auf config.labels (Array<string | LabelConfig>) in:
+- src/server/handlers/config.ts (6 Stellen)
+- src/mcp/tools/labels/handlers.ts (6 Stellen)
+- src/commands/label.ts:34 (Set<string> totes ternary simplified)
+- src/ui/task-viewer-with-search.ts (labels-Variable type geändert + LabelConfig import)
+- src/web/App.tsx (setAvailableLabels extrahiert Namen)
+- src/web/components/Settings.tsx (label rendering + rename/remove args mit typeof guard)
+<!-- SECTION:NOTES:END -->

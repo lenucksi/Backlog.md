@@ -126,11 +126,15 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				}
 			}
 
-			const docs = await ctx.core.filesystem.listDocs();
+			const docs = await ctx.core.filesystem.listDocuments();
 			for (const doc of docs) {
 				const updatedLabels = renameInEntity(doc.labels);
 				if (updatedLabels) {
-					await ctx.core.editDoc(doc.id, { labels: updatedLabels });
+					await ctx.core.updateDocumentFromInput({
+						id: doc.id,
+						labels: updatedLabels,
+						content: doc.rawContent,
+					});
 				}
 			}
 

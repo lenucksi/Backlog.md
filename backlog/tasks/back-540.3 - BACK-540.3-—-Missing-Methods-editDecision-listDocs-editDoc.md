@@ -1,9 +1,10 @@
 ---
 id: BACK-540.3
 title: BACK-540.3 — Missing Methods (editDecision, listDocs, editDoc)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 13:28
+updated_date: 2026-06-08 13:39
 labels:
   - tech-debt
 dependencies: []

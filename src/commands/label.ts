@@ -143,7 +143,11 @@ export function registerLabelCommand(program: Command): void {
 			for (const doc of docs) {
 				const updatedLabels = renameInEntity(doc.labels);
 				if (updatedLabels) {
-					await core.updateDocumentFromInput({ id: doc.id, labels: updatedLabels });
+					await core.updateDocumentFromInput({
+						id: doc.id,
+						labels: updatedLabels,
+						content: doc.rawContent,
+					});
 				}
 			}
 

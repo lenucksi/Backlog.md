@@ -2438,6 +2438,20 @@ export class Core {
 		}
 	}
 
+	async editDecision(id: string, updates: { labels?: string[] }): Promise<void> {
+		const existingDecision = await this.fs.loadDecision(id);
+		if (!existingDecision) {
+			throw new Error(`Decision ${id} not found`);
+		}
+
+		const updatedDecision: Decision = {
+			...existingDecision,
+			...(updates.labels !== undefined && { labels: updates.labels }),
+		};
+
+		await this.createDecision(updatedDecision);
+	}
+
 	async resolveDecision(decisionId: string, autoCommit?: boolean): Promise<Decision> {
 		const existingDecision = await this.fs.loadDecision(decisionId);
 		if (!existingDecision) {
@@ -2586,7 +2600,7 @@ export class Core {
 			id: normalizeDocumentId(existingDoc.id),
 			title: normalizedTitle ?? existingDoc.title,
 			type,
-			rawContent: input.content,
+			rawContent: input.content ?? existingDoc.rawContent,
 			updatedDate: new Date().toISOString().slice(0, 16).replace("T", " "),
 			labels: labels && labels.length > 0 ? labels : undefined,
 			tags: tags && tags.length > 0 ? tags : undefined,
