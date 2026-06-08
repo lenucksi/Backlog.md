@@ -5,10 +5,9 @@ status: To Do
 assignee:
   - "@opencode"
 created_date: 2026-06-02 17:54
-updated_date: 2026-06-08 20:22
+updated_date: 2026-06-08 20:47
 labels:
   - papercut
-  - testing
 dependencies: []
 ordinal: 261000
 ---

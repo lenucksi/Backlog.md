@@ -182,7 +182,10 @@ function App() {
   const authorColors = useMemo(() => {
     const map: Record<string, string> = {};
     for (const a of availableAuthors) {
-      if (a.color) map[a.name] = a.color;
+      if (a.color) {
+        map[a.name] = a.color;
+        map[a.name.replace("@", "")] = a.color;
+      }
     }
     return map;
   }, [availableAuthors]);
