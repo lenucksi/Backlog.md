@@ -1,0 +1,23 @@
+backlog/config.yml
+  s_c927adb04e53f2::t_318f8f0f4026b6 4
+package.json
+  s_c927adb04e53f2::t_244e88a76653dc 64-67
+scripts/kill-port.sh
+  s_c927adb04e53f2::t_2946b182040d50 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "934360551f3c42846365bccc4a373669a91098e3",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
