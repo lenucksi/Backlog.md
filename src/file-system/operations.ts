@@ -1797,7 +1797,7 @@ ${description || `Milestone: ${title}`}`,
 			...(Array.isArray(config.blockedStatuses) && config.blockedStatuses.length > 0
 				? [`blocked_statuses: [${config.blockedStatuses.map((s) => `"${s}"`).join(", ")}]`]
 				: []),
-			`labels: [${config.labels.map((l) => `"${l}"`).join(", ")}]`,
+			`labels: [${config.labels.map((l) => (typeof l === "string" ? `"${l}"` : `{name: "${l.name}"${l.color ? `, color: "${l.color}"` : ""}}`)).join(", ")}]`,
 			...(Array.isArray(normalizedDefinitionOfDone)
 				? [`definition_of_done: [${normalizedDefinitionOfDone.map((item) => JSON.stringify(item)).join(", ")}]`]
 				: []),

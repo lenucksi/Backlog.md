@@ -5,6 +5,14 @@ import { requireProjectRoot } from "../utils/cli-context.ts";
 async function ensureLabelsMigrated(core: Core): Promise<void> {
 	const config = await core.filesystem.loadConfig();
 	if (!config) return;
+
+	// Clean up corrupt [object Object] entries from serialization bug
+	const cleaned = (config.labels ?? []).filter((l) => (typeof l === "string" ? l !== "[object Object]" : true));
+	if (cleaned.length !== (config.labels?.length ?? 0)) {
+		config.labels = cleaned;
+		await core.filesystem.saveConfig(config);
+	}
+
 	if (config.labels && config.labels.length > 0) return;
 
 	const knownLabels = new Set<string>();
@@ -61,7 +69,9 @@ export function registerLabelCommand(program: Command): void {
 				return;
 			}
 			for (const label of labels) {
-				console.log(`  ${label}`);
+				console.log(
+					`  ${typeof label === "string" ? label : `${label.name}${label.color ? ` (${label.color})` : ""}`}`,
+				);
 			}
 		});
 
@@ -135,7 +145,11 @@ export function registerLabelCommand(program: Command): void {
 			for (const task of tasks) {
 				const updatedLabels = renameInEntity(task.labels);
 				if (updatedLabels) {
-					await core.editTask(task.id, { labels: updatedLabels }, false);
+					try {
+						await core.editTask(task.id, { labels: updatedLabels }, false);
+					} catch {
+						console.warn(`  Skipping task ${task.id} (not found, maybe from another branch)`);
+					}
 				}
 			}
 
@@ -143,11 +157,15 @@ export function registerLabelCommand(program: Command): void {
 			for (const doc of docs) {
 				const updatedLabels = renameInEntity(doc.labels);
 				if (updatedLabels) {
-					await core.updateDocumentFromInput({
-						id: doc.id,
-						labels: updatedLabels,
-						content: doc.rawContent,
-					});
+					try {
+						await core.updateDocumentFromInput({
+							id: doc.id,
+							labels: updatedLabels,
+							content: doc.rawContent,
+						});
+					} catch {
+						console.warn(`  Skipping document ${doc.id} (not found)`);
+					}
 				}
 			}
 
@@ -155,7 +173,11 @@ export function registerLabelCommand(program: Command): void {
 			for (const decision of decisions) {
 				const updatedLabels = renameInEntity(decision.labels);
 				if (updatedLabels) {
-					await core.editDecision(decision.id, { labels: updatedLabels });
+					try {
+						await core.editDecision(decision.id, { labels: updatedLabels });
+					} catch {
+						console.warn(`  Skipping decision ${decision.id} (not found)`);
+					}
 				}
 			}
 
