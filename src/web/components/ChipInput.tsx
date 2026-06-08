@@ -9,6 +9,7 @@ interface ChipInputProps {
 	disabled?: boolean;
 	suggestions?: string[];
 	singleSelect?: boolean;
+	colorMap?: Record<string, string>;
 }
 
 const ChipInput: React.FC<ChipInputProps> = ({
@@ -20,6 +21,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 	disabled,
 	suggestions,
 	singleSelect,
+	colorMap,
 }) => {
 	const [inputValue, setInputValue] = useState("");
 	const [showSuggestions, setShowSuggestions] = useState(false);
@@ -154,6 +156,12 @@ const ChipInput: React.FC<ChipInputProps> = ({
 							key={index}
 							className="inline-flex items-center gap-1 px-2 py-0.5 text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded-md flex-shrink-0 min-w-0 max-w-full transition-colors duration-200"
 						>
+							{colorMap?.[item] && (
+								<span
+									className="inline-block w-2 h-2 rounded-full shrink-0"
+									style={{ backgroundColor: colorMap[item] }}
+								/>
+							)}
 							<span className="truncate max-w-[16rem] sm:max-w-[20rem] md:max-w-[24rem]">
 								{item}
 							</span>
@@ -210,12 +218,18 @@ const ChipInput: React.FC<ChipInputProps> = ({
 								addChip(suggestion);
 							}}
 							onMouseEnter={() => setSelectedSuggestion(index)}
-							className={`w-full text-left px-3 py-1.5 text-sm transition-colors ${
+							className={`w-full text-left px-3 py-1.5 text-sm transition-colors flex items-center gap-2 ${
 								index === selectedSuggestion
 									? "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200"
 									: "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 							}`}
 						>
+							{colorMap?.[suggestion] && (
+								<span
+									className="inline-block w-2 h-2 rounded-full shrink-0"
+									style={{ backgroundColor: colorMap[suggestion] }}
+								/>
+							)}
 							{suggestion}
 						</button>
 					))}

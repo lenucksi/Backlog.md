@@ -1,10 +1,10 @@
 ---
 id: BACK-486
 title: Colored Labels — color support for labels across all access modalities
-status: Done
+status: In Progress
 assignee: []
 created_date: 2026-05-13 10:14
-updated_date: 2026-06-08 16:35
+updated_date: 2026-06-08 17:59
 labels:
   - labels
   - web-ui

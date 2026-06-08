@@ -9,9 +9,10 @@ interface TaskCardProps {
   onDragEnd?: () => void;
   status?: string;
   laneId?: string;
+  labelColors?: Record<string, string>;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEnd, status, laneId }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEnd, status, laneId, labelColors }) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const [showBranchTooltip, setShowBranchTooltip] = React.useState(false);
 
@@ -146,14 +147,20 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
         {/* Labels - limit to 3 */}
         {task.labels.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {task.labels.slice(0, 3).map(label => (
-              <span
-                key={label}
-                className="inline-block px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded transition-colors duration-200"
-              >
-                {label}
-              </span>
-            ))}
+            {task.labels.slice(0, 3).map(label => {
+              const bgColor = labelColors?.[label];
+              return (
+                <span
+                  key={label}
+                  className={`inline-block px-1.5 py-0.5 text-[10px] rounded transition-colors duration-200 ${
+                    bgColor ? "" : "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300"
+                  }`}
+                  style={bgColor ? { backgroundColor: bgColor, color: "#fff" } : undefined}
+                >
+                  {label}
+                </span>
+              );
+            })}
             {task.labels.length > 3 && (
               <span className="inline-block px-1.5 py-0.5 text-[10px] text-gray-400 dark:text-gray-500">
                 +{task.labels.length - 3}

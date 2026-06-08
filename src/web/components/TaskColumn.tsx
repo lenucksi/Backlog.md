@@ -19,6 +19,7 @@ interface TaskColumnProps {
   laneId?: string;
   targetMilestone?: string | null;
   blockedStatuses?: string[];
+  labelColors?: Record<string, string>;
 }
 
 const TaskColumn: React.FC<TaskColumnProps> = ({
@@ -35,6 +36,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   laneId,
   targetMilestone,
   blockedStatuses,
+  labelColors,
 }) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [_draggedTaskId, setDraggedTaskId] = React.useState<string | null>(null);
@@ -311,6 +313,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
                   }}
                   status={title}
                   laneId={laneId}
+                  labelColors={labelColors}
                 />
                 {children.length > 0 && (
                   <div className="mt-1 ml-1">
@@ -341,6 +344,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
                         }}
                         status={title}
                         laneId={laneId}
+                        labelColors={labelColors}
                       />
                     </div>
                   ))}
@@ -368,6 +372,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
               }}
               status={title}
               laneId={laneId}
+              labelColors={labelColors}
             />
           </div>
         ))}

@@ -4,7 +4,7 @@ title: Titel von tickets muss man ändern können im view.
 status: To Do
 assignee: []
 created_date: 2026-06-02 17:54
-updated_date: 2026-06-08 17:15
+updated_date: 2026-06-08 17:39
 labels:
   - papercut
 dependencies: []

@@ -53,9 +53,9 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			const labels = config?.labels ?? [];
 			const resolved = labels.map((label) => {
 				if (typeof label === "string") {
-					return { name: label, color: null };
+					return { name: label };
 				}
-				return { name: label.name, color: label.color ?? null };
+				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
 			});
 			return Response.json(resolved);
 		} catch (error) {
@@ -66,7 +66,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 
 	async function handleAddLabel(req: Request): Promise<Response> {
 		try {
-			const { name } = await req.json();
+			const { name, color } = await req.json();
 			if (!name || typeof name !== "string" || !name.trim()) {
 				return Response.json({ error: "Label name is required" }, { status: 400 });
 			}
@@ -82,11 +82,16 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			) {
 				return Response.json({ error: `Label already exists: ${trimmedName}` }, { status: 409 });
 			}
-			config.labels = [...(config.labels ?? []), trimmedName].sort((a, b) =>
+			const newLabel = color ? { name: trimmedName, color } : trimmedName;
+			config.labels = [...(config.labels ?? []), newLabel].sort((a, b) =>
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
 			await ctx.core.filesystem.saveConfig(config);
-			return Response.json(config.labels);
+			const resolved = config.labels.map((label) => {
+				if (typeof label === "string") return { name: label };
+				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
+			});
+			return Response.json(resolved);
 		} catch (error) {
 			console.error("Error adding label:", error);
 			return Response.json({ error: "Failed to add label" }, { status: 500 });
@@ -96,31 +101,53 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 	async function handleRenameLabel(req: Request & { params: { name: string } }): Promise<Response> {
 		try {
 			const oldName = req.params.name;
-			const { name: newName } = await req.json();
-			if (!newName || typeof newName !== "string" || !newName.trim()) {
-				return Response.json({ error: "New label name is required" }, { status: 400 });
-			}
+			const body = await req.json();
 			const config = await ctx.core.filesystem.loadConfig();
 			if (!config) {
 				return Response.json({ error: "Configuration not found" }, { status: 404 });
 			}
-			const idx = (config.labels ?? []).findIndex(
-				(l) => (typeof l === "string" ? l : l.name).toLowerCase() === oldName.toLowerCase(),
-			);
-			if (idx === -1) {
+			const labels = config.labels ?? [];
+			const existing = labels.find((l) => (typeof l === "string" ? l : l.name).toLowerCase() === oldName.toLowerCase());
+			if (!existing) {
 				return Response.json({ error: `Label not found: ${oldName}` }, { status: 404 });
+			}
+
+			// Set-color-only operation
+			if (body.color && !body.name) {
+				const existingName = typeof existing === "string" ? existing : existing.name;
+				config.labels = config.labels.map((l) => {
+					const match = (typeof l === "string" ? l : l.name).toLowerCase() === oldName.toLowerCase();
+					return match ? { name: existingName, color: body.color } : l;
+				});
+				await ctx.core.filesystem.saveConfig(config);
+				const resolved = config.labels.map((label) => {
+					if (typeof label === "string") return { name: label };
+					return { name: label.name, ...(label.color ? { color: label.color } : {}) };
+				});
+				return Response.json(resolved);
+			}
+
+			// Rename operation
+			const { name: newName, color } = body;
+			if (!newName || typeof newName !== "string" || !newName.trim()) {
+				return Response.json({ error: "New label name is required" }, { status: 400 });
 			}
 			const trimmedNew = newName.trim();
 			if (
-				(config.labels ?? []).some(
-					(l) =>
-						(typeof l === "string" ? l : l.name).toLowerCase() === trimmedNew.toLowerCase() &&
-						l !== config.labels?.[idx],
+				labels.some(
+					(l) => (typeof l === "string" ? l : l.name).toLowerCase() === trimmedNew.toLowerCase() && l !== existing,
 				)
 			) {
 				return Response.json({ error: `Target label already exists: ${trimmedNew}` }, { status: 409 });
 			}
-			config.labels[idx] = trimmedNew;
+
+			const existingColor = typeof existing === "string" ? undefined : existing.color;
+			const effectiveColor = color ?? existingColor;
+			config.labels = config.labels.map((l) => {
+				const match = (typeof l === "string" ? l : l.name).toLowerCase() === oldName.toLowerCase();
+				if (!match) return l;
+				return effectiveColor ? { name: trimmedNew, color: effectiveColor } : trimmedNew;
+			});
 			config.labels = config.labels.sort((a, b) =>
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
@@ -160,7 +187,11 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				}
 			}
 
-			return Response.json(config.labels);
+			const resolved = config.labels.map((label) => {
+				if (typeof label === "string") return { name: label };
+				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
+			});
+			return Response.json(resolved);
 		} catch (error) {
 			console.error("Error renaming label:", error);
 			return Response.json({ error: "Failed to rename label" }, { status: 500 });
@@ -182,7 +213,11 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			}
 			config.labels = config.labels.filter((_, i) => i !== idx);
 			await ctx.core.filesystem.saveConfig(config);
-			return Response.json(config.labels);
+			const resolved = config.labels.map((label) => {
+				if (typeof label === "string") return { name: label };
+				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
+			});
+			return Response.json(resolved);
 		} catch (error) {
 			console.error("Error removing label:", error);
 			return Response.json({ error: "Failed to remove label" }, { status: 500 });

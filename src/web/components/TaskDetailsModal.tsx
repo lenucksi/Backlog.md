@@ -26,7 +26,8 @@ interface Props {
   archivedMilestoneEntities?: Milestone[];
   definitionOfDoneDefaults?: string[];
   onNavigateToTask?: (taskId: string) => void;
-  availableLabels?: string[];
+	availableLabels?: string[];
+	labelColorMap?: Record<string, string>;
 }
 
 type Mode = "preview" | "edit" | "create";
@@ -67,6 +68,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
   definitionOfDoneDefaults,
   onNavigateToTask,
   availableLabels,
+  labelColorMap,
 }) => {
   const { theme } = useTheme();
   const isCreateMode = !task;
@@ -1094,6 +1096,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
               placeholder="Type label and press Enter or comma"
               disabled={isFromOtherBranch}
               suggestions={availableLabels}
+              colorMap={labelColorMap}
             />
           </div>
 

@@ -1,14 +1,18 @@
 ---
 id: BACK-484.1
 title: BACK-484.1 — Parent Task Autocomplete WebUI
-status: To Do
+status: Done
 assignee: []
 created_date: 2026-06-08 17:30
+updated_date: 2026-06-08 17:42
 labels: []
 dependencies: []
+modified_files:
+  - src/web/components/ChipInput.tsx
+  - src/web/components/TaskDetailsModal.tsx
 parent_task_id: BACK-484
 priority: medium
-ordinal: 272000
+ordinal: 259000
 ---
 
 ## Description
@@ -47,3 +51,27 @@ Replace the plain `<input>` for parentTaskId in TaskDetailsModal with ChipInput 
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation
+
+Parent-Task-Eingabefeld in TaskDetailsModal wurde von plain `<input>` auf ChipInput singleSelect umgestellt.
+
+### Änderungen
+- **src/web/components/ChipInput.tsx**: `singleSelect`-Prop implementiert (siehe BACK-484 Phase 1)
+- **src/web/components/TaskDetailsModal.tsx**: 
+  - `parentTaskSuggestions` useMemo (availableTasks → "BACK-123 - Task Title")
+  - ChipInput singleSelect mit suggestions übergeben
+  - onChange extrahiert taskId aus erstem Teil vor " - "
+  - onChange speichert via handleInlineMetaUpdate
+
+Bemerkung: Die ChipInput singleSelect-Logik wurde in BACK-484 implementiert. BACK-484.1 ist der Consumer davon und hat keine eigene ChipInput-Änderung.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Parent-Task-Feld in WebUI von plain input auf ChipInput singleSelect mit Task-Autocomplete umgestellt.
+<!-- SECTION:FINAL_SUMMARY:END -->

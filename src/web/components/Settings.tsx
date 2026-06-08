@@ -1,7 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { apiClient } from '../lib/api';
 import { SuccessToast } from './SuccessToast';
 import type { BacklogConfig } from '../../types';
+
+const PRESET_COLORS = [
+	"#e74c3c", "#e67e22", "#f1c40f", "#2ecc71",
+	"#1abc9c", "#3498db", "#9b59b6", "#e91e63",
+	"#00bcd4", "#8bc34a", "#ff9800", "#607d8b",
+];
+
+function getLabelColor(label: string | { name: string; color?: string }): string | undefined {
+	return typeof label === "string" ? undefined : label.color;
+}
+
+function getLabelName(label: string | { name: string; color?: string }): string {
+	return typeof label === "string" ? label : label.name;
+}
 
 const Settings: React.FC = () => {
 	const [config, setConfig] = useState<BacklogConfig | null>(null);
@@ -12,6 +26,10 @@ const Settings: React.FC = () => {
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [statuses, setStatuses] = useState<string[]>([]);
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+	const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
+	const [colorPickerColor, setColorPickerColor] = useState("");
+	const [newLabelColor, setNewLabelColor] = useState("");
+	const colorPickerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		loadConfig();
@@ -57,6 +75,17 @@ const Settings: React.FC = () => {
 			});
 		}
 	};
+
+	useEffect(() => {
+		if (colorPickerIndex === null) return;
+		const handler = (e: MouseEvent) => {
+			if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+				setColorPickerIndex(null);
+			}
+		};
+		document.addEventListener("mousedown", handler);
+		return () => document.removeEventListener("mousedown", handler);
+	}, [colorPickerIndex]);
 
 	const normalizeDefinitionOfDone = (items: string[] | undefined): string[] | undefined => {
 		const normalized = (items ?? []).map((item) => item.trim()).filter((item) => item.length > 0);
@@ -272,51 +301,122 @@ const Settings: React.FC = () => {
 					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Labels</h2>
 						<div className="space-y-3">
-							{config.labels.map((label, index) => (
-								<div key={`label-${index}`} className="flex items-center gap-2">
-									<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
-										{typeof label === "string" ? label : label.name}
-									</span>
-									<button
-										type="button"
-										onClick={async () => {
-											const labelName = typeof label === "string" ? label : label.name;
-											const newName = prompt("Rename label to:", labelName);
-											if (newName && newName.trim() && newName.trim() !== labelName) {
-												try {
-													await apiClient.renameLabel(labelName, newName.trim());
-													const updated = await apiClient.fetchLabels();
-													setConfig({ ...config, labels: updated });
-												} catch (err) {
-													setError(err instanceof Error ? err.message : "Failed to rename label");
+							{config.labels.map((label, index) => {
+								const labelColor = getLabelColor(label);
+								const labelName = getLabelName(label);
+								return (
+									<div key={`label-${index}`} className="flex items-center gap-2 relative">
+										<div
+											className="w-4 h-4 rounded-full border border-gray-300 cursor-pointer shrink-0"
+											style={{ backgroundColor: labelColor || "#9ca3af" }}
+											onClick={(e) => {
+												e.stopPropagation();
+												setColorPickerIndex(index);
+												setColorPickerColor(labelColor || "");
+											}}
+											title="Change label color"
+										/>
+										{colorPickerIndex === index && (
+											<div
+												ref={colorPickerRef}
+												className="absolute left-0 top-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 w-56"
+											>
+												<div className="grid grid-cols-6 gap-1.5 mb-2">
+													{PRESET_COLORS.map((c) => (
+														<button
+															key={c}
+															type="button"
+															className={`w-6 h-6 rounded-full border-2 transition-all ${
+																colorPickerColor === c
+																	? "border-blue-500 scale-110"
+																	: "border-transparent hover:scale-110"
+															}`}
+															style={{ backgroundColor: c }}
+															onClick={() => setColorPickerColor(c)}
+														/>
+													))}
+												</div>
+												<div className="flex items-center gap-2">
+													<input
+														type="text"
+														value={colorPickerColor}
+														onChange={(e) => setColorPickerColor(e.target.value)}
+														placeholder="#ff0000"
+														className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-stone-500"
+													/>
+													<button
+														type="button"
+														onClick={async () => {
+															const name = labelName;
+															const color = colorPickerColor.startsWith("#") ? colorPickerColor : "";
+															try {
+																await apiClient.setLabelColor(name, color);
+																const updated = await apiClient.fetchLabels();
+																setConfig({ ...config, labels: updated });
+																setColorPickerIndex(null);
+															} catch (err) {
+																setError(err instanceof Error ? err.message : "Failed to set label color");
+															}
+														}}
+														className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+													>
+														Apply
+													</button>
+												</div>
+											</div>
+										)}
+										<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
+											{labelName}
+										</span>
+										<button
+											type="button"
+											onClick={async () => {
+												const newName = prompt("Rename label to:", labelName);
+												if (newName && newName.trim() && newName.trim() !== labelName) {
+													try {
+														await apiClient.renameLabel(labelName, newName.trim());
+														const updated = await apiClient.fetchLabels();
+														setConfig({ ...config, labels: updated });
+													} catch (err) {
+														setError(err instanceof Error ? err.message : "Failed to rename label");
+													}
 												}
-											}
-										}}
-										className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
-									>
-										Rename
-									</button>
-									<button
-										type="button"
-										onClick={async () => {
-											const labelName = typeof label === "string" ? label : label.name;
-											if (confirm(`Remove label "${labelName}" from config?`)) {
-												try {
-													await apiClient.removeLabel(labelName);
-													const updated = await apiClient.fetchLabels();
-													setConfig({ ...config, labels: updated });
-												} catch (err) {
-													setError(err instanceof Error ? err.message : "Failed to remove label");
+											}}
+											className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
+										>
+											Rename
+										</button>
+										<button
+											type="button"
+											onClick={async () => {
+												if (confirm(`Remove label "${labelName}" from config?`)) {
+													try {
+														await apiClient.removeLabel(labelName);
+														const updated = await apiClient.fetchLabels();
+														setConfig({ ...config, labels: updated });
+													} catch (err) {
+														setError(err instanceof Error ? err.message : "Failed to remove label");
+													}
 												}
-											}
-										}}
-										className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-									>
-										Delete
-									</button>
-								</div>
-							))}
+											}}
+											className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+										>
+											Delete
+										</button>
+									</div>
+								);
+							})}
 							<div className="flex items-center gap-2 pt-2">
+								<div
+									className="w-4 h-4 rounded-full border border-gray-300 cursor-pointer shrink-0"
+									style={{ backgroundColor: newLabelColor || "#9ca3af" }}
+									onClick={() => {
+										const idx = Math.floor(Math.random() * PRESET_COLORS.length);
+										const picked = PRESET_COLORS[idx];
+										setNewLabelColor(newLabelColor ? "" : (picked ?? ""));
+									}}
+									title="Toggle random color for new label"
+								/>
 								<input
 									type="text"
 									id="newLabelInput"
@@ -330,10 +430,11 @@ const Settings: React.FC = () => {
 										const name = input?.value?.trim();
 										if (!name) return;
 										try {
-											await apiClient.addLabel(name);
+											await apiClient.addLabel(name, newLabelColor || undefined);
 											const updated = await apiClient.fetchLabels();
 											setConfig({ ...config, labels: updated });
 											input.value = "";
+											setNewLabelColor("");
 										} catch (err) {
 											setError(err instanceof Error ? err.message : "Failed to add label");
 										}

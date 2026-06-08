@@ -26,6 +26,7 @@ interface TaskListProps {
 	milestoneEntities: Milestone[];
 	archivedMilestones: Milestone[];
 	onRefreshData?: () => Promise<void>;
+	labelColors?: Record<string, string>;
 }
 
 const PRIORITY_OPTIONS: Array<{ label: string; value: "" | SearchPriorityFilter }> = [
@@ -90,6 +91,7 @@ const TaskList: React.FC<TaskListProps> = ({
 	milestoneEntities,
 	archivedMilestones,
 	onRefreshData,
+	labelColors,
 }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [statusFilter, setStatusFilter] = useState(() => searchParams.get("status") ?? "");
@@ -862,15 +864,21 @@ const TaskList: React.FC<TaskListProps> = ({
 											<td className="px-3 py-2.5">
 												{visibleLabels.length > 0 ? (
 													<div className="flex items-center gap-1 min-w-0">
-														{visibleLabels.map((label) => (
-															<span
-																key={label}
-																className="inline-flex max-w-[7rem] truncate rounded-circle bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-																title={label}
-															>
-																{label}
-															</span>
-														))}
+														{visibleLabels.map((label) => {
+															const bgColor = labelColors?.[label];
+															return (
+																<span
+																	key={label}
+																	className={`inline-flex max-w-[7rem] truncate rounded-circle px-2 py-0.5 text-[11px] ${
+																		bgColor ? "" : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+																	}`}
+																	style={bgColor ? { backgroundColor: bgColor, color: "#fff" } : undefined}
+																	title={label}
+																>
+																	{label}
+																</span>
+															);
+														})}
 														{labelOverflow > 0 && (
 															<span className="text-[11px] text-gray-500 dark:text-gray-400">+{labelOverflow}</span>
 														)}

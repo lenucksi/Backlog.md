@@ -31,6 +31,7 @@ interface BoardProps {
   filterLabels?: string[];
   filterPriority?: string;
   onFiltersChange?: (filters: { assignee: string; labels: string[]; priority: string }) => void;
+  labelColors?: Record<string, string>;
 }
 
 const PRIORITY_OPTIONS = [
@@ -66,6 +67,7 @@ const Board: React.FC<BoardProps> = ({
   filterLabels = [],
   filterPriority = '',
   onFiltersChange,
+  labelColors,
 }) => {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [dragSourceStatus, setDragSourceStatus] = useState<string | null>(null);
@@ -456,6 +458,7 @@ const Board: React.FC<BoardProps> = ({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onCleanup={status === terminalStatus ? () => setShowCleanupModal(true) : undefined}
+      labelColors={labelColors}
     />
   );
 

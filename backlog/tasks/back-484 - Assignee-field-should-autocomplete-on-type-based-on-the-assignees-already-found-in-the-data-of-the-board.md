@@ -2,11 +2,11 @@
 id: BACK-484
 title: Assignee field should autocomplete-on-type based on the assignees already
   found in the data of the board
-status: In Progress
+status: Done
 assignee:
   - "@jo"
 created_date: 2026-05-13 09:51
-updated_date: 2026-06-08 17:30
+updated_date: 2026-06-08 17:41
 labels: []
 milestone: m-8
 dependencies: []
@@ -15,6 +15,10 @@ references:
   - src/web/components/TaskDetailsModal.tsx
   - src/web/components/DependencyInput.tsx
   - BACK-491 — Cross-Modality CI (TUI Autocomplete dependency)
+modified_files:
+  - src/web/components/ChipInput.tsx
+  - src/web/components/TaskDetailsModal.tsx
+  - src/web/components/DependencyInput.tsx
 priority: medium
 ordinal: 171000
 ---
@@ -82,3 +86,45 @@ This is the assignee equivalent of label autocomplete (see label management tick
 - CLI Autocomplete
 - MCP Autocomplete
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Summary (2026-06-08)
+
+### Phase 1 – ChipInput singleSelect
+- `src/web/components/ChipInput.tsx`: Neue Prop `singleSelect?: boolean`
+  - Bei singleSelect: onChange setzt Array mit max 1 Element, Enter bei vollem Wert ignoriert, Backspace cleart
+  - Input versteckt sich wenn Wert gesetzt ist (damit der Chip lesbar bleibt)
+  - Komma-Add in singleSelect deaktiviert
+- Wiederverwendbar für alle Single-Value-Auswahlen
+
+### Phase 2 – Assignee Autocomplete
+- `src/web/components/TaskDetailsModal.tsx`: `availableAssignees` via useMemo aus `availableTasks` extrahiert
+  - `[...new Set(availableTasks.flatMap(t => t.assignee ?? []).filter(Boolean))].sort()`
+  - Kein API-Call nötig – `availableTasks` wird bereits für DependencyInput geladen
+- Assignee-ChipInput erhält `suggestions={availableAssignees}`
+- Freie Eingabe weiterhin möglich (ChipInput non-blocking)
+
+### Phase 3 – Parent Task Autocomplete
+- `src/web/components/TaskDetailsModal.tsx`: Plain `<input>` ersetzt durch ChipInput singleSelect
+  - `parentTaskSuggestions` aus `availableTasks` (Format: "BACK-123 - Task Title")
+  - Bei Auswahl: `parentTaskId` aus erstem Teil vor " - " extrahiert
+  - onChange speichert direkt via handleInlineMetaUpdate (kein onBlur mehr nötig)
+
+### Phase 4 – DependencyInput Scroll-Fix
+- `src/web/components/DependencyInput.tsx`:
+  - `stopPropagation()` auf ArrowDown/ArrowUp – kein Seiten-Scroll mehr
+  - `scrollIntoView({ block: "nearest" })` auf selectedIndex – Dropdown folgt Auswahl
+  - `dropdownRef` für Container-Referenz
+
+### Datenquelle
+- Alle Vorschläge basieren auf `availableTasks` (geladen via `apiClient.fetchTasks()` beim Modal-Öffnen)
+- Kein zusätzlicher API-Call, kein Cache, keine Config-Änderung
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Backend-484 abgeschlossen: Assignee Autocomplete, Parent Task Autocomplete (singleSelect), DependencyInput Scroll-Fix. Alle Vorschläge aus availableTasks gescraped – kein zusätzlicher API-Call.
+<!-- SECTION:FINAL_SUMMARY:END -->

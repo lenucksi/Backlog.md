@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { sanitizeUrlTitle } from './utils/urlHelpers';
 import Layout from './components/Layout';
@@ -169,6 +169,14 @@ function App() {
   const [availableLabels, setAvailableLabels] = useState<string[]>([]);
   const [projectName, setProjectName] = useState<string>('');
   const [config, setConfig] = useState<BacklogConfig | null>(null);
+
+  const labelColors = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const l of config?.labels ?? []) {
+      if (typeof l !== "string" && l.color) map[l.name] = l.color;
+    }
+    return map;
+  }, [config?.labels]);
   const [milestones, setMilestones] = useState<string[]>([]);
   const [milestoneEntities, setMilestoneEntities] = useState<Milestone[]>([]);
   const [archivedMilestones, setArchivedMilestones] = useState<Milestone[]>([]);
@@ -568,6 +576,7 @@ function App() {
                 milestoneEntities={milestoneEntities}
                 archivedMilestones={archivedMilestones}
                 isLoading={isLoading}
+                labelColors={labelColors}
               />
             }
           />
@@ -587,6 +596,7 @@ function App() {
                 milestoneEntities={milestoneEntities}
                 archivedMilestones={archivedMilestones}
                 isLoading={isLoading}
+                labelColors={labelColors}
               />
             }
           />
@@ -603,6 +613,7 @@ function App() {
 	                  milestoneEntities={milestoneEntities}
 	                  archivedMilestones={archivedMilestones}
 	                  onRefreshData={refreshData}
+	                  labelColors={labelColors}
 	                />
 	              }
 	            />
@@ -619,6 +630,7 @@ function App() {
 	                  milestoneEntities={milestoneEntities}
 	                  archivedMilestones={archivedMilestones}
 	                  onRefreshData={refreshData}
+	                  labelColors={labelColors}
 	                />
 	              }
 	            />
@@ -666,6 +678,7 @@ function App() {
           definitionOfDoneDefaults={config?.definitionOfDone ?? []}
           onNavigateToTask={handleNavigateToTask}
           availableLabels={availableLabels}
+          labelColorMap={labelColors}
         />
 
         {/* Task Creation Confirmation Toast */}

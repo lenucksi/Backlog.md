@@ -306,27 +306,48 @@ export class ApiClient {
 		return this.getJson<string[]>(`${API_BASE}/statuses`, "Failed to fetch statuses");
 	}
 
-	async fetchLabels(): Promise<string[]> {
-		return this.getJson<string[]>(`${API_BASE}/config/labels`, "Failed to fetch labels");
+	async fetchLabels(): Promise<Array<{ name: string; color?: string }>> {
+		return this.getJson<Array<{ name: string; color?: string }>>(`${API_BASE}/config/labels`, "Failed to fetch labels");
 	}
 
-	async addLabel(name: string): Promise<string[]> {
-		return this.sendJson<string[]>(`${API_BASE}/config/labels`, "POST", { name }, "Failed to add label");
+	async addLabel(name: string, color?: string): Promise<Array<{ name: string; color?: string }>> {
+		return this.sendJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/labels`,
+			"POST",
+			{ name, ...(color ? { color } : {}) },
+			"Failed to add label",
+		);
 	}
 
-	async renameLabel(oldName: string, newName: string): Promise<string[]> {
-		return this.sendJson<string[]>(
+	async renameLabel(
+		oldName: string,
+		newName: string,
+		color?: string,
+	): Promise<Array<{ name: string; color?: string }>> {
+		return this.sendJson<Array<{ name: string; color?: string }>>(
 			`${API_BASE}/config/labels/${encodeURIComponent(oldName)}`,
 			"PUT",
-			{ name: newName },
+			{ name: newName, ...(color ? { color } : {}) },
 			"Failed to rename label",
 		);
 	}
 
-	async removeLabel(name: string): Promise<string[]> {
-		return this.fetchJson<string[]>(`${API_BASE}/config/labels/${encodeURIComponent(name)}`, {
-			method: "DELETE",
-		});
+	async removeLabel(name: string): Promise<Array<{ name: string; color?: string }>> {
+		return this.fetchJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/labels/${encodeURIComponent(name)}`,
+			{
+				method: "DELETE",
+			},
+		);
+	}
+
+	async setLabelColor(name: string, color: string): Promise<Array<{ name: string; color?: string }>> {
+		return this.sendJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/labels/${encodeURIComponent(name)}`,
+			"PUT",
+			{ color },
+			"Failed to set label color",
+		);
 	}
 
 	async fetchConfig(): Promise<BacklogConfig> {
