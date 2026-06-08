@@ -1,0 +1,42 @@
+src/types/gifenc.d.ts
+  s_c927adb04e53f2::t_e42aedc63da1dd 1-32
+"backlog/tasks/back-540.6 - BACK-540.6-—-Dependencies-node_modules-termless-core-declaration-issues.md"
+  s_358b4794ff5317::t_706d032b093797 4,7
+scripts/e2e-test-server.ts
+  s_c927adb04e53f2::t_041f5ac7f24002 54,66,78,90,102,114,126,138
+  s_c927adb04e53f2::t_1209ee2d2e6267 12
+  s_c927adb04e53f2::t_778ecfd44b2285 28
+  s_c927adb04e53f2::t_9f5934c71bf7f7 32,36-37,45,49-50,57,61-62,69,73-74,81,85-86,93,97-98,105,109-110,117,121-122,129,133-134
+  s_c927adb04e53f2::t_3e3bc07bb119d1 42
+src/types/upng-js.d.ts
+  s_c927adb04e53f2::t_b2078cbfa17484 1-28
+tsconfig.json
+  s_c927adb04e53f2::t_44e400fc7b7afe 22-23
+  s_c927adb04e53f2::t_e4e0e996519dba 26
+"backlog/tasks/back-540.5 - BACK-540.5-—-Tests-~40-tsc-Fehler.md"
+  s_358b4794ff5317::t_706d032b093797 4,7,48-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "692a0b62259e7e339b7df8e15d4d3876e9695e28",
+  "prompts": {},
+  "sessions": {
+    "s_358b4794ff5317": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_15872f94fffeasa6D2RCSrnEDv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
