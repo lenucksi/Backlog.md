@@ -615,8 +615,7 @@ const SideNavigation = memo(function SideNavigation({
 							))}
 
 							{/* Archived Docs toggle inside Documents section */}
-							{archivedDocs.length > 0 && (
-								<div className="pt-1 mt-1 border-t border-gray-100 dark:border-gray-700/50">
+							<div className="pt-1 mt-1 border-t border-gray-100 dark:border-gray-700/50">
 									<button
 										type="button"
 										onClick={() => setArchivedDocsOpen(!archivedDocsOpen)}
@@ -650,7 +649,6 @@ const SideNavigation = memo(function SideNavigation({
 										</div>
 									)}
 								</div>
-							)}
 						</CollapsibleGroup>
 
 						{/* Divider between Documents and Decisions */}
@@ -680,8 +678,7 @@ const SideNavigation = memo(function SideNavigation({
 								</NavLink>
 							))}
 							{/* Superseded toggle inside Decisions section */}
-							{decisions.filter((d) => d.status === 'superseded').length > 0 && (
-								<div className="pt-1 mt-1 border-t border-gray-100 dark:border-gray-700/50">
+							<div className="pt-1 mt-1 border-t border-gray-100 dark:border-gray-700/50">
 									<button
 										type="button"
 										onClick={() => setSupersededOpen(!supersededOpen)}
@@ -722,7 +719,6 @@ const SideNavigation = memo(function SideNavigation({
 										</div>
 									)}
 								</div>
-							)}
 						</CollapsibleGroup>
 					</>
 				)}
