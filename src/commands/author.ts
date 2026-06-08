@@ -1,0 +1,203 @@
+import type { Command } from "commander";
+import { Core } from "../core/backlog.ts";
+import { colorizeLabel } from "../utils/ansi.ts";
+import { requireProjectRoot } from "../utils/cli-context.ts";
+
+function ensureAuthors(config: {
+	authors?: Array<string | { name: string; color?: string }>;
+}): Array<string | { name: string; color?: string }> {
+	if (!config.authors) config.authors = [];
+	return config.authors;
+}
+
+export function registerAuthorCommand(program: Command): void {
+	const authorCmd = program.command("author").description("manage backlog authors");
+
+	authorCmd
+		.command("list")
+		.description("list all authors from config")
+		.option("--json", "output as JSON")
+		.action(async (options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			const authors = config.authors ?? [];
+			if (options.json) {
+				console.log(JSON.stringify(authors, null, 2));
+				return;
+			}
+			if (authors.length === 0) {
+				console.log("No authors configured.");
+				return;
+			}
+			for (const author of authors) {
+				if (typeof author === "string") {
+					console.log(`  ${author}`);
+				} else {
+					const indicator = author.color ? colorizeLabel(author.color, "●") : "";
+					console.log(`  ${indicator}${indicator ? " " : ""}${author.name}${author.color ? ` (${author.color})` : ""}`);
+				}
+			}
+		});
+
+	authorCmd
+		.command("add <name>")
+		.description("add a new author")
+		.option("--color <hex>", "hex color for the author (e.g. #ff0000)")
+		.action(async (name: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			const authors = ensureAuthors(config);
+			if (authors.some((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase())) {
+				console.error(`Author already exists: ${name}`);
+				process.exit(1);
+			}
+			const newAuthor = options.color ? { name, color: options.color } : name;
+			config.authors = [...authors, newAuthor].sort((a, b) =>
+				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
+			);
+			await core.filesystem.saveConfig(config);
+			console.log(`Added author: ${name}`);
+		});
+
+	authorCmd
+		.command("rename <old> <new>")
+		.description("rename an author and update all task frontmatter")
+		.action(async (oldName: string, newName: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			const authors = ensureAuthors(config);
+			const authorIndex = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === oldName.toLowerCase());
+			if (authorIndex === -1) {
+				console.error(`Author not found: ${oldName}`);
+				process.exit(1);
+			}
+			if (
+				authors.some(
+					(a) => (typeof a === "string" ? a : a.name) === newName.toLowerCase() && a !== authors[authorIndex],
+				)
+			) {
+				console.error(`Target author already exists: ${newName}`);
+				process.exit(1);
+			}
+			authors[authorIndex] = newName;
+			config.authors = authors.sort((a, b) =>
+				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
+			);
+			await core.filesystem.saveConfig(config);
+
+			const renameInEntity = (assignees: string[] | undefined): string[] | undefined => {
+				if (!assignees) return undefined;
+				const updated = assignees.map((a) => (a.toLowerCase() === oldName.toLowerCase() ? newName : a));
+				return updated.length > 0 ? updated : undefined;
+			};
+
+			const tasks = await core.filesystem.listTasks();
+			for (const task of tasks) {
+				const updatedAssignees = renameInEntity(task.assignee);
+				if (updatedAssignees) {
+					try {
+						await core.editTask(task.id, { assignee: updatedAssignees }, false);
+					} catch {
+						console.warn(`  Skipping task ${task.id} (not found, maybe from another branch)`);
+					}
+				}
+			}
+
+			console.log(`Renamed author "${oldName}" to "${newName}" in config and all entities.`);
+		});
+
+	authorCmd
+		.command("remove <name>")
+		.description("remove an author from config (does not remove from existing tasks)")
+		.action(async (name: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			const authors = ensureAuthors(config);
+			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
+			if (idx === -1) {
+				console.error(`Author not found: ${name}`);
+				process.exit(1);
+			}
+			config.authors = authors.filter((_, i) => i !== idx);
+			await core.filesystem.saveConfig(config);
+			console.log(`Removed author: ${name}`);
+		});
+
+	authorCmd
+		.command("set-color <name> <color>")
+		.description("set or update an author's color")
+		.action(async (name: string, color: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			const authors = ensureAuthors(config);
+			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
+			if (idx === -1) {
+				console.error(`Author not found: ${name}`);
+				process.exit(1);
+			}
+			const existing = authors[idx];
+			if (!existing) return;
+			if (typeof existing === "string") {
+				authors[idx] = { name: existing, color };
+			} else {
+				authors[idx] = { name: existing.name, color };
+			}
+			config.authors = authors;
+			await core.filesystem.saveConfig(config);
+			console.log(`Set color for author "${name}" to ${color}`);
+		});
+
+	authorCmd
+		.command("remove-color <name>")
+		.description("remove an author's color")
+		.action(async (name: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			const authors = ensureAuthors(config);
+			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
+			if (idx === -1) {
+				console.error(`Author not found: ${name}`);
+				process.exit(1);
+			}
+			const existing = authors[idx];
+			if (!existing) return;
+			if (typeof existing === "string") {
+				console.log(`Author "${name}" has no color to remove.`);
+				return;
+			}
+			authors[idx] = existing.name;
+			config.authors = authors;
+			await core.filesystem.saveConfig(config);
+			console.log(`Removed color from author "${name}".`);
+		});
+}

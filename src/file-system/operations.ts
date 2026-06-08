@@ -4,6 +4,7 @@ import { DEFAULT_DIRECTORIES, DEFAULT_FILES, DEFAULT_STATUSES, FALLBACK_STATUS }
 import { parseDecision, parseDocument, parseMilestone, parseTask } from "../markdown/parser.ts";
 import { serializeDecision, serializeDocument, serializeTask } from "../markdown/serializer.ts";
 import type {
+	AuthorConfig,
 	BacklogConfig,
 	Decision,
 	Document,
@@ -98,6 +99,47 @@ async function cleanupDocumentDuplicates(docsDir: string, matchesForId: string[]
 			// Ignore cleanup errors - file may have been removed already
 		}
 	}
+}
+
+export function parseAuthorArray(content: string): Array<string | AuthorConfig> {
+	if (!content || content.trim().length === 0) return [];
+	const items: Array<string | AuthorConfig> = [];
+	let depth = 0;
+	let current = "";
+	for (const ch of content) {
+		if (ch === "{" || ch === "[") depth++;
+		else if (ch === "}" || ch === "]") depth--;
+		if (ch === "," && depth === 0) {
+			const trimmed = current.trim();
+			if (trimmed) {
+				if (trimmed.startsWith("{")) {
+					const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
+					const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
+					if (nameMatch?.[1]) {
+						items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
+					}
+				} else {
+					items.push(trimmed.replace(/['"]/g, ""));
+				}
+			}
+			current = "";
+		} else {
+			current += ch;
+		}
+	}
+	const trimmed = current.trim();
+	if (trimmed) {
+		if (trimmed.startsWith("{")) {
+			const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
+			const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
+			if (nameMatch?.[1]) {
+				items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
+			}
+		} else {
+			items.push(trimmed.replace(/['"]/g, ""));
+		}
+	}
+	return items;
 }
 
 export function parseLabelArray(content: string): Array<string | LabelConfig> {
@@ -1684,6 +1726,19 @@ ${description || `Milestone: ${title}`}`,
 						}
 					}
 					break;
+				case "authors":
+					if (value.startsWith("[") && value.endsWith("]")) {
+						const arrayContent = value.slice(1, -1);
+						if (arrayContent.includes("name:") || arrayContent.includes("{")) {
+							config.authors = parseAuthorArray(arrayContent);
+						} else {
+							config.authors = arrayContent
+								.split(",")
+								.map((item) => item.trim().replace(/['"]/g, ""))
+								.filter(Boolean);
+						}
+					}
+					break;
 				case "terminal_statuses":
 					if (value.startsWith("[") && value.endsWith("]")) {
 						const arrayContent = value.slice(1, -1);
@@ -1764,6 +1819,7 @@ ${description || `Milestone: ${title}`}`,
 			terminalStatuses: config.terminalStatuses,
 			blockedStatuses: config.blockedStatuses,
 			labels: config.labels || [],
+			authors: config.authors,
 			definitionOfDone: config.definitionOfDone,
 			defaultStatus: config.defaultStatus,
 			maxColumnWidth: config.maxColumnWidth,
@@ -1798,6 +1854,15 @@ ${description || `Milestone: ${title}`}`,
 				? [`blocked_statuses: [${config.blockedStatuses.map((s) => `"${s}"`).join(", ")}]`]
 				: []),
 			`labels: [${config.labels.map((l) => (typeof l === "string" ? `"${l}"` : `{name: "${l.name}"${l.color ? `, color: "${l.color}"` : ""}}`)).join(", ")}]`,
+			...(config.authors && config.authors.length > 0
+				? [
+						`authors: [${config.authors
+							.map((a) =>
+								typeof a === "string" ? `"${a}"` : `{name: "${a.name}"${a.color ? `, color: "${a.color}"` : ""}}`,
+							)
+							.join(", ")}]`,
+					]
+				: []),
 			...(Array.isArray(normalizedDefinitionOfDone)
 				? [`definition_of_done: [${normalizedDefinitionOfDone.map((item) => JSON.stringify(item)).join(", ")}]`]
 				: []),

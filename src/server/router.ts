@@ -54,6 +54,10 @@ export type RouteHandlers = {
 		handleAddLabel: (req: Request) => Promise<Response>;
 		handleRenameLabel: (req: Request & { params: { name: string } }) => Promise<Response>;
 		handleRemoveLabel: (req: Request & { params: { name: string } }) => Promise<Response>;
+		handleListAuthors: () => Promise<Response>;
+		handleAddAuthor: (req: Request) => Promise<Response>;
+		handleRenameAuthor: (req: Request & { params: { name: string } }) => Promise<Response>;
+		handleRemoveAuthor: (req: Request & { params: { name: string } }) => Promise<Response>;
 	};
 	system: {
 		handleGetVersion: () => Promise<Response>;
@@ -160,6 +164,14 @@ export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
 		"/api/config/labels/:name": {
 			PUT: async (req: Request & { params: { name: string } }) => await config.handleRenameLabel(req),
 			DELETE: async (req: Request & { params: { name: string } }) => await config.handleRemoveLabel(req),
+		},
+		"/api/config/authors": {
+			GET: async () => await config.handleListAuthors(),
+			POST: async (req: Request) => await config.handleAddAuthor(req),
+		},
+		"/api/config/authors/:name": {
+			PUT: async (req: Request & { params: { name: string } }) => await config.handleRenameAuthor(req),
+			DELETE: async (req: Request & { params: { name: string } }) => await config.handleRemoveAuthor(req),
 		},
 		"/api/tasks/reorder": {
 			POST: async (req: Request) => await tasks.handleReorderTask(req),

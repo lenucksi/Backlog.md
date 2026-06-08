@@ -224,6 +224,165 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	async function handleListAuthors(): Promise<Response> {
+		try {
+			const config = await ctx.core.filesystem.loadConfig();
+			const authors = config?.authors ?? [];
+			const resolved = authors.map((author) => {
+				if (typeof author === "string") {
+					return { name: author };
+				}
+				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
+			});
+			return Response.json(resolved);
+		} catch (error) {
+			console.error("Error listing authors:", error);
+			return Response.json({ error: "Failed to list authors" }, { status: 500 });
+		}
+	}
+
+	async function handleAddAuthor(req: Request): Promise<Response> {
+		try {
+			const { name, color } = await req.json();
+			if (!name || typeof name !== "string" || !name.trim()) {
+				return Response.json({ error: "Author name is required" }, { status: 400 });
+			}
+			const config = await ctx.core.filesystem.loadConfig();
+			if (!config) {
+				return Response.json({ error: "Configuration not found" }, { status: 404 });
+			}
+			const trimmedName = name.trim();
+			if (
+				(config.authors ?? []).some(
+					(a) => (typeof a === "string" ? a : a.name).toLowerCase() === trimmedName.toLowerCase(),
+				)
+			) {
+				return Response.json({ error: `Author already exists: ${trimmedName}` }, { status: 409 });
+			}
+			const newAuthor = color ? { name: trimmedName, color } : trimmedName;
+			config.authors = [...(config.authors ?? []), newAuthor].sort((a, b) =>
+				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
+			);
+			await ctx.core.filesystem.saveConfig(config);
+			const resolved = (config.authors ?? []).map((author) => {
+				if (typeof author === "string") return { name: author };
+				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
+			});
+			return Response.json(resolved);
+		} catch (error) {
+			console.error("Error adding author:", error);
+			return Response.json({ error: "Failed to add author" }, { status: 500 });
+		}
+	}
+
+	async function handleRenameAuthor(req: Request & { params: { name: string } }): Promise<Response> {
+		try {
+			const oldName = req.params.name;
+			const body = await req.json();
+			const config = await ctx.core.filesystem.loadConfig();
+			if (!config) {
+				return Response.json({ error: "Configuration not found" }, { status: 404 });
+			}
+			const authors = config.authors ?? [];
+			const existing = authors.find(
+				(a) => (typeof a === "string" ? a : a.name).toLowerCase() === oldName.toLowerCase(),
+			);
+			if (!existing) {
+				return Response.json({ error: `Author not found: ${oldName}` }, { status: 404 });
+			}
+
+			// Set-color-only operation
+			if (body.color && !body.name) {
+				const existingName = typeof existing === "string" ? existing : existing.name;
+				config.authors = config.authors?.map((a) => {
+					const match = (typeof a === "string" ? a : a.name).toLowerCase() === oldName.toLowerCase();
+					return match ? { name: existingName, color: body.color } : a;
+				});
+				await ctx.core.filesystem.saveConfig(config);
+				const resolved = (config.authors ?? []).map((author) => {
+					if (typeof author === "string") return { name: author };
+					return { name: author.name, ...(author.color ? { color: author.color } : {}) };
+				});
+				return Response.json(resolved);
+			}
+
+			// Rename operation
+			const { name: newName, color } = body;
+			if (!newName || typeof newName !== "string" || !newName.trim()) {
+				return Response.json({ error: "New author name is required" }, { status: 400 });
+			}
+			const trimmedNew = newName.trim();
+			if (
+				authors.some(
+					(a) => (typeof a === "string" ? a : a.name).toLowerCase() === trimmedNew.toLowerCase() && a !== existing,
+				)
+			) {
+				return Response.json({ error: `Target author already exists: ${trimmedNew}` }, { status: 409 });
+			}
+
+			const existingColor = typeof existing === "string" ? undefined : existing.color;
+			const effectiveColor = color ?? existingColor;
+			config.authors = config.authors?.map((a) => {
+				const match = (typeof a === "string" ? a : a.name).toLowerCase() === oldName.toLowerCase();
+				if (!match) return a;
+				return effectiveColor ? { name: trimmedNew, color: effectiveColor } : trimmedNew;
+			});
+			config.authors = config.authors?.sort((a, b) =>
+				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
+			);
+			await ctx.core.filesystem.saveConfig(config);
+
+			const renameInEntity = (assignees: string[] | undefined): string[] | undefined => {
+				if (!assignees) return undefined;
+				const updated = assignees.map((a) => (a.toLowerCase() === oldName.toLowerCase() ? trimmedNew : a));
+				return updated.length > 0 ? updated : undefined;
+			};
+
+			const tasks = await ctx.core.filesystem.listTasks();
+			for (const task of tasks) {
+				const updatedAssignees = renameInEntity(task.assignee);
+				if (updatedAssignees) {
+					await ctx.core.editTask(task.id, { assignee: updatedAssignees }, false);
+				}
+			}
+
+			const resolved = (config.authors ?? []).map((author) => {
+				if (typeof author === "string") return { name: author };
+				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
+			});
+			return Response.json(resolved);
+		} catch (error) {
+			console.error("Error renaming author:", error);
+			return Response.json({ error: "Failed to rename author" }, { status: 500 });
+		}
+	}
+
+	async function handleRemoveAuthor(req: Request & { params: { name: string } }): Promise<Response> {
+		try {
+			const authorName = req.params.name;
+			const config = await ctx.core.filesystem.loadConfig();
+			if (!config) {
+				return Response.json({ error: "Configuration not found" }, { status: 404 });
+			}
+			const idx = (config.authors ?? []).findIndex(
+				(a) => (typeof a === "string" ? a : a.name).toLowerCase() === authorName.toLowerCase(),
+			);
+			if (idx === -1) {
+				return Response.json({ error: `Author not found: ${authorName}` }, { status: 404 });
+			}
+			config.authors = config.authors?.filter((_, i) => i !== idx);
+			await ctx.core.filesystem.saveConfig(config);
+			const resolved = (config.authors ?? []).map((author) => {
+				if (typeof author === "string") return { name: author };
+				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
+			});
+			return Response.json(resolved);
+		} catch (error) {
+			console.error("Error removing author:", error);
+			return Response.json({ error: "Failed to remove author" }, { status: 500 });
+		}
+	}
+
 	return {
 		handleGetStatuses,
 		handleGetConfig,
@@ -232,5 +391,9 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 		handleAddLabel,
 		handleRenameLabel,
 		handleRemoveLabel,
+		handleListAuthors,
+		handleAddAuthor,
+		handleRenameAuthor,
+		handleRemoveAuthor,
 	};
 }

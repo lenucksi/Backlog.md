@@ -1,15 +1,19 @@
 ---
 id: BACK-486.2
 title: BACK-486.2 — CLI --color Flag für Labels
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 18:00
-updated_date: 2026-06-08 18:23
+updated_date: 2026-06-08 18:31
 labels:
   - labels
   - cli
   - color
 dependencies: []
+modified_files:
+  - src/commands/label.ts
+  - src/mcp/tools/labels/schemas.ts
+  - src/mcp/tools/labels/handlers.ts
 parent_task_id: BACK-486
 priority: medium
 ordinal: 273000
@@ -46,3 +50,9 @@ CLI-Flags für Farb-Management von Labels.
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BACK-486.2 abgeschlossen: label add --color, label set-color, label remove-color, ANSI-Farbausgabe in label list, MCP color-Parameter.
+<!-- SECTION:FINAL_SUMMARY:END -->

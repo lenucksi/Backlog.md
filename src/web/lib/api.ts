@@ -350,6 +350,53 @@ export class ApiClient {
 		);
 	}
 
+	async fetchAuthors(): Promise<Array<{ name: string; color?: string }>> {
+		return this.getJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/authors`,
+			"Failed to fetch authors",
+		);
+	}
+
+	async addAuthor(name: string, color?: string): Promise<Array<{ name: string; color?: string }>> {
+		return this.sendJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/authors`,
+			"POST",
+			{ name, ...(color ? { color } : {}) },
+			"Failed to add author",
+		);
+	}
+
+	async renameAuthor(
+		oldName: string,
+		newName: string,
+		color?: string,
+	): Promise<Array<{ name: string; color?: string }>> {
+		return this.sendJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/authors/${encodeURIComponent(oldName)}`,
+			"PUT",
+			{ name: newName, ...(color ? { color } : {}) },
+			"Failed to rename author",
+		);
+	}
+
+	async removeAuthor(name: string): Promise<Array<{ name: string; color?: string }>> {
+		return this.fetchJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/authors/${encodeURIComponent(name)}`,
+			{
+				method: "DELETE",
+			},
+		);
+	}
+
+	async setAuthorColor(name: string, color: string): Promise<Array<{ name: string; color?: string }>> {
+		return this.sendJson<Array<{ name: string; color?: string }>>(
+			`${API_BASE}/config/authors/${encodeURIComponent(name)}`,
+			"PUT",
+			{ color },
+			"Failed to set author color",
+		);
+	}
+
 	async fetchConfig(): Promise<BacklogConfig> {
 		return this.getJson<BacklogConfig>(`${API_BASE}/config`, "Failed to fetch config");
 	}

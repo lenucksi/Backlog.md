@@ -294,6 +294,11 @@ export interface LabelConfig {
 	color?: string;
 }
 
+export interface AuthorConfig {
+	name: string;
+	color?: string;
+}
+
 export function resolveLabelColor(name: string, config: BacklogConfig): string | null {
 	for (const label of config.labels) {
 		if (typeof label === "string") {
@@ -313,6 +318,7 @@ export interface BacklogConfig {
 	terminalStatuses?: string[];
 	blockedStatuses?: string[];
 	labels: Array<string | LabelConfig>;
+	authors?: Array<string | AuthorConfig>;
 	/** @deprecated Milestones are sourced from milestone files, not config. */
 	milestones?: string[];
 	definitionOfDone?: string[];

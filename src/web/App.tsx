@@ -167,6 +167,7 @@ function App() {
   const [isDraftMode, setIsDraftMode] = useState(false);
   const [statuses, setStatuses] = useState<string[]>([]);
   const [availableLabels, setAvailableLabels] = useState<string[]>([]);
+  const [availableAuthors, setAvailableAuthors] = useState<Array<{name: string; color: string | null}>>([]);
   const [projectName, setProjectName] = useState<string>('');
   const [config, setConfig] = useState<BacklogConfig | null>(null);
 
@@ -271,7 +272,7 @@ function App() {
   const loadAllData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [statusesData, configData, searchResults, milestonesData, archivedMilestonesData, archivedDocsData, completedTasksData] = await Promise.all([
+      const [statusesData, configData, searchResults, milestonesData, archivedMilestonesData, archivedDocsData, completedTasksData, authorsData] = await Promise.all([
         apiClient.fetchStatuses(),
         apiClient.fetchConfig(),
         apiClient.search(),
@@ -279,6 +280,7 @@ function App() {
         apiClient.fetchArchivedMilestones(),
         apiClient.fetchArchivedDocs(),
         apiClient.fetchCompletedTasks(),
+        apiClient.fetchAuthors(),
       ]);
 
       const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
@@ -288,6 +290,7 @@ function App() {
       setStatuses(statusesData);
       setProjectName(configData.projectName);
       setAvailableLabels((configData.labels || []).map((l) => (typeof l === "string" ? l : l.name)));
+      setAvailableAuthors(authorsData.map((a) => ({ name: a.name, color: a.color ?? null })));
       setConfig(configData);
       setMilestoneEntities(milestonesData);
       setArchivedMilestones(archivedMilestonesData);

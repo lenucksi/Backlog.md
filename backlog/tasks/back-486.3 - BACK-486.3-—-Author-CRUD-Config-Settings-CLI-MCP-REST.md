@@ -1,9 +1,10 @@
 ---
 id: BACK-486.3
 title: BACK-486.3 — Author CRUD (Config + Settings + CLI + MCP + REST)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 18:00
+updated_date: 2026-06-08 18:31
 labels:
   - authors
   - crud

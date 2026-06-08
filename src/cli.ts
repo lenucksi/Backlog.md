@@ -2,6 +2,7 @@
 
 import { Command } from "commander";
 import { registerAgentsCommand } from "./commands/agents.ts";
+import { registerAuthorCommand } from "./commands/author.ts";
 import { registerBoardCommand } from "./commands/board.ts";
 import { registerBrowserCommand } from "./commands/browser.ts";
 import { registerCleanupCommand } from "./commands/cleanup.ts";
@@ -149,6 +150,7 @@ program
 
 // Register all command groups
 registerInitCommand(program);
+registerAuthorCommand(program);
 registerLabelCommand(program);
 registerTaskCommand(program);
 registerSearchCommand(program);

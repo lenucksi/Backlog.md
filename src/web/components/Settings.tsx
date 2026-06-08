@@ -29,6 +29,7 @@ const Settings: React.FC = () => {
 	const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
 	const [colorPickerColor, setColorPickerColor] = useState("");
 	const [newLabelColor, setNewLabelColor] = useState("");
+	const [newAuthorColor, setNewAuthorColor] = useState("");
 	const colorPickerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -437,6 +438,155 @@ const Settings: React.FC = () => {
 											setNewLabelColor("");
 										} catch (err) {
 											setError(err instanceof Error ? err.message : "Failed to add label");
+										}
+									}}
+									className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+								>
+									Add
+								</button>
+							</div>
+						</div>
+					</div>
+
+					{/* Authors Management */}
+					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Authors</h2>
+						<div className="space-y-3">
+							{(config.authors ?? []).map((author, index) => {
+								const authorColor = typeof author === "string" ? undefined : author.color;
+								const authorName = typeof author === "string" ? author : author.name;
+								return (
+									<div key={`author-${index}`} className="flex items-center gap-2 relative">
+										<div
+											className="w-4 h-4 rounded-full border border-gray-300 cursor-pointer shrink-0"
+											style={{ backgroundColor: authorColor || "#9ca3af" }}
+											onClick={(e) => {
+												e.stopPropagation();
+												setColorPickerIndex(-(index + 1));
+												setColorPickerColor(authorColor || "");
+											}}
+											title="Change author color"
+										/>
+										{colorPickerIndex === -(index + 1) && (
+											<div
+												ref={colorPickerRef}
+												className="absolute left-0 top-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 w-56"
+											>
+												<div className="grid grid-cols-6 gap-1.5 mb-2">
+													{PRESET_COLORS.map((c) => (
+														<button
+															key={c}
+															type="button"
+															className={`w-6 h-6 rounded-full border-2 transition-all ${
+																colorPickerColor === c
+																	? "border-blue-500 scale-110"
+																	: "border-transparent hover:scale-110"
+															}`}
+															style={{ backgroundColor: c }}
+															onClick={() => setColorPickerColor(c)}
+														/>
+													))}
+												</div>
+												<div className="flex items-center gap-2">
+													<input
+														type="text"
+														value={colorPickerColor}
+														onChange={(e) => setColorPickerColor(e.target.value)}
+														placeholder="#ff0000"
+														className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-stone-500"
+													/>
+													<button
+														type="button"
+														onClick={async () => {
+															const color = colorPickerColor.startsWith("#") ? colorPickerColor : "";
+															try {
+																await apiClient.setAuthorColor(authorName, color);
+																const updated = await apiClient.fetchAuthors();
+																setConfig({ ...config, authors: updated });
+																setColorPickerIndex(null);
+															} catch (err) {
+																setError(err instanceof Error ? err.message : "Failed to set author color");
+															}
+														}}
+														className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+													>
+														Apply
+													</button>
+												</div>
+											</div>
+										)}
+										<span className="flex-1 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 rounded text-sm">
+											{authorName}
+										</span>
+										<button
+											type="button"
+											onClick={async () => {
+												const newName = prompt("Rename author to:", authorName);
+												if (newName && newName.trim() && newName.trim() !== authorName) {
+													try {
+														await apiClient.renameAuthor(authorName, newName.trim());
+														const updated = await apiClient.fetchAuthors();
+														setConfig({ ...config, authors: updated });
+													} catch (err) {
+														setError(err instanceof Error ? err.message : "Failed to rename author");
+													}
+												}
+											}}
+											className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
+										>
+											Rename
+										</button>
+										<button
+											type="button"
+											onClick={async () => {
+												if (confirm(`Remove author "${authorName}" from config?`)) {
+													try {
+														await apiClient.removeAuthor(authorName);
+														const updated = await apiClient.fetchAuthors();
+														setConfig({ ...config, authors: updated });
+													} catch (err) {
+														setError(err instanceof Error ? err.message : "Failed to remove author");
+													}
+												}
+											}}
+											className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+										>
+											Delete
+										</button>
+									</div>
+								);
+							})}
+							<div className="flex items-center gap-2 pt-2">
+								<div
+									className="w-4 h-4 rounded-full border border-gray-300 cursor-pointer shrink-0"
+									style={{ backgroundColor: newAuthorColor || "#9ca3af" }}
+									onClick={() => {
+										const idx = Math.floor(Math.random() * PRESET_COLORS.length);
+										const picked = PRESET_COLORS[idx];
+										setNewAuthorColor(newAuthorColor ? "" : (picked ?? ""));
+									}}
+									title="Toggle random color for new author"
+								/>
+								<input
+									type="text"
+									id="newAuthorInput"
+									placeholder="New author name..."
+									className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400"
+								/>
+								<button
+									type="button"
+									onClick={async () => {
+										const input = document.getElementById("newAuthorInput") as HTMLInputElement;
+										const name = input?.value?.trim();
+										if (!name) return;
+										try {
+											await apiClient.addAuthor(name, newAuthorColor || undefined);
+											const updated = await apiClient.fetchAuthors();
+											setConfig({ ...config, authors: updated });
+											input.value = "";
+											setNewAuthorColor("");
+										} catch (err) {
+											setError(err instanceof Error ? err.message : "Failed to add author");
 										}
 									}}
 									className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
