@@ -538,6 +538,7 @@ const Board: React.FC<BoardProps> = ({
                   onChange={labels => onFiltersChange({ assignee: filterAssignee, labels, priority: filterPriority })}
                   menuId="board-labels-filter-menu"
                   className="min-w-[200px]"
+                  labelColors={labelColors}
                 />
 
                 <select

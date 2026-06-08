@@ -108,6 +108,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		return labels.map((label) => label.trim()).filter((label) => label.length > 0);
 	}, []);
 	const [labelFilter, setLabelFilter] = useState<string[]>(initialLabelParams);
+	const [filterAssignee, setFilterAssignee] = useState(() => searchParams.get("assignee") ?? "");
 	const [displayTasks, setDisplayTasks] = useState<Task[]>(() => sortTasksByIdDescending(tasks));
 	const [error, setError] = useState<string | null>(null);
 	const [showCleanupModal, setShowCleanupModal] = useState(false);
@@ -260,8 +261,18 @@ const TaskList: React.FC<TaskListProps> = ({
 		const uniqueMilestones = Array.from(new Set([...availableMilestones.map((m) => m.trim()).filter(Boolean)]));
 		return uniqueMilestones;
 	}, [availableMilestones]);
+	const uniqueAssignees = useMemo(() => {
+		const seen = new Set<string>();
+		for (const task of tasks) {
+			for (const a of task.assignee) {
+				if (a.trim()) seen.add(a.trim());
+			}
+		}
+		return Array.from(seen).sort((a, b) => a.localeCompare(b));
+	}, [tasks]);
+
 	const hasActiveFilters = Boolean(
-		statusFilter || priorityFilter || labelFilter.length > 0 || milestoneFilter,
+		statusFilter || priorityFilter || labelFilter.length > 0 || milestoneFilter || filterAssignee,
 	);
 	const totalTasks = sortedBaseTasks.length;
 
@@ -313,7 +324,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		};
 
 		const shouldUseApi =
-			Boolean(statusFilter) || Boolean(priorityFilter) || labelFilter.length > 0;
+			Boolean(statusFilter) || Boolean(priorityFilter) || labelFilter.length > 0 || Boolean(filterAssignee);
 
 		if (!hasActiveFilters) {
 			return;
@@ -334,6 +345,7 @@ const TaskList: React.FC<TaskListProps> = ({
 					status: statusFilter || undefined,
 					priority: (priorityFilter || undefined) as SearchPriorityFilter | undefined,
 					labels: labelFilter.length > 0 ? labelFilter : undefined,
+					assignee: filterAssignee || undefined,
 				});
 				if (cancelled) {
 					return;
@@ -417,6 +429,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		setPriorityFilter("");
 		setLabelFilter([]);
 		setMilestoneFilter("");
+		setFilterAssignee("");
 		syncUrl("", "", [], "");
 		setDisplayTasks(sortedBaseTasks);
 		setError(null);
@@ -699,11 +712,24 @@ const TaskList: React.FC<TaskListProps> = ({
 							))}
 						</select>
 
+						<select
+							value={filterAssignee}
+							onChange={(e) => setFilterAssignee(e.target.value)}
+							aria-label="Filter by assignee"
+							className="min-w-[140px] h-10 py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
+						>
+							<option value="">All assignees</option>
+							{uniqueAssignees.map((a) => (
+								<option key={a} value={a}>{a}</option>
+							))}
+						</select>
+
 						<LabelFilterDropdown
 							availableLabels={mergedAvailableLabels}
 							selectedLabels={labelFilter}
 							onChange={handleLabelChange}
 							menuId="task-list-labels-menu"
+							labelColors={labelColors}
 						/>
 
 					</div>

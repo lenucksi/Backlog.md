@@ -6,6 +6,7 @@ interface LabelFilterDropdownProps {
 	onChange: (labels: string[]) => void;
 	menuId: string;
 	className?: string;
+	labelColors?: Record<string, string>;
 }
 
 export default function LabelFilterDropdown({
@@ -14,6 +15,7 @@ export default function LabelFilterDropdown({
 	onChange,
 	menuId,
 	className = "min-w-[200px]",
+	labelColors,
 }: LabelFilterDropdownProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -86,7 +88,13 @@ export default function LabelFilterDropdown({
 										onChange={() => toggleLabel(label)}
 										className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
 									/>
-									<span className="truncate">{label}</span>
+									<span className="truncate">
+										<span
+											className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle"
+											style={{ backgroundColor: labelColors?.[label] || "#9ca3af" }}
+										/>
+										{label}
+									</span>
 								</label>
 							);
 						})
