@@ -1,0 +1,27 @@
+src/test/task-loader-edge-cases.test.ts
+  s_c927adb04e53f2::t_d6bd7205431a14 429-436
+src/core/init.ts
+  s_c927adb04e53f2::t_0383fbd6e0635f 151-154
+src/test/task-loader-branch-normalization.test.ts
+  s_c927adb04e53f2::t_d6bd7205431a14 65
+src/test/task-watcher.test.ts
+  s_c927adb04e53f2::t_d6bd7205431a14 25-32
+src/server/handlers/config.ts
+  s_c927adb04e53f2::t_d6bd7205431a14 78-82,85-87,107-109,115-119,124-126,177-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "5ad4689f5258922b184e2c8d951033901d821248",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    }
+  }
+}
