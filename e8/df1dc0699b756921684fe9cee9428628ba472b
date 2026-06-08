@@ -1,0 +1,42 @@
+playwright.config.ts
+  s_0c49b572ff3f91::t_c5b0882dab7182 18
+  s_0c49b572ff3f91::t_d34272d1f75b38 1-17,19-27
+scripts/e2e-test-server.ts
+  s_0c49b572ff3f91::t_21a1c6f831bb72 1-29,31-32,34-45,47-57,59-69,71-81,83-93,95-105,107-117,119-129,131-143,155,157-177
+  s_0c49b572ff3f91::t_9b27ee0dc73283 30,33,46,58,70,82,94,106,118,130
+  s_0c49b572ff3f91::t_fb833d7f91fa6c 144-154,156
+src/test/e2e/critical-journeys.test.ts
+  s_0c49b572ff3f91::t_f4647f91e07066 2-68,71-72,75-85,87-95
+  s_0c49b572ff3f91::t_704ad3c8f94036 73-74
+  s_0c49b572ff3f91::t_07147c058cd7a8 69-70
+  s_0c49b572ff3f91::t_77b9f82efb861e 1,86
+"backlog/docs/doc-16 - Test-Suite-Audit-—-Rating-Improvement-Plan.md"
+  s_9aa8b5a9e53767::t_c2df7d9f5017c2 1-209,211-266,277-332,362-363
+package.json
+  s_0c49b572ff3f91::t_0218c50e1b250b 29
+  s_0c49b572ff3f91::t_aa1ed4edf490c2 64-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "e8df1dc0699b756921684fe9cee9428628ba472b",
+  "prompts": {},
+  "sessions": {
+    "s_0c49b572ff3f91": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_171af28abffeEXbG3gobVAUthq",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_9aa8b5a9e53767": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_176f5266bfferYM8pg4GiC4GT2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
