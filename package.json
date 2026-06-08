@@ -54,11 +54,11 @@
 		"vterm.js": "^0.4.0"
 	},
 	"scripts": {
-		"test": "bun test --timeout=10000 --path-ignore-patterns='worktrees/*'",
-		"test:fails": "bun test --only-failures --timeout=10000 --path-ignore-patterns='worktrees/*'",
-		"test:interactive": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --timeout=30000 --path-ignore-patterns='worktrees/*'",
-		"test:interactive:fails": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --only-failures --timeout=30000 --path-ignore-patterns='worktrees/*'",
-		"test:ci": "CI=true bun test --timeout=10000 --path-ignore-patterns='worktrees/*'",
+		"test": "bun test --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
+		"test:fails": "bun test --only-failures --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
+		"test:interactive": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --timeout=30000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
+		"test:interactive:fails": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --only-failures --timeout=30000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
+		"test:ci": "CI=true bun test --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
 		"test:interactive:handoff": "RUN_INTERACTIVE_TUI_TESTS=1 bun test src/test/tui-interactive-editor-handoff.test.ts --timeout=30000",
 		"test:interactive:handoff:fails": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --only-failures src/test/tui-interactive-editor-handoff.test.ts --timeout=30000",
 		"test:e2e": "lsof -ti:6420 | xargs kill -9 2>/dev/null; bun run build:css && bunx playwright test",
