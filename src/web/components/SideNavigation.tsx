@@ -541,47 +541,22 @@ const SideNavigation = memo(function SideNavigation({
 					</div>
 				)}
 
-				{/* Completed Tasks Section */}
+				{/* Completed Tasks Navigation */}
 				{!isCollapsed && !isLoading && completedTasks.length > 0 && (
-					<>
-						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
-						<CollapsibleGroup
-							title="Completed"
-							icon={<span className="text-gray-400 dark:text-gray-500"><Icons.Tasks /></span>}
-							count={completedTasks.length}
-							storageKey="completedTasksCollapsed"
-							defaultCollapsed={true}
-							to="/statistics#archived"
-						>
-							{completedTasks.map((task) => (
-								<div
-									key={task.id}
-									className="flex items-center space-x-3 px-3 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 group"
-								>
-									<span className="text-gray-400 dark:text-gray-500 shrink-0"><Icons.List /></span>
-									<div className="flex-1 min-w-0 cursor-pointer" onClick={() => window.dispatchEvent(new CustomEvent('open-task', { detail: task }))}>
-										<span className="truncate">{task.title}</span>
-										<div className="text-xs text-gray-400 dark:text-gray-500 truncate">{task.id}</div>
-									</div>
-									<button
-										onClick={async (e) => {
-											e.stopPropagation();
-											try {
-												await apiClient.reopenTask(task.id);
-												await onRefreshData();
-											} catch (err) {
-												console.error('Failed to reopen task:', err);
-											}
-										}}
-										className="shrink-0 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-										title="Reopen task"
-									>
-										Reopen
-									</button>
-								</div>
-							))}
-						</CollapsibleGroup>
-					</>
+					<NavLink
+						to="/statistics#archived"
+						className={({ isActive }) =>
+							`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
+								isActive
+									? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
+									: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+							}`
+						}
+					>
+						<span className="text-gray-400 dark:text-gray-500"><Icons.Tasks /></span>
+						<span className="ml-3 text-sm font-medium">Completed</span>
+						<span className="ml-auto text-xs text-gray-500 dark:text-gray-400">{completedTasks.length}</span>
+					</NavLink>
 				)}
 
 				{!isCollapsed && !isLoading && (
