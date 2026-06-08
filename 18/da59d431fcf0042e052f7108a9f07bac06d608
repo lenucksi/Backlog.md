@@ -1,0 +1,44 @@
+src/commands/label.ts
+  s_058af789fcad4c::t_8e1aa64669bf3d 101-102
+  s_058af789fcad4c::t_4ce0987f922ae7 73-78
+  s_058af789fcad4c::t_2d5df5c0aeb51a 231,261
+  s_058af789fcad4c::t_b3ab2177fca58c 236-237
+  s_058af789fcad4c::t_0dd8ee393516db 241
+  s_058af789fcad4c::t_555dd4ae5acdeb 85-86
+  s_058af789fcad4c::t_8f51908fbf85b2 216-230,232-235,238-240,242-260,262-265,268-275
+  s_058af789fcad4c::t_b551a726ff982f 3
+  s_058af789fcad4c::t_7fed5d305e4ee3 266-267
+"backlog/tasks/back-486.2 - BACK-486.2-—-CLI-color-Flag-für-Labels.md"
+  s_c927adb04e53f2::t_6adfe9f11cefb6 4,7
+src/mcp/tools/labels/handlers.ts
+  s_058af789fcad4c::t_1e4559920a4d27 6
+  s_058af789fcad4c::t_b259a52da3aa84 43-44
+"backlog/tasks/back-486.1 - BACK-486.1-—-Color-Picker-WebUI-Colored-Badges.md"
+  s_c927adb04e53f2::t_6adfe9f11cefb6 4,7,13-24,70-76
+src/mcp/tools/labels/schemas.ts
+  s_058af789fcad4c::t_6ea3fd566c03dd 19-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "18da59d431fcf0042e052f7108a9f07bac06d608",
+  "prompts": {},
+  "sessions": {
+    "s_058af789fcad4c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_15785bde4ffezzurA6C1ymXOkT",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
