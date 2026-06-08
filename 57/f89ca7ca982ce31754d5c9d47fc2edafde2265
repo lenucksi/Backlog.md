@@ -1,0 +1,32 @@
+src/web/components/LabelFilterDropdown.tsx
+  s_c927adb04e53f2::t_ba1b43747d5936 10-11,21-22,45-55,69-70,86,91-92,94-99,101,103-119,124,128
+src/web/components/Board.tsx
+  s_c927adb04e53f2::t_e30e711e4cb18d 528
+  s_c927adb04e53f2::t_f3666342643c8d 522-527,529-531
+src/web/styles/style.css
+  s_c927adb04e53f2::t_be9ce49cf7addd 2
+"backlog/tasks/back-544 - Sidebar-Archived-Docs-in-Documents-Section-integrieren.md"
+  s_c927adb04e53f2::t_292de7ef81a7a1 1-35
+src/web/components/TaskList.tsx
+  s_c927adb04e53f2::t_f4ce77f4e76c4a 715-724
+"backlog/tasks/back-542 - Assignee-Filter-mit-authorColors-im-Dropdown-Board-All-Tasks.md"
+  s_c927adb04e53f2::t_292de7ef81a7a1 1-33
+"backlog/tasks/back-543 - Statistics-Archived-Tasks-als-eigenständige-Section-Search-Reopen.md"
+  s_c927adb04e53f2::t_292de7ef81a7a1 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "57f89ca7ca982ce31754d5c9d47fc2edafde2265",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
