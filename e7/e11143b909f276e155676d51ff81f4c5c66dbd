@@ -1,0 +1,29 @@
+src/commands/label.ts
+  s_c927adb04e53f2::t_bde0eb72c05e2d 146-150
+src/core/backlog.ts
+  s_c927adb04e53f2::t_c37047f6129527 2441-2454
+src/types/index.ts
+  s_c927adb04e53f2::t_3244a27ad9961d 215
+"backlog/tasks/back-540.2 - BACK-540.2-—-Type-Narrowing-string-LabelConfig.md"
+  s_c927adb04e53f2::t_ecf592a06586d4 4,7,48-61
+src/server/handlers/config.ts
+  s_c927adb04e53f2::t_9b3f0e25ff88cc 129,133-137
+src/mcp/tools/labels/handlers.ts
+  s_c927adb04e53f2::t_a0120a6919a60e 94-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "e7e11143b909f276e155676d51ff81f4c5c66dbd",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
