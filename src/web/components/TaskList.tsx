@@ -874,7 +874,7 @@ const TaskList: React.FC<TaskListProps> = ({
 																	className={`inline-flex max-w-[7rem] truncate rounded-circle px-2 py-0.5 text-[11px] ${
 																		bgColor ? "" : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
 																	}`}
-																	style={bgColor ? { backgroundColor: bgColor, color: "#fff" } : undefined}
+																	style={bgColor ? { backgroundColor: bgColor, filter: "saturate(0.55) brightness(1.35)", color: "#fff" } : undefined}
 																	title={label}
 																>
 																	{label}
@@ -901,7 +901,7 @@ const TaskList: React.FC<TaskListProps> = ({
                           className={`inline-flex h-6 w-6 items-center justify-center rounded-circle text-[10px] font-semibold ${
                             color ? '' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
                           }`}
-                          style={color ? { backgroundColor: color, color: '#fff' } : undefined}
+                          style={color ? { backgroundColor: color, filter: "saturate(0.55) brightness(1.35)", color: '#fff' } : undefined}
                         >
                           {getAssigneeInitials(assignee)}
                         </span>

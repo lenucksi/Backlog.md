@@ -4,9 +4,9 @@ import { SuccessToast } from './SuccessToast';
 import type { BacklogConfig } from '../../types';
 
 const PRESET_COLORS = [
-	"#e74c3c", "#e67e22", "#f1c40f", "#2ecc71",
-	"#1abc9c", "#3498db", "#9b59b6", "#e91e63",
-	"#00bcd4", "#8bc34a", "#ff9800", "#607d8b",
+	"#f9c4c4", "#fad0b4", "#f9e6b4", "#c4e6c4",
+	"#b4e0d0", "#b8d4f0", "#d4b8e6", "#f4b4c4",
+	"#b4e0e6", "#c4e6b4", "#f4d0b4", "#c4c4d0",
 ];
 
 function getLabelColor(label: string | { name: string; color?: string }): string | undefined {

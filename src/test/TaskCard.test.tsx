@@ -107,6 +107,22 @@ describe("TaskCard", () => {
 		expect(html).not.toContain("flex gap-1 truncate max-w-[80px]");
 	});
 
+	it("renders labels with background color from labelColors prop", () => {
+		const task = { ...baseTask, labels: ["bug"] };
+		const html = renderToString(
+			<TaskCard task={task} labelColors={{ bug: "#f9c4c4" }} onUpdate={() => {}} onEdit={() => {}} />,
+		);
+		expect(html).toContain("#f9c4c4");
+	});
+
+	it("renders assignee with author color from authorColors prop", () => {
+		const task = { ...baseTask, assignee: ["jo"] };
+		const html = renderToString(
+			<TaskCard task={task} authorColors={{ jo: "#b8d4f0" }} onUpdate={() => {}} onEdit={() => {}} />,
+		);
+		expect(html).toContain("#b8d4f0");
+	});
+
 	it("renders cross-branch indicator when task has a branch", () => {
 		const task = { ...baseTask, branch: "feature-x" };
 		const html = renderToString(
