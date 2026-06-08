@@ -3,15 +3,16 @@ id: BACK-362
 title: Include completed tasks in MCP task_search results
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 20:22'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-15 20:22
+updated_date: 2026-06-08 16:35
 labels:
   - mcp
   - enhancement
 milestone: m-9
 dependencies: []
 priority: medium
+ordinal: 203000
 ---
 
 ## Description

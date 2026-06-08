@@ -3,9 +3,9 @@ id: BACK-456
 title: Lock milestone ID allocation during creation
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-01 20:59'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-05-01 20:59
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - milestones
@@ -13,11 +13,12 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/619'
+  - https://github.com/MrLesk/Backlog.md/issues/619
 modified_files:
   - src/file-system/operations.ts
   - src/test/atomic-task-create.test.ts
 priority: high
+ordinal: 190000
 ---
 
 ## Description

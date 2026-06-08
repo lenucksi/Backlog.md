@@ -3,12 +3,13 @@ id: BACK-351
 title: Strengthen MCP task creation guidance for standalone tasks
 status: Done
 assignee:
-  - '@codex'
-created_date: '2025-12-25 20:04'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2025-12-25 20:04
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
+ordinal: 193000
 ---
 
 ## Description

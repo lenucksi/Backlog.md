@@ -3,20 +3,21 @@ id: BACK-458
 title: Fix promoted draft default status
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-02 15:28'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-05-02 15:28
+updated_date: 2026-06-08 16:35
 labels:
   - bug
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/624'
-  - 'https://github.com/MrLesk/Backlog.md/pull/625'
+  - https://github.com/MrLesk/Backlog.md/issues/624
+  - https://github.com/MrLesk/Backlog.md/pull/625
 modified_files:
   - src/file-system/operations.ts
   - src/test/filesystem.test.ts
 priority: medium
+ordinal: 228000
 ---
 
 ## Description

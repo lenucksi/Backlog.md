@@ -3,9 +3,9 @@ id: BACK-462
 title: Use terminal status for cleanup instead of hardcoded Done
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-03 18:18'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-05-03 18:18
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - web
@@ -27,6 +27,7 @@ modified_files:
   - src/test/web-task-list-labels-menu.test.tsx
   - src/test/terminal-status.test.ts
 priority: high
+ordinal: 192000
 ---
 
 ## Description

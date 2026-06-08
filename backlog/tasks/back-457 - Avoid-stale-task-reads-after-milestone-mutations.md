@@ -3,9 +3,9 @@ id: BACK-457
 title: Avoid stale task reads after milestone mutations
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-01 21:49'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-05-01 21:49
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - web
@@ -13,12 +13,13 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/actions/runs/25233629990'
-  - 'https://github.com/MrLesk/Backlog.md/pull/620'
+  - https://github.com/MrLesk/Backlog.md/actions/runs/25233629990
+  - https://github.com/MrLesk/Backlog.md/pull/620
 modified_files:
   - src/mcp/tools/milestones/handlers.ts
   - src/server/index.ts
 priority: high
+ordinal: 191000
 ---
 
 ## Description

@@ -1,15 +1,16 @@
 ---
 id: BACK-354.01
-title: 'Core: Definition of Done defaults and persistence'
+title: "Core: Definition of Done defaults and persistence"
 status: Done
 assignee:
-  - '@codex'
-created_date: '2025-12-28 20:34'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2025-12-28 20:34
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 parent_task_id: BACK-354
+ordinal: 197000
 ---
 
 ## Description

@@ -3,11 +3,12 @@ id: BACK-404
 title: Harden task ID locking for concurrent create/promote/demote operations
 status: Done
 assignee: []
-created_date: '2026-03-17 14:07'
-updated_date: '2026-05-22 15:40'
+created_date: 2026-03-17 14:07
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
+ordinal: 221000
 ---
 
 ## Description

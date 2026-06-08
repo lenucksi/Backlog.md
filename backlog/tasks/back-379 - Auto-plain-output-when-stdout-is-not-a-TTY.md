@@ -3,12 +3,13 @@ id: BACK-379
 title: Auto-plain output when stdout is not a TTY
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-26 14:01'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-26 14:01
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
+ordinal: 216000
 ---
 
 ## Description

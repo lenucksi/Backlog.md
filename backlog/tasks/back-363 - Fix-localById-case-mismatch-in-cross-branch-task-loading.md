@@ -3,15 +3,16 @@ id: BACK-363
 title: Fix localById case mismatch in cross-branch task loading
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 20:30'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-01-15 20:30
+updated_date: 2026-06-08 16:35
 labels:
   - core
   - bug
 milestone: m-9
 dependencies: []
 priority: high
+ordinal: 179000
 ---
 
 ## Description

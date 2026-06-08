@@ -3,13 +3,14 @@ id: BACK-366.02
 title: Refactor advanced config wizard prompts to clack
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 22:19'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-15 22:19
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 parent_task_id: BACK-366
+ordinal: 207000
 ---
 
 ## Description

@@ -3,15 +3,16 @@ id: BACK-369
 title: Fix web UI acceptance criteria toggle flicker via ContentStore sync
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-21 18:57'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-21 18:57
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/492'
-  - 'https://github.com/MrLesk/Backlog.md/pull/493'
+  - https://github.com/MrLesk/Backlog.md/issues/492
+  - https://github.com/MrLesk/Backlog.md/pull/493
+ordinal: 215000
 ---
 
 ## Description

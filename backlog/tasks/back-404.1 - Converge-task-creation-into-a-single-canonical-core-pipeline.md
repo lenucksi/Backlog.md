@@ -3,15 +3,16 @@ id: BACK-404.1
 title: Converge task creation into a single canonical core pipeline
 status: Done
 assignee:
-  - '@MrLesk'
-created_date: '2026-03-19 23:46'
-updated_date: '2026-05-22 15:40'
+  - "@MrLesk"
+created_date: 2026-03-19 23:46
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/565'
+  - https://github.com/MrLesk/Backlog.md/pull/565
 parent_task_id: BACK-404
+ordinal: 222000
 ---
 
 ## Description

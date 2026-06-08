@@ -3,12 +3,13 @@ id: BACK-365
 title: Fix acceptance criteria insertion adding blank lines
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 21:42'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-15 21:42
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
+ordinal: 204000
 ---
 
 ## Description

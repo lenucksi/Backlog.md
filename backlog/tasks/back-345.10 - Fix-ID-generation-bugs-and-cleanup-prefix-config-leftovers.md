@@ -3,17 +3,18 @@ id: BACK-345.10
 title: Fix ID generation bugs and cleanup prefix-config leftovers
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-14 19:54'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-01-14 19:54
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - refactor
   - tdd
 milestone: m-9
 dependencies: []
-parent_task_id: '345'
+parent_task_id: "345"
 priority: high
+ordinal: 176000
 ---
 
 ## Description

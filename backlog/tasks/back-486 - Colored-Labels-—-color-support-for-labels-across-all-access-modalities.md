@@ -3,8 +3,8 @@ id: BACK-486
 title: Colored Labels — color support for labels across all access modalities
 status: Done
 assignee: []
-created_date: '2026-05-13 10:14'
-updated_date: '2026-05-23 17:35'
+created_date: 2026-05-13 10:14
+updated_date: 2026-06-08 16:35
 labels:
   - labels
   - web-ui
@@ -25,7 +25,7 @@ modified_files:
   - src/server/handlers/config.ts
   - src/server/router.ts
 priority: medium
-ordinal: 173000
+ordinal: 229000
 ---
 
 ## Description

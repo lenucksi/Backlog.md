@@ -3,9 +3,9 @@ id: BACK-374
 title: Ensure MCP server exits when stdio closes and disposes watchers
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-23 04:01'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-01-23 04:01
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
@@ -14,6 +14,7 @@ references:
   - src/mcp/server.ts
   - src/core/content-store.ts
   - src/core/backlog.ts
+ordinal: 182000
 ---
 
 ## Description

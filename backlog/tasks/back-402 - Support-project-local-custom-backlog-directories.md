@@ -3,15 +3,16 @@ id: BACK-402
 title: Support project-local custom backlog directories
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-03-14 19:55'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-03-14 19:55
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/334'
-  - 'https://github.com/MrLesk/Backlog.md/issues/215'
+  - https://github.com/MrLesk/Backlog.md/issues/334
+  - https://github.com/MrLesk/Backlog.md/issues/215
+ordinal: 219000
 ---
 
 ## Description

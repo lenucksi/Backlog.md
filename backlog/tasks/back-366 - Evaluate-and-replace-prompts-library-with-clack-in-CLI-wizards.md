@@ -3,14 +3,15 @@ id: BACK-366
 title: Evaluate and replace prompts library with clack in CLI wizards
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 22:19'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-15 22:19
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/535'
+  - https://github.com/MrLesk/Backlog.md/pull/535
+ordinal: 205000
 ---
 
 ## Description

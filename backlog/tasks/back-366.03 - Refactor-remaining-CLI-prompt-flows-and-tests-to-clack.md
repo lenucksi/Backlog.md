@@ -3,13 +3,14 @@ id: BACK-366.03
 title: Refactor remaining CLI prompt flows and tests to clack
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 22:20'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-15 22:20
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 parent_task_id: BACK-366
+ordinal: 208000
 ---
 
 ## Description

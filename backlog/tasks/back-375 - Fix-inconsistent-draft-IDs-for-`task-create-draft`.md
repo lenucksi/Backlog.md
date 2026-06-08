@@ -3,17 +3,18 @@ id: BACK-375
 title: Fix inconsistent draft IDs for `task create --draft`
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-08 21:43'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-02-08 21:43
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - cli
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/507'
+  - https://github.com/MrLesk/Backlog.md/issues/507
 priority: high
+ordinal: 183000
 ---
 
 ## Description

@@ -665,6 +665,7 @@ function App() {
           isDraftMode={isDraftMode}
           definitionOfDoneDefaults={config?.definitionOfDone ?? []}
           onNavigateToTask={handleNavigateToTask}
+          availableLabels={availableLabels}
         />
 
         {/* Task Creation Confirmation Toast */}

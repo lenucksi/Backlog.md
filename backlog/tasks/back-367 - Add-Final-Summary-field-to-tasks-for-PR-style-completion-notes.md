@@ -3,9 +3,9 @@ id: BACK-367
 title: Add Final Summary field to tasks for PR-style completion notes
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-18 12:16'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-18 12:16
+updated_date: 2026-06-08 16:35
 labels:
   - enhancement
   - core
@@ -15,15 +15,14 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - >-
-    backlog/completed/back-353 -
-    Add-documentation-field-to-task-domain-object.md
+  - backlog/completed/back-353 - Add-documentation-field-to-task-domain-object.md
   - backlog/completed/back-356 - Add-references-field-to-task-domain-object.md
 documentation:
   - src/markdown/structured-sections.ts
   - src/markdown/section-titles.ts
   - src/guidelines/mcp/task-finalization.md
 priority: medium
+ordinal: 209000
 ---
 
 ## Description

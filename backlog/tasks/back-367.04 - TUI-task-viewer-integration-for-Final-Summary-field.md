@@ -3,9 +3,9 @@ id: BACK-367.04
 title: TUI task viewer integration for Final Summary field
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-18 12:19'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-18 12:19
+updated_date: 2026-06-08 16:35
 labels:
   - tui
   - enhancement
@@ -16,6 +16,7 @@ documentation:
   - src/ui/tui.ts
 parent_task_id: BACK-367
 priority: medium
+ordinal: 213000
 ---
 
 ## Description

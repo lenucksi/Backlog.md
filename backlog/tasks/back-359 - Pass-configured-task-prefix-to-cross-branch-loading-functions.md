@@ -3,9 +3,9 @@ id: BACK-359
 title: Pass configured task prefix to cross-branch loading functions
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 19:30'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-01-15 19:30
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - cross-branch
@@ -13,6 +13,7 @@ labels:
 milestone: m-9
 dependencies: []
 priority: high
+ordinal: 177000
 ---
 
 ## Description

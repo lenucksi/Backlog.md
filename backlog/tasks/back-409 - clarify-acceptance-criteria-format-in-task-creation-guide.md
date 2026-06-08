@@ -3,9 +3,9 @@ id: BACK-409
 title: Clarify acceptance criteria format in task creation guide
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-03-26 13:48'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-03-26 13:48
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - docs
@@ -13,10 +13,11 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/582'
-  - 'https://github.com/MrLesk/Backlog.md/pull/583'
+  - https://github.com/MrLesk/Backlog.md/issues/582
+  - https://github.com/MrLesk/Backlog.md/pull/583
 modified_files:
   - src/guidelines/mcp/task-creation.md
+ordinal: 223000
 ---
 
 ## Description

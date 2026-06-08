@@ -3,9 +3,9 @@ id: BACK-455
 title: Support task milestone assignment in CLI task CRUD
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-01 13:28'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-05-01 13:28
+updated_date: 2026-06-08 16:35
 labels:
   - cli
   - milestones
@@ -13,7 +13,7 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/618'
+  - https://github.com/MrLesk/Backlog.md/issues/618
 modified_files:
   - src/cli.ts
   - src/mcp/tools/tasks/handlers.ts
@@ -21,6 +21,7 @@ modified_files:
   - src/test/cli-task-milestone.test.ts
   - src/utils/milestone-storage.ts
 priority: medium
+ordinal: 227000
 ---
 
 ## Description

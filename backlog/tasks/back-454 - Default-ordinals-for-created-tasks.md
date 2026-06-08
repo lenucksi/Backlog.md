@@ -3,14 +3,14 @@ id: BACK-454
 title: Default ordinals for created tasks
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-01 13:28'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-05-01 13:28
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/617'
+  - https://github.com/MrLesk/Backlog.md/pull/617
 modified_files:
   - src/cli.ts
   - src/core/backlog.ts
@@ -18,6 +18,7 @@ modified_files:
   - src/test/core.test.ts
   - src/test/mcp-tasks.test.ts
 priority: medium
+ordinal: 226000
 ---
 
 ## Description

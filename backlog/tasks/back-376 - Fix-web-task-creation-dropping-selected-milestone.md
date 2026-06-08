@@ -3,9 +3,9 @@ id: BACK-376
 title: Fix web task creation dropping selected milestone
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-08 23:41'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-02-08 23:41
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - web
@@ -13,8 +13,9 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/506'
+  - https://github.com/MrLesk/Backlog.md/issues/506
 priority: high
+ordinal: 184000
 ---
 
 ## Description

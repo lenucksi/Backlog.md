@@ -3,14 +3,15 @@ id: BACK-384
 title: Fix milestone rename to use milestone files as single source of truth
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-11 22:40'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-02-11 22:40
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/521'
+  - https://github.com/MrLesk/Backlog.md/issues/521
+ordinal: 217000
 ---
 
 ## Description

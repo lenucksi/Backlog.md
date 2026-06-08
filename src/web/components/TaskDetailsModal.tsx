@@ -26,6 +26,7 @@ interface Props {
   archivedMilestoneEntities?: Milestone[];
   definitionOfDoneDefaults?: string[];
   onNavigateToTask?: (taskId: string) => void;
+  availableLabels?: string[];
 }
 
 type Mode = "preview" | "edit" | "create";
@@ -65,6 +66,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
   isDraftMode,
   definitionOfDoneDefaults,
   onNavigateToTask,
+  availableLabels,
 }) => {
   const { theme } = useTheme();
   const isCreateMode = !task;
@@ -1077,6 +1079,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
               onChange={(value) => handleInlineMetaUpdate({ labels: value })}
               placeholder="Type label and press Enter or comma"
               disabled={isFromOtherBranch}
+              suggestions={availableLabels}
             />
           </div>
 

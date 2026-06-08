@@ -1,16 +1,17 @@
 ---
 id: BACK-354.05
-title: 'Web UI: edit Definition of Done defaults in Settings'
+title: "Web UI: edit Definition of Done defaults in Settings"
 status: Done
 assignee:
-  - '@codex'
-created_date: '2025-12-28 20:49'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2025-12-28 20:49
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies:
   - task-354.01
 parent_task_id: BACK-354
+ordinal: 201000
 ---
 
 ## Description

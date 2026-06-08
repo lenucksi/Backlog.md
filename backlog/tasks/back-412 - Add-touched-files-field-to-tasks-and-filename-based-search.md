@@ -3,12 +3,13 @@ id: BACK-412
 title: Add touched-files field to tasks and filename-based search
 status: Done
 assignee:
-  - '@alex-agent'
-created_date: '2026-04-13 16:02'
-updated_date: '2026-05-22 15:40'
+  - "@alex-agent"
+created_date: 2026-04-13 16:02
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
+ordinal: 224000
 ---
 
 ## Description

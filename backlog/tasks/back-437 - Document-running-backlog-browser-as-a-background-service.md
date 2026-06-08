@@ -3,14 +3,15 @@ id: BACK-437
 title: Document running backlog browser as a background service
 status: Done
 assignee:
-  - '@brenoperucchi'
-created_date: '2026-04-22 15:13'
-updated_date: '2026-05-22 15:40'
+  - "@brenoperucchi"
+created_date: 2026-04-22 15:13
+updated_date: 2026-06-08 16:35
 labels:
   - docs
   - browser
 milestone: m-9
 dependencies: []
+ordinal: 225000
 ---
 
 ## Description

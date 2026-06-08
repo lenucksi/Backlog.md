@@ -3,9 +3,9 @@ id: BACK-373
 title: Support Drafts via MCP task tools (no new tools)
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-22 20:32'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-01-22 20:32
+updated_date: 2026-06-08 16:35
 labels:
   - mcp
   - drafts
@@ -19,6 +19,7 @@ references:
   - src/mcp/README.md
   - src/guidelines/mcp/overview.md
 priority: high
+ordinal: 181000
 ---
 
 ## Description

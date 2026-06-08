@@ -3,9 +3,9 @@ id: BACK-444
 title: Support filesystem-only Backlog projects without Git
 status: Done
 assignee:
-  - '@alex-agent'
-created_date: '2026-04-25 23:48'
-updated_date: '2026-05-22 15:44'
+  - "@alex-agent"
+created_date: 2026-04-25 23:48
+updated_date: 2026-06-08 16:35
 labels:
   - cli
   - init
@@ -13,8 +13,9 @@ labels:
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/pull/354'
+  - https://github.com/MrLesk/Backlog.md/pull/354
 priority: high
+ordinal: 188000
 ---
 
 ## Description

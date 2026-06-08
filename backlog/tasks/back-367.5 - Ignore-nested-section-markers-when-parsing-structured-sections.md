@@ -3,9 +3,9 @@ id: BACK-367.5
 title: Ignore nested section markers when parsing structured sections
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-19 21:15'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-19 21:15
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - markdown
@@ -15,6 +15,7 @@ milestone: m-9
 dependencies: []
 parent_task_id: BACK-367
 priority: medium
+ordinal: 214000
 ---
 
 ## Description

@@ -1,13 +1,12 @@
 ---
 id: BACK-388
-title: >-
-  Remove legacy config.milestones logic and keep milestone files as sole source
-  of truth
+title: Remove legacy config.milestones logic and keep milestone files as sole
+  source of truth
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-17 20:42'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-02-17 20:42
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
@@ -18,6 +17,7 @@ references:
   - src/core/milestones.ts
   - src/cli.ts
 priority: medium
+ordinal: 187000
 ---
 
 ## Description

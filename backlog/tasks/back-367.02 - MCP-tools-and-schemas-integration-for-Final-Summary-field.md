@@ -3,9 +3,9 @@ id: BACK-367.02
 title: MCP tools and schemas integration for Final Summary field
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-18 12:19'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-18 12:19
+updated_date: 2026-06-08 16:35
 labels:
   - mcp
   - enhancement
@@ -17,6 +17,7 @@ documentation:
   - src/guidelines/mcp/task-finalization.md
 parent_task_id: BACK-367
 priority: medium
+ordinal: 211000
 ---
 
 ## Description

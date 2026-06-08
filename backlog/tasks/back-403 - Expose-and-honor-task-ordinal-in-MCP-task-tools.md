@@ -4,13 +4,14 @@ title: Expose and honor task ordinal in MCP task tools
 status: Done
 assignee:
   - codex
-created_date: '2026-03-15 12:57'
-updated_date: '2026-05-22 15:40'
+created_date: 2026-03-15 12:57
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/562'
+  - https://github.com/MrLesk/Backlog.md/issues/562
+ordinal: 220000
 ---
 
 ## Description

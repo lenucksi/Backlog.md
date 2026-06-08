@@ -1,14 +1,15 @@
 ---
 id: BACK-394
-title: 'MCP: clarify DoD semantics and add DoD-default management tools'
+title: "MCP: clarify DoD semantics and add DoD-default management tools"
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-21 21:39'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-02-21 21:39
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
+ordinal: 218000
 ---
 
 ## Description

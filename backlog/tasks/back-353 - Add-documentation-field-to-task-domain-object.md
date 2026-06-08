@@ -3,13 +3,14 @@ id: BACK-353
 title: Add documentation field to task domain object
 status: Done
 assignee:
-  - '@codex'
-created_date: '2025-12-26 17:39'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2025-12-26 17:39
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 priority: medium
+ordinal: 195000
 ---
 
 ## Description

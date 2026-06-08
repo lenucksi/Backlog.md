@@ -1,14 +1,15 @@
 ---
 id: BACK-451
-title: 'Fix: Guard cross-branch loading behind checkActiveBranches flag'
+title: "Fix: Guard cross-branch loading behind checkActiveBranches flag"
 status: Done
 assignee: []
-created_date: '2026-04-28 04:57'
-updated_date: '2026-05-22 15:44'
+created_date: 2026-04-28 04:57
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 priority: high
+ordinal: 189000
 ---
 
 ## Description

@@ -3,18 +3,19 @@ id: BACK-381
 title: Fix frontmatter parsing corruption when titles contain dollar-sign sequences
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-02-11 20:04'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-02-11 20:04
+updated_date: 2026-06-08 16:35
 labels:
   - bug
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/MrLesk/Backlog.md/issues/516'
+  - https://github.com/MrLesk/Backlog.md/issues/516
   - src/markdown/parser.ts
   - src/test/markdown.test.ts
 priority: high
+ordinal: 185000
 ---
 
 ## Description

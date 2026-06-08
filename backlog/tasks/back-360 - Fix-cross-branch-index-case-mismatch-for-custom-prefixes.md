@@ -3,9 +3,9 @@ id: BACK-360
 title: Fix cross-branch index case mismatch for custom prefixes
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-15 20:01'
-updated_date: '2026-05-22 15:44'
+  - "@codex"
+created_date: 2026-01-15 20:01
+updated_date: 2026-06-08 16:35
 labels:
   - bug
   - cross-branch
@@ -13,6 +13,7 @@ labels:
 milestone: m-9
 dependencies: []
 priority: high
+ordinal: 178000
 ---
 
 ## Description

@@ -3,17 +3,18 @@ id: BACK-356
 title: Add references field to task domain object
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-01-01 23:39'
-updated_date: '2026-05-22 15:40'
+  - "@codex"
+created_date: 2026-01-01 23:39
+updated_date: 2026-06-08 16:35
 labels: []
 milestone: m-9
 dependencies: []
 references:
-  - 'https://github.com/example/docs/task-fields'
+  - https://github.com/example/docs/task-fields
   - src/types/index.ts
   - src/web/components/TaskDetailsModal.tsx
 priority: medium
+ordinal: 202000
 ---
 
 ## Description
