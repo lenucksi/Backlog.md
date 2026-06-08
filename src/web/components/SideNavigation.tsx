@@ -541,7 +541,7 @@ const SideNavigation = memo(function SideNavigation({
 					</div>
 				)}
 
-				{/* Completed Tasks Navigation */}
+				{/* Archived Tasks Navigation */}
 				{!isCollapsed && !isLoading && completedTasks.length > 0 && (
 					<NavLink
 						to="/statistics#archived"
@@ -553,8 +553,8 @@ const SideNavigation = memo(function SideNavigation({
 							}`
 						}
 					>
-						<span className="text-gray-400 dark:text-gray-500"><Icons.Tasks /></span>
-						<span className="ml-3 text-sm font-medium">Completed</span>
+						<Icons.List />
+						<span className="ml-3 text-sm font-medium">Archived Tasks</span>
 						<span className="ml-auto text-xs text-gray-500 dark:text-gray-400">{completedTasks.length}</span>
 					</NavLink>
 				)}
