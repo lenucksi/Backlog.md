@@ -1,10 +1,10 @@
 ---
 id: BACK-540.5
 title: BACK-540.5 — Tests (~40 tsc-Fehler)
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 13:28
-updated_date: 2026-06-08 13:44
+updated_date: 2026-06-08 14:01
 labels:
   - tech-debt
   - tests
@@ -46,3 +46,9 @@ Abhängigkeiten: BACK-540.4
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Phase 5 abgeschlossen: ~80 tsc-Fehler in src/test/ behoben (unused → _prefix, optional chaining, duplicate keys entfernt, Array-Typen korrigiert, expect-Import ergänzt, instanceof casts, Task-Typen vervollständigt)
+<!-- SECTION:NOTES:END -->

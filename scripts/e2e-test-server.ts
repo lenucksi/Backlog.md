@@ -9,6 +9,7 @@
 import { $ } from "bun";
 import { rm } from "node:fs/promises";
 import { join } from "node:path";
+import type { Task } from "../src/types/index.ts";
 import { Core } from "../src/core/backlog.ts";
 import { BacklogServer } from "../src/server/index.ts";
 import { initializeTestProject } from "../src/test/test-utils.ts";
@@ -24,121 +25,121 @@ async function setup() {
 	await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
 	await $`git config user.name Test`.cwd(TEST_DIR).quiet();
 
-	const core = new Core(TEST_DIR);
-	await initializeTestProject(core, "E2E Test Project");
+	const _core = new Core(TEST_DIR);
+	await initializeTestProject(_core, "E2E Test Project");
 
 	// Use the default task prefix ("task") so listTasks glob finds them
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-1",
 			title: "Implement login page",
-			status: "To Do",
-			priority: "high",
+			status: "To Do" as Task["status"],
+			priority: "high" as Task["priority"],
 			assignee: ["alice"],
 			labels: ["frontend", "auth"],
 			createdDate: "2026-05-01",
 			description: "Build a login page with email and password fields.",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-2",
 			title: "Set up CI pipeline",
-			status: "In Progress",
-			priority: "high",
+			status: "In Progress" as Task["status"],
+			priority: "high" as Task["priority"],
 			assignee: ["bob"],
 			labels: ["devops"],
 			createdDate: "2026-05-05",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-3",
 			title: "Write API documentation",
-			status: "To Do",
-			priority: "medium",
+			status: "To Do" as Task["status"],
+			priority: "medium" as Task["priority"],
 			assignee: ["alice", "charlie"],
 			labels: ["docs"],
 			createdDate: "2026-05-10",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-4",
 			title: "Fix navigation bug on mobile",
-			status: "Done",
-			priority: "high",
+			status: "Done" as Task["status"],
+			priority: "high" as Task["priority"],
 			assignee: ["charlie"],
 			labels: ["bug", "frontend"],
 			createdDate: "2026-05-03",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-5",
 			title: "Add dark mode support",
-			status: "To Do",
-			priority: "low",
+			status: "To Do" as Task["status"],
+			priority: "low" as Task["priority"],
 			assignee: [],
 			labels: ["frontend", "ux"],
 			createdDate: "2026-05-15",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-6",
 			title: "Database migration script",
-			status: "In Progress",
-			priority: "medium",
+			status: "In Progress" as Task["status"],
+			priority: "medium" as Task["priority"],
 			assignee: ["bob"],
 			labels: ["backend"],
 			createdDate: "2026-05-08",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-7",
 			title: "User acceptance testing",
-			status: "Done",
-			priority: "high",
+			status: "Done" as Task["status"],
+			priority: "high" as Task["priority"],
 			assignee: ["alice"],
 			labels: [],
 			createdDate: "2026-05-02",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-8",
 			title: "Performance benchmark report",
-			status: "Done",
-			priority: "low",
+			status: "Done" as Task["status"],
+			priority: "low" as Task["priority"],
 			assignee: ["charlie"],
 			labels: ["docs", "backend"],
 			createdDate: "2026-04-28",
-		},
+		} as unknown as Task,
 		false,
 	);
-	await core.createTask(
+	await _core.createTask(
 		{
 			id: "task-9",
 			title: "Set up staging environment",
-			status: "To Do",
-			priority: "medium",
+			status: "To Do" as Task["status"],
+			priority: "medium" as Task["priority"],
 			assignee: [],
 			labels: ["devops"],
 			createdDate: "2026-05-20",
-		},
+		} as unknown as Task,
 		false,
 	);
 
-	return core;
+	return _core;
 }
 
 async function killExistingServer() {
