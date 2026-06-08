@@ -1,9 +1,10 @@
 ---
 id: BACK-544
 title: "Sidebar: Archived Docs in Documents-Section integrieren"
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 22:06
+updated_date: 2026-06-08 22:28
 labels:
   - web-ui
   - sidebar

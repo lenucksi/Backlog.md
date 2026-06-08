@@ -189,6 +189,7 @@ const SideNavigation = memo(function SideNavigation({
 	const [isSearching, setIsSearching] = useState(false);
 	const [searchError, setSearchError] = useState<string | null>(null);
 	const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null);
+	const [archivedDocsOpen, setArchivedDocsOpen] = useState(false);
 	const [version, setVersion] = useState<string>('');
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -611,6 +612,44 @@ const SideNavigation = memo(function SideNavigation({
 									<span className="truncate">{doc.title}</span>
 								</NavLink>
 							))}
+
+							{/* Archived Docs toggle inside Documents section */}
+							{archivedDocs.length > 0 && (
+								<div className="pt-1 mt-1 border-t border-gray-100 dark:border-gray-700/50">
+									<button
+										type="button"
+										onClick={() => setArchivedDocsOpen(!archivedDocsOpen)}
+										className="flex items-center gap-1.5 w-full px-3 py-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+									>
+										<svg
+											className={`w-3 h-3 transition-transform ${archivedDocsOpen ? "rotate-90" : ""}`}
+											fill="none" stroke="currentColor" viewBox="0 0 24 24"
+										>
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+										</svg>
+										Archived ({archivedDocs.length})
+									</button>
+									{archivedDocsOpen && (
+										<div className="space-y-0.5 mt-0.5">
+											{archivedDocs.map((doc) => (
+												<NavLink
+													key={doc.id}
+													to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
+													className={({ isActive }) =>
+														`flex items-center space-x-3 px-3 py-1 text-xs rounded-lg transition-colors duration-200 ml-4 ${
+															isActive
+																? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
+																: "text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-400"
+														}`
+													}
+												>
+													<span className="truncate">{doc.title}</span>
+												</NavLink>
+											))}
+										</div>
+									)}
+								</div>
+							)}
 						</CollapsibleGroup>
 
 						{/* Divider between Documents and Decisions */}
@@ -669,34 +708,6 @@ const SideNavigation = memo(function SideNavigation({
 											</div>
 										)}
 									</div>
-								</NavLink>
-							))}
-						</CollapsibleGroup>
-
-						{/* Divider between Decisions and Archived Docs */}
-						<div className="mx-4 my-2 border-t border-gray-200 dark:border-gray-700"></div>
-
-						<CollapsibleGroup
-							title="Archived Docs"
-							icon={<span className="text-gray-400 dark:text-gray-500"><Icons.Document /></span>}
-							count={archivedDocs.length}
-							storageKey="archivedDocsCollapsed"
-							defaultCollapsed={true}
-						>
-							{archivedDocs.map((doc) => (
-								<NavLink
-									key={doc.id}
-									to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
-									className={({ isActive }) =>
-										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-											isActive
-												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
-												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-										}`
-									}
-								>
-									<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
-									<span className="truncate text-gray-500 dark:text-gray-400">{doc.title}</span>
 								</NavLink>
 							))}
 						</CollapsibleGroup>

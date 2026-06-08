@@ -1,16 +1,20 @@
 ---
 id: BACK-543
 title: "Statistics: Archived Tasks als eigenständige Section + Search + Reopen"
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 22:06
-updated_date: 2026-06-08 22:24
+updated_date: 2026-06-08 22:28
 labels:
   - web-ui
   - statistics
   - archive
   - search
 dependencies: []
+modified_files:
+  - src/web/components/Statistics.tsx
+  - src/web/components/SideNavigation.tsx
+  - src/web/components/CollapsibleGroup.tsx
 priority: medium
 ordinal: 278000
 ---
@@ -35,3 +39,15 @@ Ziel:
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BACK-543 abgeschlossen:
+- Archived Tasks aus Project Health rausgezogen → eigene Section auf gleicher Ebene
+- Volltext-Suche nach Title/ID
+- Alle archived Tasks angezeigt (kein "+N more")
+- Reopen-Button pro Task (ruft apiClient.reopenTask + refresh statistics)
+- Completed(N) in SideNav → Link zu /statistics#archived mit smooth scroll
+- CollapsibleGroup um optionales to-Prop erweitert
+<!-- SECTION:FINAL_SUMMARY:END -->
