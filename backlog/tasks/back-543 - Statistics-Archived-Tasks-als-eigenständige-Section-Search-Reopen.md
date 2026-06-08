@@ -1,9 +1,10 @@
 ---
 id: BACK-543
 title: "Statistics: Archived Tasks als eigenständige Section + Search + Reopen"
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 22:06
+updated_date: 2026-06-08 22:24
 labels:
   - web-ui
   - statistics

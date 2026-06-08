@@ -1,10 +1,10 @@
 ---
 id: BACK-542
 title: Assignee-Filter mit authorColors im Dropdown (Board + All Tasks)
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-06-08 22:06
-updated_date: 2026-06-08 22:06
+updated_date: 2026-06-08 22:09
 labels:
   - web-ui
   - ui
@@ -12,6 +12,10 @@ labels:
   - authors
   - color
 dependencies: []
+modified_files:
+  - src/web/components/LabelFilterDropdown.tsx
+  - src/web/components/Board.tsx
+  - src/web/components/TaskList.tsx
 priority: medium
 ordinal: 277000
 ---
@@ -31,3 +35,9 @@ Fix: FilterSelect-Komponente bauen oder LabelFilterDropdown um singleSelect + co
 - [ ] #3 bun test (or scoped test) passes
 - [ ] #4 Feature implemented (or explicitly N/A with justification) in all 5 access modalities: CLI, TUI, WebUI, MCP, and REST
 <!-- DOD:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+LabelFilterDropdown um singleSelect-Modus + title-Prop erweitert. Natives `<select>` für Assignee-Filter in Board.tsx und TaskList.tsx durch LabelFilterDropdown singleSelect mit authorColors als colorMap ersetzt.
+<!-- SECTION:FINAL_SUMMARY:END -->

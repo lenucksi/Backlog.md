@@ -549,6 +549,7 @@ const SideNavigation = memo(function SideNavigation({
 							count={completedTasks.length}
 							storageKey="completedTasksCollapsed"
 							defaultCollapsed={true}
+							to="/statistics#archived"
 						>
 							{completedTasks.map((task) => (
 								<div

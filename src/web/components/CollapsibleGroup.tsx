@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 interface CollapsibleGroupProps {
 	title: string;
@@ -8,6 +9,7 @@ interface CollapsibleGroupProps {
 	onCreate?: () => void;
 	children: React.ReactNode;
 	defaultCollapsed?: boolean;
+	to?: string;
 }
 
 function CollapsibleGroup({
@@ -18,6 +20,7 @@ function CollapsibleGroup({
 	onCreate,
 	children,
 	defaultCollapsed = false,
+	to,
 }: CollapsibleGroupProps) {
 	const [isCollapsed, setIsCollapsed] = useState(() => {
 		const saved = localStorage.getItem(storageKey);
@@ -80,9 +83,15 @@ function CollapsibleGroup({
 						)}
 					</button>
 					<span className="text-gray-500 dark:text-gray-400">{icon}</span>
-					<span className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap">
-						{title} ({count})
-					</span>
+					{to ? (
+						<Link to={to} className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+							{title} ({count})
+						</Link>
+					) : (
+						<span className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 whitespace-nowrap">
+							{title} ({count})
+						</span>
+					)}
 				</div>
 				{onCreate && (
 					<button
