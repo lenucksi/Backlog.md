@@ -3,6 +3,7 @@ import type { CallToolResult } from "../../types.ts";
 
 export interface LabelAddArgs {
 	name: string;
+	color?: string;
 }
 
 export interface LabelRenameArgs {
@@ -39,7 +40,8 @@ export class LabelHandlers {
 				isError: true,
 			};
 		}
-		config.labels = [...(config.labels ?? []), input.name].sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
+		const newLabel = input.color ? { name: input.name, color: input.color } : input.name;
+		config.labels = [...(config.labels ?? []), newLabel].sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
 		await this.core.filesystem.saveConfig(config);
 		return {
 			content: [{ type: "text", text: `Added label: ${input.name}` }],

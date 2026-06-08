@@ -1,9 +1,10 @@
 ---
 id: BACK-486.2
 title: BACK-486.2 — CLI --color Flag für Labels
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-08 18:00
+updated_date: 2026-06-08 18:23
 labels:
   - labels
   - cli

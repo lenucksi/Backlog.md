@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
+import { colorizeLabel } from "../utils/ansi.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 
 async function ensureLabelsMigrated(core: Core): Promise<void> {
@@ -69,16 +70,20 @@ export function registerLabelCommand(program: Command): void {
 				return;
 			}
 			for (const label of labels) {
-				console.log(
-					`  ${typeof label === "string" ? label : `${label.name}${label.color ? ` (${label.color})` : ""}`}`,
-				);
+				if (typeof label === "string") {
+					console.log(`  ${label}`);
+				} else {
+					const indicator = label.color ? colorizeLabel(label.color, "●") : "";
+					console.log(`  ${indicator}${indicator ? " " : ""}${label.name}${label.color ? ` (${label.color})` : ""}`);
+				}
 			}
 		});
 
 	labelCmd
 		.command("add <name>")
 		.description("add a new label")
-		.action(async (name: string) => {
+		.option("--color <hex>", "hex color for the label (e.g. #ff0000)")
+		.action(async (name: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const config = await core.filesystem.loadConfig();
@@ -93,7 +98,8 @@ export function registerLabelCommand(program: Command): void {
 				console.error(`Label already exists: ${name}`);
 				process.exit(1);
 			}
-			reloaded.labels = [...(reloaded.labels ?? []), name].sort((a, b) =>
+			const newLabel = options.color ? { name, color: options.color } : name;
+			reloaded.labels = [...(reloaded.labels ?? []), newLabel].sort((a, b) =>
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
 			await core.filesystem.saveConfig(reloaded);
@@ -206,5 +212,65 @@ export function registerLabelCommand(program: Command): void {
 			reloaded.labels = reloaded.labels.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(reloaded);
 			console.log(`Removed label: ${name}`);
+		});
+
+	labelCmd
+		.command("set-color <name> <color>")
+		.description("set or update a label's color")
+		.action(async (name: string, color: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			await ensureLabelsMigrated(core);
+			const reloaded = await core.filesystem.loadConfig();
+			if (!reloaded) process.exit(1);
+			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
+			if (idx === -1) {
+				console.error(`Label not found: ${name}`);
+				process.exit(1);
+			}
+			const existing = reloaded.labels[idx];
+			if (!existing) return;
+			if (typeof existing === "string") {
+				reloaded.labels[idx] = { name: existing, color };
+			} else {
+				reloaded.labels[idx] = { name: existing.name, color };
+			}
+			await core.filesystem.saveConfig(reloaded);
+			console.log(`Set color for label "${name}" to ${color}`);
+		});
+
+	labelCmd
+		.command("remove-color <name>")
+		.description("remove a label's color")
+		.action(async (name: string) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			const config = await core.filesystem.loadConfig();
+			if (!config) {
+				console.error("No backlog project found. Initialize one first with: backlog init");
+				process.exit(1);
+			}
+			await ensureLabelsMigrated(core);
+			const reloaded = await core.filesystem.loadConfig();
+			if (!reloaded) process.exit(1);
+			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
+			if (idx === -1) {
+				console.error(`Label not found: ${name}`);
+				process.exit(1);
+			}
+			const existing = reloaded.labels[idx];
+			if (!existing) return;
+			if (typeof existing === "string") {
+				console.log(`Label "${name}" has no color to remove.`);
+				return;
+			}
+			reloaded.labels[idx] = existing.name;
+			await core.filesystem.saveConfig(reloaded);
+			console.log(`Removed color from label "${name}".`);
 		});
 }

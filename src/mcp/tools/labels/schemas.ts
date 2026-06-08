@@ -16,6 +16,11 @@ export const labelAddSchema: JsonSchema = {
 			maxLength: 100,
 			description: "Label name to add",
 		},
+		color: {
+			type: "string",
+			maxLength: 100,
+			description: "Optional hex color for the label (e.g. #ff0000)",
+		},
 	},
 	required: ["name"],
 	additionalProperties: false,
