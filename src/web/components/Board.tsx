@@ -519,18 +519,16 @@ const Board: React.FC<BoardProps> = ({
             </div>
             {onFiltersChange && (
               <div className="flex flex-wrap items-center gap-3" aria-label="Board filters">
-                <select
-                  aria-label="Filter board by assignee"
-                  value={filterAssignee}
-                  onChange={e => onFiltersChange({ assignee: e.target.value, labels: normalizedFilterLabels, priority: filterPriority })}
-                  className={BOARD_FILTER_SELECT_CLASS}
-                >
-                  <option value="">All assignees</option>
-                  <option value="__unassigned__">Unassigned</option>
-                  {uniqueAssignees.map(a => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
+                <LabelFilterDropdown
+                  availableLabels={["__unassigned__", ...uniqueAssignees]}
+                  selectedLabels={filterAssignee ? [filterAssignee] : []}
+                  onChange={labels => onFiltersChange({ assignee: labels[0] ?? "", labels: normalizedFilterLabels, priority: filterPriority })}
+                  menuId="board-assignee-filter-menu"
+                  className="min-w-[180px]"
+                  labelColors={authorColors}
+                  singleSelect
+                  title="Assignee"
+                />
 
                 <LabelFilterDropdown
                   availableLabels={uniqueLabels}

@@ -712,17 +712,16 @@ const TaskList: React.FC<TaskListProps> = ({
 							))}
 						</select>
 
-						<select
-							value={filterAssignee}
-							onChange={(e) => setFilterAssignee(e.target.value)}
-							aria-label="Filter by assignee"
-							className="min-w-[140px] h-10 py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
-						>
-							<option value="">All assignees</option>
-							{uniqueAssignees.map((a) => (
-								<option key={a} value={a}>{a}</option>
-							))}
-						</select>
+						<LabelFilterDropdown
+							availableLabels={uniqueAssignees}
+							selectedLabels={filterAssignee ? [filterAssignee] : []}
+							onChange={(labels) => setFilterAssignee(labels[0] ?? "")}
+							menuId="task-list-assignee-filter-menu"
+							className="min-w-[180px]"
+							labelColors={authorColors}
+							singleSelect
+							title="Assignee"
+						/>
 
 						<LabelFilterDropdown
 							availableLabels={mergedAvailableLabels}
