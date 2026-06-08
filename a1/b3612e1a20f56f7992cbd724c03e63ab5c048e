@@ -1,0 +1,132 @@
+docs/subagent-research-reports/label-analysis-full.md
+  s_b460f84b993c7a::t_00e018ecd7fda3 1-420
+  s_c927adb04e53f2::t_6c6f830c4aecaf 421
+src/web/App.tsx
+  s_c927adb04e53f2::t_61f447b85a0c90 282
+src/test/generic-list-selection.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 4
+src/mcp/tools/labels/schemas.ts
+  s_2171900bd4e218::t_3b18c13d642c72 1
+src/test/cli-priority-filtering.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 3,87-90
+docs/subagent-research-reports/fork-comparison-full.md
+  s_c927adb04e53f2::t_6c6f830c4aecaf 415,420,425
+  s_b460f84b993c7a::t_e6499da3d14e92 1-414,416-419,421-424
+playwright.config.ts
+  s_0c49b572ff3f91::t_c5b0882dab7182 18
+  s_0c49b572ff3f91::t_d34272d1f75b38 1-17,19-27
+src/core/init.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 254-257
+src/commands/label.ts
+  s_c927adb04e53f2::t_44837483cc69d5 33
+src/test/unicode-rendering.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 4
+src/test/tui-termless-core.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 4
+src/test/zz-task-viewer-coverage.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 337-338
+src/server/router.ts
+  s_c927adb04e53f2::t_bf0e904554ec87 55-56
+  s_2171900bd4e218::t_615c971d50831b 54
+src/server/handlers/config.ts
+  s_c927adb04e53f2::t_f500ec26b0ae72 159
+  s_61ed1292db38ff::t_e8b33e7fa0b6a3 107
+src/test/modality-parity.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 9
+src/mcp/tools/labels/index.ts
+  s_2171900bd4e218::t_8229e6dc654c93 52
+src/utils/task-edit-builder.ts
+  s_2171900bd4e218::t_415959a6d760e6 20
+src/test/line-wrapping.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 4
+src/test/e2e/critical-journeys.test.ts
+  s_0c49b572ff3f91::t_f4647f91e07066 2-68,71-72,75-85,87-95
+  s_0c49b572ff3f91::t_704ad3c8f94036 73-74
+  s_0c49b572ff3f91::t_07147c058cd7a8 69-70
+  s_0c49b572ff3f91::t_77b9f82efb861e 1,86
+src/ui/task-viewer-with-search.ts
+  s_c927adb04e53f2::t_1d1d2d64e9b37b 13
+  s_c927adb04e53f2::t_6379a93ba13675 201
+docs/startprompt-label-fix.md
+  s_b460f84b993c7a::t_b9ef3a927e73ed 1-100
+src/mcp/tools/labels/handlers.ts
+  s_61ed1292db38ff::t_7dd878a79d939b 57,65
+  s_c927adb04e53f2::t_5a7512aee31a2b 121
+src/test/zz-sequences-coverage.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 96-97
+src/test/commands-cov-helper.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 61
+src/web/components/Settings.tsx
+  s_c927adb04e53f2::t_5dfd07bf8dd991 278,283-285,287,302-303,305
+src/test/zz-board-coverage.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 257-258
+package.json
+  s_0c49b572ff3f91::t_0218c50e1b250b 29
+  s_0c49b572ff3f91::t_aa1ed4edf490c2 64-66
+scripts/e2e-test-server.ts
+  s_0c49b572ff3f91::t_21a1c6f831bb72 1-29,31-32,34-45,47-57,59-69,71-81,83-93,95-105,107-117,119-129,131-143,155,157-177
+  s_0c49b572ff3f91::t_9b27ee0dc73283 30,33,46,58,70,82,94,106,118,130
+  s_0c49b572ff3f91::t_fb833d7f91fa6c 144-154,156
+src/server/index.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 2-3,176-189,367-372
+src/test/clipboard.test.ts
+  s_2171900bd4e218::t_be09f3dda16c8d 4
+"backlog/docs/doc-16 - Test-Suite-Audit-—-Rating-Improvement-Plan.md"
+  s_9aa8b5a9e53767::t_c2df7d9f5017c2 1-363
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "a1b3612e1a20f56f7992cbd724c03e63ab5c048e",
+  "prompts": {},
+  "sessions": {
+    "s_0c49b572ff3f91": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_171af28abffeEXbG3gobVAUthq",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_2171900bd4e218": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_15894660dffey0l7vSBnMNtcrX",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    },
+    "s_61ed1292db38ff": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b0f72f08ffegyQZ3KaAUNYj2I",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    },
+    "s_9aa8b5a9e53767": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_176f5266bfferYM8pg4GiC4GT2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_b460f84b993c7a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_158e1eb94ffe4n1ABPkOSotK80",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    },
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    }
+  }
+}
