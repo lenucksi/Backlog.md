@@ -1,0 +1,91 @@
+scripts/label-cleanup.sh
+  s_c927adb04e53f2::t_454c73386d78cb 19
+"backlog/tasks/back-239 - Feature-Auto-link-tasks-to-documents-decisions-backlinks.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3,6-8,12,56
+"backlog/tasks/back-503 - Forge-Integration-Phase-0-Write-forge-schema-spec.md-—-machine-readable-Backlog.md-task-schema-for-external-tools.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-4,7-8,13,20,67
+"backlog/tasks/back-473 - handle-port-congestion-for-backlog-browser.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,10,357
+"backlog/tasks/back-539 - Audit-and-refactor-test-suite-against-best-practices.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 7,9
+"backlog/tasks/back-378 - Fix-timezone-configuration-docs-and-local-date-display-in-task-modal.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,12,16,50
+"backlog/tasks/back-349 - Publish-Backlog.md-as-an-Agent-Skill-with-bundled-guidance-no-MCP-resources-required-for-instructions.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-4,7-10,15,46
+"backlog/tasks/back-481 - Complete-BACK-468-blockedStatuses-thread-into-TUI-fix-config-plus-fallback-logic-expose-in-config-CLI-clean-standalone-PR-on-upstream.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-5,9-10,15,19,133
+"backlog/tasks/back-423 - Add-folder-grouping-for-docs-in-Web-UI.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,12,16,81
+"backlog/tasks/back-520 - BACK-523-—-WebUI-document-archive-delete.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3,6-8,13,80
+"backlog/tasks/back-423.2 - BACK-423.2-—-Archived-Docs-Superseded-Decisions-Browsing.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,13,92
+"backlog/tasks/back-492.18 - TechDebt-Fix-23-SonarQube-bugs.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3,6-7,10,41
+"backlog/tasks/back-447 - Add-No-milestone-option-to-TUI-milestone-filters.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,11-12,16,68
+"backlog/tasks/back-480 - Complete-terminalStatuses-feature-end-to-end-data-loss-fix-full-CLI-TUI-Web-wiring-clean-PR-combining-BACK-466-467-469-470.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-4,7-9,14,18-19,34,36,38,40,234
+"backlog/tasks/back-486.4 - BACK-486.4-—-Author-Color-Display-WebUI.md"
+  s_c927adb04e53f2::t_2235840d0a2a36 4,7,13-21,59-65
+"backlog/tasks/back-486 - Colored-Labels-—-color-support-for-labels-across-all-access-modalities.md"
+  s_c927adb04e53f2::t_2235840d0a2a36 4,7,98,100-103,105
+"backlog/tasks/back-537 - Titel-von-tickets-muss-man-ändern-können-im-view..md"
+  s_c927adb04e53f2::t_2235840d0a2a36 5-6
+  s_c927adb04e53f2::t_02bbbebc3b55e2 8,11
+"backlog/tasks/back-409 - clarify-acceptance-criteria-format-in-task-creation-guide.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 8,12
+"backlog/tasks/back-436 - Align-document-management-across-CLI-Web-UI-and-MCP.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3,6-8,14,18,134
+"backlog/tasks/back-461 - Add-community-tools-section-to-README.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,11,15,53
+"backlog/tasks/back-489 - Archive-Documents-and-Decisions-—-archival-workflow-for-docs-and-superseded-ADRs.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-4,7-8,16,61
+"backlog/tasks/back-519.6 - BACK-519.7-—-Wiki-web-UI-PR-647-BACK-473-portion.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3,6-7,11,15,51
+"backlog/tasks/back-524 - BACK-521-—-CLI-milestone-create-rename-remove-commands.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3,6-8,13,78
+"backlog/tasks/back-479 - Rebase-BACK-471-cli-commit-behaviour-test-fix-as-single-commit-clean-PR-on-upstream.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-4,7-9,12-13,17,19,81
+"backlog/tasks/back-534 - TUI-renderBoardTui-Screen-Dependency-Injection-—-optionalen-Screen-Parameter-einführen.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 9,14
+"backlog/tasks/back-535.1 - zz-coverage-files-port-to-termless-document-findings.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 7,12
+"backlog/tasks/back-487 - Labels-for-Documents-and-Decisions-—-apply-task-label-system-to-docs-and-ADRs.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,16,163
+"backlog/tasks/back-540.5 - BACK-540.5-—-Tests-~40-tsc-Fehler.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 7,10
+"backlog/tasks/back-423.1 - BACK-423.1-—-CollapsibleGroup-Shared-Component-extrahieren.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,12,92
+"backlog/tasks/back-345.10 - Fix-ID-generation-bugs-and-cleanup-prefix-config-leftovers.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 8,12
+"backlog/tasks/back-437 - Document-running-backlog-browser-as-a-background-service.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 8,11
+"backlog/tasks/back-517 - Verify-BACK-345.10-fixes-after-subsequent-refactoring.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,12,67
+backlog/config.yml
+  s_c927adb04e53f2::t_8af3301026e9a6 4
+  s_c927adb04e53f2::t_2235840d0a2a36 5
+"backlog/tasks/back-398 - Add-Milestone-Filter-to-TUI-Board.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 6-8,12-13,72
+"backlog/tasks/back-482 - Narrow-BACK-472-Refactor-config-to-shared-descriptor-map-and-fix-config-list-visibility-for-existing-keys-only.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 3-4,8-9,13-14,18,86
+"backlog/tasks/back-535 - TUI-Gen-1-Mock-Tests-auf-termless-portieren-board-coverage-sequences-coverage-task-viewer-coverage.md"
+  s_c927adb04e53f2::t_02bbbebc3b55e2 9,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "266a1c4373a991e1f5e6961960f282ae523493e5",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
