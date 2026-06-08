@@ -1,0 +1,26 @@
+src/commands/label.ts
+  s_c927adb04e53f2::t_c83bf5919de441 8-9,11-15
+  s_c927adb04e53f2::t_72a9fdb8f1f410 72-74
+  s_c927adb04e53f2::t_d58e4bf27ec532 10
+  s_c927adb04e53f2::t_7b6105583a52a8 148-152,160-168,176-180
+src/file-system/operations.ts
+  s_c927adb04e53f2::t_3d4edd0c8d839a 1800
+backlog/config.yml
+  s_c927adb04e53f2::t_3ef4edfe8e6d69 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "62e11bfa7724c08bd0f1ec04fbf79d030da4026b",
+  "prompts": {},
+  "sessions": {
+    "s_c927adb04e53f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1589e34cdffeutTG83a4zUqqT0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
