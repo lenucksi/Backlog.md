@@ -1,7 +1,7 @@
 ---
 id: BACK-117
 title: Always return file path when running task view with --plain flag
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-07-06'
 labels: []

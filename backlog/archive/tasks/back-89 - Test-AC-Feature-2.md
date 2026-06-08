@@ -1,7 +1,7 @@
 ---
 id: BACK-89
 title: Test AC Feature 2
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-19'
 updated_date: '2025-06-19'

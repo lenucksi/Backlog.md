@@ -1,7 +1,7 @@
 ---
 id: BACK-60.7
 title: Remove blessed dependency
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-14'
 labels:

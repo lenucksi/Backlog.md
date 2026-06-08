@@ -1,7 +1,7 @@
 ---
 id: BACK-76.5
 title: Test and verify all TUI functionality
-status: Won't Do
+status: Archived
 assignee: []
 created_date: '2025-06-16'
 labels:

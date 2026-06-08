@@ -1,7 +1,7 @@
 ---
 id: BACK-76.6
 title: Update CI/CD workflows and binary packaging
-status: Won't Do
+status: Archived
 assignee: []
 created_date: '2025-06-16'
 labels:

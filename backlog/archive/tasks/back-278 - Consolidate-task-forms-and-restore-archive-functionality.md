@@ -1,7 +1,7 @@
 ---
 id: BACK-278
 title: Consolidate task forms and restore archive functionality
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-09-26 19:25'
 labels: []

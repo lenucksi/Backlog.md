@@ -1,7 +1,7 @@
 ---
 id: BACK-41
 title: 'CLI: Migrate terminal UI to bblessed'
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-11'
 labels:

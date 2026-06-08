@@ -1,7 +1,7 @@
 ---
 id: BACK-76.4
 title: Update build system and remove CJS workarounds
-status: Won't Do
+status: Archived
 assignee: []
 created_date: '2025-06-16'
 labels:

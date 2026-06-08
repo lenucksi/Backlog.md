@@ -1,7 +1,7 @@
 ---
 id: BACK-228
 title: Replace @uiw/react-md-editor with TOAST UI Editor for rich-text editing
-status: To do
+status: Archived
 assignee: []
 created_date: '2025-08-10 14:25'
 updated_date: '2025-08-10 18:07'

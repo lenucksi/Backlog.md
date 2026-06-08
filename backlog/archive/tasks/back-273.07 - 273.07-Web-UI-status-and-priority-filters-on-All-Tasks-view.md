@@ -1,7 +1,7 @@
 ---
 id: BACK-273.07
 title: '273.07: Web UI status and priority filters on All Tasks view'
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-09-21 18:13'
 updated_date: '2025-09-21 18:13'

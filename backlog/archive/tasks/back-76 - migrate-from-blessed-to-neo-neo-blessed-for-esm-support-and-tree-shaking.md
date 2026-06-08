@@ -1,7 +1,7 @@
 ---
 id: BACK-76
 title: Migrate from blessed to neo-neo-blessed for ESM support and tree shaking
-status: Won't Do
+status: Archived
 assignee:
   - '@ai-agent'
 created_date: '2025-06-16'

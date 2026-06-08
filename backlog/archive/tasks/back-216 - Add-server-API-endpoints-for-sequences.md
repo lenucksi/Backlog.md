@@ -1,7 +1,7 @@
 ---
 id: BACK-216
 title: Add server API endpoints and web UI for sequences
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-07-27'
 updated_date: '2025-07-27'

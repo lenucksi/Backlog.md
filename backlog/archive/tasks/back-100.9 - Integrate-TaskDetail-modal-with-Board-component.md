@@ -1,7 +1,7 @@
 ---
 id: BACK-100.9
 title: Integrate TaskDetail modal with Board component
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-22'
 labels: []

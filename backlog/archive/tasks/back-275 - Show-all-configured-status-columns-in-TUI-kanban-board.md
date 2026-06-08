@@ -1,7 +1,7 @@
 ---
 id: BACK-275
 title: Show all configured status columns in TUI kanban board
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-09-26 19:06'
 labels: []

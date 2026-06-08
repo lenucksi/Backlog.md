@@ -1,7 +1,7 @@
 ---
 id: BACK-60.3
 title: Implement Ink board view
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-14'
 labels:

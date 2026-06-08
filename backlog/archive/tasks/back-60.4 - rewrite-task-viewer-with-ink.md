@@ -1,7 +1,7 @@
 ---
 id: BACK-60.4
 title: Rewrite task viewer with Ink
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-14'
 labels:

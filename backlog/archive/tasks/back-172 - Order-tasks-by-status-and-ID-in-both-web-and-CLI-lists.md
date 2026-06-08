@@ -1,7 +1,7 @@
 ---
 id: BACK-172
 title: Order tasks by status and ID in both web and CLI lists
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-07-12'
 labels: []

@@ -1,7 +1,7 @@
 ---
 id: BACK-76.2
 title: Update package.json and install neo-neo-blessed
-status: Won't Do
+status: Archived
 assignee: []
 created_date: '2025-06-16'
 labels:

@@ -1,7 +1,7 @@
 ---
 id: BACK-103
 title: Update guidelines to keep tasks focused on "what" not "how"
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-23'
 labels:

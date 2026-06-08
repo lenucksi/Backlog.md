@@ -1,7 +1,7 @@
 ---
 id: BACK-102
 title: Consolidate agent guidelines into single source
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-23'
 labels: ["documentation"]

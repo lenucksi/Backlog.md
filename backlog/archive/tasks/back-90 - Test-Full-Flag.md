@@ -1,7 +1,7 @@
 ---
 id: BACK-90
 title: Test Full Flag
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-19'
 labels: []

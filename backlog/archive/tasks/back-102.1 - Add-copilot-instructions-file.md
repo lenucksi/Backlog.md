@@ -1,7 +1,7 @@
 ---
 id: BACK-102.1
 title: Add Copilot instructions file
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-26'
 labels: ["documentation", "agents"]

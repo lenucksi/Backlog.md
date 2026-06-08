@@ -1,7 +1,7 @@
 ---
 id: BACK-67.1
 title: Test subtask with -p option
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-15'
 labels: []

@@ -1,7 +1,7 @@
 ---
 id: BACK-60
 title: 'CLI: Migrate terminal UI to Ink'
-status: To Do
+status: Archived
 assignee: []
 created_date: '2025-06-14'
 updated_date: '2025-06-14'
