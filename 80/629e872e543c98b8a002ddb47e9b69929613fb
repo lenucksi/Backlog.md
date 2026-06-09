@@ -1,0 +1,53 @@
+src/web/components/Board.tsx
+  s_70add0f27285d0::t_0a8dc841ab9b44 413,423-424
+  s_70add0f27285d0::t_d4b4712017c39e 75
+  s_70add0f27285d0::t_1a7e0d9e3e07ff 37
+  s_70add0f27285d0::t_33d6e2b8b98866 438-440,443
+  s_70add0f27285d0::t_5d058c5c22a9fd 388
+  s_70add0f27285d0::t_d0ad795d2334fa 8
+  s_70add0f27285d0::t_41e718a5f902ab 408,410-411
+  s_70add0f27285d0::t_f4ddde9c0ba410 615-631
+scripts/build.ts
+  s_70add0f27285d0::t_8c9c046730ff64 55-60
+src/web/components/BoardPage.tsx
+  s_70add0f27285d0::t_fcf11e684c6d8b 40
+  s_70add0f27285d0::t_911fd7522ed0f2 22
+  s_70add0f27285d0::t_aa04344bfaef6a 156
+src/web/App.tsx
+  s_70add0f27285d0::t_d39b25825ad7e9 617
+  s_70add0f27285d0::t_120c5f87d1a70a 595
+scripts/postinstall.sh
+  s_70add0f27285d0::t_3ad4adc2766a29 5-12
+src/types/index.ts
+  s_70add0f27285d0::t_d3d08eb7efed9f 340-341
+src/server/handlers/config.ts
+  s_70add0f27285d0::t_00b91f5088a784 41
+src/web/components/Settings.tsx
+  s_70add0f27285d0::t_ac357b1a1c083d 264-282
+src/board.ts
+  s_70add0f27285d0::t_dfbca8edf44d00 297-299
+  s_70add0f27285d0::t_fa53109cdd5bbe 3
+patches/chevrotain-to-fast-properties.patch
+  s_70add0f27285d0::t_9ac076cd3950b5 1-18
+  s_70add0f27285d0::t_938a071b93df16 19-35
+src/file-system/operations.ts
+  s_70add0f27285d0::t_f3b668587c94b2 1811-1813
+  s_70add0f27285d0::t_0310e322942dde 1842
+  s_70add0f27285d0::t_a264453542ca46 1889-1891
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "80629e872e543c98b8a002ddb47e9b69929613fb",
+  "prompts": {},
+  "sessions": {
+    "s_70add0f27285d0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1537b2046ffePdteza8appX1XY",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
