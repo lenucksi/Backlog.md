@@ -1,0 +1,62 @@
+src/server/handlers/backlinks.ts
+  s_e406d662adfc1a::t_21974362d499bb 4,7
+  s_e406d662adfc1a::t_80f27c245421ce 1-3,5-6,8-18
+src/web/components/DecisionDetail.tsx
+  s_e406d662adfc1a::t_258d03477df537 453-474
+  s_e406d662adfc1a::t_90bbd212174ea3 93-100
+"backlog/archive/tasks/back-239 - Feature-Auto-link-tasks-to-documents-decisions-backlinks.md"
+  s_e406d662adfc1a::t_bf3721dfe8f413 1-19,31-104,118-143
+  s_e406d662adfc1a::t_d3877ee7f316ca 20-30
+  s_e406d662adfc1a::t_745ae645afbc4d 105-117
+TEST-SCENARIOS-Auto-Linking-Backlinks.md
+  s_e406d662adfc1a::t_8d1db3af62f4a0 56,58
+  s_e406d662adfc1a::t_f8f1cba779f075 1-55,57,59-121
+src/server/router.ts
+  s_e406d662adfc1a::t_2edde83728edcb 218,220-223
+  s_e406d662adfc1a::t_80df26f27e4f6e 73-75
+  s_e406d662adfc1a::t_6148409d8f741f 219
+  s_e406d662adfc1a::t_b3544198520fc9 79
+"backlog/archive/tasks/back-545 - Port-Auto-link-task-IDs-in-markdown-renderer-from-upstream-663-discussion.md"
+  s_e406d662adfc1a::t_d6386898fd09f6 19-20
+  s_e406d662adfc1a::t_3ac5f418fca476 38-39,41-48
+  s_e406d662adfc1a::t_62d83d5f775dd5 1-18,21-37,40,49-97
+src/web/components/DocumentationDetail.tsx
+  s_e406d662adfc1a::t_657fdcef4f6e13 105-106
+  s_e406d662adfc1a::t_c9fd790f56dc99 96-97,99-104
+  s_e406d662adfc1a::t_643f95f7b02370 473-496
+  s_e406d662adfc1a::t_d69ad7bd8ca2c2 2
+"backlog/docs/doc-22 - Referencing-Tasks-Documents-Decisions.md"
+  s_e406d662adfc1a::t_9d4359f40a875f 2
+src/web/App.tsx
+  s_e406d662adfc1a::t_a43f802d97d366 465
+  s_e406d662adfc1a::t_e74c7018f2b360 640-648
+src/core/backlog.ts
+  s_e406d662adfc1a::t_034b8026dac993 2131-2145,2150-2161,2166-2172,2181-2184,2189-2195
+  s_e406d662adfc1a::t_0a441f53a3c8cc 2128-2130,2146-2149,2162-2165,2173-2180,2185-2188
+src/server/index.ts
+  s_e406d662adfc1a::t_0a441f53a3c8cc 14
+  s_e406d662adfc1a::t_e4baf976c73ea0 167
+src/web/components/MermaidMarkdown.tsx
+  s_e406d662adfc1a::t_7f1de73b09ac35 103
+  s_e406d662adfc1a::t_755bc04b3492b8 13-38
+  s_e406d662adfc1a::t_45a7cdee7f5a31 143,153-156
+src/web/lib/api.ts
+  s_e406d662adfc1a::t_fac80f90163d5b 610-615
+  s_e406d662adfc1a::t_0a441f53a3c8cc 607-609
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "35fb8f034366d6f2aa315ddabacb88cebc3f2e12",
+  "prompts": {},
+  "sessions": {
+    "s_e406d662adfc1a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_152f87dcdffef9TTbj9yNbCULV",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
