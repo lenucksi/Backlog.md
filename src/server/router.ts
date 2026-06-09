@@ -70,10 +70,13 @@ export type RouteHandlers = {
 	files: {
 		handleGetFileContent: (req: Request) => Promise<Response>;
 	};
+	backlinks: {
+		handleGetBacklinks: (entityId: string) => Promise<Response>;
+	};
 };
 
 export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
-	const { tasks, documents, decisions, drafts, milestones, config, system, files } = handlers;
+	const { tasks, documents, decisions, drafts, milestones, config, system, files, backlinks } = handlers;
 
 	return {
 		"/api/tasks": {
@@ -211,6 +214,12 @@ export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
 		},
 		"/api/file-content": {
 			GET: async (req: Request) => await files.handleGetFileContent(req),
+		},
+		"/api/backlinks": {
+			GET: async (_req: Request) => await backlinks.handleGetBacklinks(""),
+		},
+		"/api/backlinks/:id": {
+			GET: async (req: Request & { params: { id: string } }) => await backlinks.handleGetBacklinks(req.params.id),
 		},
 	};
 }

@@ -462,7 +462,7 @@ function App() {
     const id = match[2];
     if (!id) return;
 
-    const taskId = id.startsWith("task-") ? id : `task-${id}`;
+    const taskId = id.replace(/^task-/, "");
     const existingTask = tasks.find((t) => t.id === taskId);
 
     if (existingTask) {
@@ -620,6 +620,24 @@ function App() {
           />
             <Route
               path="tasks"
+              element={
+	                <TaskList
+	                  onEditTask={handleDeepLinkEditTask}
+	                  onNewTask={handleNewTask}
+	                  tasks={tasks}
+	                  availableStatuses={statuses}
+	                  availableLabels={availableLabels}
+	                  availableMilestones={milestones}
+	                  milestoneEntities={milestoneEntities}
+	                  archivedMilestones={archivedMilestones}
+	                  onRefreshData={refreshData}
+	                  labelColors={labelColors}
+	                  authorColors={authorColors}
+	                />
+	              }
+	            />
+            <Route
+              path="tasks/:id"
               element={
 	                <TaskList
 	                  onEditTask={handleDeepLinkEditTask}

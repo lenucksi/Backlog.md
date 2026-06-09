@@ -90,6 +90,14 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 	const [showEditGuardModal, setShowEditGuardModal] = useState(false);
 	const [showResolveConfirmModal, setShowResolveConfirmModal] = useState(false);
 	const [isResolving, setIsResolving] = useState(false);
+	const [backlinks, setBacklinks] = useState<Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }> | null>(null);
+
+	useEffect(() => {
+		if (id && id !== "new") {
+			const prefixedId = id.startsWith("decision-") ? id : `decision-${id}`;
+			apiClient.fetchBacklinks(prefixedId).then(setBacklinks).catch(() => setBacklinks([]));
+		}
+	}, [id]);
 
 	useEffect(() => {
 		if (id === 'new') {
@@ -441,6 +449,28 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 				</div>
 			</div>
 			</div>
+
+		{/* Referenced By Section */}
+		{!isEditing && backlinks && backlinks.length > 0 && (
+			<div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+				<div className="max-w-4xl mx-auto px-8 py-4">
+					<h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Referenced by</h3>
+					<div className="space-y-2">
+						{backlinks.map((bl) => (
+							<div key={`${bl.type}-${bl.id}`} className="text-sm">
+								<Link
+									to={`/${bl.type === "task" ? "tasks" : bl.type === "document" ? "documentation" : "decisions"}/${bl.id.replace(/^(task-|doc-|decision-)/, "")}`}
+									className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+								>
+									{bl.id}
+								</Link>
+								<span className="text-gray-500 dark:text-gray-400"> — {bl.title}</span>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		)}
 
 		{/* Edit Guard Modal */}
 		<Modal

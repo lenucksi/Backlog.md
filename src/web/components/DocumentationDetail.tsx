@@ -1,5 +1,5 @@
 import {useState, useEffect, memo, useCallback} from 'react';
-import {useParams, useNavigate, useSearchParams} from 'react-router-dom';
+import {useParams, useNavigate, useSearchParams, Link} from 'react-router-dom';
 import {apiClient} from '../lib/api';
 import PasteAwareMDEditor from './PasteAwareMDEditor';
 import MermaidMarkdown from './MermaidMarkdown';
@@ -93,9 +93,17 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
     const [saveError, setSaveError] = useState<Error | null>(null);
     const [isNewDocument, setIsNewDocument] = useState(false);
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-    const [confirmAction, setConfirmAction] = useState<"archive" | "delete" | null>(null);
+	const [confirmAction, setConfirmAction] = useState<"archive" | "delete" | null>(null);
+	const [backlinks, setBacklinks] = useState<Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }> | null>(null);
 
-    useEffect(() => {
+	useEffect(() => {
+		if (id && id !== "new") {
+			const prefixedId = id.startsWith("doc-") ? id : `doc-${id}`;
+			apiClient.fetchBacklinks(prefixedId).then(setBacklinks).catch(() => setBacklinks([]));
+		}
+	}, [id]);
+
+	useEffect(() => {
         if (id === 'new') {
             // Handle new document creation
             setIsNewDocument(true);
@@ -462,8 +470,30 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
                     </div>
                 </div>
 
-                {/* Save Error Alert */}
-                {saveError && (
+				{/* Referenced By Section */}
+				{!isEditing && backlinks && backlinks.length > 0 && (
+					<div className="border-t border-gray-200 dark:border-gray-700">
+						<div className="max-w-4xl mx-auto px-8 py-4">
+							<h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Referenced by</h3>
+							<div className="space-y-2">
+								{backlinks.map((bl) => (
+									<div key={`${bl.type}-${bl.id}`} className="text-sm">
+										<Link
+											to={`/${bl.type === "task" ? "tasks" : bl.type === "document" ? "documentation" : "decisions"}/${bl.id.replace(/^(task-|doc-|decision-)/, "")}`}
+											className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+										>
+											{bl.id}
+										</Link>
+										<span className="text-gray-500 dark:text-gray-400"> — {bl.title}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
+
+				{/* Save Error Alert */}
+				{saveError && (
                     <div className="border-t border-red-200 bg-red-50 px-8 py-3">
                         <div className="flex items-center space-x-3">
                             <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

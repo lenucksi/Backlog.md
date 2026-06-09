@@ -2125,6 +2125,74 @@ export class Core {
 		return computeSequences(afterActive);
 	}
 
+	async findBacklinks(
+		entityId: string,
+	): Promise<Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }>> {
+		const cleanId = entityId.replace(/^(task-|doc-|decision-)/, "");
+		const results: Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }> = [];
+		const refRegex = new RegExp(
+			`\\b(?:#)?(?:task-)?${cleanId}\\b|\\bdoc-${cleanId}\\b|\\bdecision-${cleanId}\\b`,
+			"gi",
+		);
+
+		// Search tasks
+		const tasks = await this.fs.listTasks();
+		for (const task of tasks) {
+			const searchFields = [task.title, task.description || "", task.rawContent || ""].join("\n");
+			const match = refRegex.exec(searchFields);
+			if (match) {
+				const start = Math.max(0, match.index - 40);
+				const end = Math.min(searchFields.length, match.index + match[0].length + 40);
+				const snippet =
+					(start > 0 ? "..." : "") +
+					searchFields.slice(start, end).replace(/\n/g, " ") +
+					(end < searchFields.length ? "..." : "");
+				results.push({ type: "task", id: task.id, title: task.title, snippet });
+			}
+		}
+
+		// Search documents
+		const documents = await this.fs.listDocuments();
+		for (const doc of documents) {
+			const searchFields = [doc.title, doc.rawContent || ""].join("\n");
+			const match = refRegex.exec(searchFields);
+			if (match) {
+				const start = Math.max(0, match.index - 40);
+				const end = Math.min(searchFields.length, match.index + match[0].length + 40);
+				const snippet =
+					(start > 0 ? "..." : "") +
+					searchFields.slice(start, end).replace(/\n/g, " ") +
+					(end < searchFields.length ? "..." : "");
+				results.push({ type: "document", id: doc.id, title: doc.title, snippet });
+			}
+		}
+
+		// Search decisions
+		const decisions = await this.fs.listDecisions();
+		for (const decision of decisions) {
+			const searchFields = [
+				decision.title,
+				decision.context || "",
+				decision.decision || "",
+				decision.consequences || "",
+				decision.alternatives || "",
+				decision.rawContent || "",
+			].join("\n");
+			const match = refRegex.exec(searchFields);
+			if (match) {
+				const start = Math.max(0, match.index - 40);
+				const end = Math.min(searchFields.length, match.index + match[0].length + 40);
+				const snippet =
+					(start > 0 ? "..." : "") +
+					searchFields.slice(start, end).replace(/\n/g, " ") +
+					(end < searchFields.length ? "..." : "");
+				results.push({ type: "decision", id: decision.id, title: decision.title, snippet });
+			}
+		}
+
+		return results;
+	}
+
 	async archiveTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
 		const taskToArchive = await this.fs.loadTask(taskId);
 		if (!taskToArchive) {

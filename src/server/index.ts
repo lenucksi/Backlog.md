@@ -11,6 +11,7 @@ import { watchConfig } from "../utils/config-watcher.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
 // @ts-expect-error
 import favicon from "../web/favicon.png" with { type: "file" };
+import { createBacklinkHandlers } from "./handlers/backlinks.ts";
 import { createConfigHandlers } from "./handlers/config.ts";
 import { createDecisionHandlers } from "./handlers/decisions.ts";
 import { createDocumentHandlers } from "./handlers/documents.ts";
@@ -163,6 +164,7 @@ export class BacklogServer {
 				files: createFileHandlers(ctx),
 				config: createConfigHandlers(ctx),
 				system: createSystemHandlers(ctx),
+				backlinks: createBacklinkHandlers(ctx),
 			});
 
 			const spaHandler: Record<string, unknown> = {

@@ -10,6 +10,32 @@ interface Props {
 const URI_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\u0000-\u0020]*>/;
 const EMAIL_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z0-9-]+>/;
 
+const ENTITY_LINK_REGEX = /\b(([A-Z]+-\d+)|(?:#)?(doc-\d+)|(?:#)?(decision-\d+))\b/g;
+
+function entityLinkReplacer(match: string): string {
+	const entity = match.replace(/^#/, "");
+	const cleanId = entity.replace(/^(task-)/, "");
+	let basePath: string;
+	if (/^doc-\d+$/i.test(cleanId)) {
+		basePath = "/documentation";
+	} else if (/^decision-\d+$/i.test(cleanId)) {
+		basePath = "/decisions";
+	} else {
+		basePath = "/tasks";
+	}
+	return `<a href="${basePath}/${cleanId}">${match}</a>`;
+}
+
+function autoLinkEntities(source: string): string {
+	const CODE_SPAN_REGEX = /(```[\s\S]*?```|`[^`]*`)/g;
+	return source.split(CODE_SPAN_REGEX).map((part, i) => {
+		if (i % 2 === 1) {
+			return part;
+		}
+		return part.replace(ENTITY_LINK_REGEX, entityLinkReplacer);
+	}).join('');
+}
+
 function sanitizeMarkdownSource(source: string): string {
 	const CODE_SPAN_REGEX = /(```[\s\S]*?```|`[^`]*`)/g;
 	return source.split(CODE_SPAN_REGEX).map((part, i) => {
@@ -74,7 +100,7 @@ const headingPlugin: any = () => (tree: Record<string, any>) => {
 
 export default function MermaidMarkdown({ source, onFileClick }: Props) {
 	const ref = useRef<HTMLDivElement | null>(null);
-	const safeSource = sanitizeMarkdownSource(source);
+	const safeSource = autoLinkEntities(sanitizeMarkdownSource(source));
 
 	useEffect(() => {
 		if (!ref.current) return;
@@ -114,7 +140,7 @@ export default function MermaidMarkdown({ source, onFileClick }: Props) {
 				return;
 			}
 
-			// Handle file path clicks for preview
+			// Handle file path clicks for preview (skip entity links)
 			if (onFileClick) {
 				const linkAnchor = target.closest("a[href]");
 				if (linkAnchor) {
@@ -124,7 +150,10 @@ export default function MermaidMarkdown({ source, onFileClick }: Props) {
 						!href.startsWith("http://") &&
 						!href.startsWith("https://") &&
 						!href.startsWith("#") &&
-						!href.startsWith("mailto:")
+						!href.startsWith("mailto:") &&
+						!href.startsWith("/tasks/") &&
+						!href.startsWith("/documentation/") &&
+						!href.startsWith("/decisions/")
 					) {
 						e.preventDefault();
 						onFileClick(href);

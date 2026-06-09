@@ -604,6 +604,15 @@ export class ApiClient {
 		return this.fetchJson<DuplicateGroup[]>(`${API_BASE}/duplicates`);
 	}
 
+	async fetchBacklinks(
+		id: string,
+	): Promise<Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }>> {
+		return this.getJson<Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }>>(
+			`${API_BASE}/backlinks/${encodeURIComponent(id)}`,
+			"Failed to fetch backlinks",
+		);
+	}
+
 	async checkStatus(): Promise<InitializationStatus> {
 		return this.fetchJson<InitializationStatus>(`${API_BASE}/status`);
 	}
