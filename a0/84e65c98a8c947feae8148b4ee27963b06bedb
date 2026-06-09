@@ -1,0 +1,42 @@
+src/commands/mcp.ts
+  s_8f27a45ade91ad::t_daab7e4c63fdb6 39,42-50
+  s_8f27a45ade91ad::t_5241e1c792f159 10,17
+  s_8f27a45ade91ad::t_e7cc2225e5295e 57
+src/test/cli-context.test.ts
+  s_8f27a45ade91ad::t_87d46ebb7e0df5 1-32
+src/cli.ts
+  s_8f27a45ade91ad::t_c541a5c4a44753 160-166
+  s_8f27a45ade91ad::t_ac445624cb7738 159
+  s_8f27a45ade91ad::t_7e893b5e1ad7aa 47-67
+  s_8f27a45ade91ad::t_6a483a59b78810 25
+  s_8f27a45ade91ad::t_5ac14b06de4e99 123
+  s_48e3f921d870c5::t_33fe7d4bd7f72f 183-184
+  s_8f27a45ade91ad::t_9351cc3cabba91 122
+  s_8f27a45ade91ad::t_e15d5c58f83e82 93-98
+src/utils/cli-context.ts
+  s_8f27a45ade91ad::t_daaeb7c155b079 34-43,45-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "a084e65c98a8c947feae8148b4ee27963b06bedb",
+  "prompts": {},
+  "sessions": {
+    "s_48e3f921d870c5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_153b92590ffejtnllvBeXbCXfL",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_8f27a45ade91ad": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_153c2372bffeCCIpNRmk55DyMl",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
