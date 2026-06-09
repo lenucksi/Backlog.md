@@ -592,6 +592,7 @@ function App() {
                 isLoading={isLoading}
                 labelColors={labelColors}
                 authorColors={authorColors}
+                autoCollapseMilestones={config?.autoCollapseMilestones}
               />
             }
           />
@@ -613,6 +614,7 @@ function App() {
                 isLoading={isLoading}
                 labelColors={labelColors}
                 authorColors={authorColors}
+                autoCollapseMilestones={config?.autoCollapseMilestones}
               />
             }
           />

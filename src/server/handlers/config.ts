@@ -38,7 +38,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				ctx.setProjectName(updatedConfig.projectName);
 			}
 
-			ctx.broadcastTasksUpdated();
+			ctx.broadcastConfigUpdated();
 
 			return Response.json(updatedConfig);
 		} catch (error) {

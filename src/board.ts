@@ -1,5 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
+import { isDoneStatus } from "./core/milestones.ts";
 import type { Milestone, Task } from "./types/index.ts";
 
 export interface BoardOptions {
@@ -293,7 +294,9 @@ Project: ${projectName}
 function generateMilestoneSection(milestone: string, tasks: Task[], statuses: string[]): string {
 	const { orderedStatuses, groupedTasks } = buildKanbanStatusGroups(tasks, statuses);
 
-	const sectionHeader = `## ${milestone} (${tasks.length} tasks)\n`;
+	const allDone = tasks.length > 0 && tasks.every((t) => isDoneStatus(t.status, statuses));
+	const allDoneMarker = allDone ? " [ALL DONE]" : "";
+	const sectionHeader = `## ${milestone} (${tasks.length} tasks)${allDoneMarker}\n`;
 
 	if (orderedStatuses.length === 0) {
 		return `${sectionHeader}\nNo tasks.\n`;

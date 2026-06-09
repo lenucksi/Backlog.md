@@ -52,6 +52,12 @@ if (!webBuild.success) {
 	process.exit(1);
 }
 
+// Patch dist/web/main.js to remove Firefox "unreachable code after return" from chevrotain
+const mainJsPath = "dist/web/main.js";
+let mainJs = await Bun.file(mainJsPath).text();
+mainJs = mainJs.replace(/;\s*\(0,\s*eval\)\s*\(\w+\)\s*\}/g, "}");
+await Bun.write(mainJsPath, mainJs);
+
 await Bun.write("dist/web/main.css", Bun.file("src/web/styles/style.css"));
 const html = await Bun.file("src/web/index.html").text();
 const bundledHtml = html

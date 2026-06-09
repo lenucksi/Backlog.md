@@ -1808,6 +1808,9 @@ ${description || `Milestone: ${title}`}`,
 				case "backlogDirectory":
 					config.backlogDirectory = value.replace(/['"]/g, "");
 					break;
+				case "auto_collapse_milestones":
+					config.autoCollapseMilestones = value.toLowerCase() === "true";
+					break;
 			}
 		}
 
@@ -1836,6 +1839,7 @@ ${description || `Milestone: ${title}`}`,
 			onStatusChange: config.onStatusChange,
 			prefixes: config.prefixes,
 			backlogDirectory: config.backlogDirectory,
+			autoCollapseMilestones: config.autoCollapseMilestones,
 		};
 	}
 
@@ -1882,6 +1886,9 @@ ${description || `Milestone: ${title}`}`,
 			...(config.onStatusChange ? [`onStatusChange: '${config.onStatusChange}'`] : []),
 			...(config.prefixes?.task ? [`task_prefix: "${config.prefixes.task}"`] : []),
 			...(config.backlogDirectory ? [`backlog_directory: "${config.backlogDirectory}"`] : []),
+			...(typeof config.autoCollapseMilestones === "boolean"
+				? [`auto_collapse_milestones: ${config.autoCollapseMilestones}`]
+				: []),
 		];
 
 		return `${lines.join("\n")}\n`;

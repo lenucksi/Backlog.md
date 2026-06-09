@@ -19,6 +19,7 @@ interface BoardPageProps {
   isLoading: boolean;
   labelColors?: Record<string, string>;
   authorColors?: Record<string, string>;
+  autoCollapseMilestones?: boolean;
 }
 
 export default function BoardPage({
@@ -36,6 +37,7 @@ export default function BoardPage({
   isLoading,
   labelColors,
   authorColors,
+  autoCollapseMilestones,
 }: BoardPageProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
@@ -151,6 +153,7 @@ export default function BoardPage({
 				onFiltersChange={handleFiltersChange}
 				labelColors={labelColors}
 				authorColors={authorColors}
+				autoCollapseMilestones={autoCollapseMilestones}
 			/>
 		</div>
 	);

@@ -1,0 +1,35 @@
+--- a/node_modules/@chevrotain/utils/lib/src/to-fast-properties.js
++++ b/node_modules/@chevrotain/utils/lib/src/to-fast-properties.js
+@@ -11,11 +11,10 @@ export function toFastProperties(toBecomeFast) {
+     // help V8 understand this is a "real" prototype by actually using
+     // the fake instance.
+     fakeAccess();
+     fakeAccess();
+-    // Always true condition to suppress the Firefox warning of unreachable
+-    // code after a return statement.
+-    if (1)
+-        return toBecomeFast;
+     // Eval prevents optimization of this method (even though this is dead code)
+     // - https://esbuild.github.io/content-types/#direct-eval
+     /* istanbul ignore next */
+     // tslint:disable-next-line
+     (0, eval)(toBecomeFast);
++    return toBecomeFast;
+ }
+--- a/node_modules/@chevrotain/utils/src/to-fast-properties.ts
++++ b/node_modules/@chevrotain/utils/src/to-fast-properties.ts
+@@ -17,11 +17,9 @@ export function toFastProperties(toBecomeFast: any) {
+   fakeAccess();
+   fakeAccess();
+
+-  // Always true condition to suppress the Firefox warning of unreachable
+-  // code after a return statement.
+-  if (1) return toBecomeFast;
+
+   // Eval prevents optimization of this method (even though this is dead code)
+   // - https://esbuild.github.io/content-types/#direct-eval
+   /* istanbul ignore next */
+   // tslint:disable-next-line
+   (0, eval)(toBecomeFast);
++  return toBecomeFast;
+ }

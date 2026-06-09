@@ -5,6 +5,7 @@ import { buildLanes, DEFAULT_LANE_KEY, groupTasksByLaneAndStatus, type LaneMode 
 import { collectAvailableLabels, labelsToLower } from '../../utils/label-filter';
 import { collectArchivedMilestoneKeys, milestoneKey } from '../utils/milestones';
 import { getTerminalStatus } from '../../utils/terminal-status';
+import { isDoneStatus } from '../../core/milestones';
 import TaskColumn from './TaskColumn';
 import CleanupModal from './CleanupModal';
 import LabelFilterDropdown from './LabelFilterDropdown';
@@ -33,6 +34,7 @@ interface BoardProps {
   onFiltersChange?: (filters: { assignee: string; labels: string[]; priority: string }) => void;
   labelColors?: Record<string, string>;
   authorColors?: Record<string, string>;
+  autoCollapseMilestones?: boolean;
 }
 
 const PRIORITY_OPTIONS = [
@@ -70,6 +72,7 @@ const Board: React.FC<BoardProps> = ({
   onFiltersChange,
   labelColors,
   authorColors,
+  autoCollapseMilestones,
 }) => {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [dragSourceStatus, setDragSourceStatus] = useState<string | null>(null);
@@ -382,7 +385,7 @@ const Board: React.FC<BoardProps> = ({
     if (!statusMap) return 0;
     let count = 0;
     for (const [status, taskList] of statusMap) {
-      if (status.toLowerCase().includes('done') || status.toLowerCase().includes('complete')) {
+      if (isDoneStatus(status, statuses, terminalStatuses)) {
         count += taskList.length;
       }
     }
@@ -402,13 +405,12 @@ const Board: React.FC<BoardProps> = ({
     return lanes.filter(l => laneTaskCount(l.key) > 0);
   }, [laneMode, lanes, laneMetadataTasksByLane]);
 
-  // Only show lane headers when multiple lanes exist
+  // Always show lane headers in milestone mode (needed for expand/collapse interaction)
   const shouldShowLaneHeaders = useMemo(() => {
-    if (laneMode !== 'milestone') return false;
-    return visibleLanes.length > 1;
-  }, [laneMode, visibleLanes]);
+    return laneMode === 'milestone';
+  }, [laneMode]);
 
-  // Determine if a lane should be collapsed (respects milestoneFilter)
+  // Determine if a lane should be collapsed
   const isLaneCollapsed = (laneKey: string, laneMilestone?: string): boolean => {
     // If user manually toggled, respect that
     if (collapsedLanes[laneKey] !== undefined) {
@@ -416,6 +418,10 @@ const Board: React.FC<BoardProps> = ({
     }
     // When filtering by milestone, collapse all other lanes by default
     if (milestoneFilter && canonicalizeMilestone(laneMilestone) !== canonicalMilestoneFilter) {
+      return true;
+    }
+    // Auto-collapse when all tasks are done and setting is enabled
+    if (autoCollapseMilestones && getLaneProgress(laneKey) === 100) {
       return true;
     }
     return false;
@@ -429,9 +435,12 @@ const Board: React.FC<BoardProps> = ({
   };
 
   const toggleLaneCollapse = (laneKey: string) => {
+    const effectivelyCollapsed = collapsedLanes[laneKey] !== undefined
+      ? collapsedLanes[laneKey]
+      : (autoCollapseMilestones && getLaneProgress(laneKey) === 100);
     setCollapsedLanes(prev => ({
       ...prev,
-      [laneKey]: !prev[laneKey],
+      [laneKey]: !effectivelyCollapsed,
     }));
   };
 
@@ -603,15 +612,23 @@ const Board: React.FC<BoardProps> = ({
                       </span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <div className="w-20 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                        <div
-                          className="h-full bg-emerald-500 transition-all duration-300"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-8 text-right">
-                        {progress}%
-                      </span>
+                      {taskCount > 0 && progress === 100 ? (
+                        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                          ✓ All done
+                        </span>
+                      ) : (
+                        <>
+                          <div className="w-20 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                            <div
+                              className="h-full bg-emerald-500 transition-all duration-300"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-8 text-right">
+                            {progress}%
+                          </span>
+                        </>
+                      )}
                     </div>
                   </button>
                 )}
