@@ -22,6 +22,7 @@ import { registerSequenceCommand } from "./commands/sequence.ts";
 import { registerStatsCommand } from "./commands/statistics.ts";
 import { registerTaskCommand } from "./commands/task.ts";
 import { Core } from "./core/backlog.ts";
+import { getExplicitProjectPath, setExplicitProjectPath } from "./utils/cli-context.ts";
 import { findBacklogRoot } from "./utils/find-backlog-root.ts";
 import { resolveRuntimeCwd } from "./utils/runtime-cwd.ts";
 import { getVersion } from "./utils/version.ts";
@@ -42,6 +43,27 @@ if (process.env.BUN_OPTIONS) {
 
 // Get version from package.json
 const version = await getVersion();
+
+function getPathOverrideFromArgv(argv = process.argv): string | undefined {
+	const args = argv.slice(2);
+	for (let i = 0; i < args.length; i++) {
+		const arg = args[i];
+		if (!arg || arg.startsWith("-") === false) {
+			continue;
+		}
+		if (arg === "--path") {
+			const next = args[i + 1]?.trim();
+			if (next && !next.startsWith("-")) {
+				return next || undefined;
+			}
+		}
+		if (arg?.startsWith("--path=")) {
+			const value = arg.slice("--path=".length).trim();
+			return value || undefined;
+		}
+	}
+	return undefined;
+}
 
 function getMcpStartCwdOverrideFromArgv(argv = process.argv): string | undefined {
 	const args = argv.slice(2);
@@ -68,6 +90,12 @@ function getMcpStartCwdOverrideFromArgv(argv = process.argv): string | undefined
 	return undefined;
 }
 
+// Parse --path from argv early for use in splash screen and config migration
+const explicitPath = getPathOverrideFromArgv();
+if (explicitPath) {
+	setExplicitProjectPath(explicitPath);
+}
+
 // Bare-run splash screen handling (before Commander parses commands)
 try {
 	let rawArgs = process.argv.slice(2);
@@ -91,8 +119,8 @@ try {
 
 		let initialized = false;
 		try {
-			const runtimeCwd = await resolveRuntimeCwd();
-			const projectRoot = await findBacklogRoot(runtimeCwd.cwd);
+			const rootPath = getExplicitProjectPath();
+			const projectRoot = rootPath ?? (await findBacklogRoot((await resolveRuntimeCwd()).cwd));
 			if (projectRoot) {
 				const core = new Core(projectRoot);
 				const cfg = await core.filesystem.loadConfig();
@@ -128,8 +156,14 @@ const shouldRunMigration =
 
 if (shouldRunMigration) {
 	try {
-		const runtimeCwd = await resolveRuntimeCwd({ cwd: getMcpStartCwdOverrideFromArgv() });
-		const projectRoot = await findBacklogRoot(runtimeCwd.cwd);
+		const rootPath = getExplicitProjectPath();
+		let projectRoot: string | null;
+		if (rootPath) {
+			projectRoot = rootPath;
+		} else {
+			const runtimeCwd = await resolveRuntimeCwd({ cwd: getMcpStartCwdOverrideFromArgv() });
+			projectRoot = await findBacklogRoot(runtimeCwd.cwd);
+		}
 		if (projectRoot) {
 			const core = new Core(projectRoot);
 			const config = await core.filesystem.loadConfig();
@@ -146,7 +180,8 @@ const program = new Command();
 program
 	.name("backlog")
 	.description("Backlog.md - Project management CLI")
-	.version(version, "-v, --version", "display version number");
+	.version(version, "-v, --version", "display version number")
+	.option("--path <path>", "Path to the Backlog.md project root (overrides auto-detection)");
 
 // Register all command groups
 registerInitCommand(program);
