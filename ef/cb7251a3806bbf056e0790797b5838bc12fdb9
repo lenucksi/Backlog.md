@@ -1,0 +1,20 @@
+"backlog/tasks/back-556 - Auto-collapse-milestone-swimlanes-when-all-tasks-are-done.md"
+  s_70add0f27285d0::t_7dad2e52b0a35a 18-23
+  s_70add0f27285d0::t_da05b4397f0c6f 112-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "efcb7251a3806bbf056e0790797b5838bc12fdb9",
+  "prompts": {},
+  "sessions": {
+    "s_70add0f27285d0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1537b2046ffePdteza8appX1XY",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
