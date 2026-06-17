@@ -71,7 +71,10 @@ export class LabelHandlers {
 				isError: true,
 			};
 		}
-		config.labels[idx] = input.newName;
+		const existingLabel = config.labels[idx];
+		config.labels[idx] = typeof existingLabel === "object" && existingLabel.color
+			? { name: input.newName, color: existingLabel.color }
+			: input.newName;
 		config.labels = config.labels.sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
 		await this.core.filesystem.saveConfig(config);
 

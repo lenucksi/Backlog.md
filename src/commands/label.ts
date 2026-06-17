@@ -45,6 +45,16 @@ async function ensureLabelsMigrated(core: Core): Promise<void> {
 	}
 }
 
+function preserveLabelColor(
+	label: string | { name: string; color?: string },
+	newName: string,
+): string | { name: string; color?: string } {
+	if (typeof label === "object" && label.color) {
+		return { name: newName, color: label.color };
+	}
+	return newName;
+}
+
 export function registerLabelCommand(program: Command): void {
 	const labelCmd = program.command("label").description("manage backlog labels");
 
@@ -135,7 +145,12 @@ export function registerLabelCommand(program: Command): void {
 				console.error(`Target label already exists: ${newName}`);
 				process.exit(1);
 			}
-			reloaded.labels[labelIndex] = newName;
+			const oldLabel = reloaded.labels[labelIndex];
+			if (oldLabel) {
+				reloaded.labels[labelIndex] = preserveLabelColor(oldLabel, newName);
+			} else {
+				reloaded.labels[labelIndex] = newName;
+			}
 			reloaded.labels = reloaded.labels.sort((a, b) =>
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
