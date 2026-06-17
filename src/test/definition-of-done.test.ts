@@ -70,7 +70,7 @@ describe("Definition of Done", () => {
 		expect(reloaded?.definitionOfDone).toEqual(["First item", "Second item", "Third item"]);
 
 		const rawConfig = await readConfigFile(TEST_DIR);
-		expect(rawConfig).toContain('definition_of_done: ["First item", "Second item", "Third item"]');
+		expect(rawConfig).toContain("definition_of_done: [ First item, Second item, Third item ]");
 	});
 
 	it("ignores non-string values when saving definition_of_done", async () => {
@@ -87,7 +87,7 @@ describe("Definition of Done", () => {
 		expect(reloaded?.definitionOfDone).toEqual(["First item", "Second item"]);
 
 		const rawConfig = await readConfigFile(TEST_DIR);
-		expect(rawConfig).toContain('definition_of_done: ["First item", "Second item"]');
+		expect(rawConfig).toContain("definition_of_done: [ First item, Second item ]");
 	});
 
 	it("round-trips saved definition_of_done entries with backslashes", async () => {
@@ -102,7 +102,7 @@ describe("Definition of Done", () => {
 		}
 
 		const rawConfig = await readConfigFile(TEST_DIR);
-		expect(rawConfig).toContain(String.raw`definition_of_done: ["Run .\\scripts\\check.ps1"]`);
+		expect(rawConfig).toContain(String.raw`definition_of_done: [ Run .\scripts\check.ps1 ]`);
 
 		const reloaded = await core.filesystem.loadConfig();
 		expect(reloaded?.definitionOfDone).toEqual([windowsCheck]);
@@ -131,14 +131,14 @@ describe("Definition of Done", () => {
 		expect(body).toContain("- [ ] #2 item with, a comma, inside");
 	});
 
-	it("preserves legacy flow-style definition_of_done entries with unescaped backslashes", async () => {
-		const scriptCheck = String.raw`Run .\scripts\check.ps1`;
-		const tempTasks = "Run C:\temp\tasks";
+	it("preserves definition_of_done entries with backslashes", async () => {
+		const scriptCheck = "Run .\\scripts\\check.ps1";
+		const tempTasks = "Run C:\\temp\\tasks";
 		await writeConfigFile(
 			TEST_DIR,
 			[
 				'project_name: "DoD Test Project"',
-				String.raw`definition_of_done: ["Run .\scripts\check.ps1", "Run C:	emp	asks"]`,
+				'definition_of_done: ["Run .\\\\scripts\\\\check.ps1", "Run C:\\\\temp\\\\tasks"]',
 				'statuses: ["To Do", "In Progress", "Done"]',
 				"labels: []",
 				"",

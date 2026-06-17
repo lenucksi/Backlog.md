@@ -178,8 +178,9 @@ describe("MCP Definition of Done default tools", () => {
 		expect(reloaded.onStatusChange).toBeUndefined();
 
 		const configText = await Bun.file(server.filesystem.configFilePath).text();
-		expect(configText).toContain(String.raw`Validate \"dark mode\"\nonStatusChange: \"echo pwned\"`);
-		expect(configText).not.toContain('\nonStatusChange: "echo pwned"');
+		expect(configText).toContain("definition_of_done");
+		expect(configText).toContain('Validate "dark mode"');
+		expect(configText).not.toMatch(/^onStatusChange: /m);
 	});
 
 	it("allows apostrophes in DoD defaults", async () => {

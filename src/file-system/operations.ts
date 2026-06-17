@@ -1,10 +1,10 @@
 import { mkdir, readdir, rename, rmdir, stat, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { isSeq, parse as parseYaml, visit, Document as YamlDocument } from "yaml";
 import { DEFAULT_DIRECTORIES, DEFAULT_FILES, DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
 import { parseDecision, parseDocument, parseMilestone, parseTask } from "../markdown/parser.ts";
 import { serializeDecision, serializeDocument, serializeTask } from "../markdown/serializer.ts";
 import type {
-	AuthorConfig,
 	BacklogConfig,
 	Decision,
 	Document,
@@ -101,88 +101,6 @@ async function cleanupDocumentDuplicates(docsDir: string, matchesForId: string[]
 	}
 }
 
-export function parseAuthorArray(content: string): Array<string | AuthorConfig> {
-	if (!content || content.trim().length === 0) return [];
-	const items: Array<string | AuthorConfig> = [];
-	let depth = 0;
-	let current = "";
-	for (const ch of content) {
-		if (ch === "{" || ch === "[") depth++;
-		else if (ch === "}" || ch === "]") depth--;
-		if (ch === "," && depth === 0) {
-			const trimmed = current.trim();
-			if (trimmed) {
-				if (trimmed.startsWith("{")) {
-					const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
-					const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
-					if (nameMatch?.[1]) {
-						items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
-					}
-				} else {
-					items.push(trimmed.replace(/['"]/g, ""));
-				}
-			}
-			current = "";
-		} else {
-			current += ch;
-		}
-	}
-	const trimmed = current.trim();
-	if (trimmed) {
-		if (trimmed.startsWith("{")) {
-			const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
-			const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
-			if (nameMatch?.[1]) {
-				items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
-			}
-		} else {
-			items.push(trimmed.replace(/['"]/g, ""));
-		}
-	}
-	return items;
-}
-
-export function parseLabelArray(content: string): Array<string | LabelConfig> {
-	if (!content || content.trim().length === 0) return [];
-	const items: Array<string | LabelConfig> = [];
-	let depth = 0;
-	let current = "";
-	for (const ch of content) {
-		if (ch === "{" || ch === "[") depth++;
-		else if (ch === "}" || ch === "]") depth--;
-		if (ch === "," && depth === 0) {
-			const trimmed = current.trim();
-			if (trimmed) {
-				if (trimmed.startsWith("{")) {
-					const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
-					const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
-					if (nameMatch?.[1]) {
-						items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
-					}
-				} else {
-					items.push(trimmed.replace(/['"]/g, ""));
-				}
-			}
-			current = "";
-		} else {
-			current += ch;
-		}
-	}
-	const trimmed = current.trim();
-	if (trimmed) {
-		if (trimmed.startsWith("{")) {
-			const nameMatch = trimmed.match(/name:\s*["']?([^"',}\]]+)["']?/);
-			const colorMatch = trimmed.match(/color:\s*["']?([^"',}\]]+)["']?/);
-			if (nameMatch?.[1]) {
-				items.push({ name: nameMatch[1].trim(), color: colorMatch?.[1]?.trim() });
-			}
-		} else {
-			items.push(trimmed.replace(/['"]/g, ""));
-		}
-	}
-	return items;
-}
-
 export class FileSystem {
 	private resolvedBacklogDir: string;
 	private resolvedBacklogDirName: string;
@@ -190,6 +108,7 @@ export class FileSystem {
 	private configSource: BacklogConfigSource;
 	private readonly projectRoot: string;
 	private cachedConfig: BacklogConfig | null = null;
+	private cachedRawConfig: Record<string, unknown> | null = null;
 
 	constructor(projectRoot: string) {
 		this.projectRoot = projectRoot;
@@ -271,6 +190,7 @@ export class FileSystem {
 
 	invalidateConfigCache(): void {
 		this.cachedConfig = null;
+		this.cachedRawConfig = null;
 		const resolution = resolveBacklogDirectory(this.projectRoot);
 		this.resolvedBacklogDirName = resolution.backlogDir ?? DEFAULT_DIRECTORIES.BACKLOG;
 		this.resolvedBacklogDir = resolution.backlogPath ?? join(this.projectRoot, DEFAULT_DIRECTORIES.BACKLOG);
@@ -1537,29 +1457,44 @@ ${description || `Milestone: ${title}`}`,
 
 	// Config operations
 	async loadConfig(): Promise<BacklogConfig | null> {
-		// Return cached config if available
 		if (this.cachedConfig !== null) {
 			return this.cachedConfig;
 		}
 
 		try {
 			const configPath = this.resolvedConfigPath;
-
-			// Check if file exists first to avoid hanging on Windows
 			const file = Bun.file(configPath);
 			const exists = await file.exists();
-
-			if (!exists) {
-				return null;
-			}
+			if (!exists) return null;
 
 			const content = await file.text();
-			const config = this.parseConfig(content);
+			const result = this.parseConfig(content);
 
-			// Cache the loaded config
-			this.cachedConfig = config;
-			return config;
+			this.cachedConfig = result.config;
+			this.cachedRawConfig = result.raw;
+			return result.config;
 		} catch (_error) {
+			return null;
+		}
+	}
+
+	async loadRawConfig(): Promise<Record<string, unknown> | null> {
+		if (this.cachedRawConfig !== null) {
+			return this.cachedRawConfig;
+		}
+
+		try {
+			const configPath = this.resolvedConfigPath;
+			const file = Bun.file(configPath);
+			const exists = await file.exists();
+			if (!exists) return null;
+
+			const content = await file.text();
+			const raw = parseYaml(content) as Record<string, unknown>;
+
+			this.cachedRawConfig = raw;
+			return raw;
+		} catch {
 			return null;
 		}
 	}
@@ -1570,14 +1505,23 @@ ${description || `Milestone: ${title}`}`,
 			...(this.configSource === "root" ? { backlogDirectory: this.resolvedBacklogDirName } : {}),
 			definitionOfDone: this.normalizeDefinitionOfDone(config.definitionOfDone),
 			terminalStatuses: config.terminalStatuses?.length ? config.terminalStatuses : undefined,
+			blockedStatuses: config.blockedStatuses?.length ? config.blockedStatuses : undefined,
 		};
 		if (this.configSource === "folder") {
 			delete normalizedConfig.backlogDirectory;
 		}
+
+		const raw = this.cachedRawConfig ?? {};
+		const mapped = this.configToRaw(normalizedConfig);
+		const merged = { ...raw, ...mapped };
+		// Remove legacy dod_defaults key — we write definition_of_done
+		delete merged.dod_defaults;
+
 		const configPath = this.resolvedConfigPath;
-		const content = this.serializeConfig(normalizedConfig);
+		const content = this.serializeConfig(merged);
 		await Bun.write(configPath, content);
 		this.cachedConfig = normalizedConfig;
+		this.cachedRawConfig = merged;
 	}
 
 	// Utility methods
@@ -1676,343 +1620,154 @@ ${description || `Milestone: ${title}`}`,
 		}
 	}
 
-	private parseConfig(content: string): BacklogConfig {
+	private snakeToCamel: Record<string, keyof BacklogConfig | "prefixesTask"> = {
+		project_name: "projectName",
+		default_assignee: "defaultAssignee",
+		default_reporter: "defaultReporter",
+		default_status: "defaultStatus",
+		statuses: "statuses",
+		terminal_statuses: "terminalStatuses",
+		blocked_statuses: "blockedStatuses",
+		labels: "labels",
+		authors: "authors",
+		definition_of_done: "definitionOfDone",
+		dod_defaults: "definitionOfDone",
+		max_column_width: "maxColumnWidth",
+		default_editor: "defaultEditor",
+		auto_open_browser: "autoOpenBrowser",
+		default_port: "defaultPort",
+		remote_operations: "remoteOperations",
+		auto_commit: "autoCommit",
+		filesystem_only: "filesystemOnly",
+		zero_padded_ids: "zeroPaddedIds",
+		bypass_git_hooks: "bypassGitHooks",
+		check_active_branches: "checkActiveBranches",
+		active_branch_days: "activeBranchDays",
+		on_status_change: "onStatusChange",
+		task_prefix: "prefixesTask",
+		backlog_directory: "backlogDirectory",
+		auto_collapse_milestones: "autoCollapseMilestones",
+	};
+
+	private parseConfig(content: string): { config: BacklogConfig; raw: Record<string, unknown> } {
+		const raw = parseYaml(content) as Record<string, unknown>;
 		const config: Partial<BacklogConfig> = {};
-		const parsedDefinitionOfDone = this.parseDefinitionOfDone(content);
-		const lines = content.split("\n");
 
-		for (const line of lines) {
-			const trimmed = line.trim();
-			if (!trimmed || trimmed.startsWith("#")) continue;
+		// Handle dod_defaults as legacy alias for definition_of_done
+		if (raw.dod_defaults !== undefined && raw.definition_of_done === undefined) {
+			raw.definition_of_done = raw.dod_defaults;
+		}
+		delete raw.dod_defaults;
 
-			const colonIndex = trimmed.indexOf(":");
-			if (colonIndex === -1) continue;
+		for (const [snakeKey, value] of Object.entries(raw)) {
+			const camelKey = this.snakeToCamel[snakeKey];
+			if (!camelKey) continue;
 
-			const key = trimmed.substring(0, colonIndex).trim();
-			const value = trimmed.substring(colonIndex + 1).trim();
+			if (camelKey === "prefixesTask") {
+				config.prefixes = { task: String(value) };
+			} else if (camelKey === "backlogDirectory") {
+				config.backlogDirectory = String(value);
+			} else if (camelKey === "onStatusChange") {
+				config.onStatusChange = String(value);
+			} else {
+				(config as Record<string, unknown>)[camelKey] = value;
+			}
+		}
 
-			switch (key) {
-				case "project_name":
-					config.projectName = value.replace(/['"]/g, "");
-					break;
-				case "default_assignee":
-					config.defaultAssignee = value.replace(/['"]/g, "");
-					break;
-				case "default_reporter":
-					config.defaultReporter = value.replace(/['"]/g, "");
-					break;
-				case "default_status":
-					config.defaultStatus = value.replace(/['"]/g, "");
-					break;
-				case "statuses":
-					if (value.startsWith("[") && value.endsWith("]")) {
-						const arrayContent = value.slice(1, -1);
-						config[key] = arrayContent
-							.split(",")
-							.map((item) => item.trim().replace(/['"]/g, ""))
-							.filter(Boolean);
-					}
-					break;
-				case "labels":
-					if (value.startsWith("[") && value.endsWith("]")) {
-						const arrayContent = value.slice(1, -1);
-						if (arrayContent.includes("name:") || arrayContent.includes("{")) {
-							config.labels = parseLabelArray(arrayContent);
-						} else {
-							config.labels = arrayContent
-								.split(",")
-								.map((item) => item.trim().replace(/['"]/g, ""))
-								.filter(Boolean);
-						}
-					}
-					break;
-				case "authors":
-					if (value.startsWith("[") && value.endsWith("]")) {
-						const arrayContent = value.slice(1, -1);
-						if (arrayContent.includes("name:") || arrayContent.includes("{")) {
-							config.authors = parseAuthorArray(arrayContent);
-						} else {
-							config.authors = arrayContent
-								.split(",")
-								.map((item) => item.trim().replace(/['"]/g, ""))
-								.filter(Boolean);
-						}
-					}
-					break;
-				case "terminal_statuses":
-					if (value.startsWith("[") && value.endsWith("]")) {
-						const arrayContent = value.slice(1, -1);
-						config.terminalStatuses = arrayContent
-							.split(",")
-							.map((item) => item.trim().replace(/['"]/g, ""))
-							.filter(Boolean);
-					}
-					break;
-				case "blocked_statuses":
-					if (value.startsWith("[") && value.endsWith("]")) {
-						const arrayContent = value.slice(1, -1);
-						config.blockedStatuses = arrayContent
-							.split(",")
-							.map((item) => item.trim().replace(/['"]/g, ""))
-							.filter(Boolean);
-					}
-					break;
-				case "definition_of_done":
-					if (parsedDefinitionOfDone !== undefined) {
-						config.definitionOfDone = parsedDefinitionOfDone;
-					}
-					break;
-				case "max_column_width":
-					config.maxColumnWidth = Number.parseInt(value, 10);
-					break;
-				case "default_editor":
-					config.defaultEditor = value.replace(/["']/g, "");
-					break;
-				case "auto_open_browser":
-					config.autoOpenBrowser = value.toLowerCase() === "true";
-					break;
-				case "default_port":
-					config.defaultPort = Number.parseInt(value, 10);
-					break;
-				case "remote_operations":
-					config.remoteOperations = value.toLowerCase() === "true";
-					break;
-				case "auto_commit":
-					config.autoCommit = value.toLowerCase() === "true";
-					break;
-				case "filesystem_only":
-				case "filesystemOnly":
-					config.filesystemOnly = value.toLowerCase() === "true";
-					break;
-				case "zero_padded_ids":
-					config.zeroPaddedIds = Number.parseInt(value, 10);
-					break;
-				case "bypass_git_hooks":
-					config.bypassGitHooks = value.toLowerCase() === "true";
-					break;
-				case "check_active_branches":
-					config.checkActiveBranches = value.toLowerCase() === "true";
-					break;
-				case "active_branch_days":
-					config.activeBranchDays = Number.parseInt(value, 10);
-					break;
-				case "onStatusChange":
-				case "on_status_change":
-					// Remove surrounding quotes if present, but preserve inner content
-					config.onStatusChange = value.replace(/^['"]|['"]$/g, "");
-					break;
-				case "task_prefix":
-					config.prefixes = { task: value.replace(/['"]/g, "") };
-					break;
-				case "backlog_directory":
-				case "backlogDirectory":
-					config.backlogDirectory = value.replace(/['"]/g, "");
-					break;
-				case "auto_collapse_milestones":
-					config.autoCollapseMilestones = value.toLowerCase() === "true";
-					break;
+		if (raw.definition_of_done !== undefined) {
+			if (config.definitionOfDone == null) {
+				config.definitionOfDone = [];
+			} else {
+				config.definitionOfDone = this.normalizeDefinitionOfDone(config.definitionOfDone);
 			}
 		}
 
 		return {
-			projectName: config.projectName || "",
-			defaultAssignee: config.defaultAssignee,
-			defaultReporter: config.defaultReporter,
-			statuses: config.statuses || [...DEFAULT_STATUSES],
-			terminalStatuses: config.terminalStatuses,
-			blockedStatuses: config.blockedStatuses,
-			labels: config.labels || [],
-			authors: config.authors,
-			definitionOfDone: config.definitionOfDone,
-			defaultStatus: config.defaultStatus,
-			maxColumnWidth: config.maxColumnWidth,
-			defaultEditor: config.defaultEditor,
-			autoOpenBrowser: config.autoOpenBrowser,
-			defaultPort: config.defaultPort,
-			remoteOperations: config.remoteOperations,
-			autoCommit: config.autoCommit,
-			filesystemOnly: config.filesystemOnly,
-			zeroPaddedIds: config.zeroPaddedIds,
-			bypassGitHooks: config.bypassGitHooks,
-			checkActiveBranches: config.checkActiveBranches,
-			activeBranchDays: config.activeBranchDays,
-			onStatusChange: config.onStatusChange,
-			prefixes: config.prefixes,
-			backlogDirectory: config.backlogDirectory,
-			autoCollapseMilestones: config.autoCollapseMilestones,
+			config: {
+				projectName: (config.projectName as string) || "",
+				defaultAssignee: config.defaultAssignee as string | undefined,
+				defaultReporter: config.defaultReporter as string | undefined,
+				statuses: (config.statuses as string[]) || [...DEFAULT_STATUSES],
+				terminalStatuses: config.terminalStatuses as string[] | undefined,
+				blockedStatuses: config.blockedStatuses as string[] | undefined,
+				labels: (config.labels as Array<string | LabelConfig>) || [],
+				authors: config.authors as Array<string | { name: string; color?: string }> | undefined,
+				definitionOfDone: config.definitionOfDone as string[] | undefined,
+				defaultStatus: config.defaultStatus as string | undefined,
+				maxColumnWidth: config.maxColumnWidth as number | undefined,
+				defaultEditor: config.defaultEditor as string | undefined,
+				autoOpenBrowser: config.autoOpenBrowser as boolean | undefined,
+				defaultPort: config.defaultPort as number | undefined,
+				remoteOperations: config.remoteOperations as boolean | undefined,
+				autoCommit: config.autoCommit as boolean | undefined,
+				filesystemOnly: config.filesystemOnly as boolean | undefined,
+				zeroPaddedIds: config.zeroPaddedIds as number | undefined,
+				bypassGitHooks: config.bypassGitHooks as boolean | undefined,
+				checkActiveBranches: config.checkActiveBranches as boolean | undefined,
+				activeBranchDays: config.activeBranchDays as number | undefined,
+				onStatusChange: config.onStatusChange as string | undefined,
+				prefixes: config.prefixes as { task: string } | undefined,
+				backlogDirectory: config.backlogDirectory as string | undefined,
+				autoCollapseMilestones: config.autoCollapseMilestones as boolean | undefined,
+			},
+			raw,
 		};
 	}
 
-	private serializeConfig(config: BacklogConfig): string {
-		const normalizedDefinitionOfDone = this.normalizeDefinitionOfDone(config.definitionOfDone);
-		const lines = [
-			`project_name: "${config.projectName}"`,
-			...(config.defaultAssignee ? [`default_assignee: "${config.defaultAssignee}"`] : []),
-			...(config.defaultReporter ? [`default_reporter: "${config.defaultReporter}"`] : []),
-			...(config.defaultStatus ? [`default_status: "${config.defaultStatus}"`] : []),
-			`statuses: [${config.statuses.map((s) => `"${s}"`).join(", ")}]`,
-			...(Array.isArray(config.terminalStatuses) && config.terminalStatuses.length > 0
-				? [`terminal_statuses: [${config.terminalStatuses.map((s) => `"${s}"`).join(", ")}]`]
-				: []),
-			...(Array.isArray(config.blockedStatuses) && config.blockedStatuses.length > 0
-				? [`blocked_statuses: [${config.blockedStatuses.map((s) => `"${s}"`).join(", ")}]`]
-				: []),
-			`labels: [${config.labels.map((l) => (typeof l === "string" ? `"${l}"` : `{name: "${l.name}"${l.color ? `, color: "${l.color}"` : ""}}`)).join(", ")}]`,
-			...(config.authors && config.authors.length > 0
-				? [
-						`authors: [${config.authors
-							.map((a) =>
-								typeof a === "string" ? `"${a}"` : `{name: "${a.name}"${a.color ? `, color: "${a.color}"` : ""}}`,
-							)
-							.join(", ")}]`,
-					]
-				: []),
-			...(Array.isArray(normalizedDefinitionOfDone)
-				? [`definition_of_done: [${normalizedDefinitionOfDone.map((item) => JSON.stringify(item)).join(", ")}]`]
-				: []),
-			...(config.maxColumnWidth ? [`max_column_width: ${config.maxColumnWidth}`] : []),
-			...(config.defaultEditor ? [`default_editor: "${config.defaultEditor}"`] : []),
-			...(typeof config.autoOpenBrowser === "boolean" ? [`auto_open_browser: ${config.autoOpenBrowser}`] : []),
-			...(config.defaultPort ? [`default_port: ${config.defaultPort}`] : []),
-			...(typeof config.remoteOperations === "boolean" ? [`remote_operations: ${config.remoteOperations}`] : []),
-			...(typeof config.autoCommit === "boolean" ? [`auto_commit: ${config.autoCommit}`] : []),
-			...(typeof config.filesystemOnly === "boolean" ? [`filesystem_only: ${config.filesystemOnly}`] : []),
-			...(typeof config.zeroPaddedIds === "number" ? [`zero_padded_ids: ${config.zeroPaddedIds}`] : []),
-			...(typeof config.bypassGitHooks === "boolean" ? [`bypass_git_hooks: ${config.bypassGitHooks}`] : []),
-			...(typeof config.checkActiveBranches === "boolean"
-				? [`check_active_branches: ${config.checkActiveBranches}`]
-				: []),
-			...(typeof config.activeBranchDays === "number" ? [`active_branch_days: ${config.activeBranchDays}`] : []),
-			...(config.onStatusChange ? [`onStatusChange: '${config.onStatusChange}'`] : []),
-			...(config.prefixes?.task ? [`task_prefix: "${config.prefixes.task}"`] : []),
-			...(config.backlogDirectory ? [`backlog_directory: "${config.backlogDirectory}"`] : []),
-			...(typeof config.autoCollapseMilestones === "boolean"
-				? [`auto_collapse_milestones: ${config.autoCollapseMilestones}`]
-				: []),
-		];
+	private configToRaw(config: BacklogConfig): Record<string, unknown> {
+		const camelToSnake: Record<string, string> = {
+			projectName: "project_name",
+			defaultAssignee: "default_assignee",
+			defaultReporter: "default_reporter",
+			defaultStatus: "default_status",
+			statuses: "statuses",
+			terminalStatuses: "terminal_statuses",
+			blockedStatuses: "blocked_statuses",
+			labels: "labels",
+			authors: "authors",
+			definitionOfDone: "definition_of_done",
+			maxColumnWidth: "max_column_width",
+			defaultEditor: "default_editor",
+			autoOpenBrowser: "auto_open_browser",
+			defaultPort: "default_port",
+			remoteOperations: "remote_operations",
+			autoCommit: "auto_commit",
+			filesystemOnly: "filesystem_only",
+			zeroPaddedIds: "zero_padded_ids",
+			bypassGitHooks: "bypass_git_hooks",
+			checkActiveBranches: "check_active_branches",
+			activeBranchDays: "active_branch_days",
+			onStatusChange: "onStatusChange",
+			autoCollapseMilestones: "auto_collapse_milestones",
+			backlogDirectory: "backlog_directory",
+		};
 
-		return `${lines.join("\n")}\n`;
+		const raw: Record<string, unknown> = {};
+
+		for (const [camelKey, snakeKey] of Object.entries(camelToSnake)) {
+			const value = (config as unknown as Record<string, unknown>)[camelKey];
+			// Skip undefined optional fields
+			if (value === undefined) continue;
+			raw[snakeKey] = value;
+		}
+
+		// Handle prefixes.task → task_prefix
+		if (config.prefixes?.task) {
+			raw.task_prefix = config.prefixes.task;
+		}
+
+		return raw;
 	}
 
-	private parseDefinitionOfDone(content: string): string[] | undefined {
-		const definitionOfDoneYaml = this.extractDefinitionOfDoneYaml(content);
-		const legacyEscapedDefinitionOfDoneYaml = definitionOfDoneYaml
-			? this.escapeLegacyDefinitionOfDoneBackslashes(definitionOfDoneYaml)
-			: undefined;
-		if (legacyEscapedDefinitionOfDoneYaml) {
-			const parsedLegacyDefinitionOfDone = this.parseDefinitionOfDoneFromYaml(legacyEscapedDefinitionOfDoneYaml);
-			if (parsedLegacyDefinitionOfDone !== undefined) {
-				return parsedLegacyDefinitionOfDone;
+	private serializeConfig(raw: Record<string, unknown>): string {
+		const doc = new YamlDocument(raw);
+		// Force flow style for all sequences (inline arrays)
+		visit(doc, (_key, node, _path) => {
+			if (isSeq(node)) {
+				node.flow = true;
 			}
-		}
-
-		const parsedFromDocument = this.parseDefinitionOfDoneFromYaml(content);
-		if (parsedFromDocument !== undefined) {
-			return parsedFromDocument;
-		}
-
-		// Some legacy config values are accepted by the line parser but are not valid YAML.
-		return definitionOfDoneYaml ? this.parseDefinitionOfDoneFromYaml(definitionOfDoneYaml) : undefined;
-	}
-
-	private parseDefinitionOfDoneFromYaml(content: string): string[] | undefined {
-		try {
-			const data = parseFrontmatter(`---\n${content.trimEnd()}\n---\n`).data as Record<string, unknown>;
-			if (!Object.hasOwn(data, "definition_of_done")) {
-				return undefined;
-			}
-
-			const definitionOfDone = data.definition_of_done;
-			if (definitionOfDone === null) {
-				return [];
-			}
-
-			return this.normalizeDefinitionOfDone(definitionOfDone);
-		} catch {
-			return undefined;
-		}
-	}
-
-	private extractDefinitionOfDoneYaml(content: string): string | undefined {
-		const lines = content.split(/\r?\n/);
-		const keyPattern = /^(\s*)definition_of_done\s*:/;
-		const topLevelKeyPattern = /^\s*[A-Za-z_][A-Za-z0-9_]*\s*:/;
-		const startIndex = lines.findIndex((line) => keyPattern.test(line));
-		if (startIndex === -1) {
-			return undefined;
-		}
-
-		const startLine = lines[startIndex];
-		const startIndent = startLine?.match(keyPattern)?.[1]?.length ?? 0;
-		const collected: string[] = [];
-
-		for (let index = startIndex; index < lines.length; index++) {
-			const line = lines[index] ?? "";
-			const trimmed = line.trim();
-			const indent = line.length - line.trimStart().length;
-			const isNextTopLevelKey =
-				index > startIndex && trimmed.length > 0 && indent <= startIndent && topLevelKeyPattern.test(line);
-
-			if (isNextTopLevelKey) {
-				break;
-			}
-
-			collected.push(line);
-		}
-
-		return collected.join("\n");
-	}
-
-	private escapeLegacyDefinitionOfDoneBackslashes(content: string): string | undefined {
-		let escaped = "";
-		let quote: "'" | '"' | undefined;
-		let changed = false;
-
-		for (let index = 0; index < content.length; index++) {
-			const char = content[index];
-
-			if (quote) {
-				if (quote === '"' && char === "\\") {
-					let slashCount = 1;
-					while (content[index + slashCount] === "\\") {
-						slashCount++;
-					}
-
-					const nextChar = content[index + slashCount];
-					if (nextChar === '"' && slashCount % 2 === 1) {
-						escaped += "\\".repeat(slashCount);
-						escaped += nextChar;
-						index += slashCount;
-						continue;
-					}
-
-					const escapedSlashCount = slashCount % 2 === 1 ? slashCount + 1 : slashCount;
-					escaped += "\\".repeat(escapedSlashCount);
-					changed ||= escapedSlashCount !== slashCount;
-					index += slashCount - 1;
-					continue;
-				}
-
-				if (char === quote) {
-					escaped += char;
-					quote = undefined;
-					continue;
-				}
-
-				escaped += char;
-				continue;
-			}
-
-			if (char === "'" || char === '"') {
-				escaped += char;
-				quote = char;
-				continue;
-			}
-
-			escaped += char;
-		}
-
-		return changed ? escaped : undefined;
+		});
+		return doc.toString({ lineWidth: 80 });
 	}
 
 	private normalizeDefinitionOfDone(definitionOfDone: unknown): string[] | undefined {

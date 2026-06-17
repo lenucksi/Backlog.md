@@ -3,9 +3,210 @@ import { Core } from "../core/backlog.ts";
 import { installClaudeAgent } from "../index.ts";
 import { AppError } from "../utils/app-error.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { CONFIG_SCHEMA_ENTRIES, CONFIG_SCHEMA_MAP, type ConfigSchemaEntry } from "../utils/config-schema.ts";
 import type { CompletionInstallResult } from "./completion.ts";
 import { installCompletion } from "./completion.ts";
 import { configureAdvancedSettings } from "./configure-advanced-settings.ts";
+
+function levenshtein(a: string, b: string): number {
+	if (a.length < b.length) return levenshtein(b, a);
+	const n = b.length;
+	const prev: number[] = [];
+	for (let j = 0; j <= n; j++) prev.push(j);
+	for (let i = 0; i < a.length; i++) {
+		const curr: number[] = [i + 1];
+		for (let j = 0; j < n; j++) {
+			const cost = a[i] === b[j] ? 0 : 1;
+			// biome-ignore lint/style/noNonNullAssertion: TS strict array access workaround
+			const del = curr[j]! + 1;
+			// biome-ignore lint/style/noNonNullAssertion: TS strict array access workaround
+			const ins = prev[j + 1]! + 1;
+			// biome-ignore lint/style/noNonNullAssertion: TS strict array access workaround
+			const sub = prev[j]! + cost;
+			curr.push(Math.min(del, ins, sub));
+		}
+		prev.length = 0;
+		for (let j = 0; j < curr.length; j++) {
+			// biome-ignore lint/style/noNonNullAssertion: TS strict array access workaround
+			prev.push(curr[j]!);
+		}
+	}
+	// biome-ignore lint/style/noNonNullAssertion: TS strict array access workaround
+	return prev[n]!;
+}
+
+function fuzzySuggest(input: string, maxDistance = 3): string[] {
+	const lowered = input.toLowerCase();
+	return CONFIG_SCHEMA_ENTRIES.map((e) => ({ key: e.key, dist: levenshtein(lowered, e.key.toLowerCase()) }))
+		.filter((s) => s.dist <= maxDistance)
+		.sort((a, b) => a.dist - b.dist)
+		.map((s) => s.key)
+		.slice(0, 5);
+}
+
+function labelToString(label: unknown): string {
+	if (typeof label === "string") return label;
+	const l = label as Record<string, unknown>;
+	return l.color ? `${l.name} (${l.color})` : String(l.name);
+}
+
+function authorToString(author: unknown): string {
+	if (typeof author === "string") return author;
+	const a = author as Record<string, unknown>;
+	return a.color ? `${a.name} (${a.color})` : String(a.name);
+}
+
+function formatValue(entry: ConfigSchemaEntry, value: unknown): string {
+	if (value === undefined || value === null) {
+		return entry.default !== undefined ? String(entry.default) : "(not set)";
+	}
+	switch (entry.type) {
+		case "string":
+		case "number":
+		case "boolean":
+			return String(value);
+		case "string[]":
+			return Array.isArray(value) ? `[${value.join(", ")}]` : String(value);
+		case "label[]":
+			return Array.isArray(value) ? `[${value.map(labelToString).join(", ")}]` : String(value);
+		case "author[]":
+			return Array.isArray(value) ? `[${value.map(authorToString).join(", ")}]` : String(value);
+		default:
+			return String(value);
+	}
+}
+
+function defaultDisplay(entry: ConfigSchemaEntry): string {
+	if (entry.default === undefined) return "(not set)";
+	if (Array.isArray(entry.default) && entry.default.length === 0) return "[]";
+	return String(entry.default);
+}
+
+function formatValuePretty(
+	entry: ConfigSchemaEntry,
+	value: unknown,
+): string {
+	if (value === undefined || value === null) {
+		return defaultDisplay(entry);
+	}
+	if (entry.type === "string" || entry.type === "number" || entry.type === "boolean") {
+		return String(value);
+	}
+	if (!Array.isArray(value)) return String(value);
+	const items = entry.type === "string[]"
+		? (value as string[])
+		: (value as unknown[]).map((v) => (entry.type === "author[]" ? authorToString(v) : labelToString(v)));
+	const inline = `[${items.join(", ")}]`;
+	if (items.length <= 5 && inline.length <= 80) {
+		return inline;
+	}
+	return items.map((item: string) => `  - ${item}`).join("\n");
+}
+
+function formatValueShort(entry: ConfigSchemaEntry, value: unknown): string {
+	if (value === undefined || value === null) return "";
+	switch (entry.type) {
+		case "string":
+		case "number":
+		case "boolean":
+			return String(value);
+		case "string[]":
+			return Array.isArray(value) ? value.join(", ") : String(value);
+		case "label[]":
+			return Array.isArray(value) ? value.map(labelToString).join(", ") : String(value);
+		case "author[]":
+			return Array.isArray(value) ? value.map(authorToString).join(", ") : String(value);
+		default:
+			return String(value);
+	}
+}
+
+function formatValueJson(value: unknown): string {
+	if (value === undefined || value === null) return "null";
+	return JSON.stringify(value);
+}
+
+function parseStringArray(rawValue: string): string[] {
+	try {
+		const parsed = JSON.parse(rawValue);
+		if (Array.isArray(parsed) && parsed.every((s: unknown) => typeof s === "string")) {
+			return parsed;
+		}
+	} catch {}
+	return rawValue
+		.split(",")
+		.map((s) => s.trim())
+		.filter((s) => s.length > 0);
+}
+
+function coerceValue(
+	entry: ConfigSchemaEntry,
+	rawValue: string,
+): { ok: true; value: unknown } | { ok: false; error: string } {
+	try {
+		let value: unknown;
+		switch (entry.type) {
+			case "string":
+				value = rawValue;
+				break;
+			case "number": {
+				const n = Number.parseInt(rawValue, 10);
+				if (Number.isNaN(n)) return { ok: false, error: `must be a number, got: ${rawValue}` };
+				value = n;
+				break;
+			}
+			case "boolean": {
+				const lower = rawValue.toLowerCase();
+				if (["true", "1", "yes"].includes(lower)) {
+					value = true;
+				} else if (["false", "0", "no"].includes(lower)) {
+					value = false;
+				} else {
+					return { ok: false, error: `must be true, false, 1, 0, yes, or no; got: ${rawValue}` };
+				}
+				break;
+			}
+			case "string[]":
+				value = parseStringArray(rawValue);
+				break;
+			case "label[]":
+			case "author[]":
+				value = JSON.parse(rawValue);
+				break;
+		}
+		return { ok: true, value };
+	} catch (e) {
+		return { ok: false, error: `invalid value: ${(e as Error).message}` };
+	}
+}
+
+function getConfigValue(config: Record<string, unknown>, entry: ConfigSchemaEntry): unknown {
+	if (entry.configKey === "prefixes") {
+		const prefixes = config.prefixes as Record<string, unknown> | undefined;
+		return prefixes?.task;
+	}
+	return config[entry.configKey];
+}
+
+function setConfigValue(config: Record<string, unknown>, entry: ConfigSchemaEntry, value: unknown): void {
+	if (entry.configKey === "prefixes") {
+		const prefixes = (config.prefixes as Record<string, unknown>) ?? {};
+		prefixes.task = String(value);
+		config.prefixes = prefixes;
+	} else {
+		config[entry.configKey] = value;
+	}
+}
+
+async function loadConfigWithCheck(cwd: string): Promise<Core> {
+	const core = new Core(cwd);
+	const config = await core.filesystem.loadConfig();
+	if (!config) {
+		console.error("No backlog project found. Initialize one first with: backlog init");
+		process.exit(1);
+	}
+	return core;
+}
 
 export function registerConfigCommand(program: Command): void {
 	const configCmd = program
@@ -14,13 +215,7 @@ export function registerConfigCommand(program: Command): void {
 		.action(async () => {
 			try {
 				const cwd = await requireProjectRoot();
-				const core = new Core(cwd);
-				const existingConfig = await core.filesystem.loadConfig();
-
-				if (!existingConfig) {
-					console.error("No backlog project found. Initialize one first with: backlog init");
-					process.exit(1);
-				}
+				const core = await loadConfigWithCheck(cwd);
 
 				const {
 					mergedConfig,
@@ -52,27 +247,12 @@ export function registerConfigCommand(program: Command): void {
 				console.log(`  Auto commit: ${mergedConfig.autoCommit ?? false}`);
 				console.log(`  Definition of Done defaults: ${(mergedConfig.definitionOfDone ?? []).join(" | ") || "(none)"}`);
 				if (completionResult) {
-					console.log(`  Shell completions: installed to ${completionResult.installPath}`);
-				} else if (completionError) {
-					console.log("  Shell completions: installation failed (see warning below)");
-				} else {
-					console.log("  Shell completions: skipped");
-				}
-				if (mergedConfig.defaultEditor) {
-					console.log(`  Default editor: ${mergedConfig.defaultEditor}`);
-				}
-				if (shouldInstallClaude) {
-					await installClaudeAgent(cwd);
-					console.log("✓ Claude Code Backlog.md agent installed to .claude/agents/");
-				}
-				if (completionResult) {
-					const instructions = completionResult.instructions.trim();
 					console.log(
 						[
 							"",
 							`Shell completion script installed for ${completionResult.shell}.`,
 							`  Path: ${completionResult.installPath}`,
-							instructions,
+							completionResult.instructions.trim(),
 							"",
 						].join("\n"),
 					);
@@ -85,6 +265,13 @@ export function registerConfigCommand(program: Command): void {
 						`⚠️  Shell completion installation failed:\n${indentedError}\n  Run \`backlog completion install\` later to retry.\n`,
 					);
 				}
+				if (mergedConfig.defaultEditor) {
+					console.log(`  Default editor: ${mergedConfig.defaultEditor}`);
+				}
+				if (shouldInstallClaude) {
+					await installClaudeAgent(cwd);
+					console.log("✓ Claude Code Backlog.md agent installed to .claude/agents/");
+				}
 				console.log("\nUse `backlog config list` to review all configuration values.");
 			} catch (err) {
 				console.error("Failed to update configuration", err);
@@ -93,160 +280,48 @@ export function registerConfigCommand(program: Command): void {
 		});
 
 	configCmd
-		.command("get <key>")
+		.command("get [key]")
 		.description("get a configuration value")
 		.option("--json", "output as JSON")
-		.action(async (key: string, options) => {
+		.action(async (key: string | undefined, options) => {
+			if (!key) {
+				configCmd.help();
+				return;
+			}
 			try {
 				const cwd = await requireProjectRoot();
-				const core = new Core(cwd);
+				const core = await loadConfigWithCheck(cwd);
 				const config = await core.filesystem.loadConfig();
 
-				if (!config) {
-					console.error("No backlog project found. Initialize one first with: backlog init");
-					process.exit(1);
-				}
-
-				if (options.json) {
-					switch (key) {
-						case "defaultEditor":
-							console.log(JSON.stringify(config.defaultEditor ?? null));
-							break;
-						case "projectName":
-							console.log(JSON.stringify(config.projectName));
-							break;
-						case "defaultStatus":
-							console.log(JSON.stringify(config.defaultStatus ?? ""));
-							break;
-						case "statuses":
-							console.log(JSON.stringify(config.statuses));
-							break;
-						case "labels":
-							console.log(JSON.stringify(config.labels));
-							break;
-						case "milestones": {
-							const milestones = await core.filesystem.listMilestones();
-							console.log(JSON.stringify(milestones.map((m) => m.id)));
-							break;
-						}
-						case "definitionOfDone":
-							console.log(JSON.stringify(config.definitionOfDone ?? []));
-							break;
-						case "maxColumnWidth":
-							console.log(JSON.stringify(config.maxColumnWidth ?? null));
-							break;
-						case "defaultPort":
-							console.log(JSON.stringify(config.defaultPort ?? null));
-							break;
-						case "autoOpenBrowser":
-							console.log(JSON.stringify(config.autoOpenBrowser ?? null));
-							break;
-						case "remoteOperations":
-							console.log(JSON.stringify(config.remoteOperations ?? null));
-							break;
-						case "autoCommit":
-							console.log(JSON.stringify(config.autoCommit ?? null));
-							break;
-						case "filesystemOnly":
-							console.log(JSON.stringify(config.filesystemOnly ?? false));
-							break;
-						case "bypassGitHooks":
-							console.log(JSON.stringify(config.bypassGitHooks ?? null));
-							break;
-						case "zeroPaddedIds":
-							console.log(JSON.stringify(config.zeroPaddedIds ?? null));
-							break;
-						case "checkActiveBranches":
-							console.log(JSON.stringify(config.checkActiveBranches ?? true));
-							break;
-						case "activeBranchDays":
-							console.log(JSON.stringify(config.activeBranchDays ?? 30));
-							break;
-						case "terminalStatuses":
-							console.log(JSON.stringify(config.terminalStatuses ?? []));
-							break;
-						default:
-							console.error(`Unknown config key: ${key}`);
-							console.error(
-								"Available keys: defaultEditor, projectName, defaultStatus, statuses, labels, milestones, definitionOfDone, maxColumnWidth, defaultPort, autoOpenBrowser, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
-							);
-							process.exit(1);
+				// Special key: milestones (derived from milestone files, not config)
+				if (key === "milestones") {
+					const milestones = await core.filesystem.listMilestones();
+					if (options.json) {
+						console.log(JSON.stringify(milestones.map((m) => m.id)));
+					} else {
+						console.log(milestones.map((m) => m.id).join(", "));
 					}
 					return;
 				}
 
-				switch (key) {
-					case "defaultEditor":
-						if (config.defaultEditor) {
-							console.log(config.defaultEditor);
-						} else {
-							console.log("defaultEditor is not set");
-							process.exit(1);
-						}
-						break;
-					case "projectName":
-						console.log(config.projectName);
-						break;
-					case "defaultStatus":
-						console.log(config.defaultStatus || "");
-						break;
-					case "statuses":
-						console.log(config.statuses.join(", "));
-						break;
-					case "labels": {
-						const labelStrings = config.labels.map((l) =>
-							typeof l === "string" ? l : `${l.name}${l.color ? ` (${l.color})` : ""}`,
-						);
-						console.log(labelStrings.join(", "));
-						break;
-					}
-					case "milestones": {
-						const milestones = await core.filesystem.listMilestones();
-						console.log(milestones.map((milestone) => milestone.id).join(", "));
-						break;
-					}
-					case "definitionOfDone":
-						console.log(config.definitionOfDone?.join(", ") || "");
-						break;
-					case "maxColumnWidth":
-						console.log(config.maxColumnWidth?.toString() || "");
-						break;
-					case "defaultPort":
-						console.log(config.defaultPort?.toString() || "");
-						break;
-					case "autoOpenBrowser":
-						console.log(config.autoOpenBrowser?.toString() || "");
-						break;
-					case "remoteOperations":
-						console.log(config.remoteOperations?.toString() || "");
-						break;
-					case "autoCommit":
-						console.log(config.autoCommit?.toString() || "");
-						break;
-					case "filesystemOnly":
-						console.log(config.filesystemOnly?.toString() || "false");
-						break;
-					case "bypassGitHooks":
-						console.log(config.bypassGitHooks?.toString() || "");
-						break;
-					case "zeroPaddedIds":
-						console.log(config.zeroPaddedIds?.toString() || "(disabled)");
-						break;
-					case "checkActiveBranches":
-						console.log(config.checkActiveBranches?.toString() || "true");
-						break;
-					case "activeBranchDays":
-						console.log(config.activeBranchDays?.toString() || "30");
-						break;
-					case "terminalStatuses":
-						console.log(config.terminalStatuses?.join(", ") || "");
-						break;
-					default:
+				const entry = CONFIG_SCHEMA_MAP.get(key);
+				if (!entry) {
+					const suggestions = fuzzySuggest(key);
+					if (suggestions.length > 0) {
 						console.error(`Unknown config key: ${key}`);
-						console.error(
-							"Available keys: defaultEditor, projectName, defaultStatus, statuses, labels, milestones, definitionOfDone, maxColumnWidth, defaultPort, autoOpenBrowser, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
-						);
-						process.exit(1);
+						console.error(`Meinten Sie '${suggestions[0]}'?`);
+					} else {
+						console.error(`Unknown config key: ${key}`);
+					}
+					process.exit(1);
+				}
+
+				const value = getConfigValue(config as unknown as Record<string, unknown>, entry);
+
+				if (options.json) {
+					console.log(formatValueJson(value));
+				} else {
+					console.log(formatValueShort(entry, value));
 				}
 			} catch (err) {
 				console.error("Failed to get config value", err);
@@ -268,63 +343,56 @@ export function registerConfigCommand(program: Command): void {
 		.action(async (options) => {
 			try {
 				const cwd = await requireProjectRoot();
-				const core = new Core(cwd);
+				const core = await loadConfigWithCheck(cwd);
 				const config = await core.filesystem.loadConfig();
 
-				if (!config) {
-					console.error("No backlog project found. Initialize one first with: backlog init");
-					process.exit(1);
-				}
-
 				if (options.json) {
+					const raw = await core.filesystem.loadRawConfig();
 					const milestones = await core.filesystem.listMilestones();
-					const data = {
-						projectName: config.projectName,
-						defaultEditor: config.defaultEditor || null,
-						defaultStatus: config.defaultStatus || null,
-						statuses: config.statuses,
-						labels: config.labels,
-						milestones: milestones.map((m) => m.id),
-						definitionOfDone: config.definitionOfDone ?? [],
-						maxColumnWidth: config.maxColumnWidth ?? null,
-						autoOpenBrowser: config.autoOpenBrowser ?? null,
-						defaultPort: config.defaultPort ?? null,
-						remoteOperations: config.remoteOperations ?? null,
-						autoCommit: config.autoCommit ?? null,
-						filesystemOnly: config.filesystemOnly ?? false,
-						bypassGitHooks: config.bypassGitHooks ?? null,
-						zeroPaddedIds: config.zeroPaddedIds ?? null,
-						taskPrefix: config.prefixes?.task || "task",
-						checkActiveBranches: config.checkActiveBranches ?? true,
-						activeBranchDays: config.activeBranchDays ?? 30,
-					};
+					const data: Record<string, unknown> = {};
+					if (raw) {
+						for (const [k, v] of Object.entries(raw)) {
+							data[k] = v;
+						}
+					}
+					data.milestones = milestones.map((m) => m.id);
 					console.log(JSON.stringify(data, null, 2));
 					return;
 				}
 
-				console.log("Configuration:");
-				console.log(`  projectName: ${config.projectName}`);
-				console.log(`  defaultEditor: ${config.defaultEditor || "(not set)"}`);
-				console.log(`  defaultStatus: ${config.defaultStatus || "(not set)"}`);
-				console.log(`  statuses: [${config.statuses.join(", ")}]`);
-				const labelStrs = config.labels.map((l) =>
-					typeof l === "string" ? l : `${l.name}${l.color ? ` (${l.color})` : ""}`,
-				);
-				console.log(`  labels: [${labelStrs.join(", ")}]`);
+				const configRecord = config as unknown as Record<string, unknown>;
+
+				for (const entry of CONFIG_SCHEMA_ENTRIES) {
+					const value = getConfigValue(configRecord, entry);
+					const formatted = formatValuePretty(entry, value);
+					const readOnlyTag = entry.readOnly ? " (read-only)" : "";
+					if (formatted.startsWith("  - ")) {
+						console.log(`${entry.key}:`);
+						console.log(formatted);
+					} else {
+						console.log(`${entry.key}: ${formatted}${readOnlyTag}`);
+					}
+				}
+
+				// Milestones: derived from files, not config
 				const milestones = await core.filesystem.listMilestones();
-				console.log(`  milestones: [${milestones.map((milestone) => milestone.id).join(", ")}]`);
-				console.log(`  definitionOfDone: [${(config.definitionOfDone ?? []).join(", ")}]`);
-				console.log(`  maxColumnWidth: ${config.maxColumnWidth || "(not set)"}`);
-				console.log(`  autoOpenBrowser: ${config.autoOpenBrowser ?? "(not set)"}`);
-				console.log(`  defaultPort: ${config.defaultPort ?? "(not set)"}`);
-				console.log(`  remoteOperations: ${config.remoteOperations ?? "(not set)"}`);
-				console.log(`  autoCommit: ${config.autoCommit ?? "(not set)"}`);
-				console.log(`  filesystemOnly: ${config.filesystemOnly ?? "false"}`);
-				console.log(`  bypassGitHooks: ${config.bypassGitHooks ?? "(not set)"}`);
-				console.log(`  zeroPaddedIds: ${config.zeroPaddedIds ?? "(disabled)"}`);
-				console.log(`  taskPrefix: ${config.prefixes?.task || "task"} (read-only)`);
-				console.log(`  checkActiveBranches: ${config.checkActiveBranches ?? "true"}`);
-				console.log(`  activeBranchDays: ${config.activeBranchDays ?? "30"}`);
+				if (milestones.length <= 5) {
+					console.log(`milestones: [${milestones.map((m) => m.id).join(", ")}]`);
+				} else {
+					console.log("milestones:");
+					for (const m of milestones) console.log(`  - ${m.id}`);
+				}
+
+				// Check for unknown keys in raw config
+				const raw = await core.filesystem.loadRawConfig();
+				if (raw) {
+					const unknownKeys = Object.keys(raw).filter((k) => !CONFIG_SCHEMA_MAP.has(k) && k !== "dod_defaults");
+					if (unknownKeys.length > 0) {
+						console.log("");
+						console.log(`⚠  Unknown YAML keys in config.yml: ${unknownKeys.join(", ")}`);
+						console.log("   These keys are preserved on save but not recognized by the internal model.");
+					}
+				}
 			} catch (err) {
 				console.error("Failed to list config values", err);
 				process.exitCode = 1;
@@ -333,190 +401,66 @@ export function registerConfigCommand(program: Command): void {
 }
 
 async function handleConfigSetCommand(key: string, value: string) {
-	const cwd = await requireProjectRoot();
-	const core = new Core(cwd);
-	const config = await core.filesystem.loadConfig();
+	// Validate: key must exist in schema
+	const entry = CONFIG_SCHEMA_MAP.get(key);
+	if (!entry) {
+		const suggestions = fuzzySuggest(key);
+		if (suggestions.length > 0) {
+			console.error(`Unknown config key: ${key}`);
+			console.error(`Meinten Sie '${suggestions[0]}'?`);
+		} else {
+			console.error(`Unknown config key: ${key}`);
+			console.error(`Available keys: ${CONFIG_SCHEMA_ENTRIES.map((e) => e.key).join(", ")}`);
+		}
+		process.exit(1);
+	}
 
+	if (entry.readOnly) {
+		console.error(`Config key '${key}' is read-only.`);
+		console.error(entry.description);
+		process.exit(1);
+	}
+
+	if (entry.rejectMessage) {
+		console.error(entry.rejectMessage);
+		process.exit(1);
+	}
+
+	// Coerce and validate
+	const coerced = coerceValue(entry, value);
+	if (!coerced.ok) {
+		console.error(`Invalid value for '${key}': ${coerced.error}`);
+		process.exit(1);
+	}
+
+	if (entry.validate) {
+		const validationError = await entry.validate(coerced.value);
+		if (validationError) {
+			console.error(`Invalid value for '${key}': ${validationError}`);
+			process.exit(1);
+		}
+	}
+
+	const cwd = await requireProjectRoot();
+	const core = await loadConfigWithCheck(cwd);
+	const config = await core.filesystem.loadConfig();
 	if (!config) {
 		console.error("No backlog project found. Initialize one first with: backlog init");
 		process.exit(1);
 	}
+	const configRecord = config as unknown as Record<string, unknown>;
 
-	switch (key) {
-		case "defaultEditor": {
-			const { isEditorAvailable } = await import("../utils/editor.ts");
-			const isAvailable = await isEditorAvailable(value);
-			if (!isAvailable) {
-				console.error(`Editor command not found: ${value}`);
-				console.error("Please ensure the editor is installed and available in your PATH");
-				process.exit(1);
-			}
-			config.defaultEditor = value;
-			break;
-		}
-		case "projectName":
-			config.projectName = value;
-			break;
-		case "defaultStatus":
-			config.defaultStatus = value;
-			break;
-		case "maxColumnWidth": {
-			const width = Number.parseInt(value, 10);
-			if (Number.isNaN(width) || width <= 0) {
-				console.error("maxColumnWidth must be a positive number");
-				process.exit(1);
-			}
-			config.maxColumnWidth = width;
-			break;
-		}
-		case "autoOpenBrowser": {
-			const boolValue = value.toLowerCase();
-			if (boolValue === "true" || boolValue === "1" || boolValue === "yes") {
-				config.autoOpenBrowser = true;
-			} else if (boolValue === "false" || boolValue === "0" || boolValue === "no") {
-				config.autoOpenBrowser = false;
-			} else {
-				console.error("autoOpenBrowser must be true or false");
-				process.exit(1);
-			}
-			break;
-		}
-		case "defaultPort": {
-			const port = Number.parseInt(value, 10);
-			if (Number.isNaN(port) || port < 1 || port > 65535) {
-				console.error("defaultPort must be a valid port number (1-65535)");
-				process.exit(1);
-			}
-			config.defaultPort = port;
-			break;
-		}
-		case "remoteOperations": {
-			const boolValue = value.toLowerCase();
-			if (boolValue === "true" || boolValue === "1" || boolValue === "yes") {
-				config.remoteOperations = true;
-			} else if (boolValue === "false" || boolValue === "0" || boolValue === "no") {
-				config.remoteOperations = false;
-			} else {
-				console.error("remoteOperations must be true or false");
-				process.exit(1);
-			}
-			break;
-		}
-		case "autoCommit": {
-			const boolValue = value.toLowerCase();
-			if (boolValue === "true" || boolValue === "1" || boolValue === "yes") {
-				config.autoCommit = true;
-			} else if (boolValue === "false" || boolValue === "0" || boolValue === "no") {
-				config.autoCommit = false;
-			} else {
-				console.error("autoCommit must be true or false");
-				process.exit(1);
-			}
-			break;
-		}
-		case "filesystemOnly": {
-			const boolValue = value.toLowerCase();
-			if (boolValue === "true" || boolValue === "1" || boolValue === "yes") {
-				config.filesystemOnly = true;
-				config.checkActiveBranches = false;
-				config.remoteOperations = false;
-				config.autoCommit = false;
-				config.bypassGitHooks = false;
-			} else if (boolValue === "false" || boolValue === "0" || boolValue === "no") {
-				config.filesystemOnly = false;
-			} else {
-				console.error("filesystemOnly must be true or false");
-				process.exit(1);
-			}
-			break;
-		}
-		case "bypassGitHooks": {
-			const boolValue = value.toLowerCase();
-			if (boolValue === "true" || boolValue === "1" || boolValue === "yes") {
-				config.bypassGitHooks = true;
-			} else if (boolValue === "false" || boolValue === "0" || boolValue === "no") {
-				config.bypassGitHooks = false;
-			} else {
-				console.error("bypassGitHooks must be true or false");
-				process.exit(1);
-			}
-			break;
-		}
-		case "zeroPaddedIds": {
-			const padding = Number.parseInt(value, 10);
-			if (Number.isNaN(padding) || padding < 0) {
-				console.error("zeroPaddedIds must be a non-negative number.");
-				process.exit(1);
-			}
-			config.zeroPaddedIds = padding > 0 ? padding : undefined;
-			break;
-		}
-		case "checkActiveBranches": {
-			const boolValue = value.toLowerCase();
-			if (boolValue === "true" || boolValue === "1" || boolValue === "yes") {
-				config.checkActiveBranches = true;
-			} else if (boolValue === "false" || boolValue === "0" || boolValue === "no") {
-				config.checkActiveBranches = false;
-			} else {
-				console.error("checkActiveBranches must be true or false");
-				process.exit(1);
-			}
-			break;
-		}
-		case "activeBranchDays": {
-			const days = Number.parseInt(value, 10);
-			if (Number.isNaN(days) || days < 0) {
-				console.error("activeBranchDays must be a non-negative number.");
-				process.exit(1);
-			}
-			config.activeBranchDays = days;
-			break;
-		}
-		case "terminalStatuses": {
-			const parsed = value
-				.split(",")
-				.map((s) => s.trim())
-				.filter((s) => s.length > 0);
-			config.terminalStatuses = parsed.length > 0 ? parsed : undefined;
-			break;
-		}
-		case "statuses":
-			console.error("statuses cannot be set directly");
-			process.exit(1);
-			break;
-		case "labels":
-			console.error("Use 'backlog label add/remove' to manage labels.");
-			process.exit(1);
-			break;
-		case "milestones":
-		case "definitionOfDone":
-			if (key === "milestones") {
-				console.error("milestones cannot be set directly.");
-				console.error(
-					"Use milestone files via milestone commands (e.g. `backlog milestone list`, `backlog milestone add`).",
-				);
-			} else if (key === "definitionOfDone") {
-				console.error("definitionOfDone cannot be set directly.");
-				console.error(
-					"Use `backlog config` for interactive editing, update the project config file (`backlog/config.yml`, `.backlog/config.yml`, or `backlog.config.yml`), or use Web UI Settings.",
-				);
-			}
-			process.exit(1);
-			break;
-		case "taskPrefix":
-		case "prefixes":
-			console.error("Task prefix cannot be changed after initialization.");
-			console.error("The prefix is set during 'backlog init' and is permanent to avoid breaking existing task IDs.");
-			process.exit(1);
-			break;
-		default:
-			console.error(`Unknown config key: ${key}`);
-			console.error(
-				"Available keys: defaultEditor, projectName, defaultStatus, maxColumnWidth, autoOpenBrowser, defaultPort, remoteOperations, autoCommit, filesystemOnly, bypassGitHooks, zeroPaddedIds, checkActiveBranches, activeBranchDays, terminalStatuses",
-			);
-			process.exit(1);
+	setConfigValue(configRecord, entry, coerced.value);
+
+	// Side-effect: filesystemOnly true disables Git integrations
+	if (entry.configKey === "filesystemOnly" && coerced.value === true) {
+		config.checkActiveBranches = false;
+		config.remoteOperations = false;
+		config.autoCommit = false;
+		config.bypassGitHooks = false;
 	}
 
 	await core.filesystem.saveConfig(config);
-	console.log(`Set ${key} = ${value}`);
+	const displayValue = formatValue(entry, coerced.value);
+	console.log(`Set ${key} = ${displayValue}`);
 }

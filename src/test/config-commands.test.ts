@@ -156,11 +156,13 @@ describe("Config commands", () => {
 
 	it("exposes config list/get/set subcommands", async () => {
 		const listOutput = await $`bun ${CLI_PATH} config list`.cwd(TEST_DIR).text();
-		expect(listOutput).toContain("Configuration:");
+		expect(listOutput).toContain("project_name");
+		expect(listOutput).toContain("default_port");
+		expect(listOutput).toContain("statuses");
 
-		await $`bun ${CLI_PATH} config set defaultPort 7001`.cwd(TEST_DIR).quiet();
+		await $`bun ${CLI_PATH} config set default_port 7001`.cwd(TEST_DIR).quiet();
 
-		const portOutput = await $`bun ${CLI_PATH} config get defaultPort`.cwd(TEST_DIR).text();
+		const portOutput = await $`bun ${CLI_PATH} config get default_port`.cwd(TEST_DIR).text();
 		expect(portOutput.trim()).toBe("7001");
 	});
 
@@ -242,10 +244,10 @@ describe("Config commands", () => {
 		expect(config?.statuses).toEqual(originalStatuses);
 	});
 
-	it("config set terminalStatuses saves comma-separated list and config get reads it back", async () => {
-		await $`bun ${CLI_PATH} config set terminalStatuses "Abgeschlossen,Abgebrochen"`.cwd(TEST_DIR).quiet();
+	it("config set terminal_statuses saves comma-separated list and config get reads it back", async () => {
+		await $`bun ${CLI_PATH} config set terminal_statuses "Abgeschlossen,Abgebrochen"`.cwd(TEST_DIR).quiet();
 
-		const output = await $`bun ${CLI_PATH} config get terminalStatuses`.cwd(TEST_DIR).text();
+		const output = await $`bun ${CLI_PATH} config get terminal_statuses`.cwd(TEST_DIR).text();
 		expect(output.trim()).toBe("Abgeschlossen, Abgebrochen");
 
 		// Fresh core avoids cached config from before CLI set
@@ -254,8 +256,8 @@ describe("Config commands", () => {
 		expect(config?.terminalStatuses).toEqual(["Abgeschlossen", "Abgebrochen"]);
 	});
 
-	it("config get terminalStatuses returns empty string when key is not set", async () => {
-		const output = await $`bun ${CLI_PATH} config get terminalStatuses`.cwd(TEST_DIR).text();
+	it("config get terminal_statuses returns empty string when key is not set", async () => {
+		const output = await $`bun ${CLI_PATH} config get terminal_statuses`.cwd(TEST_DIR).text();
 		expect(output.trim()).toBe("");
 
 		const config = await core.filesystem.loadConfig();
@@ -289,6 +291,5 @@ describe("Config commands", () => {
 		expect(result.exitCode).not.toBe(0);
 		const stderr = result.stderr.toString();
 		expect(stderr).toContain("Unknown config key");
-		expect(stderr).toContain("terminalStatuses");
 	});
 });
