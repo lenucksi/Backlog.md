@@ -11,6 +11,15 @@ export interface LabelRenameArgs {
 	newName: string;
 }
 
+export interface LabelSetColorArgs {
+	name: string;
+	color: string;
+}
+
+export interface LabelRemoveColorArgs {
+	name: string;
+}
+
 export interface LabelRemoveArgs {
 	name: string;
 }
@@ -117,6 +126,71 @@ export class LabelHandlers {
 			content: [
 				{ type: "text", text: `Renamed label "${input.oldName}" to "${input.newName}" in config and all entities.` },
 			],
+		};
+	}
+
+	async setLabelColor(input: LabelSetColorArgs): Promise<CallToolResult> {
+		const config = await this.core.filesystem.loadConfig();
+		if (!config) {
+			return {
+				content: [{ type: "text", text: "No backlog project found." }],
+				isError: true,
+			};
+		}
+		const idx = (config.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name).toLowerCase() === input.name.toLowerCase());
+		if (idx === -1) {
+			return {
+				content: [{ type: "text", text: `Label not found: ${input.name}` }],
+				isError: true,
+			};
+		}
+		const existing = config.labels[idx];
+		if (!existing) {
+			return {
+				content: [{ type: "text", text: `Label not found: ${input.name}` }],
+				isError: true,
+			};
+		}
+		config.labels[idx] = { name: typeof existing === "string" ? existing : existing.name, color: input.color };
+		config.labels = config.labels.sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
+		await this.core.filesystem.saveConfig(config);
+		return {
+			content: [{ type: "text", text: `Set color for label "${input.name}" to ${input.color}` }],
+		};
+	}
+
+	async removeLabelColor(input: LabelRemoveColorArgs): Promise<CallToolResult> {
+		const config = await this.core.filesystem.loadConfig();
+		if (!config) {
+			return {
+				content: [{ type: "text", text: "No backlog project found." }],
+				isError: true,
+			};
+		}
+		const idx = (config.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name).toLowerCase() === input.name.toLowerCase());
+		if (idx === -1) {
+			return {
+				content: [{ type: "text", text: `Label not found: ${input.name}` }],
+				isError: true,
+			};
+		}
+		const existing = config.labels[idx];
+		if (!existing) {
+			return {
+				content: [{ type: "text", text: `Label not found: ${input.name}` }],
+				isError: true,
+			};
+		}
+		if (typeof existing === "string" || !existing.color) {
+			return {
+				content: [{ type: "text", text: `Label "${input.name}" has no color to remove.` }],
+			};
+		}
+		config.labels[idx] = existing.name;
+		config.labels = config.labels.sort((a, b) => (typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name));
+		await this.core.filesystem.saveConfig(config);
+		return {
+			content: [{ type: "text", text: `Removed color from label "${input.name}"` }],
 		};
 	}
 

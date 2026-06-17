@@ -1,9 +1,9 @@
 import type { McpServer } from "../../server.ts";
 import type { McpToolHandler } from "../../types.ts";
 import { createSimpleValidatedTool } from "../../validation/tool-wrapper.ts";
-import type { LabelAddArgs, LabelRemoveArgs, LabelRenameArgs } from "./handlers.ts";
+import type { LabelAddArgs, LabelRemoveArgs, LabelRemoveColorArgs, LabelRenameArgs, LabelSetColorArgs } from "./handlers.ts";
 import { LabelHandlers } from "./handlers.ts";
-import { labelAddSchema, labelListSchema, labelRemoveSchema, labelRenameSchema } from "./schemas.ts";
+import { labelAddSchema, labelListSchema, labelRemoveColorSchema, labelRemoveSchema, labelRenameSchema, labelSetColorSchema } from "./schemas.ts";
 
 export function registerLabelTools(server: McpServer): void {
 	const handlers = new LabelHandlers(server);
@@ -41,6 +41,28 @@ export function registerLabelTools(server: McpServer): void {
 		async (input) => handlers.renameLabel(input as unknown as LabelRenameArgs),
 	);
 
+	const setColorTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "backlog_label_set_color",
+			description: "Set or change the color of a label",
+			inputSchema: labelSetColorSchema,
+			annotations: { title: "Set Label Color", destructiveHint: false },
+		},
+		labelSetColorSchema,
+		async (input) => handlers.setLabelColor(input as unknown as LabelSetColorArgs),
+	);
+
+	const removeColorTool: McpToolHandler = createSimpleValidatedTool(
+		{
+			name: "backlog_label_remove_color",
+			description: "Remove color from a label (reverts to plain string)",
+			inputSchema: labelRemoveColorSchema,
+			annotations: { title: "Remove Label Color", destructiveHint: false },
+		},
+		labelRemoveColorSchema,
+		async (input) => handlers.removeLabelColor(input as unknown as LabelRemoveColorArgs),
+	);
+
 	const removeTool: McpToolHandler = createSimpleValidatedTool(
 		{
 			name: "backlog_label_remove",
@@ -55,13 +77,17 @@ export function registerLabelTools(server: McpServer): void {
 	server.addTool(listTool);
 	server.addTool(addTool);
 	server.addTool(renameTool);
+	server.addTool(setColorTool);
+	server.addTool(removeColorTool);
 	server.addTool(removeTool);
 }
 
-export type { LabelAddArgs, LabelRemoveArgs, LabelRenameArgs } from "./handlers.ts";
+export type { LabelAddArgs, LabelRemoveArgs, LabelRemoveColorArgs, LabelRenameArgs, LabelSetColorArgs } from "./handlers.ts";
 export {
 	labelAddSchema,
 	labelListSchema,
+	labelRemoveColorSchema,
 	labelRemoveSchema,
 	labelRenameSchema,
+	labelSetColorSchema,
 } from "./schemas.ts";

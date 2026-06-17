@@ -46,6 +46,40 @@ export const labelRenameSchema: JsonSchema = {
 	additionalProperties: false,
 };
 
+export const labelSetColorSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		name: {
+			type: "string",
+			minLength: 1,
+			maxLength: 100,
+			description: "Label name",
+		},
+		color: {
+			type: "string",
+			minLength: 1,
+			maxLength: 100,
+			description: "Hex color code (e.g. #ff0000)",
+		},
+	},
+	required: ["name", "color"],
+	additionalProperties: false,
+};
+
+export const labelRemoveColorSchema: JsonSchema = {
+	type: "object",
+	properties: {
+		name: {
+			type: "string",
+			minLength: 1,
+			maxLength: 100,
+			description: "Label name",
+		},
+	},
+	required: ["name"],
+	additionalProperties: false,
+};
+
 export const labelRemoveSchema: JsonSchema = {
 	type: "object",
 	properties: {
