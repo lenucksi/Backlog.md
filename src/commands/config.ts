@@ -82,10 +82,7 @@ function defaultDisplay(entry: ConfigSchemaEntry): string {
 	return String(entry.default);
 }
 
-function formatValuePretty(
-	entry: ConfigSchemaEntry,
-	value: unknown,
-): string {
+function formatValuePretty(entry: ConfigSchemaEntry, value: unknown): string {
 	if (value === undefined || value === null) {
 		return defaultDisplay(entry);
 	}
@@ -93,9 +90,10 @@ function formatValuePretty(
 		return String(value);
 	}
 	if (!Array.isArray(value)) return String(value);
-	const items = entry.type === "string[]"
-		? (value as string[])
-		: (value as unknown[]).map((v) => (entry.type === "author[]" ? authorToString(v) : labelToString(v)));
+	const items =
+		entry.type === "string[]"
+			? (value as string[])
+			: (value as unknown[]).map((v) => (entry.type === "author[]" ? authorToString(v) : labelToString(v)));
 	const inline = `[${items.join(", ")}]`;
 	if (items.length <= 5 && inline.length <= 80) {
 		return inline;
