@@ -1,0 +1,47 @@
+src/web/components/Board.tsx
+  s_05d4ba98c164b8::t_030344778533ba 574-596
+  s_05d4ba98c164b8::t_786d9f512d8006 11-12
+  s_05d4ba98c164b8::t_d2795bb05a4e84 544-551,556
+  s_05d4ba98c164b8::t_a3c0694b181f8d 251-252
+  s_05d4ba98c164b8::t_f5ab0094415948 234
+  s_05d4ba98c164b8::t_82a7bcf902c02c 34-35
+  s_05d4ba98c164b8::t_d8b8b5015eebed 64
+  s_05d4ba98c164b8::t_194a63a92cf0b2 41
+src/test/web-task-list-labels-menu.test.tsx
+  s_05d4ba98c164b8::t_bff7788a67a2f2 195
+  s_05d4ba98c164b8::t_4ec80ecf76e8ca 98-101,103-110
+  s_05d4ba98c164b8::t_e8622d6b30729f 224,250
+src/web/components/LabelFilterDropdown.tsx
+  s_05d4ba98c164b8::t_2efc1d6562af91 3-6,9,14-16,20,22-23,45,47,51-53,71,73-75,85,88-89,93-94,113,118-124,130,139,147-179
+src/web/components/BoardPage.tsx
+  s_05d4ba98c164b8::t_9c675e742c4836 100,115-117,128
+src/web/components/TaskList.tsx
+  s_05d4ba98c164b8::t_894d56d01f9a7e 95-106
+  s_05d4ba98c164b8::t_17a4a240c97d94 316-317,322-323,325,330
+  s_05d4ba98c164b8::t_e5c7be40d86fa5 348-349
+  s_05d4ba98c164b8::t_cc658ece211c5f 386-387,389,392-396,398,409-410,412,414
+  s_05d4ba98c164b8::t_b7c82653307515 283-285,293,296,299
+  s_05d4ba98c164b8::t_0c4959a7cd7cf1 657-682,687,715-718,738-787
+  s_05d4ba98c164b8::t_2ecb047a19a09e 16-17
+  s_05d4ba98c164b8::t_bc0091b5d92897 34
+  s_05d4ba98c164b8::t_e6021224eb2a67 278
+  s_05d4ba98c164b8::t_1f5f1a2474c837 124
+src/web/components/FilterChips.tsx
+  s_05d4ba98c164b8::t_8d5005684b7c98 1-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "cb35c7cbb7ee19377265781d7324966a5ee9eff8",
+  "prompts": {},
+  "sessions": {
+    "s_05d4ba98c164b8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12b0f0ba3ffeXtq5Lys47xALqF",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
