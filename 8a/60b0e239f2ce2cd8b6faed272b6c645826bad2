@@ -1,0 +1,27 @@
+"backlog/docs/sessions/doc-21 - Session-Start-Sequences-Cluster-umsetzen-BACK-217.x-BACK-218-BACK-474.md"
+  s_05d4ba98c164b8::t_0519d5f6565551 1-156
+"backlog/docs/doc-005 - Feature-Parity-Matrix-—-CLI-TUI-WebUI-MCP.md"
+  s_05d4ba98c164b8::t_0a82a894df1256 125-135
+  s_05d4ba98c164b8::t_e791b367c21174 220
+  s_05d4ba98c164b8::t_ae405f736d416f 179-181
+  s_05d4ba98c164b8::t_9d451fa60b8c64 6
+  s_05d4ba98c164b8::t_b9367f3f15ae69 18
+"backlog/docs/sessions/doc-20 - Session-Start-i18n-Cluster-umsetzen-BACK-552.x.md"
+  s_05d4ba98c164b8::t_0519d5f6565551 2-3,5,7-9,11-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "8a60b0e239f2ce2cd8b6faed272b6c645826bad2",
+  "prompts": {},
+  "sessions": {
+    "s_05d4ba98c164b8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12b0f0ba3ffeXtq5Lys47xALqF",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
