@@ -300,6 +300,72 @@ const Settings: React.FC = () => {
 							</div>
 
 							<div>
+								<label htmlFor="terminalStatuses" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+									Terminal Statuses
+								</label>
+								<div className="flex flex-wrap gap-1.5 mb-1">
+									{statuses.map(status => {
+										const checked = (config.terminalStatuses ?? []).includes(status);
+										return (
+											<button
+												key={status}
+												type="button"
+												onClick={() => {
+													const current = config.terminalStatuses ?? [];
+													handleInputChange('terminalStatuses',
+														checked ? current.filter(s => s !== status) : [...current, status]
+													);
+												}}
+												className={`px-2.5 py-1 text-xs rounded-md border transition-colors duration-150 ${
+													checked
+														? 'bg-stone-100 dark:bg-stone-700 border-stone-400 dark:border-stone-500 font-medium'
+														: 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400'
+												}`}
+											>
+												{status}
+											</button>
+										);
+									})}
+								</div>
+								<p className="text-sm text-gray-500 dark:text-gray-400">
+									Tasks in these statuses are considered complete (terminal)
+								</p>
+							</div>
+
+							<div>
+								<label htmlFor="blockedStatuses" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+									Blocked Statuses
+								</label>
+								<div className="flex flex-wrap gap-1.5 mb-1">
+									{statuses.map(status => {
+										const checked = (config.blockedStatuses ?? []).includes(status);
+										return (
+											<button
+												key={status}
+												type="button"
+												onClick={() => {
+													const current = config.blockedStatuses ?? [];
+													handleInputChange('blockedStatuses',
+														checked ? current.filter(s => s !== status) : [...current, status]
+													);
+												}}
+												className={`px-2.5 py-1 text-xs rounded-md border transition-colors duration-150 ${
+													checked
+														? 'bg-stone-100 dark:bg-stone-700 border-stone-400 dark:border-stone-500 font-medium'
+														: 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400'
+												}`}
+											>
+												{status}
+											</button>
+										);
+									})}
+								</div>
+								<p className="text-sm text-gray-500 dark:text-gray-400">
+									Tasks in these statuses are considered blocked
+								</p>
+							</div>
+
+							<div>
 								<label htmlFor="defaultEditor" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
 									Default Editor
 								</label>
