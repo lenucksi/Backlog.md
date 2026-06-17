@@ -1,0 +1,21 @@
+"backlog/tasks/back-563 - bugs-in-config-list-get-set.md"
+  s_05d4ba98c164b8::t_3dde0897e999fc 1-250
+src/commands/config.ts
+  s_05d4ba98c164b8::t_767f3488a8ce20 85,93-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "95aed5cd110578101bc1148184ef17bccf133ab8",
+  "prompts": {},
+  "sessions": {
+    "s_05d4ba98c164b8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12b0f0ba3ffeXtq5Lys47xALqF",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
