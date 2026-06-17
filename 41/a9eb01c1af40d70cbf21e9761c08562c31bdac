@@ -1,0 +1,56 @@
+src/test/mcp-definition-of-done-defaults.test.ts
+  s_05d4ba98c164b8::t_0631ee1712fad3 182-183
+  s_05d4ba98c164b8::t_3b574b2dc7bd0e 181
+src/commands/config.ts
+  s_05d4ba98c164b8::t_429b6c099fcddc 26
+  s_05d4ba98c164b8::t_bbe329a2f67b00 79-84,90
+  s_05d4ba98c164b8::t_84a879587d0854 324
+  s_05d4ba98c164b8::t_cfec4b190e4e59 367,369-374,379-384
+  s_05d4ba98c164b8::t_9f63c91366c8a9 85-89,91-97,102-105
+  s_05d4ba98c164b8::t_102b9421b8eb19 40,142-145,389
+  s_05d4ba98c164b8::t_87627d62080e17 14-17,28
+  s_05d4ba98c164b8::t_e66fb0f3a2ffe4 12,18-19
+  s_05d4ba98c164b8::t_82c4ed9f8ee9e3 6,11,13,27,33,36-39,41-46,59-65,75,111-112,119-141,146-210,218,255,268-274,283,286-290,293,296-302,307-310,312-323,346,350,352-358,363-366,368,375-377,385-388,390-395,404-443,445,451,453-460,464-465
+  s_05d4ba98c164b8::t_edbfe571a37e10 98
+  s_05d4ba98c164b8::t_2c21f579ccaf17 99-101
+  s_05d4ba98c164b8::t_5053a49d3fb060 47-58,66-74,76-78,106-110,113-118
+  s_05d4ba98c164b8::t_ca0a01d1f36fad 20-25,29-32,34-35
+src/utils/config-schema.ts
+  s_05d4ba98c164b8::t_102b9421b8eb19 46,72,76-77,94-95,245
+  s_05d4ba98c164b8::t_a4d99cdef317d2 1-45,47-71,73-75,78-93,96-244,246-247
+src/test/definition-of-done.test.ts
+  s_05d4ba98c164b8::t_6fcce6a4aa1980 105
+  s_05d4ba98c164b8::t_3b574b2dc7bd0e 73,90,135-136
+  s_05d4ba98c164b8::t_4be77058fb94e9 134,141
+src/file-system/operations.ts
+  s_05d4ba98c164b8::t_47ab57235325db 193
+  s_05d4ba98c164b8::t_93dc4597205d1b 1468,1471,1473-1475,1481-1497
+  s_05d4ba98c164b8::t_4dd97278ac2994 1748
+  s_05d4ba98c164b8::t_9a17e2bbe721f9 1762-1764,1766-1767,1769
+  s_05d4ba98c164b8::t_4bf8775648fb13 1770
+  s_05d4ba98c164b8::t_3832b0ae675c38 3,1765
+  s_05d4ba98c164b8::t_5f114513fc6fb3 1623-1650,1652-1654,1656-1660,1662-1663,1666-1673,1686-1714,1717-1743,1745,1747,1749-1751,1754-1756,1759
+  s_05d4ba98c164b8::t_dcde25edada710 111
+  s_05d4ba98c164b8::t_41145fe4073ce1 1677-1682
+  s_05d4ba98c164b8::t_9e0b22a62f83c3 1508,1513-1519,1521,1524
+  s_05d4ba98c164b8::t_af43ab7141a415 1664
+src/test/config-commands.test.ts
+  s_05d4ba98c164b8::t_a14775448a5c2f 159-161,163,165
+  s_05d4ba98c164b8::t_9aa723639465cc 247-248,250,259-260
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "41a9eb01c1af40d70cbf21e9761c08562c31bdac",
+  "prompts": {},
+  "sessions": {
+    "s_05d4ba98c164b8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12b0f0ba3ffeXtq5Lys47xALqF",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
