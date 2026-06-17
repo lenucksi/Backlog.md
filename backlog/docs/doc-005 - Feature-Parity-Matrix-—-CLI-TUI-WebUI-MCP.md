@@ -3,7 +3,7 @@ id: doc-005
 title: Feature Parity Matrix — CLI / TUI / WebUI / MCP
 type: other
 created_date: '2026-05-17 00:00'
-updated_date: '2026-05-22 10:23'
+updated_date: '2026-06-17 12:30'
 tags:
   - research
   - engineering-consistency
@@ -15,7 +15,7 @@ tags:
 ---
 # Feature Parity Matrix — CLI / TUI / WebUI / MCP
 
-> Research pass 2026-05-17. Updated 2026-05-22 (v2) after completed refactoring tasks. Updated 2026-05-22 (v2.1) — corrected MCP Demote status.
+> Research pass 2026-05-17. Updated 2026-05-22 (v2) after completed refactoring tasks. Updated 2026-05-22 (v2.1) — corrected MCP Demote status. Updated 2026-06-17 (v2.2) — added Labels section, MCP label color tools, WebUI terminal/blocked statuses (BACK-562, BACK-563).
 >
 > Legend: ✅ full support · ⚠️ partial / limited · ❌ missing
 
@@ -122,6 +122,17 @@ tags:
 | Set config key | ✅ | ❌ | ✅ | ❌ | |
 | Advanced config wizard | ✅ | ❌ | ❌ | ❌ | CLI `configure` command |
 
+### Labels
+
+| Operation | CLI | TUI | WebUI | MCP | Notes |
+|---|---|---|---|---|---|
+| List | ✅ | ✅ | ✅ | ✅ | |
+| Add (with optional color) | ✅ | ✅ | ✅ | ✅ | CLI + MCP: `backlog label add`; WebUI: inline form with color picker |
+| Rename (preserves color) | ✅ | ❌ | ✅ | ✅ | CLI + MCP: fixed by BACK-563 (color no longer lost) |
+| Remove | ✅ | ✅ | ✅ | ✅ | |
+| Set/change color | ✅ | ❌ | ✅ | ✅ | MCP: new `backlog_label_set_color` tool (BACK-563); WebUI: inline color picker |
+| Remove color | ✅ | ❌ | ✅ | ✅ | MCP: new `backlog_label_remove_color` tool (BACK-563) |
+
 ### Statistics & Other
 
 | Operation | CLI | TUI | WebUI | MCP | Notes |
@@ -165,6 +176,9 @@ tags:
 | MCP lacked milestone create/rename/remove | Pre-existing (v1 doc was inaccurate — MCP already had these) | — |
 | CLI reorder via ordinal | CLI had `--ordinal` in create + edit (v1 doc missed this) | — |
 | Documents missing delete/archive in all modalities | Resolved in CLI + MCP; WebUI still pending | BACK-516, BACK-489 |
+| CLI `label rename` + MCP `backlog_label_rename` lost color on `{name, color}` objects | Fixed: color preserved on rename (BACK-563) | BACK-563 |
+| MCP lacked label color management | Added `backlog_label_set_color` + `backlog_label_remove_color` tools (BACK-563) | BACK-563 |
+| `terminalStatuses` + `blockedStatuses` missing in WebUI config | Added tag-select fields in Settings page (BACK-562) | BACK-562 |
 
 ---
 
@@ -203,6 +217,7 @@ Before saving a decision edit in WebUI, show a modal: "Are you sure you want to 
 | v1 | 2026-05-17 | Research pass | Initial inventory; no code changes |
 | v2 | 2026-05-22 | Re-audit | Updated after BACK-489, BACK-515, BACK-516; added Diff + Version History |
 | v2.1 | 2026-05-22 | Correction | Fixed MCP Demote cell (handlers exist, registered) |
+| v2.2 | 2026-06-17 | Update | Added Labels section; new MCP label color tools; WebUI terminal/blocked statuses (BACK-562, BACK-563) |
 
 ---
 
