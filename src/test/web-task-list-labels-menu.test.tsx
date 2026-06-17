@@ -95,21 +95,19 @@ const clickElement = async (element: Element) => {
 	});
 };
 
-const getSelectByFirstOption = (container: HTMLElement, firstOptionText: string): HTMLSelectElement => {
-	const select = Array.from(container.querySelectorAll("select")).find(
-		(element) => element.options[0]?.textContent === firstOptionText,
-	);
-	expect(select).toBeTruthy();
-	return select as HTMLSelectElement;
-};
+const selectMultiSelectOption = async (container: HTMLElement, menuId: string, optionText: string) => {
+	const button = container.querySelector(`button[aria-controls='${menuId}']`);
+	expect(button).toBeTruthy();
+	await clickElement(button as HTMLButtonElement);
 
-const setSelectValue = async (select: HTMLSelectElement, value: string) => {
-	await act(async () => {
-		const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value")?.set;
-		valueSetter?.call(select, value);
-		select.dispatchEvent(new window.Event("change", { bubbles: true }));
-		await Promise.resolve();
-	});
+	const menu = container.querySelector(`#${menuId}`);
+	expect(menu).toBeTruthy();
+
+	const option = Array.from(menu!.querySelectorAll("button")).find(
+		(b) => b.textContent?.trim() === optionText,
+	);
+	expect(option).toBeTruthy();
+	await clickElement(option as HTMLButtonElement);
 };
 
 const waitFor = async (predicate: () => boolean) => {
@@ -194,7 +192,7 @@ describe("TaskList labels filter menu", () => {
 		await clickElement(labelsButton);
 
 		const clearButton = Array.from(container.querySelectorAll("button")).find((button) =>
-			button.textContent?.includes("Clear label filter"),
+			button.textContent?.includes("Clear labels filter"),
 		);
 		expect(clearButton).toBeTruthy();
 		await clickElement(clearButton as HTMLButtonElement);
@@ -223,7 +221,7 @@ describe("TaskList labels filter menu", () => {
 			tasks: [closedTask],
 			availableStatuses: ["To Do", "Review", "Closed"],
 		});
-		await setSelectValue(getSelectByFirstOption(container, "All statuses"), "Closed");
+		await selectMultiSelectOption(container, "task-list-status-filter-menu", "Closed");
 		await waitFor(() => fetchCalls.length === 1 && (container.textContent ?? "").includes("Clean Up"));
 
 		expect(container.textContent).toContain("Clean Up");
@@ -249,7 +247,7 @@ describe("TaskList labels filter menu", () => {
 			tasks: [reviewTask],
 			availableStatuses: ["To Do", "Review", "Closed"],
 		});
-		await setSelectValue(getSelectByFirstOption(container, "All statuses"), "Review");
+		await selectMultiSelectOption(container, "task-list-status-filter-menu", "Review");
 		await waitFor(() => fetchCalls.length === 1 && (container.textContent ?? "").includes("Review task"));
 
 		expect(container.textContent).not.toContain("Clean Up");

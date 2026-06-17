@@ -8,7 +8,8 @@ import { getTerminalStatus } from '../../utils/terminal-status';
 import { isDoneStatus } from '../../core/milestones';
 import TaskColumn from './TaskColumn';
 import CleanupModal from './CleanupModal';
-import LabelFilterDropdown from './LabelFilterDropdown';
+import LabelFilterDropdown, { MultiSelectDropdown } from './LabelFilterDropdown';
+import FilterChips from './FilterChips';
 import { SuccessToast } from './SuccessToast';
 
 interface BoardProps {
@@ -30,22 +31,14 @@ interface BoardProps {
   milestoneFilter?: string | null;
   filterAssignee?: string;
   filterLabels?: string[];
-  filterPriority?: string;
-  onFiltersChange?: (filters: { assignee: string; labels: string[]; priority: string }) => void;
+  filterPriority?: string[];
+  onFiltersChange?: (filters: { assignee: string; labels: string[]; priority: string[] }) => void;
   labelColors?: Record<string, string>;
   authorColors?: Record<string, string>;
   autoCollapseMilestones?: boolean;
 }
 
-const PRIORITY_OPTIONS = [
-  { label: 'All priorities', value: '' },
-  { label: 'High', value: 'high' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Low', value: 'low' },
-] as const;
-
-const BOARD_FILTER_SELECT_CLASS =
-  'min-w-[140px] h-10 py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200';
+const PRIORITY_OPTIONS = ["high", "medium", "low"] as const;
 
 const BOARD_FILTER_BUTTON_CLASS =
   'h-10 py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg whitespace-nowrap transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700';
@@ -68,7 +61,7 @@ const Board: React.FC<BoardProps> = ({
   milestoneFilter,
   filterAssignee = '',
   filterLabels = [],
-  filterPriority = '',
+  filterPriority = [],
   onFiltersChange,
   labelColors,
   authorColors,
@@ -238,7 +231,7 @@ const Board: React.FC<BoardProps> = ({
     [filterLabels]
   );
 
-  const hasActiveFilters = filterAssignee !== '' || normalizedFilterLabels.length > 0 || filterPriority !== '';
+  const hasActiveFilters = filterAssignee !== '' || normalizedFilterLabels.length > 0 || filterPriority.length > 0;
 
   // Filter tasks by milestone when milestoneFilter is set, then apply assignee/label/priority filters
   const filteredTasks = useMemo(() => {
@@ -255,8 +248,8 @@ const Board: React.FC<BoardProps> = ({
       const selectedLabels = new Set(labelsToLower(normalizedFilterLabels));
       result = result.filter(task => labelsToLower(task.labels).some(label => selectedLabels.has(label)));
     }
-    if (filterPriority) {
-      result = result.filter(task => task.priority === filterPriority);
+    if (filterPriority.length > 0) {
+      result = result.filter(task => task.priority && filterPriority.includes(task.priority));
     }
     return result;
   }, [tasks, milestoneFilter, canonicalMilestoneFilter, milestoneAliasToCanonical, filterAssignee, normalizedFilterLabels, filterPriority]);
@@ -548,21 +541,19 @@ const Board: React.FC<BoardProps> = ({
                   labelColors={labelColors}
                 />
 
-                <select
-                  aria-label="Filter board by priority"
-                  value={filterPriority}
-                  onChange={e => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: e.target.value })}
-                  className={BOARD_FILTER_SELECT_CLASS}
-                >
-                  {PRIORITY_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                <MultiSelectDropdown
+                  options={[...PRIORITY_OPTIONS]}
+                  selected={filterPriority}
+                  onChange={priorities => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: priorities })}
+                  menuId="board-priority-filter-menu"
+                  className="min-w-[180px]"
+                  title="Priority"
+                />
 
                 {hasActiveFilters && (
                   <button
                     type="button"
-                    onClick={() => onFiltersChange({ assignee: '', labels: [], priority: '' })}
+                    onClick={() => onFiltersChange({ assignee: '', labels: [], priority: [] })}
                     className={BOARD_FILTER_BUTTON_CLASS}
                   >
                     Clear filters
@@ -579,6 +570,29 @@ const Board: React.FC<BoardProps> = ({
           + New Task
         </button>
       </div>
+
+      {hasActiveFilters && (
+        <div className="mb-4">
+          <FilterChips
+            chips={[
+              ...(filterAssignee
+                ? [{ key: "assignee", label: `Assignee: ${filterAssignee}`, onRemove: () => onFiltersChange?.({ assignee: "", labels: normalizedFilterLabels, priority: filterPriority }) }]
+                : []),
+              ...normalizedFilterLabels.map((label) => ({
+                key: `label-${label}`,
+                label,
+                color: labelColors?.[label],
+                onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels.filter((l) => l !== label), priority: filterPriority }),
+              })),
+              ...filterPriority.map((p) => ({
+                key: `priority-${p}`,
+                label: `Priority: ${p}`,
+                onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority.filter((x) => x !== p) }),
+              })),
+            ]}
+          />
+        </div>
+      )}
 
       {laneMode === 'milestone' ? (
         <div className="space-y-6">

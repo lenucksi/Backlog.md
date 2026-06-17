@@ -1,26 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 
-interface LabelFilterDropdownProps {
-	availableLabels: string[];
-	selectedLabels: string[];
-	onChange: (labels: string[]) => void;
+interface MultiSelectDropdownProps {
+	options: string[];
+	selected: string[];
+	onChange: (selected: string[]) => void;
 	menuId: string;
 	className?: string;
-	labelColors?: Record<string, string>;
+	itemColors?: Record<string, string>;
 	singleSelect?: boolean;
 	title?: string;
 }
 
-export default function LabelFilterDropdown({
-	availableLabels,
-	selectedLabels,
+export function MultiSelectDropdown({
+	options,
+	selected,
 	onChange,
 	menuId,
 	className = "min-w-[200px]",
-	labelColors,
+	itemColors,
 	singleSelect,
-	title = "Labels",
-}: LabelFilterDropdownProps) {
+	title = "Options",
+}: MultiSelectDropdownProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const buttonRef = useRef<HTMLButtonElement | null>(null);
 	const menuRef = useRef<HTMLDivElement | null>(null);
@@ -42,15 +42,15 @@ export default function LabelFilterDropdown({
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, [isOpen]);
 
-	const selectLabel = (label: string) => {
+	const selectItem = (item: string) => {
 		if (singleSelect) {
-			const next = selectedLabels.includes(label) ? [] : [label];
+			const next = selected.includes(item) ? [] : [item];
 			onChange(next);
 			setIsOpen(false);
 		} else {
-			const next = selectedLabels.includes(label)
-				? selectedLabels.filter((item) => item !== label)
-				: [...selectedLabels, label];
+			const next = selected.includes(item)
+				? selected.filter((i) => i !== item)
+				: [...selected, item];
 			onChange(next);
 		}
 	};
@@ -68,11 +68,11 @@ export default function LabelFilterDropdown({
 				<div className="flex items-center justify-between gap-2">
 					<span>{title}</span>
 					<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[100px]">
-						{selectedLabels.length === 0
+						{selected.length === 0
 							? "All"
-							: selectedLabels.length === 1
-								? selectedLabels[0]
-								: `${selectedLabels.length} selected`}
+							: selected.length === 1
+								? selected[0]
+								: `${selected.length} selected`}
 					</span>
 				</div>
 			</button>
@@ -82,16 +82,16 @@ export default function LabelFilterDropdown({
 					ref={menuRef}
 					className="absolute z-50 mt-2 w-[220px] max-h-56 overflow-y-auto rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
 				>
-					{availableLabels.length === 0 ? (
+					{options.length === 0 ? (
 						<div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No options</div>
 					) : (
-						availableLabels.map((label) => {
-							const isSelected = selectedLabels.includes(label);
+						options.map((option) => {
+							const isSelected = selected.includes(option);
 							return (
 								<button
 									type="button"
-									key={label}
-									onClick={() => selectLabel(label)}
+									key={option}
+									onClick={() => selectItem(option)}
 									className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left cursor-pointer ${
 										isSelected
 											? "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30"
@@ -110,22 +110,24 @@ export default function LabelFilterDropdown({
 										<input
 											type="checkbox"
 											checked={isSelected}
-											onChange={() => selectLabel(label)}
+											onChange={() => selectItem(option)}
 											className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
 										/>
 									)}
 									<span className="truncate flex items-center gap-1.5">
-										<span
-											className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
-											style={{ backgroundColor: labelColors?.[label] || "#9ca3af" }}
-										/>
-										{label}
+										{itemColors && (
+											<span
+												className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
+												style={{ backgroundColor: itemColors[option] || "#9ca3af" }}
+											/>
+										)}
+										{option}
 									</span>
 								</button>
 							);
 						})
 					)}
-					{!singleSelect && selectedLabels.length > 0 && (
+					{!singleSelect && selected.length > 0 && (
 						<button
 							type="button"
 							className="w-full text-left px-3 py-2 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border-t border-gray-200 dark:border-gray-700"
@@ -134,11 +136,46 @@ export default function LabelFilterDropdown({
 								setIsOpen(false);
 							}}
 						>
-							Clear label filter
+							Clear {title.toLowerCase()} filter
 						</button>
 					)}
 				</div>
 			)}
 		</div>
+	);
+}
+
+interface LabelFilterDropdownProps {
+	availableLabels: string[];
+	selectedLabels: string[];
+	onChange: (labels: string[]) => void;
+	menuId: string;
+	className?: string;
+	labelColors?: Record<string, string>;
+	singleSelect?: boolean;
+	title?: string;
+}
+
+export default function LabelFilterDropdown({
+	availableLabels,
+	selectedLabels,
+	onChange,
+	menuId,
+	className,
+	labelColors,
+	singleSelect,
+	title = "Labels",
+}: LabelFilterDropdownProps) {
+	return (
+		<MultiSelectDropdown
+			options={availableLabels}
+			selected={selectedLabels}
+			onChange={onChange}
+			menuId={menuId}
+			className={className}
+			itemColors={labelColors}
+			singleSelect={singleSelect}
+			title={title}
+		/>
 	);
 }
