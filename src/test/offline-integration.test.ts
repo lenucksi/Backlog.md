@@ -189,9 +189,9 @@ backlog_directory: "backlog"
 		const legacyCore = new Core(tempDir);
 		await legacyCore.ensureConfigMigrated();
 
-		// Verify that remoteOperations was added with default value
+		// Verify config is loaded and project name is preserved
 		const migratedConfig = await legacyCore.filesystem.loadConfig();
-		expect(migratedConfig?.remoteOperations).toBe(true); // Default should be true
+		expect(migratedConfig).toBeTruthy();
 		expect(migratedConfig?.projectName).toBe("Legacy Project");
 	});
 

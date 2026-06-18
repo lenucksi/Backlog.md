@@ -1514,8 +1514,9 @@ ${description || `Milestone: ${title}`}`,
 		const raw = this.cachedRawConfig ?? {};
 		const mapped = this.configToRaw(normalizedConfig);
 		const merged = { ...raw, ...mapped };
-		// Remove legacy dod_defaults key — we write definition_of_done
+		// Remove legacy dod_defaults and milestones keys — we use filesystem-backed equivalents
 		delete merged.dod_defaults;
+		delete merged.milestones;
 
 		const configPath = this.resolvedConfigPath;
 		const content = this.serializeConfig(merged);
@@ -1737,7 +1738,7 @@ ${description || `Milestone: ${title}`}`,
 			bypassGitHooks: "bypass_git_hooks",
 			checkActiveBranches: "check_active_branches",
 			activeBranchDays: "active_branch_days",
-			onStatusChange: "onStatusChange",
+			onStatusChange: "on_status_change",
 			autoCollapseMilestones: "auto_collapse_milestones",
 			backlogDirectory: "backlog_directory",
 		};

@@ -5,9 +5,9 @@ import {
 	ensureMcpGuidelines,
 	installClaudeAgent,
 } from "../agent-instructions.ts";
-import { DEFAULT_INIT_CONFIG } from "../constants/index.ts";
 import type { BacklogConfig } from "../types/index.ts";
 import { normalizeProjectBacklogDirectory } from "../utils/backlog-directory.ts";
+import { getSchemaDefaults } from "../utils/config-schema.ts";
 import type { Core } from "./backlog.ts";
 
 export const MCP_SERVER_NAME = "backlog";
@@ -27,6 +27,9 @@ export interface InitializeProjectOptions {
 	installClaudeAgent?: boolean;
 	filesystemOnly?: boolean;
 	advancedConfig?: {
+		statuses?: string[];
+		terminalStatuses?: string[];
+		blockedStatuses?: string[];
 		checkActiveBranches?: boolean;
 		remoteOperations?: boolean;
 		activeBranchDays?: number;
@@ -144,16 +147,20 @@ function buildInitConfig(
 	normalizedAdvancedConfig: Record<string, unknown>,
 	effectiveFilesystemOnly: boolean,
 ): BacklogConfig {
-	const d = DEFAULT_INIT_CONFIG;
+	const d = getSchemaDefaults();
 
 	const config: BacklogConfig = {
 		...(existingConfig ?? ({} as BacklogConfig)),
-		statuses: existingConfig?.statuses ?? ["To Do", "In Progress", "Done"],
+		statuses: resolveOverrideValue(normalizedAdvancedConfig, "statuses", existingConfig?.statuses, [
+			"To Do",
+			"In Progress",
+			"Done",
+		]),
 		labels: existingConfig?.labels ?? [],
 		defaultStatus: existingConfig?.defaultStatus ?? "To Do",
 		maxColumnWidth: existingConfig?.maxColumnWidth ?? 20,
 		projectName,
-		filesystemOnly: effectiveFilesystemOnly || d.filesystemOnly,
+		filesystemOnly: effectiveFilesystemOnly,
 		autoCommit: resolveOverrideValue(normalizedAdvancedConfig, "autoCommit", existingConfig?.autoCommit, d.autoCommit),
 		remoteOperations: resolveOverrideValue(
 			normalizedAdvancedConfig,
@@ -197,6 +204,8 @@ function buildInitConfig(
 		},
 	};
 
+	const hasTerminalStatusesOverride = Object.hasOwn(normalizedAdvancedConfig, "terminalStatuses");
+	const hasBlockedStatusesOverride = Object.hasOwn(normalizedAdvancedConfig, "blockedStatuses");
 	const hasDefaultEditorOverride = Object.hasOwn(normalizedAdvancedConfig, "defaultEditor");
 	const hasZeroPaddedIdsOverride = Object.hasOwn(normalizedAdvancedConfig, "zeroPaddedIds");
 	const hasDefinitionOfDoneOverride = Object.hasOwn(normalizedAdvancedConfig, "definitionOfDone");
@@ -220,6 +229,28 @@ function buildInitConfig(
 			config.definitionOfDone = [...(normalizedAdvancedConfig.definitionOfDone as string[])];
 		} else {
 			delete config.definitionOfDone;
+		}
+	}
+
+	if (hasTerminalStatusesOverride) {
+		if (
+			Array.isArray(normalizedAdvancedConfig.terminalStatuses) &&
+			normalizedAdvancedConfig.terminalStatuses.length > 0
+		) {
+			config.terminalStatuses = [...(normalizedAdvancedConfig.terminalStatuses as string[])];
+		} else {
+			delete config.terminalStatuses;
+		}
+	}
+
+	if (hasBlockedStatusesOverride) {
+		if (
+			Array.isArray(normalizedAdvancedConfig.blockedStatuses) &&
+			normalizedAdvancedConfig.blockedStatuses.length > 0
+		) {
+			config.blockedStatuses = [...(normalizedAdvancedConfig.blockedStatuses as string[])];
+		} else {
+			delete config.blockedStatuses;
 		}
 	}
 

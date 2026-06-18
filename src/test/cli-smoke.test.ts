@@ -118,6 +118,6 @@ describe("CLI project commands", () => {
 
 		const output = await runCLI(["config", "list"], testDir);
 		expect(output).toBeTruthy();
-		expect(output).toContain("projectName");
+		expect(output).toContain("project_name");
 	});
 });

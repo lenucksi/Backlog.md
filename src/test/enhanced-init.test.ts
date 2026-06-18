@@ -499,7 +499,7 @@ describe("Enhanced init command", () => {
 		const freshConfig = await freshCore.filesystem.loadConfig();
 
 		expect(configExists).toBe(true);
-		expect(rootConfig).toContain('backlog_directory: "planning/backlog-data"');
+		expect(rootConfig).toContain("backlog_directory: planning/backlog-data");
 		expect(core.filesystem.backlogDirName).toBe("planning/backlog-data");
 		expect(freshConfig?.projectName).toBe("Custom Backlog Init");
 		expect(freshCore.filesystem.backlogDirName).toBe("planning/backlog-data");
@@ -517,7 +517,7 @@ describe("Enhanced init command", () => {
 		const rootConfigPath = join(tmpDir, "backlog.config.yml");
 		const rootConfig = await Bun.file(rootConfigPath).text();
 		expect(await Bun.file(rootConfigPath).exists()).toBe(true);
-		expect(rootConfig).toContain('backlog_directory: "planning/backlog-data"');
+		expect(rootConfig).toContain("backlog_directory: planning/backlog-data");
 		expect(await Bun.file(join(tmpDir, "planning", "backlog-data", "config.yml")).exists()).toBe(false);
 	});
 
@@ -532,7 +532,7 @@ describe("Enhanced init command", () => {
 		const rootConfigPath = join(tmpDir, "backlog.config.yml");
 		const rootConfig = await Bun.file(rootConfigPath).text();
 		expect(await Bun.file(rootConfigPath).exists()).toBe(true);
-		expect(rootConfig).toContain('backlog_directory: "planning/backlog-data"');
+		expect(rootConfig).toContain("backlog_directory: planning/backlog-data");
 		expect(await Bun.file(join(tmpDir, "planning", "backlog-data", "config.yml")).exists()).toBe(false);
 	});
 

@@ -118,13 +118,13 @@ statuses:
 labels: []
 milestones: []
 checkActiveBranches: false
-onStatusChange: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" > "${callbackOutputPath}"'
+on_status_change: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" > "${callbackOutputPath}"'
 `;
 			await writeFile(join(testDir, "backlog", "config.yml"), configContent);
 
 			// Verify config was written correctly
 			const writtenConfig = await Bun.file(join(testDir, "backlog", "config.yml")).text();
-			expect(writtenConfig).toContain("onStatusChange");
+			expect(writtenConfig).toContain("on_status_change");
 
 			// Create a task
 			const { task } = await core.createTaskFromInput({
@@ -156,7 +156,7 @@ statuses:
 labels: []
 milestones: []
 checkActiveBranches: false
-onStatusChange: 'echo "global" > "${callbackOutputPath}"'
+on_status_change: 'echo "global" > "${callbackOutputPath}"'
 `;
 			await writeFile(join(testDir, "backlog", "config.yml"), configContent);
 
@@ -195,7 +195,7 @@ statuses:
 labels: []
 milestones: []
 checkActiveBranches: false
-onStatusChange: 'echo "callback-ran" > "${callbackOutputPath}"'
+on_status_change: 'echo "callback-ran" > "${callbackOutputPath}"'
 `;
 			await writeFile(join(testDir, "backlog", "config.yml"), configContent);
 
@@ -250,7 +250,7 @@ statuses:
 labels: []
 milestones: []
 checkActiveBranches: false
-onStatusChange: 'exit 1'
+on_status_change: 'exit 1'
 `;
 			await writeFile(join(testDir, "backlog", "config.yml"), configContent);
 
@@ -275,7 +275,7 @@ statuses:
 labels: []
 milestones: []
 checkActiveBranches: false
-onStatusChange: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" >> "${callbackOutputPath}"'
+on_status_change: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" >> "${callbackOutputPath}"'
 `;
 			await writeFile(join(testDir, "backlog", "config.yml"), configContent);
 

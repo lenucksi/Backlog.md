@@ -117,33 +117,24 @@ const renderBoardPage = (
 	return container as HTMLElement;
 };
 
-const getSelectByFirstOption = (container: HTMLElement, firstOptionText: string): HTMLSelectElement => {
-	const select = Array.from(container.querySelectorAll("select")).find(
-		(element) => element.options[0]?.textContent === firstOptionText,
-	);
-	expect(select).toBeTruthy();
-	return select as HTMLSelectElement;
-};
+const selectMultiSelectOption = async (container: HTMLElement, menuId: string, optionText: string) => {
+	const button = container.querySelector(`button[aria-controls='${menuId}']`);
+	expect(button).toBeTruthy();
+	await clickElement(button as HTMLButtonElement);
 
-const setSelectValue = async (select: HTMLSelectElement, value: string) => {
-	await act(async () => {
-		const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value")?.set;
-		valueSetter?.call(select, value);
-		select.dispatchEvent(new window.Event("change", { bubbles: true }));
-		await Promise.resolve();
-	});
+	const menu = container.querySelector(`#${menuId}`);
+	expect(menu).toBeTruthy();
+
+	const option = Array.from(menu!.querySelectorAll("button")).find(
+		(b) => b.textContent?.trim() === optionText,
+	);
+	expect(option).toBeTruthy();
+	await clickElement(option as HTMLButtonElement);
 };
 
 const clickElement = async (element: Element) => {
 	await act(async () => {
 		element.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-		await Promise.resolve();
-	});
-};
-
-const toggleCheckbox = async (checkbox: HTMLInputElement) => {
-	await act(async () => {
-		checkbox.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
 		await Promise.resolve();
 	});
 };
@@ -169,18 +160,21 @@ const expectBoardFiltersInHeader = (container: HTMLElement) => {
 	const boardFilters = toolbar?.querySelector("[aria-label='Board filters']");
 	expect(boardFilters).toBeTruthy();
 
-	for (const ariaLabel of ["Filter board by assignee", "Filter board by priority"]) {
-		const select = container.querySelector(`select[aria-label='${ariaLabel}']`) as HTMLSelectElement | null;
-		expect(select).toBeTruthy();
-		expect(toolbar?.contains(select)).toBe(true);
-		expect(select?.className).toContain("min-w-[140px]");
-		expect(select?.className).toContain("h-10");
-		expect(select?.className).toContain("rounded-lg");
-		expect(select?.className).toContain("border-gray-300");
-		expect(select?.className).toContain("focus:ring-stone-500");
-	}
+	const assigneeBtn = container.querySelector("button[aria-controls='board-assignee-filter-menu']") as HTMLButtonElement | null;
+	expect(assigneeBtn).toBeTruthy();
+	expect(toolbar?.contains(assigneeBtn)).toBe(true);
+	expect(assigneeBtn?.className).toContain("min-w-[180px]");
+	expect(assigneeBtn?.className).toContain("rounded-lg");
+
+	const priorityBtn = container.querySelector("button[aria-controls='board-priority-filter-menu']") as HTMLButtonElement | null;
+	expect(priorityBtn).toBeTruthy();
+	expect(toolbar?.contains(priorityBtn)).toBe(true);
+	expect(priorityBtn?.className).toContain("min-w-[180px]");
+	expect(priorityBtn?.className).toContain("rounded-lg");
 
 	expect(container.querySelector("select[aria-label='Filter board by label']")).toBeNull();
+	expect(container.querySelector("select[aria-label='Filter board by assignee']")).toBeNull();
+	expect(container.querySelector("select[aria-label='Filter board by priority']")).toBeNull();
 	const labelsButton = getBoardLabelsButton(container);
 	expect(toolbar?.contains(labelsButton)).toBe(true);
 	expect(labelsButton.className).toContain("min-w-[200px]");
@@ -195,14 +189,12 @@ const getBoardLabelsButton = (container: HTMLElement): HTMLButtonElement => {
 	return button as HTMLButtonElement;
 };
 
-const getBoardLabelCheckbox = (container: HTMLElement, label: string): HTMLInputElement => {
-	const labelElement = Array.from(container.querySelectorAll("#board-labels-filter-menu label")).find(
+const getBoardLabelOption = (container: HTMLElement, label: string): HTMLButtonElement => {
+	const optionBtn = Array.from(container.querySelectorAll("#board-labels-filter-menu button")).find(
 		(element) => element.textContent?.trim() === label,
 	);
-	expect(labelElement).toBeTruthy();
-	const checkbox = labelElement?.querySelector("input[type='checkbox']");
-	expect(checkbox).toBeTruthy();
-	return checkbox as HTMLInputElement;
+	expect(optionBtn).toBeTruthy();
+	return optionBtn as HTMLButtonElement;
 };
 
 afterEach(() => {
@@ -221,22 +213,22 @@ describe("Web board filters", () => {
 		expectBoardFiltersInHeader(container);
 		expectVisibleTasks(container, ["Fix login bug", "Write docs", "Improve board", "Triage unassigned issue"]);
 
-		await setSelectValue(getSelectByFirstOption(container, "All assignees"), "alice");
+		await selectMultiSelectOption(container, "board-assignee-filter-menu", "alice");
 		expect(new URLSearchParams(window.location.search).get("assignee")).toBe("alice");
 		expectVisibleTasks(container, ["Fix login bug", "Improve board"]);
 
 		await clickElement(getBoardLabelsButton(container));
-		await toggleCheckbox(getBoardLabelCheckbox(container, "bug"));
+		await clickElement(getBoardLabelOption(container, "bug"));
 		expect(new URLSearchParams(window.location.search).getAll("label")).toEqual(["bug"]);
 		expectVisibleTasks(container, ["Fix login bug"]);
 
-		await toggleCheckbox(getBoardLabelCheckbox(container, "enhancement"));
+		await clickElement(getBoardLabelOption(container, "enhancement"));
 		expect(new URLSearchParams(window.location.search).getAll("label")).toEqual(["bug", "enhancement"]);
 		expect(getBoardLabelsButton(container).textContent).toContain("2 selected");
 		expectVisibleTasks(container, ["Fix login bug", "Improve board"]);
 
-		await setSelectValue(getSelectByFirstOption(container, "All priorities"), "high");
-		expect(new URLSearchParams(window.location.search).get("priority")).toBe("high");
+		await selectMultiSelectOption(container, "board-priority-filter-menu", "high");
+		expect(new URLSearchParams(window.location.search).getAll("priority")).toEqual(["high"]);
 		expectVisibleTasks(container, ["Fix login bug"]);
 	});
 
@@ -246,7 +238,7 @@ describe("Web board filters", () => {
 		});
 
 		await clickElement(getBoardLabelsButton(container));
-		await toggleCheckbox(getBoardLabelCheckbox(container, "Bug"));
+		await clickElement(getBoardLabelOption(container, "Bug"));
 
 		expect(new URLSearchParams(window.location.search).getAll("label")).toEqual(["Bug"]);
 		expect(getBoardLabelsButton(container).textContent).toContain("Bug");
@@ -256,9 +248,9 @@ describe("Web board filters", () => {
 	it("reads filters from URL params and clears them", async () => {
 		const container = renderBoardPage("http://localhost/board?assignee=alice&label=bug&priority=high");
 
-		expect(getSelectByFirstOption(container, "All assignees").value).toBe("alice");
+		expect(container.querySelector("button[aria-controls='board-assignee-filter-menu']")?.textContent).toContain("alice");
 		expect(getBoardLabelsButton(container).textContent).toContain("bug");
-		expect(getSelectByFirstOption(container, "All priorities").value).toBe("high");
+		expect(container.querySelector("button[aria-controls='board-priority-filter-menu']")?.textContent).toContain("high");
 		expectVisibleTasks(container, ["Fix login bug"]);
 
 		const clearButton = Array.from(container.querySelectorAll("button")).find((button) =>
@@ -270,7 +262,7 @@ describe("Web board filters", () => {
 		const searchParams = new URLSearchParams(window.location.search);
 		expect(searchParams.get("assignee")).toBeNull();
 		expect(searchParams.getAll("label")).toEqual([]);
-		expect(searchParams.get("priority")).toBeNull();
+		expect(searchParams.getAll("priority")).toEqual([]);
 		expectVisibleTasks(container, ["Fix login bug", "Write docs", "Improve board", "Triage unassigned issue"]);
 	});
 
@@ -280,7 +272,7 @@ describe("Web board filters", () => {
 		expect(container.textContent).toContain("m-1");
 		expect(container.textContent).toContain("m-2");
 
-		await setSelectValue(getSelectByFirstOption(container, "All assignees"), "alice");
+		await selectMultiSelectOption(container, "board-assignee-filter-menu", "alice");
 
 		const text = container.textContent ?? "";
 		expect(text).toContain("Fix login bug");

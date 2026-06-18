@@ -275,7 +275,7 @@ describe("CLI Integration", () => {
 			expect(output).toContain("Config location: backlog.config.yml");
 			expect(await Bun.file(join(TEST_DIR, "backlog.config.yml")).exists()).toBe(true);
 			const rootConfig = await Bun.file(join(TEST_DIR, "backlog.config.yml")).text();
-			expect(rootConfig).toContain('backlog_directory: "planning/backlog-data"');
+			expect(rootConfig).toContain("backlog_directory: planning/backlog-data");
 		});
 
 		it("should reject invalid --backlog-dir values", async () => {
