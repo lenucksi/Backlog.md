@@ -1,7 +1,22 @@
+src/test/web-milestones-page-search.test.tsx
+  s_cc59de0c7f0c66::t_930c9bc01bcfb5 274
+  s_cc59de0c7f0c66::t_9467508badda7b 231
+  s_cc59de0c7f0c66::t_3e0ad931157033 305
+  s_cc59de0c7f0c66::t_f08ce407ac72a2 246
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.4.8",
   "base_commit_sha": "9197ca00306e7c0e3e9a19c88cafd4550f265a13",
-  "prompts": {}
+  "prompts": {},
+  "sessions": {
+    "s_cc59de0c7f0c66": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1c50d8388ffexNaAtUh0giEk1k",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
 }

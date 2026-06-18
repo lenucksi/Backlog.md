@@ -1,23 +1,19 @@
-"backlog/tasks/back-492.2 - Unify-task-filter-logic-behind-a-shared-interface.md"
-  ai_agent 1-50
-"backlog/tasks/back-492.1 - Fix-label-case-sensitivity-in-server-REST-API.md"
-  ai_agent 1-40
-"backlog/tasks/back-492.3 - Remove-duplicate-singular-plural-API-route-aliases.md"
-  ai_agent 1-49
-"backlog/tasks/back-492 - Tech-Debt-Research-—-audit-codebase-for-inconsistencies-and-produce-prioritized-reduction-plan.md"
-  ai_agent 6-8,10,18-19,46-53,56-67,70-72
-"backlog/tasks/back-492.4 - Add-knip-dead-export-detection-to-CI.md"
-  ai_agent 1-47
-"backlog/tasks/back-492.6 - Extract-parseMultiParam-helper-for-server-query-params.md"
-  ai_agent 1-47
-"backlog/tasks/back-492.7 - Add-dependency-cruiser-architecture-rules.md"
-  ai_agent 1-53
-"backlog/tasks/back-492.5 - Extend-Biome-rule-set-noUnusedImports-noUnusedVariables.md"
-  ai_agent 1-44
+sonar-project.properties
+  s_cc59de0c7f0c66::t_54fa30fa959636 8-9
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.4.8",
   "base_commit_sha": "41941cb72a01dc042f978895a0b3d65f53fc75be",
-  "prompts": {}
+  "prompts": {},
+  "sessions": {
+    "s_cc59de0c7f0c66": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1c50d8388ffexNaAtUh0giEk1k",
+        "model": "big-pickle"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
 }

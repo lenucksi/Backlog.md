@@ -1,13 +1,12 @@
 .github/workflows/ci.yml
-  s_cc59de0c7f0c66::t_14e08a4b34b5ec 135-168
-  s_cc59de0c7f0c66::t_766a49319a5fe2 7
-sonar-project.properties
-  s_cc59de0c7f0c66::t_e45bfa2c24ffa1 1-8
+  s_cc59de0c7f0c66::t_3c52105e8f2997 100-101
+  s_cc59de0c7f0c66::t_361edac6e89bd2 39-40
+  s_cc59de0c7f0c66::t_d279408cf5cf2f 160-161
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.4.8",
-  "base_commit_sha": "87f4a0fe8377a073fca860f08723b3a263cd1f97",
+  "base_commit_sha": "09cd009f730542479ea003f11ad721cd5d75e947",
   "prompts": {},
   "sessions": {
     "s_cc59de0c7f0c66": {
