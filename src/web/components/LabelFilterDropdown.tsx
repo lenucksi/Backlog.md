@@ -9,6 +9,7 @@ interface MultiSelectDropdownProps {
 	itemColors?: Record<string, string>;
 	singleSelect?: boolean;
 	title?: string;
+	labels?: Record<string, string>;
 }
 
 export function MultiSelectDropdown({
@@ -20,6 +21,7 @@ export function MultiSelectDropdown({
 	itemColors,
 	singleSelect,
 	title = "Options",
+	labels,
 }: MultiSelectDropdownProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -67,13 +69,13 @@ export function MultiSelectDropdown({
 			>
 				<div className="flex items-center justify-between gap-2">
 					<span>{title}</span>
-					<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[100px]">
-						{selected.length === 0
-							? "All"
-							: selected.length === 1
-								? selected[0]
-								: `${selected.length} selected`}
-					</span>
+	<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[100px]">
+		{selected.length === 0
+			? "All"
+			: selected.length === 1
+				? labels?.[selected[0]!] ?? selected[0]!
+				: `${selected.length} selected`}
+	</span>
 				</div>
 			</button>
 			{isOpen && (
@@ -114,15 +116,15 @@ export function MultiSelectDropdown({
 											className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
 										/>
 									)}
-									<span className="truncate flex items-center gap-1.5">
-										{itemColors && (
-											<span
-												className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
-												style={{ backgroundColor: itemColors[option] || "#9ca3af" }}
-											/>
-										)}
-										{option}
-									</span>
+								<span className="truncate flex items-center gap-1.5">
+									{itemColors && (
+										<span
+											className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
+											style={{ backgroundColor: itemColors[option] || "#9ca3af" }}
+										/>
+									)}
+									{labels?.[option] ?? option}
+								</span>
 								</button>
 							);
 						})

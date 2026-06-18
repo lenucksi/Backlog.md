@@ -264,6 +264,14 @@ const TaskList: React.FC<TaskListProps> = ({
 		const uniqueMilestones = Array.from(new Set([...availableMilestones.map((m) => m.trim()).filter(Boolean)]));
 		return uniqueMilestones;
 	}, [availableMilestones]);
+
+	const milestoneLabelMap = useMemo(() => {
+		const map: Record<string, string> = {};
+		for (const m of milestoneEntities) {
+			map[m.id] = m.title;
+		}
+		return map;
+	}, [milestoneEntities]);
 	const uniqueAssignees = useMemo(() => {
 		const seen = new Set<string>();
 		for (const task of tasks) {
@@ -679,6 +687,7 @@ const TaskList: React.FC<TaskListProps> = ({
 							menuId="task-list-milestone-filter-menu"
 							className="min-w-[160px]"
 							title="Milestone"
+							labels={{ ...milestoneLabelMap, __none: "No milestone" }}
 						/>
 
 						<LabelFilterDropdown
@@ -758,7 +767,7 @@ const TaskList: React.FC<TaskListProps> = ({
 							})),
 							...milestoneFilter.map((m) => ({
 								key: `milestone-${m}`,
-								label: m === "__none" ? "No milestone" : `Milestone: ${m}`,
+								label: m === "__none" ? "No milestone" : `Milestone: ${milestoneLabelMap[m] ?? m}`,
 								onRemove: () => {
 									const next = milestoneFilter.filter((x) => x !== m);
 									setMilestoneFilter(next);

@@ -3,13 +3,13 @@ id: BACK-464
 title: Use shared multi-label filter dropdown on board
 status: Done
 assignee:
-  - '@codex'
-created_date: '2026-05-03 19:30'
-updated_date: '2026-05-22 15:39'
+  - "@codex"
+created_date: 2026-05-03 19:30
+updated_date: 2026-06-18 15:17
 labels:
   - web
   - filters
-  - bug
+  - bug2
 milestone: m-8
 dependencies: []
 modified_files:
@@ -73,6 +73,8 @@ Tests:
 - `bun test src/test/web-board-filters.test.tsx src/test/web-task-list-labels-menu.test.tsx`
 - `bunx tsc --noEmit`
 - `bun run check .`
+
+Post-completion: Added labels prop to MultiSelectDropdown for display-text override. Fixed milestone filter showing raw IDs (m-1, m-14) instead of milestone titles ("Upstream Integration", etc.) in All Tasks dropdown and filter chips.
 <!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
