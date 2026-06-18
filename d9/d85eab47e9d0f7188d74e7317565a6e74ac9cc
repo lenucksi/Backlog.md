@@ -1,0 +1,86 @@
+src/test/commands-config-cov.test.ts
+  s_05d4ba98c164b8::t_855c79939f96c5 175
+  s_05d4ba98c164b8::t_e3d2dfdebc3be1 159
+  s_05d4ba98c164b8::t_766917dd4bbbad 138-144
+  s_05d4ba98c164b8::t_e543840f094ab1 36-37,44-45,48-59,77-80,90,92,94,98-99,101,104-105,109-110,112,116,118,121,123,128,130,132,134,163-164,167,170,173,178-179,182,185,187,190-191,194,196,199-200,204-205,207,218-220,224-234
+src/test/cli.test.ts
+  s_05d4ba98c164b8::t_9d21a8dfb91385 278
+src/test/status-callback.test.ts
+  s_05d4ba98c164b8::t_5f855412354400 127
+  s_05d4ba98c164b8::t_d3f593718c9667 121,159,198,253,278
+src/test/cli-context.test.ts
+  s_05d4ba98c164b8::t_70b4c64f3b7f64 1
+src/commands/init.ts
+  s_05d4ba98c164b8::t_efe5ae354ef15a 601
+  s_a9a9c6d87bc022::t_4d6470ce2617cc 6
+  s_a9a9c6d87bc022::t_d5581d73d97328 975-990
+  s_a9a9c6d87bc022::t_551e528e0abf7d 130-163
+  s_a9a9c6d87bc022::t_30415d71c486c5 824-825
+  s_a9a9c6d87bc022::t_d366e1a5c6dada 831-834,836-838
+  s_a9a9c6d87bc022::t_75cf2abc5d5032 953-955
+  s_a9a9c6d87bc022::t_9ea1e6b99f1639 164-600,602-730
+  s_a9a9c6d87bc022::t_1bf20ee2c468ae 887-890,892
+src/test/mcp-server.test.ts
+  s_05d4ba98c164b8::t_1778b82fe83b8f 228-229
+  s_05d4ba98c164b8::t_733912d9a13c9c 221-224
+src/file-system/operations.ts
+  s_05d4ba98c164b8::t_f11a0b87780ab1 1517,1519
+  s_05d4ba98c164b8::t_1452f8e68c5dd0 1741
+src/test/web-board-filters.test.tsx
+  s_05d4ba98c164b8::t_804be50835daf7 275
+  s_05d4ba98c164b8::t_76d354874e10d6 176-177
+  s_05d4ba98c164b8::t_ae8ef24a63dd4d 192-193,196-197
+  s_05d4ba98c164b8::t_4385679422257a 216
+  s_05d4ba98c164b8::t_38070c437dc716 172
+  s_05d4ba98c164b8::t_70c272088be466 163-167
+  s_05d4ba98c164b8::t_37d3e8bab9f645 168-171,173
+  s_05d4ba98c164b8::t_22a90aded85cfc 253,265
+  s_05d4ba98c164b8::t_a5124459d261f2 251
+  s_05d4ba98c164b8::t_3524df0f41d227 120-123,125-132
+  s_05d4ba98c164b8::t_2581f422667fad 230-231
+  s_05d4ba98c164b8::t_e4e06b1e89e358 225
+  s_05d4ba98c164b8::t_d11e08289c6f36 221
+  s_05d4ba98c164b8::t_462ad234685600 241
+src/test/enhanced-init.test.ts
+  s_05d4ba98c164b8::t_ff9c92300e8369 502,520
+  s_05d4ba98c164b8::t_7d8751d7fa3fe0 535
+src/test/offline-integration.test.ts
+  s_05d4ba98c164b8::t_90febe327c9dfd 192,194
+src/core/init.ts
+  s_05d4ba98c164b8::t_405c1db07e98f2 163
+  s_a9a9c6d87bc022::t_41d7938eaf5011 150
+  s_a9a9c6d87bc022::t_6b8b300868ea6c 207-208
+  s_a9a9c6d87bc022::t_bef05af17f21f2 154-158
+  s_a9a9c6d87bc022::t_1618258d47d2b8 235,240-246,251-256
+  s_a9a9c6d87bc022::t_4f8176a44aeed2 30-32
+  s_a9a9c6d87bc022::t_2b5a64b3f9cbe1 236-239,247-250
+  s_a9a9c6d87bc022::t_4d6470ce2617cc 10
+src/test/cli-smoke.test.ts
+  s_05d4ba98c164b8::t_6b34cf9e786861 121
+src/test/auto-commit.test.ts
+  s_05d4ba98c164b8::t_9b6c1de69c3c5f 43,58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "d9d85eab47e9d0f7188d74e7317565a6e74ac9cc",
+  "prompts": {},
+  "sessions": {
+    "s_05d4ba98c164b8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12b0f0ba3ffeXtq5Lys47xALqF",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_a9a9c6d87bc022": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12a2e284dffeR3Uig8NocN39iE",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
