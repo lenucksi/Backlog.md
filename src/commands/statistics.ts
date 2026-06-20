@@ -60,12 +60,15 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 	const { tasks, drafts, statuses, terminalStatuses, blockedStatuses } = await core.loadAllTasksForStatistics();
 	const archivedTasks = await core.fs.listArchivedTasks();
 
+	const archivedIds = new Set(archivedTasks.map((t) => t.id));
+	const activeTasks = tasks.filter((t) => !archivedIds.has(t.id));
+
 	const filteredTasks = options.milestone
-		? tasks.filter((t) => {
+		? activeTasks.filter((t) => {
 				if (!t.milestone) return false;
 				return t.milestone.toLowerCase() === options.milestone?.toLowerCase();
 			})
-		: tasks;
+		: activeTasks;
 
 	const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks, blockedStatuses);
 

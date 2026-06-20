@@ -22,7 +22,17 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 			const { tasks, drafts, statuses, terminalStatuses, blockedStatuses } = await ctx.core.loadAllTasksForStatistics();
 			const archivedTasks = await ctx.core.filesystem.listArchivedTasks();
 
-			const statistics = getTaskStatistics(tasks, drafts, statuses, terminalStatuses, archivedTasks, blockedStatuses);
+			const archivedIds = new Set(archivedTasks.map((t) => t.id));
+			const activeTasks = tasks.filter((t) => !archivedIds.has(t.id));
+
+			const statistics = getTaskStatistics(
+				activeTasks,
+				drafts,
+				statuses,
+				terminalStatuses,
+				archivedTasks,
+				blockedStatuses,
+			);
 
 			const response = {
 				...statistics,
