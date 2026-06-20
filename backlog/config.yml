@@ -1,6 +1,6 @@
 project_name: Backlog.md
 default_status: To Do
-statuses: [ To Do, In Progress, Done ]
+statuses: [ To Do, In Progress, Blocked, Done, Deferred ]
 labels:
   [
     { name: web-ui, color: "#2b8cee" },
@@ -183,3 +183,4 @@ task_prefix: back
 terminal_statuses: [ Done ]
 auto_collapse_milestones: true
 filesystem_only: false
+blocked_statuses: [ Deferred, Blocked ]
