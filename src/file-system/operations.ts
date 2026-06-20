@@ -289,7 +289,7 @@ export class FileSystem {
 		}
 	}
 
-	async migrateCompletedTasks(): Promise<void> {
+	async migrateCompletedTasks(): Promise<{ migrated: number; total: number }> {
 		try {
 			const backlogDir = await this.getBacklogDir();
 			const completedDir = join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
@@ -298,27 +298,46 @@ export class FileSystem {
 			const completedDirExists = await stat(completedDir)
 				.then(() => true)
 				.catch(() => false);
-			if (!completedDirExists) return;
+			if (!completedDirExists) return { migrated: 0, total: 0 };
+
+			const config = await this.loadConfig();
+			const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
+			const globPattern = buildGlobPattern(taskPrefix);
+
+			const taskFiles = await Array.fromAsync(
+				new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }),
+			);
+
+			if (taskFiles.length === 0) return { migrated: 0, total: 0 };
 
 			await this.ensureDirectoryExists(archiveTasksDir);
 
-			const entries = await readdir(completedDir);
-			for (const entry of entries) {
-				if (entry.endsWith(".md")) {
-					const source = join(completedDir, entry);
-					const target = join(archiveTasksDir, entry);
+			let migrated = 0;
+			for (const file of taskFiles) {
+				const source = join(completedDir, file);
+				const target = join(archiveTasksDir, file);
+				try {
 					await rename(source, target);
-				}
+					// Set frontmatter status to "Archived" after move
+					const content = await Bun.file(target).text();
+					const parsed = parseFrontmatter(content);
+					parsed.data.status = "Archived";
+					await Bun.write(target, stringifyFrontmatter(parsed.content, parsed.data));
+					migrated++;
+				} catch {}
 			}
 
 			const remaining = await readdir(completedDir);
 			if (remaining.length === 0) {
 				await rmdir(completedDir);
 			}
+
+			return { migrated, total: taskFiles.length };
 		} catch (_error) {
 			if (process.env.DEBUG) {
 				console.error("Failed to migrate completed tasks:", _error);
 			}
+			return { migrated: 0, total: 0 };
 		}
 	}
 
@@ -575,6 +594,40 @@ export class FileSystem {
 		}
 
 		return sortByTaskId(tasks);
+	}
+
+	async listOldCompletedDirTasks(): Promise<Task[]> {
+		try {
+			const backlogDir = await this.getBacklogDir();
+			const completedDir = join(backlogDir, DEFAULT_DIRECTORIES.COMPLETED);
+
+			const completedDirExists = await stat(completedDir)
+				.then(() => true)
+				.catch(() => false);
+			if (!completedDirExists) return [];
+
+			const config = await this.loadConfig();
+			const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
+			const globPattern = buildGlobPattern(taskPrefix);
+
+			const taskFiles = await Array.fromAsync(
+				new Bun.Glob(globPattern).scan({ cwd: completedDir, followSymlinks: true }),
+			);
+
+			const tasks: Task[] = [];
+			for (const file of taskFiles) {
+				const filepath = join(completedDir, file);
+				try {
+					const content = await Bun.file(filepath).text();
+					const task = parseTask(content);
+					tasks.push({ ...task, filePath: filepath });
+				} catch {}
+			}
+
+			return sortByTaskId(tasks);
+		} catch {
+			return [];
+		}
 	}
 
 	async archiveTask(taskId: string): Promise<boolean> {

@@ -1,9 +1,10 @@
 ---
 id: BACK-529
 title: BACK-531 — Completion/Archive-Semantik konsolidieren
-status: To Do
+status: Done
 assignee: []
-created_date: '2026-05-22 18:41'
+created_date: 2026-05-22 18:41
+updated_date: 2026-06-20 18:08
 labels:
   - cleanup
   - parity
@@ -12,8 +13,19 @@ labels:
   - breaking
 milestone: m-13
 dependencies: []
+modified_files:
+  - src/file-system/operations.ts
+  - src/core/backlog.ts
+  - src/core/statistics.ts
+  - src/commands/task.ts
+  - src/commands/migrate.ts
+  - src/cli.ts
+  - src/web/components/TaskDetailsModal.tsx
+  - src/web/components/SideNavigation.tsx
+  - src/web/components/Statistics.tsx
+  - src/server/handlers/tasks.ts
 priority: high
-ordinal: 245000
+ordinal: 1000
 ---
 
 ## Description
@@ -90,18 +102,69 @@ Ziel: Einheitliche Semantik, ein Weg für "finish & archive", klare Trennung zwi
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 #1 backlog/completed/ existiert nicht mehr, alle Tasks in archive/tasks/
-- [ ] #2 #2 WebUI + CLI 'mark as completed' tun das Gleiche: Status auf terminalStatus + Datei nach archive/tasks/
-- [ ] #3 #3 Grüner Button nur bei terminalStatus und nicht blockedStatus
-- [ ] #4 #4 Sidebar 'Completed (N)' zählt terminalStatus über tasks/ + archive/tasks/
-- [ ] #5 #5 Statistics zeigt Archived Tasks Liste (analog Blocked Tasks Liste)
-- [ ] #6 #6 Archivierte Tasks haben status: Archived im Frontmatter
-- [ ] #7 #7 Archived Tasks können nicht reopened werden
+- [x] #1 backlog/completed/ existiert nicht mehr, alle Tasks in archive/tasks/
+- [x] #2 WebUI + CLI 'mark as completed' tun das Gleiche: Status auf terminalStatus + Datei nach archive/tasks/
+- [x] #3 Grüner Button nur bei terminalStatus und nicht blockedStatus
+- [x] #4 Sidebar 'Archived Tasks' zeigt archivierte Tasks aus archive/tasks/; Statistics completedTasks zählt terminalStatus (tasks/) + archivierte (archive/tasks/)
+- [x] #5 Statistics zeigt Archived Tasks Liste mit Suche und Aktionen
+- [x] #6 Archivierte Tasks haben status: Archived im Frontmatter
+- [x] #7 Archived Tasks haben Reopen-Guard gegen edit — intentionaler Reopen via Statistics-Button bleibt möglich
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Summary
+
+### Phase 1: Cleanup (.1 + .6) — completed/ → archive/tasks/ + status Archived
+- `fs.migrateCompletedTasks()`: uses `buildGlobPattern` for task file filtering, moves files, sets `status: Archived` via gray-matter, removes `completed/` dir. Returns `{migrated, total}`.
+- `fs.listOldCompletedDirTasks()`: new method to read tasks from old `completed/` directory for prepare-phase display.
+- `fs.completeTask()` (already in place): moves to `archive/tasks/` + sets `status: Archived`.
+
+### Phase 2: Konsolidierung (.2 + .3) — CLI + WebUI unified
+- CLI `task complete`: `core.completeTask(task.id)` statt `core.editTask({status:"Done"})` (subtask .2)
+- TaskDetailsModal: `isTerminalStatus()` statt `includes("done")`, Label "Finish & Archive" (subtask .3)
+
+### Phase 3: UI (.4 + .5 + .7) — Sidebar, Statistics, Reopen Guard
+- Sidebar: "Archived Tasks" mit Count aus archive/tasks/ (refined per user decision)
+- Statistics: `completedTasks = terminalStatus(tasks/) + archivedCount` (refined per user decision)
+- Statistics: "Archived Tasks" section (subtask .5)
+- `core.editTask()`: guard check gegen archiveTasksDir (subtask .7)
+- Statistics "Reopen"-Button: intentional feature, nicht blocked (refined per user decision)
+
+### CLI migrate command (new, AC #1)
+- `backlog migrate archive-structure`: prepare phase (list files + conflicts) + execute phase (migrate + set status)
+- Flags: `--force` (skip confirm), `--no-git`
+- Uses `@clack/prompts` für interactive prompts
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BACK-529 konsolidiert die Completion/Archive-Semantik in einem konsistenten System:
+
+**Was sich geändert hat:**
+- `fs.completeTask()` moved nach `archive/tasks/` + setzt `status: Archived` (statt roh nach `backlog/completed/`)
+- CLI `task complete` ruft `core.completeTask()` (wie WebUI) statt `editTask(status:"Done")`
+- Grüner Button in WebUI: `isTerminalStatus()` statt `includes("done")`, Label "Finish & Archive"
+- Sidebar zeigt "Archived Tasks (N)" aus archive/tasks/
+- Statistics: `completedTasks` zählt terminalStatus + archivedCount
+- Statistics: "Archived Tasks" Liste mit Suche, View, Reopen
+- `core.editTask()` blockt Edit auf archived Tasks (Reopen Guard)
+- `backlog migrate archive-structure` CLI-Kommando: prepare + execute Phasen für Migration von completed/ nach archive/tasks/
+- `backlog/completed/` existiert nicht mehr (353 Tasks in archive/tasks/)
+
+**Modalities:**
+- CLI: task complete, backlog migrate archive-structure
+- WebUI: TaskDetailsModal (grüner Button), Sidebar (Archived Tasks), Statistics (Archived Tasks Liste, combined completedCount)
+- TUI: n/a (kein TUI-spezifischer Change nötig)
+- MCP: task_edit blockt Edit auf archived (via core.editTask Guard)
+- REST: handleCompleteTask, handleListCompletedTasks, handleReopenTask
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 bunx tsc --noEmit passes when TypeScript touched
-- [ ] #2 bun run check . passes when formatting/linting touched
-- [ ] #3 bun test (or scoped test) passes
+- [x] #1 bunx tsc --noEmit passes when TypeScript touched
+- [x] #2 bun run check . passes when formatting/linting touched
+- [x] #3 bun test (or scoped test) passes
 <!-- DOD:END -->

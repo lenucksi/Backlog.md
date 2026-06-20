@@ -14,6 +14,7 @@ import { registerDraftCommand } from "./commands/draft.ts";
 import { registerInitCommand } from "./commands/init.ts";
 import { registerLabelCommand } from "./commands/label.ts";
 import { registerMcpCommand } from "./commands/mcp.ts";
+import { registerMigrateCommand } from "./commands/migrate.ts";
 import { registerMilestoneCommand } from "./commands/milestone.ts";
 import { registerOpenCommand } from "./commands/open.ts";
 import { registerOverviewCommand } from "./commands/overview.ts";
@@ -204,6 +205,7 @@ registerOverviewCommand(program);
 registerOpenCommand(program);
 registerCompletionCommand(program);
 registerMcpCommand(program);
+registerMigrateCommand(program);
 
 program.parseAsync(process.argv).finally(() => {
 	if (originalBunOptions) {

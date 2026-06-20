@@ -132,13 +132,14 @@ export function getTaskStatistics(
 
 	const averageTaskAge = taskCount > 0 ? Math.round(totalAge / taskCount) : 0;
 	const totalTasks = Array.from(statusCounts.values()).reduce((sum, count) => sum + count, 0);
-	const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+	const combinedCompleted = completedTasks + (archivedTasks?.length ?? 0);
+	const completionPercentage = totalTasks > 0 ? Math.round((combinedCompleted / totalTasks) * 100) : 0;
 
 	return {
 		statusCounts,
 		priorityCounts,
 		totalTasks,
-		completedTasks,
+		completedTasks: combinedCompleted,
 		completionPercentage,
 		draftCount: drafts.length,
 		archivedCount: archivedTasks?.length ?? 0,
