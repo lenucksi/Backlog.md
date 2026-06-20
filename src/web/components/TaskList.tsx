@@ -112,6 +112,7 @@ const TaskList: React.FC<TaskListProps> = ({
 	}, []);
 	const [labelFilter, setLabelFilter] = useState<string[]>(initialLabelParams);
 	const [filterAssignee, setFilterAssignee] = useState(() => searchParams.get("assignee") ?? "");
+	const [filterQuery, setFilterQuery] = useState(() => searchParams.get("q") ?? "");
 	const [displayTasks, setDisplayTasks] = useState<Task[]>(() => sortTasksByIdDescending(tasks));
 	const [error, setError] = useState<string | null>(null);
 	const [showCleanupModal, setShowCleanupModal] = useState(false);
@@ -283,7 +284,7 @@ const TaskList: React.FC<TaskListProps> = ({
 	}, [tasks]);
 
 	const hasActiveFilters = Boolean(
-		statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0 || milestoneFilter.length > 0 || filterAssignee,
+		statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0 || milestoneFilter.length > 0 || filterAssignee || filterQuery.trim() !== "",
 	);
 	const totalTasks = sortedBaseTasks.length;
 
@@ -310,6 +311,10 @@ const TaskList: React.FC<TaskListProps> = ({
 		if (normalizedLabels.join("|") !== labelFilter.join("|")) {
 			setLabelFilter(normalizedLabels);
 		}
+		const paramQ = searchParams.get("q") ?? "";
+		if (paramQ !== filterQuery) {
+			setFilterQuery(paramQ);
+		}
 	}, [searchParams]);
 
 	useEffect(() => {
@@ -335,7 +340,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		};
 
 		const shouldUseApi =
-			statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0 || Boolean(filterAssignee);
+			statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0 || Boolean(filterAssignee) || filterQuery.trim() !== "";
 
 		if (!hasActiveFilters) {
 			return;
@@ -353,6 +358,7 @@ const TaskList: React.FC<TaskListProps> = ({
 			try {
 				const results = await apiClient.search({
 					types: ["task"],
+					query: filterQuery.trim() || undefined,
 					status: statusFilter.length > 0 ? statusFilter : undefined,
 					priority: priorityFilter.length > 0 ? priorityFilter : undefined,
 					labels: labelFilter.length > 0 ? labelFilter : undefined,
@@ -383,6 +389,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		priorityFilter,
 		statusFilter,
 		labelFilter,
+		filterQuery,
 		tasks,
 		milestoneFilter,
 		sortedBaseTasks,
@@ -395,6 +402,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		nextPriority: SearchPriorityFilter[],
 		nextLabels: string[],
 		nextMilestone: string[],
+		nextQuery?: string,
 	) => {
 		const params = new URLSearchParams();
 		for (const s of nextStatus) params.append("status", s);
@@ -404,6 +412,7 @@ const TaskList: React.FC<TaskListProps> = ({
 			if (n) params.append("label", n);
 		}
 		for (const m of nextMilestone) params.append("milestone", m);
+		if (nextQuery) params.set("q", nextQuery);
 		setSearchParams(params, { replace: true });
 	};
 
@@ -419,6 +428,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		setLabelFilter([]);
 		setMilestoneFilter([]);
 		setFilterAssignee("");
+		setFilterQuery("");
 		syncUrl([], [], [], []);
 		setDisplayTasks(sortedBaseTasks);
 		setError(null);
@@ -712,6 +722,23 @@ const TaskList: React.FC<TaskListProps> = ({
 					</div>
 
 					<div className="flex items-center gap-3 flex-shrink-0">
+						<div className="relative">
+							<svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+							</svg>
+							<input
+								type="text"
+								value={filterQuery}
+								onChange={(e) => {
+									const v = e.target.value;
+									setFilterQuery(v);
+									syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter, v);
+								}}
+								placeholder="Search..."
+								className="h-10 pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 w-[180px]"
+							/>
+						</div>
+
 						{isFilteringTerminalStatus && currentCount > 0 && (
 								<button
 									type="button"
@@ -747,6 +774,9 @@ const TaskList: React.FC<TaskListProps> = ({
 				{hasActiveFilters && (
 					<FilterChips
 						chips={[
+							...(filterQuery.trim()
+								? [{ key: "search", label: `Search: ${filterQuery.trim()}`, onRemove: () => { setFilterQuery(""); syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter); } }]
+								: []),
 							...statusFilter.map((s) => ({
 								key: `status-${s}`,
 								label: `Status: ${s}`,
