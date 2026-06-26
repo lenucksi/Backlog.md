@@ -7,6 +7,7 @@ interface CollapsibleGroupProps {
 	count: number;
 	storageKey: string;
 	onCreate?: () => void;
+	headerRightContent?: React.ReactNode;
 	children: React.ReactNode;
 	defaultCollapsed?: boolean;
 	to?: string;
@@ -18,6 +19,7 @@ function CollapsibleGroup({
 	count,
 	storageKey,
 	onCreate,
+	headerRightContent,
 	children,
 	defaultCollapsed = false,
 	to,
@@ -93,28 +95,31 @@ function CollapsibleGroup({
 						</span>
 					)}
 				</div>
-				{onCreate && (
-					<button
-						onClick={onCreate}
-						className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
-						title={`Create new ${title.toLowerCase()}`}
-					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
+				<div className="flex items-center space-x-1">
+					{headerRightContent}
+					{onCreate && (
+						<button
+							onClick={onCreate}
+							className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
+							title={`Create new ${title.toLowerCase()}`}
 						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-							/>
-							<circle cx="12" cy="12" r="10" />
-						</svg>
-					</button>
-				)}
+							<svg
+								className="w-4 h-4"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+								/>
+								<circle cx="12" cy="12" r="10" />
+							</svg>
+						</button>
+					)}
+				</div>
 			</div>
 			{!isCollapsed && (
 				<div className="space-y-1">

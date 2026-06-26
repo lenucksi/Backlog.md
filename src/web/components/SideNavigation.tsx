@@ -192,6 +192,8 @@ const SideNavigation = memo(function SideNavigation({
 	const [archivedDocsOpen, setArchivedDocsOpen] = useState(false);
 	const [supersededOpen, setSupersededOpen] = useState(false);
 	const [version, setVersion] = useState<string>('');
+	const [docSortField, setDocSortField] = useState<"id" | "title" | "lastModified" | "createdDate">("title");
+	const [docSortDir, setDocSortDir] = useState<"asc" | "desc">("asc");
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -297,6 +299,27 @@ const SideNavigation = memo(function SideNavigation({
 
 		return filtered.slice(0, 5);
 	}, [searchQuery, searchResults]);
+
+	const sortedDocs = useMemo(() => {
+		return [...docs].sort((a, b) => {
+			let cmp = 0;
+			switch (docSortField) {
+				case "id":
+					cmp = parseInt(stripIdPrefix(a.id)) - parseInt(stripIdPrefix(b.id));
+					break;
+				case "title":
+					cmp = a.title.localeCompare(b.title);
+					break;
+				case "lastModified":
+					cmp = (a.lastModified || "").localeCompare(b.lastModified || "");
+					break;
+				case "createdDate":
+					cmp = (a.createdDate || "").localeCompare(b.createdDate || "");
+					break;
+			}
+			return docSortDir === "asc" ? cmp : -cmp;
+		});
+	}, [docs, docSortField, docSortDir]);
 
 	const toggleCollapse = useCallback(() => {
 		setIsCollapsed((prev: any) => !prev);
@@ -567,17 +590,39 @@ const SideNavigation = memo(function SideNavigation({
 						<CollapsibleGroup
 							title="Documents"
 							icon={<Icons.Document />}
-							count={docs.length}
+							count={sortedDocs.length}
 							storageKey="docsCollapsed"
 							onCreate={handleCreateDocument}
-							defaultCollapsed={docs.length > 6}
+							defaultCollapsed={sortedDocs.length > 6}
+							headerRightContent={
+								<>
+									<button
+										type="button"
+										onClick={() => setDocSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+										className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
+										title={docSortDir === "asc" ? "Ascending" : "Descending"}
+									>
+										{docSortDir === "asc" ? "▲" : "▼"}
+									</button>
+									<select
+										value={docSortField}
+										onChange={(e) => setDocSortField(e.target.value as typeof docSortField)}
+										className="text-xs bg-transparent text-gray-400 dark:text-gray-500 border-none outline-none cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+									>
+										<option value="id">#</option>
+										<option value="title">Name</option>
+										<option value="lastModified">Zuletzt</option>
+										<option value="createdDate">Erstellt</option>
+									</select>
+								</>
+							}
 						>
-							{docs.map((doc) => (
+							{sortedDocs.map((doc) => (
 								<NavLink
 									key={doc.id}
 									to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
 									className={({ isActive }) =>
-										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+										`flex items-center space-x-1.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
 											isActive
 												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
 												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
@@ -585,6 +630,7 @@ const SideNavigation = memo(function SideNavigation({
 									}
 								>
 									<span className="text-gray-400 dark:text-gray-500"><Icons.DocumentPage /></span>
+									<span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-7 text-right shrink-0">{stripIdPrefix(doc.id)}</span>
 									<span className="truncate">{doc.title}</span>
 								</NavLink>
 							))}
