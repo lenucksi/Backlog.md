@@ -940,6 +940,201 @@ async function handleTaskCompleteCommand(ids: string[]) {
 	}
 }
 
+async function viewTaskSection(task: Task, section: string, core: Core, options: { json?: boolean }): Promise<void> {
+	const normalized = section.toLowerCase().replaceAll(/[_-]/g, "");
+
+	const resolveData = () => {
+		switch (normalized) {
+			case "labels":
+				return task.labels ?? [];
+			case "status":
+				return { status: task.status, priority: task.priority ?? null };
+			case "assignee":
+			case "assignees":
+				return task.assignee ?? [];
+			case "milestone":
+				return task.milestone ?? null;
+			case "desc":
+			case "description":
+				return task.description ?? "";
+			case "plan":
+			case "implplan":
+			case "implementationplan":
+				return task.implementationPlan ?? "";
+			case "notes":
+			case "implnotes":
+			case "implementationnotes":
+				return task.implementationNotes ?? "";
+			case "summary":
+			case "finalsummary":
+				return task.finalSummary ?? "";
+			case "ac":
+			case "acceptancecriteria":
+				return task.acceptanceCriteriaItems ?? [];
+			case "dod":
+			case "definitionofdone":
+				return task.definitionOfDoneItems ?? [];
+			case "refs":
+			case "references":
+				return task.references ?? [];
+			case "deps":
+			case "dependencies":
+				return task.dependencies ?? [];
+			case "files":
+			case "modifiedfiles":
+				return task.modifiedFiles ?? [];
+			default:
+				return undefined;
+		}
+	};
+
+	const data = resolveData();
+
+	if (data === undefined) {
+		console.error(
+			"Unknown section: " +
+				section +
+				". Valid sections: labels, status, assignee, milestone, desc, plan, notes, summary, ac, dod, refs, deps, files",
+		);
+		process.exitCode = 1;
+		return;
+	}
+
+	if (options.json) {
+		console.log(JSON.stringify(data, null, 2));
+		return;
+	}
+
+	const empty = (msg: string) => console.log(picocolors.dim(msg));
+
+	switch (normalized) {
+		case "labels": {
+			const labels = data as string[];
+			if (labels.length === 0) {
+				empty("No labels.");
+				return;
+			}
+			for (const label of labels) {
+				const color = core.config ? resolveLabelColor(label, core.config) : null;
+				const indicator = color ? colorizeLabel(color, "\u25CF") : "";
+				console.log(`  ${indicator}${indicator ? " " : ""}${label}`);
+			}
+			return;
+		}
+		case "status": {
+			const d = data as { status: string; priority: string | null };
+			console.log(`  Status:   ${d.status}`);
+			if (d.priority) console.log(`  Priority: ${d.priority}`);
+			return;
+		}
+		case "assignee":
+		case "assignees": {
+			const list = data as string[];
+			if (list.length === 0) {
+				empty("No assignees.");
+				return;
+			}
+			for (const a of list) console.log(`  ${a.startsWith("@") ? a : `@${a}`}`);
+			return;
+		}
+		case "milestone": {
+			const ms = data as string | null;
+			if (!ms) {
+				empty("No milestone.");
+				return;
+			}
+			console.log(`  ${ms}`);
+			return;
+		}
+		case "desc":
+		case "description": {
+			const text = data as string;
+			if (!text.trim()) {
+				empty("No description.");
+				return;
+			}
+			console.log(text);
+			return;
+		}
+		case "plan":
+		case "implplan":
+		case "implementationplan":
+		case "notes":
+		case "implnotes":
+		case "implementationnotes":
+		case "summary":
+		case "finalsummary": {
+			const text = data as string;
+			if (!text.trim()) {
+				empty(
+					"No " +
+						(normalized === "summary" || normalized === "finalsummary" ? "final summary" : "implementation notes") +
+						".",
+				);
+				return;
+			}
+			console.log(text);
+			return;
+		}
+		case "ac":
+		case "acceptancecriteria": {
+			const items = data as Task["acceptanceCriteriaItems"];
+			if (!items?.length) {
+				empty("No acceptance criteria.");
+				return;
+			}
+			for (const item of items) {
+				const prefix = item.checked ? picocolors.green("[x]") : picocolors.yellow("[ ]");
+				console.log(`  ${prefix} ${item.text}`);
+			}
+			return;
+		}
+		case "dod":
+		case "definitionofdone": {
+			const items = data as Task["definitionOfDoneItems"];
+			if (!items?.length) {
+				empty("No Definition of Done items.");
+				return;
+			}
+			for (const item of items) {
+				const prefix = item.checked ? picocolors.green("[x]") : picocolors.yellow("[ ]");
+				console.log(`  ${prefix} ${item.text}`);
+			}
+			return;
+		}
+		case "refs":
+		case "references": {
+			const list = data as string[];
+			if (list.length === 0) {
+				empty("No references.");
+				return;
+			}
+			for (const ref of list) console.log(`  ${ref}`);
+			return;
+		}
+		case "deps":
+		case "dependencies": {
+			const list = data as string[];
+			if (list.length === 0) {
+				empty("No dependencies.");
+				return;
+			}
+			for (const dep of list) console.log(`  ${dep}`);
+			return;
+		}
+		case "files":
+		case "modifiedfiles": {
+			const list = data as string[];
+			if (list.length === 0) {
+				empty("No modified files.");
+				return;
+			}
+			for (const f of list) console.log(`  ${f}`);
+			return;
+		}
+	}
+}
+
 export function registerTaskCommand(program: Command): void {
 	const taskCmd = program.command("task").aliases(["tasks"]);
 
@@ -1106,17 +1301,25 @@ export function registerTaskCommand(program: Command): void {
 		});
 
 	taskCmd
-		.command("view <taskId>")
-		.description("display task details")
-		.option("--plain", "use plain text output instead of interactive UI")
+		.command("view <taskId> [section]")
+		.description(
+			"display task details or a specific section (labels, status, assignee, milestone, desc, plan, notes, summary, ac, dod, refs, deps, files)",
+		)
+		.option("--plain", "use plain text output instead of interactive UI (ignored when section is specified)")
 		.option("--json", "output as JSON")
-		.action(async (taskId: string, options) => {
+		.action(async (taskId: string, section: string | undefined, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
+			await core.ensureConfigLoaded();
 			const localTasks = await core.filesystem.listTasks();
 			const task = await core.getTaskWithSubtasks(taskId, localTasks);
 			if (!task) {
 				console.error(`Task ${taskId} not found.`);
+				return;
+			}
+
+			if (section) {
+				await viewTaskSection(task, section, core, options);
 				return;
 			}
 
@@ -1140,7 +1343,7 @@ export function registerTaskCommand(program: Command): void {
 
 	taskCmd
 		.command("labels <taskId>")
-		.description("display task labels with colors")
+		.description("display task labels with colors (alias for `task view <taskId> labels`)")
 		.option("--json", "output as JSON")
 		.action(async (taskId: string, options) => {
 			const cwd = await requireProjectRoot();
@@ -1151,23 +1354,7 @@ export function registerTaskCommand(program: Command): void {
 				console.error(`Task ${taskId} not found.`);
 				return;
 			}
-
-			const labels = task.labels ?? [];
-			if (options.json) {
-				console.log(JSON.stringify(labels, null, 2));
-				return;
-			}
-
-			if (labels.length === 0) {
-				console.log("No labels.");
-				return;
-			}
-
-			for (const label of labels) {
-				const color = core.config ? resolveLabelColor(label, core.config) : null;
-				const indicator = color ? colorizeLabel(color, "●") : "";
-				console.log(`  ${indicator}${indicator ? " " : ""}${label}`);
-			}
+			await viewTaskSection(task, "labels", core, options);
 		});
 
 	taskCmd
