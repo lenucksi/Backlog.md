@@ -1,0 +1,21 @@
+src/server/handlers/tasks.ts
+  s_8b82b142d69ed2::t_74c2e611ab0bd6 168-169
+src/server/utils.ts
+  s_8b82b142d69ed2::t_43b63d8822245d 301-308
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "4ad9ee1eb81b00adfec1d1aeb6ce3ed112125b9c",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
