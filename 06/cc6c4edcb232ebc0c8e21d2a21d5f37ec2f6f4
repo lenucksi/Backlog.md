@@ -1,0 +1,22 @@
+src/web/components/TaskColumn.tsx
+  s_8b82b142d69ed2::t_a47dee5970d2b8 50
+  s_8b82b142d69ed2::t_d1aa3f9c34d30d 301-314
+  s_8b82b142d69ed2::t_c1ed46ae2becc3 3
+  s_8b82b142d69ed2::t_7c0690d21dc47d 89-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "06cc6c4edcb232ebc0c8e21d2a21d5f37ec2f6f4",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
