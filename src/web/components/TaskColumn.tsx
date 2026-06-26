@@ -1,6 +1,6 @@
 import React from 'react';
 import { type Task } from '../../types';
-import { sortByPriority } from '../../utils/task-sorting';
+import { sortByCreatedDateAsc, sortByCreatedDateDesc, sortByPriority } from '../../utils/task-sorting';
 import type { ReorderTaskPayload } from '../lib/api';
 import TaskCard from './TaskCard';
 import { taskIdsEqual } from '../../utils/task-path';
@@ -47,6 +47,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   const menuRef = React.useRef<HTMLDivElement>(null);
   const columnActionsId = React.useId();
   const canSortByPriority = Boolean(onTaskReorder) && tasks.length > 1 && tasks.every(task => !task.branch);
+  const [sortByCreatedAsc, setSortByCreatedAsc] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
     if (!showMenu) return;
@@ -82,6 +83,33 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
       });
     }
 
+    setShowMenu(false);
+  };
+
+  const handleSortByCreatedDate = () => {
+    if (!onTaskReorder || !canSortByPriority) {
+      setShowMenu(false);
+      return;
+    }
+
+    const nextAsc = sortByCreatedAsc === null ? true : !sortByCreatedAsc;
+    const sortedTasks = nextAsc ? sortByCreatedDateAsc(tasks) : sortByCreatedDateDesc(tasks);
+    const orderedTaskIds = sortedTasks.map(t => t.id);
+
+    const currentIds = tasks.map(t => t.id);
+    const hasChanged = orderedTaskIds.some((id, index) => id !== currentIds[index]);
+    const leadTaskId = orderedTaskIds[0];
+
+    if (hasChanged && leadTaskId) {
+      onTaskReorder({
+        taskId: leadTaskId,
+        targetStatus: title,
+        orderedTaskIds,
+        ...(targetMilestone !== undefined ? { targetMilestone } : {}),
+      });
+    }
+
+    setSortByCreatedAsc(nextAsc);
     setShowMenu(false);
   };
 
@@ -269,6 +297,20 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                   </svg>
                   Sort by Priority
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleSortByCreatedDate}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors duration-150"
+                >
+                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Sort by Creation Date
+                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
+                    {sortByCreatedAsc === null ? "" : sortByCreatedAsc ? "▲" : "▼"}
+                  </span>
                 </button>
               </div>
             )}
