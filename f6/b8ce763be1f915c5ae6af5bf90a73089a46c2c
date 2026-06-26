@@ -1,0 +1,50 @@
+src/test/task-loader-edge-cases.test.ts
+  s_8b82b142d69ed2::t_e34bb2520d17ab 590,606,643,687
+  s_8b82b142d69ed2::t_70490df64136b0 504
+  s_8b82b142d69ed2::t_40a14417a495c5 399
+  s_8b82b142d69ed2::t_9cf4f7ed67236e 367
+  s_8b82b142d69ed2::t_ae7ba207c70d77 463
+src/core/task-loader.ts
+  s_8b82b142d69ed2::t_e347bfe0236cb1 61
+  s_8b82b142d69ed2::t_b32a1aecb4a95f 119,134
+  s_8b82b142d69ed2::t_18ee03556cad42 361
+  s_8b82b142d69ed2::t_83bb160166d9bf 280-281,289,302,320
+  s_8b82b142d69ed2::t_c31849010a35fd 215-216
+  s_8b82b142d69ed2::t_dbe566fe668d94 623
+  s_8b82b142d69ed2::t_783d6528e313f4 200
+  s_8b82b142d69ed2::t_ccffb4f272f09c 421-422
+  s_8b82b142d69ed2::t_d29f5fd75ff714 506
+  s_8b82b142d69ed2::t_b5769d66503a41 492
+  s_90ed2cddf94f2e::t_ce7d2abab95afe 637,647,656,665
+src/test/local-branch-tasks.test.ts
+  s_8b82b142d69ed2::t_94958f3ba02bc4 14-18
+  s_8b82b142d69ed2::t_b2a418a8953c3e 206
+  s_8b82b142d69ed2::t_ead40028d019ae 266
+src/git/operations.ts
+  s_8b82b142d69ed2::t_939222911e8965 562-564
+  s_8b82b142d69ed2::t_0cb98bd78eae49 557-561,565-569
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f6b8ce763be1f915c5ae6af5bf90a73089a46c2c",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_90ed2cddf94f2e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0fafa274bffe2ynhy1BupazwTy",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
