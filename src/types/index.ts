@@ -114,8 +114,8 @@ export interface TaskCreateInput {
 	acceptanceCriteria?: AcceptanceCriterionInput[];
 	definitionOfDoneAdd?: string[];
 	disableDefinitionOfDoneDefaults?: boolean;
-	dueDate?: string;
-	deferDate?: string;
+	dueDate?: string | null;
+	deferDate?: string | null;
 	rawContent?: string;
 }
 
@@ -160,8 +160,8 @@ export interface TaskUpdateInput {
 	removeDefinitionOfDone?: number[];
 	checkDefinitionOfDone?: number[];
 	uncheckDefinitionOfDone?: number[];
-	dueDate?: string;
-	deferDate?: string;
+	dueDate?: string | null;
+	deferDate?: string | null;
 	rawContent?: string;
 }
 

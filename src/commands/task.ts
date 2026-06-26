@@ -170,6 +170,8 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 			implementationPlan: options.plan ? String(options.plan) : undefined,
 			implementationNotes: options.notes ? String(options.notes) : undefined,
 			finalSummary: options.finalSummary ? String(options.finalSummary) : undefined,
+			dueDate: options.dueDate ? String(options.dueDate) : undefined,
+			deferDate: options.deferDate ? String(options.deferDate) : undefined,
 			acceptanceCriteria: criteria.map((text) => ({ text, checked: false })),
 			definitionOfDoneAdd: toStringArray(options.dod),
 			disableDefinitionOfDoneDefaults: options.dodDefaults === false,
@@ -236,10 +238,10 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 	}
 
 	if (options.sort) {
-		const validSortFields = ["priority", "id", "ordinal"];
+		const validSortFields = ["priority", "id", "ordinal", "created", "due"];
 		const sortField = String(options.sort).toLowerCase();
 		if (!validSortFields.includes(sortField)) {
-			console.error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal`);
+			console.error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal, created, due`);
 			process.exitCode = 1;
 			cleanup();
 			return;
@@ -276,10 +278,10 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 
 		let sortedTasks = tasks;
 		if (options.sort) {
-			const validSortFields = ["priority", "id", "ordinal"];
+			const validSortFields = ["priority", "id", "ordinal", "created", "due"];
 			const sortField = String(options.sort).toLowerCase();
 			if (!validSortFields.includes(sortField)) {
-				console.error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal`);
+				console.error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal, created, due`);
 				process.exitCode = 1;
 				cleanup();
 				return;
@@ -427,10 +429,12 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 
 			let sortedTasks = tasks;
 			if (options.sort) {
-				const validSortFields = ["priority", "id", "ordinal"];
+				const validSortFields = ["priority", "id", "ordinal", "created", "due"];
 				const sortField = String(options.sort).toLowerCase();
 				if (!validSortFields.includes(sortField)) {
-					throw AppError.validation(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal`);
+					throw AppError.validation(
+						`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal, created, due`,
+					);
 				}
 				sortedTasks = sortTasks(tasks, sortField);
 			} else {
@@ -687,6 +691,18 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 	}
 	if (normalizedModifiedFiles && normalizedModifiedFiles.length > 0) {
 		editArgs.modifiedFiles = normalizedModifiedFiles;
+	}
+	if (options.dueDate) {
+		editArgs.dueDate = String(options.dueDate);
+	}
+	if (options.clearDueDate) {
+		editArgs.dueDate = null;
+	}
+	if (options.deferDate) {
+		editArgs.deferDate = String(options.deferDate);
+	}
+	if (options.clearDeferDate) {
+		editArgs.deferDate = null;
 	}
 	if (typeof options.plan === "string") {
 		editArgs.planSet = String(options.plan);
@@ -1167,6 +1183,8 @@ export function registerTaskCommand(program: Command): void {
 		.option("--notes <text>", "add implementation notes")
 		.option("--final-summary <text>", "add final summary")
 		.option("--ordinal <number>", "set task ordinal for custom ordering")
+		.option("--due-date <date>", "due date for the task (YYYY-MM-DD or YYYY-MM-DD HH:mm)")
+		.option("--defer-date <date>", "defer/show after date (YYYY-MM-DD or YYYY-MM-DD HH:mm)")
 		.option("-m, --milestone <milestone>", "assign task to milestone by ID or title")
 		.option("--draft")
 		.option("-p, --parent <taskId>", "specify parent task ID")
@@ -1204,7 +1222,7 @@ export function registerTaskCommand(program: Command): void {
 		.option("-m, --milestone <milestone>", "filter tasks by milestone (closest match, case-insensitive)")
 		.option("-p, --parent <taskId>", "filter tasks by parent task ID")
 		.option("--priority <priority>", "filter tasks by priority (high, medium, low)")
-		.option("--sort <field>", "sort tasks by field (priority, id, ordinal)")
+		.option("--sort <field>", "sort tasks by field (priority, id, ordinal, created, due)")
 		.option("--plain", "use plain text output instead of interactive UI")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
@@ -1222,6 +1240,10 @@ export function registerTaskCommand(program: Command): void {
 		.option("-l, --label <labels>", "set labels (comma-separated or use multiple times)", createMultiValueAccumulator())
 		.option("--priority <priority>", "set task priority (high, medium, low)")
 		.option("--ordinal <number>", "set task ordinal for custom ordering")
+		.option("--due-date <date>", "set due date (YYYY-MM-DD or YYYY-MM-DD HH:mm)")
+		.option("--defer-date <date>", "set defer/show after date (YYYY-MM-DD or YYYY-MM-DD HH:mm)")
+		.option("--clear-due-date", "clear due date")
+		.option("--clear-defer-date", "clear defer date")
 		.option("-m, --milestone <milestone>", "assign task to milestone by ID or title")
 		.option("--clear-milestone", "clear task milestone assignment")
 		.option("--plain", "use plain text output after editing")

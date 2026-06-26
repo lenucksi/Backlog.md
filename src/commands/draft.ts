@@ -27,10 +27,10 @@ function registerDraftListCommand(draftCmd: Command): void {
 			let sortedDrafts = drafts;
 
 			if (options.sort) {
-				const validSortFields = ["priority", "id", "ordinal"];
+				const validSortFields = ["priority", "id", "ordinal", "created", "due"];
 				const sortField = options.sort.toLowerCase();
 				if (!validSortFields.includes(sortField)) {
-					console.error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal`);
+					console.error(`Invalid sort field: ${options.sort}. Valid values are: priority, id, ordinal, created, due`);
 					process.exitCode = 1;
 					return;
 				}

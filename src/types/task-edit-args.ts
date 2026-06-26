@@ -38,6 +38,8 @@ export interface TaskEditArgs {
 	definitionOfDoneRemove?: number[];
 	definitionOfDoneCheck?: number[];
 	definitionOfDoneUncheck?: number[];
+	dueDate?: string | null;
+	deferDate?: string | null;
 }
 
 export type TaskEditRequest = TaskEditArgs & { id: string };

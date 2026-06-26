@@ -131,6 +131,19 @@ function applyDefinitionOfDoneFields(args: TaskEditArgs, target: TaskUpdateInput
 	if (uncheckDod) target.uncheckDefinitionOfDone = uncheckDod;
 }
 
+function applyPlanningDateFields(args: TaskEditArgs, target: TaskUpdateInput): void {
+	if (args.dueDate === null) {
+		target.dueDate = null;
+	} else if (typeof args.dueDate === "string") {
+		target.dueDate = args.dueDate;
+	}
+	if (args.deferDate === null) {
+		target.deferDate = null;
+	} else if (typeof args.deferDate === "string") {
+		target.deferDate = args.deferDate;
+	}
+}
+
 export function buildTaskUpdateInput(args: TaskEditArgs): TaskUpdateInput {
 	const updateInput: TaskUpdateInput = {};
 
@@ -142,6 +155,7 @@ export function buildTaskUpdateInput(args: TaskEditArgs): TaskUpdateInput {
 	applyTextSectionFields(args, updateInput);
 	applyAcceptanceCriteriaFields(args, updateInput);
 	applyDefinitionOfDoneFields(args, updateInput);
+	applyPlanningDateFields(args, updateInput);
 
 	return updateInput;
 }

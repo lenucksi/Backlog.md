@@ -96,6 +96,47 @@ export function sortByPriority<T extends { id: string; priority?: "high" | "medi
 }
 
 /**
+ * Sort tasks by creation date ascending (oldest first), then by task ID.
+ */
+export function sortByCreatedDateAsc<T extends { id: string; createdDate?: string }>(items: T[]): T[] {
+	return [...items].sort((a, b) => {
+		const aDate = a.createdDate || "";
+		const bDate = b.createdDate || "";
+		const cmp = aDate.localeCompare(bDate);
+		if (cmp !== 0) return cmp;
+		return compareTaskIds(a.id, b.id);
+	});
+}
+
+/**
+ * Sort tasks by creation date descending (newest first), then by task ID.
+ */
+export function sortByCreatedDateDesc<T extends { id: string; createdDate?: string }>(items: T[]): T[] {
+	return [...items].sort((a, b) => {
+		const aDate = a.createdDate || "";
+		const bDate = b.createdDate || "";
+		const cmp = bDate.localeCompare(aDate);
+		if (cmp !== 0) return cmp;
+		return compareTaskIds(a.id, b.id);
+	});
+}
+
+/**
+ * Sort tasks by due date. Tasks without due date sort last.
+ * Tasks with the same due date (or both undefined) are sorted by task ID.
+ */
+export function sortByDueDate<T extends { id: string; dueDate?: string }>(items: T[]): T[] {
+	return [...items].sort((a, b) => {
+		if (!a.dueDate && !b.dueDate) return compareTaskIds(a.id, b.id);
+		if (!a.dueDate) return 1;
+		if (!b.dueDate) return -1;
+		const cmp = a.dueDate.localeCompare(b.dueDate);
+		if (cmp !== 0) return cmp;
+		return compareTaskIds(a.id, b.id);
+	});
+}
+
+/**
  * Sort an array of tasks by their ordinal property, then by task ID.
  * Tasks with ordinal values come before tasks without.
  * Tasks with the same ordinal (or both undefined) are sorted by task ID.
@@ -179,6 +220,10 @@ export function sortTasks<T extends { id: string; priority?: "high" | "medium" |
 			return sortByTaskId(items);
 		case "ordinal":
 			return sortByOrdinal(items);
+		case "created":
+			return sortByCreatedDateDesc(items);
+		case "due":
+			return sortByDueDate(items);
 		default:
 			// Default to ordinal + priority sorting for board view
 			return sortByOrdinalAndPriority(items);
