@@ -581,7 +581,9 @@ export async function renderBoardTui(
 				column.plainItems = renderedItems.plain;
 				column.highlightedIndex = undefined;
 				column.list.setItems(renderedItems.rich);
-				column.box.setLabel?.(formatColumnLabel(columnData.status, columnData.tasks.length, currentBlockedStatuses ?? undefined));
+				column.box.setLabel?.(
+					formatColumnLabel(columnData.status, columnData.tasks.length, currentBlockedStatuses ?? undefined),
+				);
 			});
 			restoreSelection(selectedTaskId);
 		};
