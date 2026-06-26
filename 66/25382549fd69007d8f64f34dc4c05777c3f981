@@ -1,0 +1,21 @@
+src/web/components/TaskCard.tsx
+  s_8b82b142d69ed2::t_655bd3f6ea671f 62,64-79
+  s_8b82b142d69ed2::t_fc7d9e51bee31e 3
+  s_8b82b142d69ed2::t_49119edd30f560 190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "6625382549fd69007d8f64f34dc4c05777c3f981",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
