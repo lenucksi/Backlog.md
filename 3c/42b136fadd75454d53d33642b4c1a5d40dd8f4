@@ -1,0 +1,21 @@
+src/web/components/BoardPage.tsx
+  s_0956ae952ff87c::t_df51708c06ad62 100,119-123,134,158
+src/web/components/Board.tsx
+  s_0956ae952ff87c::t_df51708c06ad62 35-36,66,236,256-263,265,537,548,557,563-575,579,601-603,605,611,616
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "3c42b136fadd75454d53d33642b4c1a5d40dd8f4",
+  "prompts": {},
+  "sessions": {
+    "s_0956ae952ff87c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_119f90f7affeBbZkxi7PRIsUou",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
