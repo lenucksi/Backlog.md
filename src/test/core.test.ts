@@ -126,6 +126,24 @@ describe("Core", () => {
 			expect(lastCommit).toContain("backlog: Archive task TASK-1");
 		});
 
+		it("should stamp completedDate when editing status to terminal", async () => {
+			await core.createTask(sampleTask, false);
+			await core.updateTaskFromInput("task-1", { status: "Done" }, false);
+
+			const loaded = await core.filesystem.loadTask("task-1");
+			expect(loaded?.completedDate).toBeDefined();
+			expect(loaded?.completedDate?.length).toBeGreaterThan(0);
+		});
+
+		it("should stamp completedDate when editing status to terminal", async () => {
+			await core.createTask(sampleTask, false);
+			await core.updateTaskFromInput("task-1", { status: "Done" }, false);
+
+			const loaded = await core.filesystem.loadTask("task-1");
+			expect(loaded?.completedDate).toBeDefined();
+			expect(loaded?.completedDate?.length).toBeGreaterThan(0);
+		});
+
 		it("should demote task with auto-commit", async () => {
 			await core.createTask(sampleTask, true);
 

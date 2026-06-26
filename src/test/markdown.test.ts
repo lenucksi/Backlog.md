@@ -181,6 +181,52 @@ Task body.`;
 			expect(task.priority).toBe("high");
 		});
 
+		it("should parse optional date fields from frontmatter", () => {
+			const content = `---
+id: task-dates
+title: Date Test
+status: In Progress
+assignee: []
+created_date: 2025-06-03
+labels: []
+dependencies: []
+due_date: 2025-07-01
+defer_date: 2025-06-15
+completed_date: 2025-06-30
+archived_date: 2025-07-05
+---
+
+Body.`;
+
+			const task = parseTask(content);
+
+			expect(task.dueDate).toBe("2025-07-01");
+			expect(task.deferDate).toBe("2025-06-15");
+			expect(task.completedDate).toBe("2025-06-30");
+			expect(task.archivedDate).toBe("2025-07-05");
+		});
+
+		it("should round-trip optional date fields through parse and serialize", () => {
+			const original = `---
+id: task-roundtrip
+title: Round Trip
+status: Done
+assignee: []
+created_date: 2025-06-03
+labels: []
+dependencies: []
+due_date: 2025-07-01
+completed_date: 2025-06-30
+---
+
+Body.`;
+			const parsed = parseTask(original);
+			const serialized = serializeTask(parsed);
+
+			expect(serialized).toContain("due_date: 2025-07-01");
+			expect(serialized).toContain("completed_date: 2025-06-30");
+		});
+
 		it("should extract acceptance criteria with checked items", () => {
 			const content = `---
 id: task-4
@@ -460,6 +506,48 @@ describe("Markdown Serializer", () => {
 			expect(result).toContain("assignee: []");
 			expect(result).not.toContain("reporter:");
 			expect(result).not.toContain("updated_date:");
+		});
+
+		it("should serialize optional date fields", () => {
+			const task: Task = {
+				id: "task-dates",
+				title: "Date Test",
+				status: "In Progress",
+				assignee: [],
+				createdDate: "2025-06-03",
+				labels: [],
+				dependencies: [],
+				dueDate: "2025-07-01",
+				deferDate: "2025-06-15",
+				completedDate: "2025-06-30",
+				archivedDate: "2025-07-05",
+			};
+
+			const result = serializeTask(task);
+
+			expect(result).toContain("due_date: 2025-07-01");
+			expect(result).toContain("defer_date: 2025-06-15");
+			expect(result).toContain("completed_date: 2025-06-30");
+			expect(result).toContain("archived_date: 2025-07-05");
+		});
+
+		it("should not serialize optional date fields when undefined", () => {
+			const task: Task = {
+				id: "task-no-dates",
+				title: "No Dates",
+				status: "Done",
+				assignee: [],
+				createdDate: "2025-06-03",
+				labels: [],
+				dependencies: [],
+			};
+
+			const result = serializeTask(task);
+
+			expect(result).not.toContain("due_date:");
+			expect(result).not.toContain("defer_date:");
+			expect(result).not.toContain("completed_date:");
+			expect(result).not.toContain("archived_date:");
 		});
 
 		it("removes acceptance criteria section when list becomes empty", () => {
