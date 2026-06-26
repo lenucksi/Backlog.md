@@ -1,5 +1,6 @@
 import React from 'react';
 import { type Task } from '../../types';
+import { parseStoredUtcDate } from '../utils/date-display';
 
 interface TaskCardProps {
   task: Task;
@@ -58,13 +59,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const absDays = Math.abs(diffDays);
 
-    if (diffDays === 0) return 'today';
-    if (diffDays === 1) return 'yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
-    return `${Math.floor(diffDays / 365)}y ago`;
+    if (diffDays >= 0) {
+      if (diffDays === 0) return 'today';
+      if (diffDays === 1) return 'yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+      if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
+      return `${Math.floor(diffDays / 365)}y ago`;
+    }
+    const absWeeks = Math.floor(absDays / 7);
+    const absMonths = Math.floor(absDays / 30);
+    const absYears = Math.floor(absDays / 365);
+    if (absDays === 0) return 'today';
+    if (absDays < 7) return `in ${absDays}d`;
+    if (absDays < 30) return `in ${absWeeks}w`;
+    if (absDays < 365) return `in ${absMonths}mo`;
+    return `in ${absYears}y`;
   };
 
   const getPriorityBadge = (priority?: string) => {
@@ -175,7 +187,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
           <span className="flex items-center gap-1.5">
             <span>{formatRelativeDate(task.createdDate)}</span>
             {task.dueDate && (
-              <span className={new Date(task.dueDate) < new Date() ? "text-red-500 dark:text-red-400 font-semibold" : "text-amber-500 dark:text-amber-400"}>
+              <span className={(parseStoredUtcDate(task.dueDate)?.getTime() ?? 0) < Date.now() ? "text-red-500 dark:text-red-400 font-semibold" : "text-amber-500 dark:text-amber-400"}>
                 due {formatRelativeDate(task.dueDate)}
               </span>
             )}
