@@ -1070,6 +1070,18 @@ export const TaskDetailsModal: React.FC<Props> = ({
 	              {task.updatedDate && (
 	                <div><span className="font-semibold text-gray-800 dark:text-gray-100">Updated:</span> <span className="text-gray-700 dark:text-gray-200">{formatStoredUtcDateForDisplay(task.updatedDate)}</span></div>
 	              )}
+	              {task.dueDate && (
+	                <div><span className="font-semibold text-gray-800 dark:text-gray-100">Due:</span> <span className={new Date(task.dueDate) < new Date() ? "text-red-600 dark:text-red-400 font-semibold" : "text-gray-700 dark:text-gray-200"}>{formatStoredUtcDateForDisplay(task.dueDate)}</span></div>
+	              )}
+	              {task.deferDate && (
+	                <div><span className="font-semibold text-gray-800 dark:text-gray-100">Defer:</span> <span className="text-gray-700 dark:text-gray-200">{formatStoredUtcDateForDisplay(task.deferDate)}</span></div>
+	              )}
+	              {task.completedDate && (
+	                <div><span className="font-semibold text-gray-800 dark:text-gray-100">Completed:</span> <span className="text-gray-700 dark:text-gray-200">{formatStoredUtcDateForDisplay(task.completedDate)}</span></div>
+	              )}
+	              {task.archivedDate && (
+	                <div><span className="font-semibold text-gray-800 dark:text-gray-100">Archived:</span> <span className="text-gray-700 dark:text-gray-200">{formatStoredUtcDateForDisplay(task.archivedDate)}</span></div>
+	              )}
 	            </div>
 	          )}
           {/* Title (editable for existing tasks) */}

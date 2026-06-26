@@ -172,7 +172,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
 
         {/* Footer with date */}
         <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-2 pt-1.5 border-t border-gray-100 dark:border-gray-600/50 transition-colors duration-200">
-          <span>{formatRelativeDate(task.createdDate)}</span>
+          <span className="flex items-center gap-1.5">
+            <span>{formatRelativeDate(task.createdDate)}</span>
+            {task.dueDate && (
+              <span className={new Date(task.dueDate) < new Date() ? "text-red-500 dark:text-red-400 font-semibold" : "text-amber-500 dark:text-amber-400"}>
+                due {formatRelativeDate(task.dueDate)}
+              </span>
+            )}
+          </span>
           {task.assignee.length > 0 && (
             <span className="flex gap-1 truncate max-w-[80px]" title={task.assignee.join(', ')}>
               {task.assignee.map((a, i) => {
