@@ -131,8 +131,10 @@ export function getTaskStatistics(
 	const deadlockedTaskGroups = detectDeadlocks(tasks);
 
 	const averageTaskAge = taskCount > 0 ? Math.round(totalAge / taskCount) : 0;
-	const totalTasks = Array.from(statusCounts.values()).reduce((sum, count) => sum + count, 0);
-	const combinedCompleted = completedTasks + (archivedTasks?.length ?? 0);
+	const activeTaskCount = Array.from(statusCounts.values()).reduce((sum, count) => sum + count, 0);
+	const archivedCount = archivedTasks?.length ?? 0;
+	const totalTasks = activeTaskCount + archivedCount;
+	const combinedCompleted = completedTasks + archivedCount;
 	const completionPercentage = totalTasks > 0 ? Math.round((combinedCompleted / totalTasks) * 100) : 0;
 
 	return {
@@ -142,7 +144,7 @@ export function getTaskStatistics(
 		completedTasks: combinedCompleted,
 		completionPercentage,
 		draftCount: drafts.length,
-		archivedCount: archivedTasks?.length ?? 0,
+		archivedCount,
 		archivedTasks: archivedTasks ?? [],
 		recentActivity: {
 			created: recentlyCreated.slice(0, 5),

@@ -346,12 +346,12 @@ const Statistics: React.FC<StatisticsProps> = ({
 				<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-circle h-4 mb-2">
 					<div
 						className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-circle transition-all duration-300"
-						style={{ width: `${statistics.completionPercentage}%` }}
+						style={{ width: `${Math.min(statistics.completionPercentage, 100)}%` }}
 					></div>
 				</div>
 				<div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
 					<span>{statistics.completedTasks} completed</span>
-					<span>{statistics.totalTasks - statistics.completedTasks} remaining</span>
+					<span>{Math.max(statistics.totalTasks - statistics.completedTasks, 0)} remaining</span>
 				</div>
 			</div>
 
