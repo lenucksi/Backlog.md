@@ -709,6 +709,8 @@ function App() {
           onSubmit={handleSubmitTask}
           onArchive={editingTask ? () => handleArchiveTask(editingTask.id) : undefined}
           availableStatuses={isDraftMode ? ['Draft', ...statuses] : statuses}
+          terminalStatuses={config?.terminalStatuses}
+          blockedStatuses={config?.blockedStatuses}
           availableMilestones={milestones}
           milestoneEntities={milestoneEntities}
           archivedMilestoneEntities={archivedMilestones}

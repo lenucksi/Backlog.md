@@ -149,8 +149,8 @@ function buildRenderedTaskListItems(tasks: Task[], movingTaskId?: string): { ric
 	};
 }
 
-function formatColumnLabel(status: string, count: number): string {
-	return `\u00A0${getStatusIcon(status)} ${status || "No Status"} (${count})\u00A0`;
+function formatColumnLabel(status: string, count: number, blockedStatuses?: readonly string[]): string {
+	return `\u00A0${getStatusIcon(status, blockedStatuses as string[] | undefined)} ${status || "No Status"} (${count})\u00A0`;
 }
 
 const DEFAULT_FOOTER_CONTENT =
@@ -213,6 +213,7 @@ export async function renderBoardTui(
 		milestoneMode?: boolean;
 		milestoneEntities?: Milestone[];
 		terminalStatuses?: readonly string[] | null;
+		blockedStatuses?: readonly string[] | null;
 	},
 	injectedScreen?: ScreenInterface,
 ): Promise<void> {
@@ -254,6 +255,7 @@ export async function renderBoardTui(
 		let currentColumnsData = initialColumns;
 		let currentStatuses = currentColumnsData.map((column) => column.status);
 		const currentTerminalStatuses = options?.terminalStatuses;
+		const currentBlockedStatuses = options?.blockedStatuses;
 		let currentCol = 0;
 		let popupOpen = false;
 		let currentFocus: "board" | "filters" = "board";
@@ -445,7 +447,7 @@ export async function renderBoardTui(
 					height: "100%",
 					border: { type: "line" },
 					style: { border: { fg: "gray" } },
-					label: formatColumnLabel(columnData.status, columnData.tasks.length),
+					label: formatColumnLabel(columnData.status, columnData.tasks.length, currentBlockedStatuses ?? undefined),
 				});
 
 				const taskList = list({
@@ -579,7 +581,7 @@ export async function renderBoardTui(
 				column.plainItems = renderedItems.plain;
 				column.highlightedIndex = undefined;
 				column.list.setItems(renderedItems.rich);
-				column.box.setLabel?.(formatColumnLabel(columnData.status, columnData.tasks.length));
+				column.box.setLabel?.(formatColumnLabel(columnData.status, columnData.tasks.length, currentBlockedStatuses ?? undefined));
 			});
 			restoreSelection(selectedTaskId);
 		};

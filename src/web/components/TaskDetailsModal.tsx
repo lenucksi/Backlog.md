@@ -20,6 +20,8 @@ interface Props {
   onSubmit?: (taskData: Partial<Task>) => Promise<void>; // For creating new tasks
   onArchive?: () => void; // For archiving tasks
   availableStatuses?: string[]; // Available statuses for new tasks
+  terminalStatuses?: string[]; // Explicit terminal statuses for completion check
+  blockedStatuses?: string[]; // Blocked statuses that should not show archive button
   isDraftMode?: boolean; // Whether creating a draft
   availableMilestones?: string[];
   milestoneEntities?: Milestone[];
@@ -62,6 +64,8 @@ export const TaskDetailsModal: React.FC<Props> = ({
   onSubmit,
   onArchive,
   availableStatuses,
+  terminalStatuses,
+  blockedStatuses,
   availableMilestones: _availableMilestones,
   milestoneEntities,
   archivedMilestoneEntities,
@@ -625,7 +629,8 @@ export const TaskDetailsModal: React.FC<Props> = ({
   const totalCount = (criteria || []).length;
   const definitionCheckedCount = (definitionOfDone || []).filter((c) => c.checked).length;
   const definitionTotalCount = (definitionOfDone || []).length;
-  const isTerminal = isTerminalStatus(status || "", availableStatuses || []);
+  const isTerminal = isTerminalStatus(status || "", availableStatuses || [], terminalStatuses)
+    && !(blockedStatuses?.some((b) => b.toLowerCase() === (status || "").trim().toLowerCase()) ?? false);
 
   const displayId = task?.id ?? "";
   const documentation = task?.documentation ?? [];
