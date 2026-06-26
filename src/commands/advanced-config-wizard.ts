@@ -213,8 +213,102 @@ export async function runAdvancedConfigWizard({
 	let defaultPort = config?.defaultPort ?? 6420;
 	let autoOpenBrowser = config?.autoOpenBrowser ?? true;
 	let definitionOfDone = normalizeDefinitionOfDoneItems(config?.definitionOfDone);
+	const statuses = config?.statuses ? [...config.statuses] : ["To Do", "In Progress", "Done"];
+	let terminalStatuses = config?.terminalStatuses ? [...config.terminalStatuses] : undefined;
+	let blockedStatuses = config?.blockedStatuses ? [...config.blockedStatuses] : undefined;
 	let installClaudeAgent = false;
 	let installShellCompletions = false;
+
+	// ── Status Configuration ──────────────────────────────────────────
+	clack.note(statuses.join(", "), "Current statuses");
+
+	const extraPrompt = await promptImpl(
+		{
+			type: "multiselect",
+			name: "extraStatuses",
+			message: "Select additional statuses to add (or none to keep current):",
+			choices: [
+				{ title: "Blocked", value: "Blocked" },
+				{ title: "Deferred", value: "Deferred" },
+				{ title: "Review", value: "Review" },
+				{ title: "Cancelled", value: "Cancelled" },
+				{ title: "Custom...", value: "__custom__" },
+			],
+		},
+		{ onCancel },
+	);
+	const extras = Array.isArray(extraPrompt.extraStatuses) ? (extraPrompt.extraStatuses as string[]) : [];
+	if (extras.includes("__custom__")) {
+		const customPrompt = await promptImpl(
+			{
+				type: "text",
+				name: "customStatuses",
+				message: "Custom status(es) to add (comma-separated):",
+				hint: "e.g., Waiting, Needs Info",
+			},
+			{ onCancel },
+		);
+		const customNames = String(customPrompt.customStatuses ?? "")
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
+		for (const name of customNames) {
+			if (!extras.includes(name)) extras.push(name);
+		}
+	}
+	const nonCustomExtras = extras.filter((e) => e !== "__custom__");
+	if (nonCustomExtras.length > 0) {
+		for (const extra of nonCustomExtras) {
+			if (!statuses.includes(extra)) statuses.push(extra);
+		}
+	}
+
+	// Smart defaults for terminal/blocked
+	const terminalPatterns = ["done", "cancelled", "complete", "closed"];
+	const matchedTerminal = statuses.filter((s) => terminalPatterns.some((p) => s.toLowerCase().includes(p)));
+	const terminalDefault = matchedTerminal.length > 0 ? matchedTerminal.join(", ") : "Done";
+	const matchedBlocked = statuses.filter((s) => s.toLowerCase().includes("block"));
+	const blockedDefault = matchedBlocked.length > 0 ? matchedBlocked.join(", ") : "Blocked";
+
+	const terminalResult = await promptImpl(
+		{
+			type: "text",
+			name: "terminalStatusesInput",
+			message: "Terminal statuses (comma-separated, leave blank for default):",
+			hint: "Tasks with these statuses are considered finished",
+			initial: terminalStatuses?.join(", ") ?? terminalDefault,
+		},
+		{ onCancel },
+	);
+	const terminalRaw = String(terminalResult.terminalStatusesInput ?? "").trim();
+	terminalStatuses = terminalRaw
+		? terminalRaw
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean)
+		: terminalRaw === ""
+			? terminalDefault.split(",").map((s) => s.trim())
+			: undefined;
+
+	const blockedResult = await promptImpl(
+		{
+			type: "text",
+			name: "blockedStatusesInput",
+			message: "Blocked statuses (comma-separated, leave blank for default):",
+			hint: "Tasks with these statuses get a blocked indicator",
+			initial: blockedStatuses?.join(", ") ?? blockedDefault,
+		},
+		{ onCancel },
+	);
+	const blockedRaw = String(blockedResult.blockedStatusesInput ?? "").trim();
+	blockedStatuses = blockedRaw
+		? blockedRaw
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean)
+		: blockedRaw === ""
+			? blockedDefault.split(",").map((s) => s.trim())
+			: undefined;
 
 	const completionPrompt = await promptImpl(
 		{
@@ -629,6 +723,9 @@ export async function runAdvancedConfigWizard({
 
 	return {
 		config: {
+			statuses,
+			terminalStatuses,
+			blockedStatuses,
 			checkActiveBranches,
 			remoteOperations,
 			activeBranchDays,

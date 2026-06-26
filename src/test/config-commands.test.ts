@@ -36,6 +36,9 @@ describe("Config commands", () => {
 
 	it("configureAdvancedSettings keeps defaults when no changes requested", async () => {
 		const promptStub = createPromptStub([
+			{ extraStatuses: [] },
+			{ terminalStatusesInput: "Done" },
+			{ blockedStatusesInput: "Blocked" },
 			{ installCompletions: false },
 			{ checkActiveBranches: true },
 			{ remoteOperations: true },
@@ -74,6 +77,9 @@ describe("Config commands", () => {
 
 	it("configureAdvancedSettings applies wizard selections", async () => {
 		const promptStub = createPromptStub([
+			{ extraStatuses: [] },
+			{ terminalStatusesInput: "Done" },
+			{ blockedStatusesInput: "Blocked" },
 			{ installCompletions: true },
 			{ checkActiveBranches: true },
 			{ remoteOperations: false },
@@ -120,6 +126,9 @@ describe("Config commands", () => {
 
 	it("configureAdvancedSettings supports add/remove/reorder/clear actions for Definition of Done defaults", async () => {
 		const promptStub = createPromptStub([
+			{ extraStatuses: [] },
+			{ terminalStatusesInput: "Done" },
+			{ blockedStatusesInput: "Blocked" },
 			{ installCompletions: false },
 			{ checkActiveBranches: true },
 			{ remoteOperations: true },

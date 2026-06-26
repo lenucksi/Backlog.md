@@ -1,3 +1,4 @@
+import type { BacklogConfig } from "../types/index.ts";
 import { isEditorAvailable } from "../utils/editor.ts";
 
 export interface ConfigSchemaEntry {
@@ -53,14 +54,14 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		type: "string[]",
 		description: "Statuses that mark a task as terminal",
 		configKey: "terminalStatuses",
-		default: [],
+		default: ["Done"],
 	},
 	{
 		key: "blocked_statuses",
 		type: "string[]",
 		description: "Statuses that mark a task as blocked",
 		configKey: "blockedStatuses",
-		default: [],
+		default: ["Blocked"],
 	},
 	{
 		key: "labels",
@@ -116,6 +117,7 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		type: "number",
 		description: "Maximum column width in TUI",
 		configKey: "maxColumnWidth",
+		default: 20,
 	},
 	{
 		key: "default_editor",
@@ -241,6 +243,17 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		readOnly: true,
 	},
 ];
+
+export function getSchemaDefaults(): Partial<BacklogConfig> {
+	const result: Record<string, unknown> = {};
+	for (const entry of CONFIG_SCHEMA_ENTRIES) {
+		if (entry.readOnly) continue;
+		if (entry.default !== undefined) {
+			result[entry.configKey] = entry.default;
+		}
+	}
+	return result as Partial<BacklogConfig>;
+}
 
 export const CONFIG_SCHEMA_MAP = new Map<string, ConfigSchemaEntry>(CONFIG_SCHEMA_ENTRIES.map((e) => [e.key, e]));
 

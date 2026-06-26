@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DEFAULT_INIT_CONFIG } from "../../constants/index.ts";
+import { getSchemaDefaults } from "../../utils/config-schema.ts";
 import { apiClient } from "../lib/api";
 
 type IntegrationMode = "mcp" | "cli" | "none";
@@ -42,17 +42,20 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 	const [backlogDirectory, setBacklogDirectory] = useState("backlog");
 	const [configLocation, setConfigLocation] = useState<ConfigLocationChoice>("folder");
 	const [rootConfigPath, setRootConfigPath] = useState<string | null>(null);
-	const [advancedConfig, setAdvancedConfig] = useState<AdvancedConfig>({
-		checkActiveBranches: DEFAULT_INIT_CONFIG.checkActiveBranches,
-		remoteOperations: DEFAULT_INIT_CONFIG.remoteOperations,
-		activeBranchDays: DEFAULT_INIT_CONFIG.activeBranchDays,
-		bypassGitHooks: DEFAULT_INIT_CONFIG.bypassGitHooks,
-		autoCommit: DEFAULT_INIT_CONFIG.autoCommit,
-		zeroPaddedIds: DEFAULT_INIT_CONFIG.zeroPaddedIds ?? null,
-		taskPrefix: "",
-		defaultEditor: DEFAULT_INIT_CONFIG.defaultEditor ?? "",
-		defaultPort: DEFAULT_INIT_CONFIG.defaultPort,
-		autoOpenBrowser: DEFAULT_INIT_CONFIG.autoOpenBrowser,
+	const [advancedConfig, setAdvancedConfig] = useState<AdvancedConfig>(() => {
+		const sd = getSchemaDefaults();
+		return {
+			checkActiveBranches: sd.checkActiveBranches ?? true,
+			remoteOperations: sd.remoteOperations ?? true,
+			activeBranchDays: sd.activeBranchDays ?? 30,
+			bypassGitHooks: sd.bypassGitHooks ?? false,
+			autoCommit: sd.autoCommit ?? false,
+			zeroPaddedIds: sd.zeroPaddedIds ?? null,
+			taskPrefix: "",
+			defaultEditor: sd.defaultEditor ?? "",
+			defaultPort: sd.defaultPort ?? 6420,
+			autoOpenBrowser: sd.autoOpenBrowser ?? true,
+		};
 	});
 
 	// UI state
