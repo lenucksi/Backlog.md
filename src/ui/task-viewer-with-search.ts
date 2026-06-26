@@ -1360,6 +1360,20 @@ function generateDetailContent(
 	if (task.updatedDate && task.updatedDate !== task.createdDate) {
 		metadata.push(`{bold}Updated:{/bold} ${formatDateForDisplay(task.updatedDate)}`);
 	}
+	if (task.dueDate) {
+		const isPast = new Date(task.dueDate) < new Date();
+		const colorTag = isPast ? "{red-fg}" : "";
+		metadata.push(`{bold}Due:{/bold} ${colorTag}${formatDateForDisplay(task.dueDate)}{/}`);
+	}
+	if (task.deferDate) {
+		metadata.push(`{bold}Defer:{/bold} ${formatDateForDisplay(task.deferDate)}`);
+	}
+	if (task.completedDate) {
+		metadata.push(`{bold}Completed:{/bold} ${formatDateForDisplay(task.completedDate)}`);
+	}
+	if (task.archivedDate) {
+		metadata.push(`{bold}Archived:{/bold} ${formatDateForDisplay(task.archivedDate)}`);
+	}
 	if (task.priority) {
 		const priorityDisplay = getPriorityDisplay(task.priority);
 		const priorityText = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
