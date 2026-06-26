@@ -1,0 +1,41 @@
+src/utils/task-edit-builder.ts
+  s_8b82b142d69ed2::t_a21dc0053e6c82 134-146,158
+src/types/task-edit-args.ts
+  s_8b82b142d69ed2::t_826368ecfdcb83 41-42
+src/utils/task-sorting.ts
+  s_8b82b142d69ed2::t_a715bfa7b2e83d 223-226
+  s_8b82b142d69ed2::t_f4634e9de513ef 101
+  s_8b82b142d69ed2::t_86649cf9f0e1e0 98-100,102-113,115-138
+  s_8b82b142d69ed2::t_6897565a5d3f97 114
+src/commands/draft.ts
+  s_8b82b142d69ed2::t_1d53e66dc831be 30,33
+src/commands/task.ts
+  s_8b82b142d69ed2::t_9a567f6291f4d7 244,284
+  s_8b82b142d69ed2::t_6c2038342e19ec 173-174
+  s_8b82b142d69ed2::t_7e61d2f6265ead 241,281,432
+  s_8b82b142d69ed2::t_85e059f4aaedf9 435
+  s_8b82b142d69ed2::t_13600e8226f1d1 1243-1246
+  s_8b82b142d69ed2::t_70241ba5260672 1186-1187
+  s_8b82b142d69ed2::t_0dc526dd6bed06 695-706
+  s_8b82b142d69ed2::t_10b89e5c3d7bd5 436-437
+  s_8b82b142d69ed2::t_64d79df3031738 1225
+src/types/index.ts
+  s_8b82b142d69ed2::t_487bacb9a5b4d0 163-164
+  s_8b82b142d69ed2::t_40f9054e6a56a4 117-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "27cc373e2422c1fdb45a9a46dfe6bf6f04dad140",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
