@@ -248,9 +248,31 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		}
 	}
 
+	const applyDateFilters = (tasks: Task[]): Task[] => {
+		const now = new Date();
+		let filtered = tasks;
+		if (options.overdue) {
+			filtered = filtered.filter((t) => t.dueDate && new Date(t.dueDate) < now);
+		}
+		if (options.dueSoon) {
+			const days = Number(options.dueSoon);
+			if (!Number.isFinite(days) || days < 0) {
+				console.error(`Invalid --due-soon value: ${options.dueSoon}. Must be a non-negative number.`);
+				process.exitCode = 1;
+				return [];
+			}
+			const cutoff = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+			filtered = filtered.filter((t) => t.dueDate && new Date(t.dueDate) >= now && new Date(t.dueDate) <= cutoff);
+		}
+		if (options.deferred) {
+			filtered = filtered.filter((t) => t.deferDate && new Date(t.deferDate) > now);
+		}
+		return filtered;
+	};
+
 	if (options.json) {
 		const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
-		const filtered = tasks.filter((task) => {
+		const filtered = applyDateFilters(tasks).filter((task) => {
 			if (parentId) return task.parentTaskId && taskIdsEqual(parentId, task.parentTaskId);
 			return true;
 		});
@@ -294,6 +316,10 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		let filtered = sortedTasks;
 		if (parentId) {
 			filtered = filtered.filter((task) => task.parentTaskId && taskIdsEqual(parentId, task.parentTaskId));
+		}
+		filtered = applyDateFilters(filtered);
+		if (options.overdue || options.dueSoon || options.deferred) {
+			if (process.exitCode !== 0) return;
 		}
 
 		if (filtered.length === 0) {
@@ -1223,6 +1249,9 @@ export function registerTaskCommand(program: Command): void {
 		.option("-p, --parent <taskId>", "filter tasks by parent task ID")
 		.option("--priority <priority>", "filter tasks by priority (high, medium, low)")
 		.option("--sort <field>", "sort tasks by field (priority, id, ordinal, created, due)")
+		.option("--overdue", "filter tasks that are past their due date")
+		.option("--due-soon <days>", "filter tasks due within the next N days")
+		.option("--deferred", "filter tasks whose defer date is in the future")
 		.option("--plain", "use plain text output instead of interactive UI")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
