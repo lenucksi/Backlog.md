@@ -32,7 +32,8 @@ interface BoardProps {
   filterAssignee?: string;
   filterLabels?: string[];
   filterPriority?: string[];
-  onFiltersChange?: (filters: { assignee: string; labels: string[]; priority: string[] }) => void;
+  filterQuery?: string;
+  onFiltersChange?: (filters: { assignee: string; labels: string[]; priority: string[]; query: string }) => void;
   labelColors?: Record<string, string>;
   authorColors?: Record<string, string>;
   autoCollapseMilestones?: boolean;
@@ -62,6 +63,7 @@ const Board: React.FC<BoardProps> = ({
   filterAssignee = '',
   filterLabels = [],
   filterPriority = [],
+  filterQuery = '',
   onFiltersChange,
   labelColors,
   authorColors,
@@ -231,7 +233,7 @@ const Board: React.FC<BoardProps> = ({
     [filterLabels]
   );
 
-  const hasActiveFilters = filterAssignee !== '' || normalizedFilterLabels.length > 0 || filterPriority.length > 0;
+  const hasActiveFilters = filterAssignee !== '' || normalizedFilterLabels.length > 0 || filterPriority.length > 0 || filterQuery.trim() !== '';
 
   // Filter tasks by milestone when milestoneFilter is set, then apply assignee/label/priority filters
   const filteredTasks = useMemo(() => {
@@ -251,8 +253,16 @@ const Board: React.FC<BoardProps> = ({
     if (filterPriority.length > 0) {
       result = result.filter(task => task.priority && filterPriority.includes(task.priority));
     }
+    const trimmedQuery = filterQuery.trim();
+    if (trimmedQuery) {
+      const query = trimmedQuery.toLowerCase();
+      result = result.filter(task =>
+        task.title.toLowerCase().includes(query) ||
+        task.id.toLowerCase().includes(query)
+      );
+    }
     return result;
-  }, [tasks, milestoneFilter, canonicalMilestoneFilter, milestoneAliasToCanonical, filterAssignee, normalizedFilterLabels, filterPriority]);
+  }, [tasks, milestoneFilter, canonicalMilestoneFilter, milestoneAliasToCanonical, filterAssignee, normalizedFilterLabels, filterPriority, filterQuery]);
 
   // Handle highlighting a task (opening its edit popup)
   useEffect(() => {
@@ -524,7 +534,7 @@ const Board: React.FC<BoardProps> = ({
                 <LabelFilterDropdown
                   availableLabels={["__unassigned__", ...uniqueAssignees]}
                   selectedLabels={filterAssignee ? [filterAssignee] : []}
-                  onChange={labels => onFiltersChange({ assignee: labels[0] ?? "", labels: normalizedFilterLabels, priority: filterPriority })}
+                  onChange={labels => onFiltersChange({ assignee: labels[0] ?? "", labels: normalizedFilterLabels, priority: filterPriority, query: filterQuery })}
                   menuId="board-assignee-filter-menu"
                   className="min-w-[180px]"
                   labelColors={authorColors}
@@ -535,7 +545,7 @@ const Board: React.FC<BoardProps> = ({
                 <LabelFilterDropdown
                   availableLabels={uniqueLabels}
                   selectedLabels={normalizedFilterLabels}
-                  onChange={labels => onFiltersChange({ assignee: filterAssignee, labels, priority: filterPriority })}
+                  onChange={labels => onFiltersChange({ assignee: filterAssignee, labels, priority: filterPriority, query: filterQuery })}
                   menuId="board-labels-filter-menu"
                   className="min-w-[200px]"
                   labelColors={labelColors}
@@ -544,16 +554,29 @@ const Board: React.FC<BoardProps> = ({
                 <MultiSelectDropdown
                   options={[...PRIORITY_OPTIONS]}
                   selected={filterPriority}
-                  onChange={priorities => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: priorities })}
+                  onChange={priorities => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: priorities, query: filterQuery })}
                   menuId="board-priority-filter-menu"
                   className="min-w-[180px]"
                   title="Priority"
                 />
 
+                <div className="relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={filterQuery}
+                    onChange={e => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority, query: e.target.value })}
+                    placeholder="Search..."
+                    className="h-10 pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 w-[180px]"
+                  />
+                </div>
+
                 {hasActiveFilters && (
                   <button
                     type="button"
-                    onClick={() => onFiltersChange({ assignee: '', labels: [], priority: [] })}
+                    onClick={() => onFiltersChange({ assignee: '', labels: [], priority: [], query: '' })}
                     className={BOARD_FILTER_BUTTON_CLASS}
                   >
                     Clear filters
@@ -575,19 +598,22 @@ const Board: React.FC<BoardProps> = ({
         <div className="mb-4">
           <FilterChips
             chips={[
+              ...(filterQuery.trim()
+                ? [{ key: "search", label: `Search: ${filterQuery.trim()}`, onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority, query: "" }) }]
+                : []),
               ...(filterAssignee
-                ? [{ key: "assignee", label: `Assignee: ${filterAssignee}`, onRemove: () => onFiltersChange?.({ assignee: "", labels: normalizedFilterLabels, priority: filterPriority }) }]
+                ? [{ key: "assignee", label: `Assignee: ${filterAssignee}`, onRemove: () => onFiltersChange?.({ assignee: "", labels: normalizedFilterLabels, priority: filterPriority, query: filterQuery }) }]
                 : []),
               ...normalizedFilterLabels.map((label) => ({
                 key: `label-${label}`,
                 label,
                 color: labelColors?.[label],
-                onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels.filter((l) => l !== label), priority: filterPriority }),
+                onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels.filter((l) => l !== label), priority: filterPriority, query: filterQuery }),
               })),
               ...filterPriority.map((p) => ({
                 key: `priority-${p}`,
                 label: `Priority: ${p}`,
-                onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority.filter((x) => x !== p) }),
+                onRemove: () => onFiltersChange?.({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority.filter((x) => x !== p), query: filterQuery }),
               })),
             ]}
           />

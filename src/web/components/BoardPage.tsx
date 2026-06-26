@@ -97,7 +97,7 @@ export default function BoardPage({
 		}, { replace: true });
 	};
 
-	const handleFiltersChange = (filters: { assignee: string; labels: string[]; priority: string[] }) => {
+	const handleFiltersChange = (filters: { assignee: string; labels: string[]; priority: string[]; query: string }) => {
 		setSearchParams(params => {
 			if (filters.assignee) {
 				params.set('assignee', filters.assignee);
@@ -116,6 +116,11 @@ export default function BoardPage({
 			for (const p of filters.priority) {
 				params.append('priority', p);
 			}
+			if (filters.query) {
+				params.set('q', filters.query);
+			} else {
+				params.delete('q');
+			}
 			return params;
 		}, { replace: true });
 	};
@@ -126,6 +131,7 @@ export default function BoardPage({
 		...searchParams.getAll('labels').flatMap((value) => value.split(',')),
 	].map((label) => label.trim()).filter((label) => label.length > 0);
 	const filterPriority = searchParams.getAll('priority');
+	const filterQuery = searchParams.get('q') ?? '';
 
 	return (
 		<div className="container mx-auto px-4 py-8 transition-colors duration-200">
@@ -149,6 +155,7 @@ export default function BoardPage({
 				filterAssignee={filterAssignee}
 				filterLabels={filterLabels}
 				filterPriority={filterPriority}
+				filterQuery={filterQuery}
 				onFiltersChange={handleFiltersChange}
 				labelColors={labelColors}
 				authorColors={authorColors}
