@@ -17,6 +17,7 @@ import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/m
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { applyTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { attachSubtaskSummaries } from "../utils/task-subtasks.ts";
+import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 import { formatChecklistItem } from "./checklist.ts";
 import { transformCodePaths } from "./code-path.ts";
 import { openConfirmPopup } from "./components/confirm-popup.ts";
@@ -1115,23 +1116,35 @@ export async function viewTaskEnhanced(
 			return;
 		}
 
-		const confirmed = await runWithModalGuard(() =>
-			openConfirmPopup({
-				screen,
-				title: action === "complete" ? "Complete Task" : "Archive Task",
-				message:
-					action === "complete"
-						? `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`
-						: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
-			}),
-		);
-
-		if (!confirmed) {
-			return;
-		}
-
 		try {
 			const config = await core.filesystem.loadConfig();
+			if (action === "complete") {
+				const statuses = config?.statuses ?? ["To Do", "In Progress", "Done"];
+				const terminalStatuses = config?.terminalStatuses;
+				if (!isTerminalStatus(task.status, statuses, terminalStatuses)) {
+					const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
+					showTransientHelp(
+						` {yellow-fg}${task.id} is not ${terminalStatus ?? "Done"}. Set status to "${terminalStatus ?? "Done"}" first.{/}`,
+					);
+					return;
+				}
+			}
+
+			const confirmed = await runWithModalGuard(() =>
+				openConfirmPopup({
+					screen,
+					title: action === "complete" ? "Complete Task" : "Archive Task",
+					message:
+						action === "complete"
+							? `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`
+							: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
+				}),
+			);
+
+			if (!confirmed) {
+				return;
+			}
+
 			const success =
 				action === "complete"
 					? await core.completeTask(task.id, config?.autoCommit ?? false)

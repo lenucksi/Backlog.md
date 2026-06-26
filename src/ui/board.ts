@@ -13,7 +13,7 @@ import { collectAvailableLabels } from "../utils/label-filter.ts";
 import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/milestone-filter.ts";
 import { applySharedTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { compareTaskIds } from "../utils/task-sorting.ts";
-import { isTerminalStatus } from "../utils/terminal-status.ts";
+import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 import { openConfirmPopup } from "./components/confirm-popup.ts";
 import { createFilterHeader, type FilterHeader, type FilterState } from "./components/filter-header.ts";
 import { openMultiSelectFilterPopup, openSingleSelectFilterPopup } from "./components/filter-popup.ts";
@@ -1063,11 +1063,20 @@ export async function renderBoardTui(
 					showTransientFooter(` {red-fg}Cannot complete task from branch "${t.branch}".{/}`);
 					return;
 				}
-				const confirmed = await runWithModalGuard(() => doConfirmComplete(t));
-				if (confirmed) {
-					try {
-						const core = new Core(process.cwd(), { enableWatchers: true });
-						const config = await core.filesystem.loadConfig();
+				try {
+					const core = new Core(process.cwd(), { enableWatchers: true });
+					const config = await core.filesystem.loadConfig();
+					const statuses = config?.statuses ?? ["To Do", "In Progress", "Done"];
+					const terminalStatuses = config?.terminalStatuses;
+					if (!isTerminalStatus(t.status, statuses, terminalStatuses)) {
+						const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
+						showTransientFooter(
+							` {yellow-fg}${t.id} is not ${terminalStatus ?? "Done"}. Set status to "${terminalStatus ?? "Done"}" first.{/}`,
+						);
+						return;
+					}
+					const confirmed = await runWithModalGuard(() => doConfirmComplete(t));
+					if (confirmed) {
 						const success = await core.completeTask(t.id, config?.autoCommit ?? false);
 						if (success) {
 							currentTasks = currentTasks.filter((task) => task.id !== t.id);
@@ -1078,11 +1087,11 @@ export async function renderBoardTui(
 						} else {
 							showTransientFooter(` {red-fg}Failed to complete ${t.id}{/}`);
 						}
-					} catch (error) {
-						showTransientFooter(
-							` {red-fg}Error completing task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
-						);
 					}
+				} catch (error) {
+					showTransientFooter(
+						` {red-fg}Error completing task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
+					);
 				}
 			};
 		};
