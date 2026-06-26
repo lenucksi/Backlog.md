@@ -165,6 +165,8 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 				acceptanceCriteria,
 				definitionOfDoneAdd,
 				disableDefinitionOfDoneDefaults,
+				dueDate: payload.dueDate ? String(payload.dueDate) : undefined,
+				deferDate: payload.deferDate ? String(payload.deferDate) : undefined,
 			});
 			return Response.json(createdTask, { status: 201 });
 		} catch (error) {

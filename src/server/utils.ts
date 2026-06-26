@@ -298,5 +298,13 @@ export function buildTaskUpdateInputFromBody(updates: Record<string, unknown>): 
 		);
 	}
 
+	if ("dueDate" in updates) {
+		updateInput.dueDate = updates.dueDate === null ? null : String(updates.dueDate);
+	}
+
+	if ("deferDate" in updates) {
+		updateInput.deferDate = updates.deferDate === null ? null : String(updates.deferDate);
+	}
+
 	return updateInput;
 }
