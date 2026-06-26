@@ -281,7 +281,8 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		return;
 	}
 
-	const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+	const usePlainOutput =
+		isPlainRequested(options) || shouldAutoPlain() || Boolean(options.overdue || options.dueSoon || options.deferred);
 	if (usePlainOutput) {
 		const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
 		const config = await core.filesystem.loadConfig();
@@ -319,7 +320,7 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		}
 		filtered = applyDateFilters(filtered);
 		if (options.overdue || options.dueSoon || options.deferred) {
-			if (process.exitCode !== 0) return;
+			if (process.exitCode) return;
 		}
 
 		if (filtered.length === 0) {
