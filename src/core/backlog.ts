@@ -5,6 +5,7 @@ import { FileSystem } from "../file-system/operations.ts";
 import { GitOperations } from "../git/operations.ts";
 import {
 	type AcceptanceCriterion,
+	type BacklogConfig,
 	type Decision,
 	DOCUMENT_TYPE_VALUES,
 	type Document,
@@ -190,7 +191,19 @@ function applyStringField(
 
 function resolveLabelsFromInput(task: Task, input: TaskUpdateInput): boolean {
 	let mutated = false;
+
+	if (input.labels !== undefined && (input.addLabels || input.removeLabels)) {
+		throw new Error(
+			"Cannot combine --label (replace) with --add-label or --remove-label (incremental). Use only one mode.",
+		);
+	}
+
 	let currentLabels = [...(task.labels ?? [])];
+
+	if (input.clearLabels) {
+		currentLabels = [];
+		mutated = true;
+	}
 
 	if (input.labels !== undefined) {
 		const sanitizedLabels = normalizeStringList(input.labels) ?? [];
@@ -665,6 +678,11 @@ export class Core {
 	private contentStore?: ContentStore;
 	private searchService?: SearchService;
 	private readonly enableWatchers: boolean;
+	private _config: BacklogConfig | null = null;
+
+	get config(): BacklogConfig | null {
+		return this._config;
+	}
 
 	constructor(projectRoot: string, options?: { enableWatchers?: boolean }) {
 		this.fs = new FileSystem(projectRoot);
@@ -1034,9 +1052,11 @@ export class Core {
 	async ensureConfigLoaded(): Promise<void> {
 		try {
 			const config = await this.fs.loadConfig();
+			this._config = config;
 			this.git.setConfig(config);
 		} catch (error) {
 			// Config loading failed, git operations will work with null config
+			this._config = null;
 			if (process.env.DEBUG) {
 				console.warn("Failed to load config for git operations:", error);
 			}

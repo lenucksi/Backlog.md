@@ -1,10 +1,12 @@
 import * as clack from "@clack/prompts";
 import type { Command } from "commander";
+import picocolors from "picocolors";
 import { Core } from "../core/backlog.ts";
 import { formatTaskPlainText } from "../formatters/task-plain-text.ts";
-import type { Task, TaskListFilter } from "../types/index.ts";
+import { resolveLabelColor, type Task, type TaskListFilter } from "../types/index.ts";
 import type { TaskEditArgs } from "../types/task-edit-args.ts";
 import { viewTaskEnhanced } from "../ui/task-viewer-with-search.ts";
+import { colorizeLabel } from "../utils/ansi.ts";
 import { AppError } from "../utils/app-error.ts";
 import {
 	createMultiValueAccumulator,
@@ -72,6 +74,7 @@ function hasEditFieldFlags(options: Record<string, unknown>): boolean {
 			options.plain ||
 			options.addLabel !== undefined ||
 			options.removeLabel !== undefined ||
+			options.clearLabels ||
 			options.ac !== undefined ||
 			options.dod !== undefined ||
 			options.removeAc !== undefined ||
@@ -154,12 +157,7 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 			description: options.description || options.desc ? String(options.description || options.desc) : undefined,
 			status: createAsDraft ? "Draft" : options.status ? String(options.status) : undefined,
 			assignee: options.assignee ? [String(options.assignee)] : undefined,
-			labels: options.labels
-				? String(options.labels)
-						.split(",")
-						.map((label: string) => label.trim())
-						.filter(Boolean)
-				: undefined,
+			labels: parseDelimitedStringList(options.labels),
 			dependencies:
 				options.dependsOn || options.dep ? normalizeDependencies(options.dependsOn || options.dep) : undefined,
 			references: parseDelimitedStringList(options.ref),
@@ -525,6 +523,8 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 		return;
 	}
 
+	await core.ensureConfigLoaded();
+
 	const canonicalId = normalizeTaskId(taskId ?? "");
 	const existingTask = await core.loadTaskById(canonicalId);
 
@@ -670,6 +670,9 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 	if (removeLabelValues.length > 0) {
 		editArgs.removeLabels = removeLabelValues;
 	}
+	if (options.clearLabels) {
+		editArgs.clearLabels = true;
+	}
 	if (assigneeValues.length > 0) {
 		editArgs.assignee = assigneeValues;
 	}
@@ -728,6 +731,8 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 		editArgs.definitionOfDoneUncheck = uncheckDod;
 	}
 
+	const beforeLabels = [...(existingTask.labels ?? [])];
+
 	let updatedTask: Task;
 	try {
 		const updateInput = buildTaskUpdateInput(editArgs);
@@ -738,14 +743,88 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 		return;
 	}
 
+	const afterLabels = updatedTask.labels ?? [];
+	const added = afterLabels.filter((l) => !beforeLabels.includes(l));
+	const removed = beforeLabels.filter((l) => !afterLabels.includes(l));
+
+	const fmtLabel = (l: string) => {
+		const color = core.config ? resolveLabelColor(l, core.config) : null;
+		return color ? `${colorizeLabel(color, "●")}${l}` : l;
+	};
+
+	const hadLabelFlags =
+		editArgs.labels !== undefined ||
+		editArgs.addLabels !== undefined ||
+		editArgs.removeLabels !== undefined ||
+		editArgs.clearLabels;
+
+	if (hadLabelFlags && added.length === 0 && removed.length === 0) {
+		const details: string[] = [];
+		if (editArgs.clearLabels && beforeLabels.length === 0) {
+			details.push("no labels to clear");
+		}
+		if (editArgs.removeLabels) {
+			const notFound = editArgs.removeLabels.filter(
+				(l) => !beforeLabels.some((b) => b.toLowerCase() === l.toLowerCase()),
+			);
+			if (notFound.length > 0) {
+				details.push(`label${notFound.length > 1 ? "s" : ""} ${notFound.join(", ")} not found`);
+			}
+		}
+		if (editArgs.addLabels) {
+			const already = editArgs.addLabels.filter((l) => beforeLabels.some((b) => b.toLowerCase() === l.toLowerCase()));
+			if (already.length > 0) {
+				details.push(`label${already.length > 1 ? "s" : ""} ${already.join(", ")} already present`);
+			}
+		}
+		const msg = details.length > 0 ? `No changes: ${details.join("; ")}.` : "No changes.";
+		if (options.json) {
+			console.log(
+				JSON.stringify({ ...updatedTask, _labelChanges: { before: beforeLabels, after: afterLabels } }, null, 2),
+			);
+			return;
+		}
+		console.log(picocolors.yellow(msg));
+		return;
+	}
+
 	if (options.json) {
-		console.log(JSON.stringify(updatedTask, null, 2));
+		const output = {
+			...updatedTask,
+			_labelChanges: {
+				before: beforeLabels,
+				after: afterLabels,
+				added: added.length > 0 ? added : undefined,
+				removed: removed.length > 0 ? removed : undefined,
+			},
+		};
+		console.log(JSON.stringify(output, null, 2));
 		return;
 	}
 
 	const usePlainOutput = isPlainRequested(options);
 	if (usePlainOutput) {
 		console.log(formatTaskPlainText(updatedTask));
+		return;
+	}
+
+	if (hadLabelFlags) {
+		if (editArgs.labels !== undefined) {
+			const labelsStr = afterLabels.map(fmtLabel).join(" ") || picocolors.dim("(none)");
+			console.log(`Updated task ${updatedTask.id}. ${picocolors.dim("Labels:")} ${labelsStr}`);
+		} else if (added.length > 0 || removed.length > 0) {
+			const parts = [`Updated task ${updatedTask.id}.`];
+			if (removed.length > 0) {
+				parts.push(`${picocolors.red("Removed:")} ${removed.map(fmtLabel).join(" ")}`);
+			}
+			if (added.length > 0) {
+				parts.push(`${picocolors.green("Added:")} ${added.map(fmtLabel).join(" ")}`);
+			}
+			parts.push(`${picocolors.dim("Now:")} ${afterLabels.map(fmtLabel).join(" ") || picocolors.dim("(none)")}`);
+			console.log(parts.join(" "));
+		} else {
+			console.log(`Updated task ${updatedTask.id}.`);
+		}
 		return;
 	}
 
@@ -870,7 +949,11 @@ export function registerTaskCommand(program: Command): void {
 		.option("--desc <text>", "alias for --description")
 		.option("-a, --assignee <assignee>")
 		.option("-s, --status <status>")
-		.option("-l, --labels <labels>")
+		.option(
+			"-l, --labels <labels>",
+			"set labels (comma-separated or use multiple times)",
+			createMultiValueAccumulator(),
+		)
 		.option("--priority <priority>", "set task priority (high, medium, low)")
 		.option("--plain", "use plain text output after creating")
 		.option(
@@ -941,14 +1024,15 @@ export function registerTaskCommand(program: Command): void {
 		.option("--desc <text>", "alias for --description")
 		.option("-a, --assignee <assignee>")
 		.option("-s, --status <status>")
-		.option("-l, --label <labels>")
+		.option("-l, --label <labels>", "set labels (comma-separated or use multiple times)", createMultiValueAccumulator())
 		.option("--priority <priority>", "set task priority (high, medium, low)")
 		.option("--ordinal <number>", "set task ordinal for custom ordering")
 		.option("-m, --milestone <milestone>", "assign task to milestone by ID or title")
 		.option("--clear-milestone", "clear task milestone assignment")
 		.option("--plain", "use plain text output after editing")
-		.option("--add-label <label>")
-		.option("--remove-label <label>")
+		.option("--add-label <label>", "add a label (can be used multiple times)", createMultiValueAccumulator())
+		.option("--remove-label <label>", "remove a label (can be used multiple times)", createMultiValueAccumulator())
+		.option("--clear-labels", "clear all labels before applying add/remove")
 		.option(
 			"--ac <criteria>",
 			"add acceptance criteria (can be used multiple times); use single quotes to prevent shell expansion of backticks",
@@ -1052,6 +1136,38 @@ export function registerTaskCommand(program: Command): void {
 			}
 
 			await viewTaskEnhanced(task, { startWithDetailFocus: true, core, tasks: allTasks });
+		});
+
+	taskCmd
+		.command("labels <taskId>")
+		.description("display task labels with colors")
+		.option("--json", "output as JSON")
+		.action(async (taskId: string, options) => {
+			const cwd = await requireProjectRoot();
+			const core = new Core(cwd);
+			await core.ensureConfigLoaded();
+			const task = await core.loadTaskById(normalizeTaskId(taskId));
+			if (!task) {
+				console.error(`Task ${taskId} not found.`);
+				return;
+			}
+
+			const labels = task.labels ?? [];
+			if (options.json) {
+				console.log(JSON.stringify(labels, null, 2));
+				return;
+			}
+
+			if (labels.length === 0) {
+				console.log("No labels.");
+				return;
+			}
+
+			for (const label of labels) {
+				const color = core.config ? resolveLabelColor(label, core.config) : null;
+				const indicator = color ? colorizeLabel(color, "●") : "";
+				console.log(`  ${indicator}${indicator ? " " : ""}${label}`);
+			}
 		});
 
 	taskCmd

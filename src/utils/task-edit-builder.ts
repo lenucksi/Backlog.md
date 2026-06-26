@@ -54,6 +54,7 @@ function applyLabelFields(args: TaskEditArgs, target: TaskUpdateInput): void {
 	if (addLabels) target.addLabels = addLabels;
 	const removeLabels = normalizeStringList(args.removeLabels);
 	if (removeLabels) target.removeLabels = removeLabels;
+	if (args.clearLabels) target.clearLabels = true;
 }
 
 function applyAssigneeField(args: TaskEditArgs, target: TaskUpdateInput): void {

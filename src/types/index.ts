@@ -119,6 +119,7 @@ export interface TaskUpdateInput {
 	labels?: string[];
 	addLabels?: string[];
 	removeLabels?: string[];
+	clearLabels?: boolean;
 	assignee?: string[];
 	ordinal?: number;
 	dependencies?: string[];
