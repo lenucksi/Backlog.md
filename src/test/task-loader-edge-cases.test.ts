@@ -364,6 +364,7 @@ describe("loadRemoteTasks - edge cases", () => {
 		const progressMessages: string[] = [];
 		const mockGit = {
 			fetch: async () => {},
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			listRecentRemoteBranches: async () => ["feature"],
 			listFilesInTree: async () => ["backlog/tasks/task-1 - Test.md"],
 			getBranchLastModifiedMap: async () => new Map([["backlog/tasks/task-1 - Test.md", new Date("2025-01-01")]]),
@@ -395,6 +396,7 @@ dependencies: []
 		};
 		const mockGit = {
 			fetch: async () => {},
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			listRecentRemoteBranches: async () => ["feature"],
 			listFilesInTree: async () => ["backlog/tasks/task-1 - Active.md", "backlog/completed/task-2 - Done.md"],
 			getBranchLastModifiedMap: async () =>
@@ -458,6 +460,7 @@ dependencies: []
 		};
 		const mockGit = {
 			fetch: async () => {},
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			listRecentRemoteBranches: async () => ["feature"],
 			listFilesInTree: async () => ["backlog/tasks/task-1 - Remote.md"],
 			getBranchLastModifiedMap: async () => new Map([["backlog/tasks/task-1 - Remote.md", new Date("2025-01-05")]]),
@@ -498,6 +501,7 @@ dependencies: []
 		};
 		const mockGit = {
 			fetch: async () => {},
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			listRecentRemoteBranches: async () => ["feature"],
 			listFilesInTree: async () => ["backlog/tasks/task-1 - Remote.md"],
 			getBranchLastModifiedMap: async () => new Map([["backlog/tasks/task-1 - Remote.md", new Date("2025-01-05")]]),
@@ -583,6 +587,7 @@ describe("loadLocalBranchTasks - edge cases", () => {
 		};
 
 		const mockGit = {
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			getCurrentBranch: async () => "main",
 			listRecentBranches: async () => ["main", "feature-a"],
 			listFilesInTree: async (ref: string) => {
@@ -598,6 +603,7 @@ describe("loadLocalBranchTasks - edge cases", () => {
 
 	it("hydrates all tasks when no local tasks are provided", async () => {
 		const mockGit = {
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			getCurrentBranch: async () => "main",
 			listRecentBranches: async () => ["main", "feature-a"],
 			listFilesInTree: async (ref: string) => {
@@ -634,6 +640,7 @@ dependencies: []
 		};
 
 		const mockGit = {
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			getCurrentBranch: async () => "main",
 			listRecentBranches: async () => ["main", "feature-a"],
 			listFilesInTree: async (ref: string) => {
@@ -677,6 +684,7 @@ dependencies: []
 		};
 
 		const mockGit = {
+			resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 			getCurrentBranch: async () => "main",
 			listRecentBranches: async () => ["main", "feature-a"],
 			listFilesInTree: async (ref: string) => {

@@ -554,6 +554,19 @@ export class GitOperations {
 		const { stdout } = await this.execGit(["show", `${ref}:${filePath}`], { readOnly: true });
 		return stdout;
 	}
+	async resolveCommit(ref: string): Promise<string | null> {
+		if (!(await this.isRepository())) {
+			return null;
+		}
+		try {
+			const { stdout } = await this.execGit(["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], {
+				readOnly: true,
+			});
+			return stdout.trim() || null;
+		} catch {
+			return null;
+		}
+	}
 	/**
 	 * Build a map of file -> last modified date for all files in a directory in one git log pass
 	 * Much more efficient than individual getFileLastModifiedTime calls

@@ -11,6 +11,11 @@ class MockGitOperations implements Partial<GitOperations> {
 		return this.currentBranch;
 	}
 
+	async resolveCommit(ref: string): Promise<string | null> {
+		// Return a mock SHA for any branch that has files
+		return `mock-sha-${ref}`;
+	}
+
 	async listRecentBranches(_daysAgo: number): Promise<string[]> {
 		return ["main", "feature-a", "feature-b", "origin/main"];
 	}
@@ -198,6 +203,7 @@ describe("Local branch task discovery", () => {
 		it("should match local tasks with uppercase IDs to index keys (custom prefix)", async () => {
 			// Mock git operations for custom prefix (JIRA)
 			const mockGit = {
+				resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 				getCurrentBranch: async () => "main",
 				listRecentBranches: async () => ["main", "feature-a"],
 				listFilesInTree: async (ref: string) => {
@@ -257,6 +263,7 @@ Task from feature branch`,
 
 		it("should hydrate tasks that do not exist locally with custom prefix", async () => {
 			const mockGit = {
+				resolveCommit: async (ref: string) => `mock-sha-${ref}`,
 				getCurrentBranch: async () => "main",
 				listRecentBranches: async () => ["main", "feature-a"],
 				listFilesInTree: async (ref: string) => {
