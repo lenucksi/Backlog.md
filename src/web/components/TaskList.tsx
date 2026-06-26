@@ -33,7 +33,7 @@ interface TaskListProps {
 
 const PRIORITY_OPTIONS: SearchPriorityFilter[] = ["high", "medium", "low"];
 
-type TaskSortColumn = "id" | "title" | "status" | "priority" | "ordinal" | "milestone" | "created";
+type TaskSortColumn = "id" | "title" | "status" | "priority" | "ordinal" | "milestone" | "created" | "due" | "completed";
 type SortDirection = "asc" | "desc";
 
 const PRIORITY_RANK: Record<string, number> = {
@@ -483,6 +483,7 @@ const TaskList: React.FC<TaskListProps> = ({
 
 		setSortColumn(column);
 		setSortDirection(column === "id" || column === "created" ? "desc" : "asc");
+		if (column === "due" || column === "completed") setSortDirection("asc");
 	};
 
 	const getSortAriaValue = (column: TaskSortColumn): "none" | "ascending" | "descending" => {
@@ -522,13 +523,15 @@ const TaskList: React.FC<TaskListProps> = ({
 	const renderColumnGroup = () => (
 		<colgroup>
 			<col style={{ width: "8rem" }} />
-			<col style={{ width: "28rem" }} />
+			<col style={{ width: "24rem" }} />
 			<col style={{ width: "8rem" }} />
 			<col style={{ width: "7rem" }} />
+			<col style={{ width: "6rem" }} />
+			<col style={{ width: "11rem" }} />
+			<col style={{ width: "8rem" }} />
+			<col style={{ width: "9rem" }} />
 			<col style={{ width: "7rem" }} />
-			<col style={{ width: "11rem" }} />
-			<col style={{ width: "11rem" }} />
-			<col style={{ width: "11rem" }} />
+			<col style={{ width: "7rem" }} />
 			<col style={{ width: "7rem" }} />
 		</colgroup>
 	);
@@ -588,6 +591,34 @@ const TaskList: React.FC<TaskListProps> = ({
 						result = -1;
 					} else {
 						result = withDirection(createdA - createdB);
+					}
+					break;
+				}
+				case "due": {
+					const dueA = a.dueDate ? parseStoredUtcDate(a.dueDate)?.getTime() : undefined;
+					const dueB = b.dueDate ? parseStoredUtcDate(b.dueDate)?.getTime() : undefined;
+					if (dueA === undefined && dueB === undefined) {
+						// result already 0
+					} else if (dueA === undefined) {
+						result = 1;
+					} else if (dueB === undefined) {
+						result = -1;
+					} else {
+						result = withDirection(dueA - dueB);
+					}
+					break;
+				}
+				case "completed": {
+					const compA = a.completedDate ? parseStoredUtcDate(a.completedDate)?.getTime() : undefined;
+					const compB = b.completedDate ? parseStoredUtcDate(b.completedDate)?.getTime() : undefined;
+					if (compA === undefined && compB === undefined) {
+						// result already 0
+					} else if (compA === undefined) {
+						result = 1;
+					} else if (compB === undefined) {
+						result = -1;
+					} else {
+						result = withDirection(compA - compB);
 					}
 					break;
 				}
@@ -863,6 +894,8 @@ const TaskList: React.FC<TaskListProps> = ({
 										<th className="px-3 py-2">Assignee</th>
 										{renderSortableHeader("Milestone", "milestone")}
 										{renderSortableHeader("Created", "created")}
+									{renderSortableHeader("Due", "due")}
+									{renderSortableHeader("Completed", "completed")}
 									</tr>
 								</thead>
 							</table>
@@ -1004,6 +1037,24 @@ const TaskList: React.FC<TaskListProps> = ({
 											</td>
 											<td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
 												{createdLabel}
+											</td>
+											<td className="px-3 py-2.5 text-xs whitespace-nowrap">
+												{task.dueDate ? (
+													<span className={(parseStoredUtcDate(task.dueDate)?.getTime() ?? 0) < Date.now() ? "text-red-600 dark:text-red-400 font-medium" : "text-gray-500 dark:text-gray-400"}>
+														{formatStoredUtcDateForCompactDisplay(task.dueDate)}
+													</span>
+												) : (
+													<span className="text-gray-300 dark:text-gray-600">—</span>
+												)}
+											</td>
+											<td className="px-3 py-2.5 text-xs whitespace-nowrap">
+												{task.completedDate ? (
+													<span className="text-gray-500 dark:text-gray-400">
+														{formatStoredUtcDateForCompactDisplay(task.completedDate)}
+													</span>
+												) : (
+													<span className="text-gray-300 dark:text-gray-600">—</span>
+												)}
 											</td>
 										</tr>
 									);
