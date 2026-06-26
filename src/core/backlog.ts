@@ -1573,6 +1573,8 @@ export class Core {
 				...(typeof input.finalSummary === "string" && { finalSummary: input.finalSummary }),
 				...(acceptanceCriteriaItems.length > 0 && { acceptanceCriteriaItems }),
 				...(definitionOfDoneItems && definitionOfDoneItems.length > 0 && { definitionOfDoneItems }),
+				...(input.dueDate && { dueDate: input.dueDate }),
+				...(input.deferDate && { deferDate: input.deferDate }),
 			};
 
 			const filePath = await this.writePreparedTask(task, isDraft);
@@ -1603,6 +1605,16 @@ export class Core {
 		const oldStatus = originalTask?.status ?? "";
 		const newStatus = task.status ?? "";
 		const statusChanged = oldStatus !== newStatus;
+
+		// Auto-stamp completedDate when transitioning to terminal status (immutable)
+		if (statusChanged && !task.completedDate) {
+			const config = await this.fs.loadConfig();
+			const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
+			if (isTerminalStatus(newStatus, statuses, config?.terminalStatuses)) {
+				const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+				task.completedDate = now;
+			}
+		}
 
 		// Always set updatedDate when updating a task
 		task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
@@ -1704,6 +1716,22 @@ export class Core {
 		mutated = resolveReferencesFromInput(task, input) || mutated;
 		mutated = resolveDocumentationFromInput(task, input) || mutated;
 		mutated = resolveModifiedFilesFromInput(task, input) || mutated;
+
+		if (input.dueDate !== undefined) {
+			const normalized = input.dueDate === null ? undefined : input.dueDate;
+			if (task.dueDate !== normalized) {
+				task.dueDate = normalized;
+				mutated = true;
+			}
+		}
+
+		if (input.deferDate !== undefined) {
+			const normalized = input.deferDate === null ? undefined : input.deferDate;
+			if (task.deferDate !== normalized) {
+				task.deferDate = normalized;
+				mutated = true;
+			}
+		}
 
 		mutated =
 			applyClearSetAppendBlock(
@@ -2218,6 +2246,13 @@ export class Core {
 		if (!taskToArchive) {
 			return false;
 		}
+		// Stamp lifecycle dates before moving the file
+		if (!taskToArchive.archivedDate) {
+			const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+			taskToArchive.archivedDate = now;
+			taskToArchive.updatedDate = now;
+			await this.fs.saveTask(taskToArchive);
+		}
 		const normalizedTaskId = taskToArchive.id;
 
 		// Get paths before moving the file
@@ -2323,6 +2358,15 @@ export class Core {
 	}
 
 	async completeTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
+		// Stamp lifecycle dates before moving the file
+		const task = await this.fs.loadTask(taskId);
+		if (task && !task.completedDate) {
+			const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+			task.completedDate = now;
+			task.updatedDate = now;
+			await this.fs.saveTask(task);
+		}
+
 		// Get paths before moving the file
 		const archiveTasksDir = this.fs.archiveTasksDir;
 		const taskPath = await getTaskPath(taskId, this);

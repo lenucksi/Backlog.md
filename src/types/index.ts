@@ -59,6 +59,14 @@ export interface Task {
 	source?: "local" | "remote" | "completed" | "local-branch";
 	/** Optional per-task callback command to run on status change (overrides global config) */
 	onStatusChange?: string;
+	/** Planning date: deadline for this task (user-set, mutable, optional) */
+	dueDate?: string;
+	/** Planning date: defer/show after this date (user-set, mutable, optional) */
+	deferDate?: string;
+	/** Lifecycle date: auto-stamped when task transitions to terminal status (immutable, set-once) */
+	completedDate?: string;
+	/** Lifecycle date: auto-stamped when task is archived (immutable, set-once) */
+	archivedDate?: string;
 }
 
 export interface MilestoneBucket {
@@ -106,6 +114,8 @@ export interface TaskCreateInput {
 	acceptanceCriteria?: AcceptanceCriterionInput[];
 	definitionOfDoneAdd?: string[];
 	disableDefinitionOfDoneDefaults?: boolean;
+	dueDate?: string;
+	deferDate?: string;
 	rawContent?: string;
 }
 
@@ -150,6 +160,8 @@ export interface TaskUpdateInput {
 	removeDefinitionOfDone?: number[];
 	checkDefinitionOfDone?: number[];
 	uncheckDefinitionOfDone?: number[];
+	dueDate?: string;
+	deferDate?: string;
 	rawContent?: string;
 }
 
