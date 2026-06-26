@@ -194,6 +194,8 @@ const SideNavigation = memo(function SideNavigation({
 	const [version, setVersion] = useState<string>('');
 	const [docSortField, setDocSortField] = useState<"id" | "title" | "lastModified" | "createdDate">("title");
 	const [docSortDir, setDocSortDir] = useState<"asc" | "desc">("asc");
+	const [decisionSortField, setDecisionSortField] = useState<"id" | "title" | "date">("title");
+	const [decisionSortDir, setDecisionSortDir] = useState<"asc" | "desc">("asc");
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -320,6 +322,26 @@ const SideNavigation = memo(function SideNavigation({
 			return docSortDir === "asc" ? cmp : -cmp;
 		});
 	}, [docs, docSortField, docSortDir]);
+
+	const sortedDecisions = useMemo(() => {
+		return [...decisions]
+			.filter((d) => d.status !== "superseded")
+			.sort((a, b) => {
+				let cmp = 0;
+				switch (decisionSortField) {
+					case "id":
+						cmp = parseInt(stripIdPrefix(a.id)) - parseInt(stripIdPrefix(b.id));
+						break;
+					case "title":
+						cmp = a.title.localeCompare(b.title);
+						break;
+					case "date":
+						cmp = (a.date || "").localeCompare(b.date || "");
+						break;
+				}
+				return decisionSortDir === "asc" ? cmp : -cmp;
+			});
+	}, [decisions, decisionSortField, decisionSortDir]);
 
 	const toggleCollapse = useCallback(() => {
 		setIsCollapsed((prev: any) => !prev);
@@ -678,16 +700,37 @@ const SideNavigation = memo(function SideNavigation({
 						<CollapsibleGroup
 							title="Decisions"
 							icon={<Icons.Decision />}
-							count={decisions.length}
+							count={sortedDecisions.length}
 							storageKey="decisionsCollapsed"
-							defaultCollapsed={decisions.length > 6}
+							defaultCollapsed={sortedDecisions.length > 6}
+							headerRightContent={
+								<>
+									<button
+										type="button"
+										onClick={() => setDecisionSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+										className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
+										title={decisionSortDir === "asc" ? "Ascending" : "Descending"}
+									>
+										{decisionSortDir === "asc" ? "▲" : "▼"}
+									</button>
+									<select
+										value={decisionSortField}
+										onChange={(e) => setDecisionSortField(e.target.value as typeof decisionSortField)}
+										className="text-xs bg-transparent text-gray-400 dark:text-gray-500 border-none outline-none cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+									>
+										<option value="id">#</option>
+										<option value="title">Name</option>
+										<option value="date">Datum</option>
+									</select>
+								</>
+							}
 						>
-							{decisions.filter((d) => d.status !== 'superseded').map((decision) => (
+							{sortedDecisions.map((decision) => (
 								<NavLink
 									key={decision.id}
 									to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
 									className={({ isActive }) =>
-										`flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+										`flex items-center space-x-1.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
 											isActive
 												? 'bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium'
 												: 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
@@ -695,6 +738,7 @@ const SideNavigation = memo(function SideNavigation({
 									}
 								>
 									<span className="text-gray-400 dark:text-gray-500"><Icons.DecisionPage /></span>
+									<span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-7 text-right shrink-0">{stripIdPrefix(decision.id)}</span>
 									<span className="truncate">{decision.title}</span>
 								</NavLink>
 							))}
@@ -720,13 +764,14 @@ const SideNavigation = memo(function SideNavigation({
 													key={decision.id}
 													to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
 													className={({ isActive }) =>
-														`flex items-center space-x-3 px-3 py-1 text-xs rounded-lg transition-colors duration-200 ml-4 ${
+														`flex items-center space-x-1.5 px-3 py-1 text-xs rounded-lg transition-colors duration-200 ml-4 ${
 															isActive
 																? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
 																: "text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-400"
 														}`
 													}
 												>
+													<span className="text-gray-400 dark:text-gray-500 font-mono shrink-0">{stripIdPrefix(decision.id)}</span>
 													<div className="flex-1 min-w-0">
 														<span className="truncate">{decision.title}</span>
 														{decision.supersededBy && (
