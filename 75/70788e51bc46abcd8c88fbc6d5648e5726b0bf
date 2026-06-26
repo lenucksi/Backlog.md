@@ -1,0 +1,32 @@
+src/web/components/TaskDetailsModal.tsx
+  s_28948a1609eae2::t_6009368b6ea6e8 23-24
+  s_28948a1609eae2::t_3211847d2e7f5d 632
+  s_28948a1609eae2::t_f046928d9ddb35 67-68
+  s_28948a1609eae2::t_36362d06ce9504 633
+src/ui/board.ts
+  s_28948a1609eae2::t_d9c575f647be04 216
+  s_28948a1609eae2::t_a9c2ab32e4fb3a 584
+  s_28948a1609eae2::t_639d22e870a3ad 450
+  s_28948a1609eae2::t_abfa13985714bd 152-153
+  s_28948a1609eae2::t_b898497ee717a7 258
+src/web/App.tsx
+  s_28948a1609eae2::t_6ff06f3b65215d 712-713
+src/ui/unified-view.ts
+  s_28948a1609eae2::t_59aafc74cda8d5 400-401
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "7570788e51bc46abcd8c88fbc6d5648e5726b0bf",
+  "prompts": {},
+  "sessions": {
+    "s_28948a1609eae2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_119e63e88ffeCcNg1mHgaLEggK",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
