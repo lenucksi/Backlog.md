@@ -85,6 +85,10 @@ function formatPeopleSection(task: Task, lines: string[]): void {
 function formatDateSection(task: Task, lines: string[]): void {
 	lines.push(`Created: ${formatDateForDisplay(task.createdDate)}`);
 	if (task.updatedDate) lines.push(`Updated: ${formatDateForDisplay(task.updatedDate)}`);
+	if (task.dueDate) lines.push(`Due: ${formatDateForDisplay(task.dueDate)}`);
+	if (task.deferDate) lines.push(`Defer: ${formatDateForDisplay(task.deferDate)}`);
+	if (task.completedDate) lines.push(`Completed: ${formatDateForDisplay(task.completedDate)}`);
+	if (task.archivedDate) lines.push(`Archived: ${formatDateForDisplay(task.archivedDate)}`);
 }
 
 function formatMetadataSection(task: Task, lines: string[]): void {
