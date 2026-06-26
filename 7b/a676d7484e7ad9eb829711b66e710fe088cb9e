@@ -1,0 +1,36 @@
+src/commands/advanced-config-wizard.ts
+  s_0956ae952ff87c::t_df51708c06ad62 216-218,222-312,726-728
+src/utils/config-schema.ts
+  s_0956ae952ff87c::t_df51708c06ad62 1,57,64,120,247-256
+  s_8b82b142d69ed2::t_7c5eef38bd2abb 257
+src/test/config-commands.test.ts
+  s_0956ae952ff87c::t_df51708c06ad62 39-41,80-82,129-131
+src/core/config-migration.ts
+  s_0956ae952ff87c::t_df51708c06ad62 2,5,7-10,12-14,16-18,20,24
+src/web/components/InitializationScreen.tsx
+  s_0956ae952ff87c::t_df51708c06ad62 2,45-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "7ba676d7484e7ad9eb829711b66e710fe088cb9e",
+  "prompts": {},
+  "sessions": {
+    "s_0956ae952ff87c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_119f90f7affeBbZkxi7PRIsUou",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
