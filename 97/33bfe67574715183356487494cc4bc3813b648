@@ -1,0 +1,49 @@
+src/commands/task.ts
+  s_8b82b142d69ed2::t_40967a52c441ab 3
+  s_8b82b142d69ed2::t_d0f7a0075c398e 813,818,821,823
+  s_8b82b142d69ed2::t_78f9b2d0ffcb3b 952-956
+  s_8b82b142d69ed2::t_27bf09569c6399 746-749,792-801,827
+  s_8b82b142d69ed2::t_1613b46ae27c96 1142-1172
+  s_8b82b142d69ed2::t_aadfbcc804c5ff 160
+  s_8b82b142d69ed2::t_a18ef1bfcb3f6e 754
+  s_8b82b142d69ed2::t_d88ba629711a86 675,755-774,776-781,785-790,828-829
+  s_8b82b142d69ed2::t_b78f5cd9639084 734
+  s_8b82b142d69ed2::t_d0c661722b3a9a 775,782-784
+  s_8b82b142d69ed2::t_d3b516f39ff081 526-527
+  s_8b82b142d69ed2::t_5e09eb6bee9d1e 750-753
+  s_8b82b142d69ed2::t_cbaba8a70af1a8 9
+  s_8b82b142d69ed2::t_0996c6aea19f0f 811-812,814-817,819-820,822,824-826
+  s_8b82b142d69ed2::t_064e29a3c3b279 1027,1033-1035
+  s_8b82b142d69ed2::t_19e9d293f1594b 673-674
+  s_8b82b142d69ed2::t_47e2a029194426 735
+  s_8b82b142d69ed2::t_471d71537f451c 830
+  s_8b82b142d69ed2::t_b90da41f7092f3 1141
+src/core/backlog.ts
+  s_8b82b142d69ed2::t_f801327e4c56f8 1055,1059
+  s_8b82b142d69ed2::t_db3766baac8045 194-200,203-206
+  s_8b82b142d69ed2::t_01d94913f8666a 8
+  s_8b82b142d69ed2::t_fd44eeeefbad72 681-685
+  s_8b82b142d69ed2::t_b94184809507f3 207
+src/types/task-edit-args.ts
+  s_8b82b142d69ed2::t_4ff5b2d2c5f58f 10
+src/utils/task-edit-builder.ts
+  s_8b82b142d69ed2::t_46cb2c26ae7ae4 57
+src/types/index.ts
+  s_8b82b142d69ed2::t_09633aecd8707c 122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "9733bfe67574715183356487494cc4bc3813b648",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
