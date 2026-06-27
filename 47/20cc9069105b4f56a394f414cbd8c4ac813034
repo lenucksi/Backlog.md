@@ -1,0 +1,82 @@
+src/test/references.test.ts
+  s_136b3d0d70ee1e::t_10eb74d38c5c77 181
+src/test/cleanup.test.ts
+  s_136b3d0d70ee1e::t_036b10e22aa40a 287
+  s_136b3d0d70ee1e::t_d1c6b3295ba9b3 69
+src/mcp/tools/labels/index.ts
+  s_136b3d0d70ee1e::t_bf7fd3a7e39fee 13,24,35,46,57,68
+src/mcp/tools/open/index.ts
+  s_136b3d0d70ee1e::t_b3f8322f7da9b4 13
+src/mcp/tools/authors/index.ts
+  s_136b3d0d70ee1e::t_ecf75ddc679b10 13-46
+  s_136b3d0d70ee1e::t_f7043a89b869d8 10-12
+  s_136b3d0d70ee1e::t_2aa5a00a513398 47-49
+src/ui/task-viewer-with-search.ts
+  s_136b3d0d70ee1e::t_d624e9fb7dc954 1345-1347
+  s_136b3d0d70ee1e::t_d3dca99c4db231 1315,1317,1327-1328,1336,1340,1342
+src/test/mcp-server.test.ts
+  s_136b3d0d70ee1e::t_882b8f6b288354 219-228,249-250
+src/mcp/tools/tasks/handlers.ts
+  s_136b3d0d70ee1e::t_56bfabdfcfd570 375
+src/web/components/TaskDetailsModal.tsx
+  s_136b3d0d70ee1e::t_297a7fdd0f42d9 599,601
+src/guidelines/mcp/overview-tools.md
+  s_136b3d0d70ee1e::t_64a2e42ae75500 46
+src/web/App.tsx
+  s_7e5c51e451ef4c::t_30d46e1894c451 464,468
+  s_7e5c51e451ef4c::t_228891891fe06c 442-443
+  s_7e5c51e451ef4c::t_864c0368a8a162 322-357,368,370
+src/test/mcp-tasks-cov.test.ts
+  s_136b3d0d70ee1e::t_0a431dfc84547a 248,252,256-257,259
+src/ui/board.ts
+  s_136b3d0d70ee1e::t_f61551b35d790e 1268
+  s_136b3d0d70ee1e::t_eeb2eaa639c646 1628
+src/commands/cleanup.ts
+  s_136b3d0d70ee1e::t_982368280c74ab 108
+src/server/handlers/tasks.ts
+  s_136b3d0d70ee1e::t_decde80db92fc5 5
+  s_136b3d0d70ee1e::t_d206cd99f320db 365
+  s_136b3d0d70ee1e::t_0ad094a5496fa7 229-239,242,244
+src/test/id-generation.test.ts
+  s_136b3d0d70ee1e::t_5278a86c980b2f 68
+src/test/mcp-tasks.test.ts
+  s_136b3d0d70ee1e::t_057703dbf7857c 266
+  s_136b3d0d70ee1e::t_0050e6b5db1686 280,287,298,317
+  s_136b3d0d70ee1e::t_6c17247578bfd6 318
+src/commands/task.ts
+  s_136b3d0d70ee1e::t_40b71ad20ccc1a 32,1404-1406
+  s_136b3d0d70ee1e::t_a03d841bc9c789 1393-1403,1407-1409
+  s_136b3d0d70ee1e::t_f750ff58fe6ca0 1454
+src/test/dependency.test.ts
+  s_136b3d0d70ee1e::t_726afc63fd0c62 280
+src/mcp/tools/statistics/index.ts
+  s_136b3d0d70ee1e::t_505ab16c001512 13
+src/test/backlog-coverage.test.ts
+  s_136b3d0d70ee1e::t_714de5c813c055 138-140,143,150,153,157-158
+src/guidelines/mcp/overview.md
+  s_136b3d0d70ee1e::t_d23bdbe03cabfa 68-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "4720cc9069105b4f56a394f414cbd8c4ac813034",
+  "prompts": {},
+  "sessions": {
+    "s_136b3d0d70ee1e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f5ed9859ffeaOpe54lUW4pIWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_7e5c51e451ef4c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f75c6f89ffeqyl8ZKDpi7ypSj",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
