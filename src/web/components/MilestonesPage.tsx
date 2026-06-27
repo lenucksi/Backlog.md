@@ -68,6 +68,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 	const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
 	const [showAllUnassigned, setShowAllUnassigned] = useState(false);
 	const [showCompleted, setShowCompleted] = useState(false);
+	const [showEmptyMilestones, setShowEmptyMilestones] = useState(false);
 	const [archivingMilestoneKey, setArchivingMilestoneKey] = useState<string | null>(null);
 	const [savingMilestoneKey, setSavingMilestoneKey] = useState<string | null>(null);
 	const [removingMilestoneKey, setRemovingMilestoneKey] = useState<string | null>(null);
@@ -150,7 +151,9 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 
 		const unassigned = visibleBuckets.find((b) => b.isNoMilestone);
 		const activeWithTasks = visibleBuckets.filter((b) => !b.isNoMilestone && !b.isCompleted && b.total > 0);
-		const empty = visibleBuckets.filter((b) => !b.isNoMilestone && !b.isCompleted && b.total === 0);
+		const empty = showEmptyMilestones
+			? visibleBuckets.filter((b) => !b.isNoMilestone && !b.isCompleted && b.total === 0)
+			: [];
 		const completed = visibleBuckets.filter((b) => !b.isNoMilestone && b.isCompleted);
 
 		// Sort each group by ID ascending, then combine (active with tasks first, then empty)
@@ -799,6 +802,15 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 					</div>
 				</div>
 				<div className="flex items-center gap-3">
+					<label className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+						<input
+							type="checkbox"
+							checked={showEmptyMilestones}
+							onChange={(e) => setShowEmptyMilestones(e.target.checked)}
+							className="rounded border-gray-300 dark:border-gray-600 text-stone-600 dark:text-stone-400 focus:ring-stone-500 dark:focus:ring-stone-400"
+						/>
+						Show empty
+					</label>
 					{success && (
 						<span className="inline-flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
