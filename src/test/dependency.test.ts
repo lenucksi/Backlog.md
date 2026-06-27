@@ -277,7 +277,7 @@ describe("Task Dependencies", () => {
 		await core.createTask(activeDependent, false);
 		await core.createTask(completedDependent, false);
 		await core.createTask(childTask, false);
-		await core.completeTask("task-3", false);
+		await core.archiveTask("task-3", false);
 
 		const archived = await core.archiveTask("task-1", false);
 		expect(archived).toBe(true);

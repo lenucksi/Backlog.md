@@ -65,7 +65,7 @@ describe("Task ID Generation with Archives", () => {
 		await core.archiveTask("task-1", false);
 
 		// Complete task-2 (moves to completed directory, ID cannot be reused)
-		await core.completeTask("task-2", false);
+		await core.archiveTask("task-2", false);
 
 		// Keep task-3 active
 		const activeTasks = await core.fs.listTasks();

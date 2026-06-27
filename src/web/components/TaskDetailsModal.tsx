@@ -596,9 +596,9 @@ export const TaskDetailsModal: React.FC<Props> = ({
 
 	const handleComplete = async () => {
 		if (!task) return;
-		if (!window.confirm("Complete this task? It will be moved to the completed folder.")) return;
+		if (!window.confirm("Archive this task?")) return;
 		try {
-			await apiClient.completeTask(task.id);
+			await apiClient.archiveTask(task.id);
 			if (onSaved) await onSaved();
 			onClose();
     } catch (err) {

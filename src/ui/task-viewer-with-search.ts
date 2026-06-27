@@ -17,7 +17,6 @@ import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/m
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { applyTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { attachSubtaskSummaries } from "../utils/task-subtasks.ts";
-import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 import { formatChecklistItem } from "./checklist.ts";
 import { transformCodePaths } from "./code-path.ts";
 import { openConfirmPopup } from "./components/confirm-popup.ts";
@@ -1313,35 +1312,20 @@ export async function viewTaskEnhanced(
 		}
 	};
 
-	const applyTaskLifecycleShortcut = async (task: Task, action: "complete" | "archive") => {
+	const applyTaskLifecycleShortcut = async (task: Task, _action: "complete" | "archive") => {
 		if (task.branch) {
-			const verb = action === "complete" ? "complete" : "archive";
-			showTransientHelp(` {red-fg}Cannot ${verb} task from branch "${task.branch}".{/}`);
+			showTransientHelp(` {red-fg}Cannot archive task from branch "${task.branch}".{/}`);
 			return;
 		}
 
 		try {
 			const config = await core.filesystem.loadConfig();
-			if (action === "complete") {
-				const statuses = config?.statuses ?? ["To Do", "In Progress", "Done"];
-				const terminalStatuses = config?.terminalStatuses;
-				if (!isTerminalStatus(task.status, statuses, terminalStatuses)) {
-					const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
-					showTransientHelp(
-						` {yellow-fg}${task.id} is not ${terminalStatus ?? "Done"}. Set status to "${terminalStatus ?? "Done"}" first.{/}`,
-					);
-					return;
-				}
-			}
 
 			const confirmed = await runWithModalGuard(() =>
 				openConfirmPopup({
 					screen,
-					title: action === "complete" ? "Complete Task" : "Archive Task",
-					message:
-						action === "complete"
-							? `Mark task {bold}${task.id}{/bold} as completed?\n{gray-fg}${task.title}{/}`
-							: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
+					title: "Archive Task",
+					message: `Archive task {bold}${task.id}{/bold}?\n{gray-fg}${task.title}{/}`,
 				}),
 			);
 
@@ -1349,22 +1333,18 @@ export async function viewTaskEnhanced(
 				return;
 			}
 
-			const success =
-				action === "complete"
-					? await core.completeTask(task.id, config?.autoCommit ?? false)
-					: await core.archiveTask(task.id, config?.autoCommit ?? false);
+			const success = await core.archiveTask(task.id, config?.autoCommit ?? false);
 
 			if (success) {
 				removeTaskFromCurrentView(task.id);
-				const label = action === "complete" ? "Completed" : "Archived";
-				showTransientHelp(` {green-fg}${label} ${task.id}{/}`);
+				showTransientHelp(` {green-fg}Archived ${task.id}{/}`);
 			} else {
-				const verb = action === "complete" ? "complete" : "archive";
-				showTransientHelp(` {red-fg}Failed to ${verb} ${task.id}{/}`);
+				showTransientHelp(` {red-fg}Failed to archive ${task.id}{/}`);
 			}
 		} catch (error) {
-			const verb = action === "complete" ? "completing" : "archiving";
-			showTransientHelp(` {red-fg}Error ${verb} task: ${error instanceof Error ? error.message : "Unknown error"}{/}`);
+			showTransientHelp(
+				` {red-fg}Error archiving task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
+			);
 		}
 	};
 

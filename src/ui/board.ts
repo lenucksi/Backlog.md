@@ -1265,7 +1265,7 @@ export async function renderBoardTui(
 					}
 					const confirmed = await runWithModalGuard(() => doConfirmComplete(t));
 					if (confirmed) {
-						const success = await core.completeTask(t.id, config?.autoCommit ?? false);
+						const success = await core.archiveTask(t.id, config?.autoCommit ?? false);
 						if (success) {
 							currentTasks = currentTasks.filter((task) => task.id !== t.id);
 							showTransientFooter(` {green-fg}Completed ${t.id}{/}`);
@@ -1625,7 +1625,7 @@ export async function renderBoardTui(
 				try {
 					const core = new Core(process.cwd(), { enableWatchers: true });
 					const config = await core.filesystem.loadConfig();
-					const success = await core.completeTask(task.id, config?.autoCommit ?? false);
+					const success = await core.archiveTask(task.id, config?.autoCommit ?? false);
 
 					if (success) {
 						currentTasks = currentTasks.filter((t) => t.id !== task.id);

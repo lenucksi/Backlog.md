@@ -7,7 +7,6 @@ import type { TaskCreateArgs, TaskEditRequest, TaskListArgs, TaskReorderArgs, Ta
 import { TaskHandlers } from "./handlers.ts";
 import {
 	taskArchiveSchema,
-	taskCompleteSchema,
 	taskListSchema,
 	taskReorderSchema,
 	taskSearchSchema,
@@ -98,17 +97,6 @@ export function registerTaskTools(server: McpServer, config: BacklogConfig): voi
 		async (input) => handlers.reorderTask(input as TaskReorderArgs),
 	);
 
-	const completeTaskTool: McpToolHandler = createSimpleValidatedTool(
-		{
-			name: "task_complete",
-			description: "Complete a Backlog.md task (move it to the completed folder)",
-			inputSchema: taskCompleteSchema,
-			annotations: { title: "Complete Task", destructiveHint: true },
-		},
-		taskCompleteSchema,
-		async (input) => handlers.completeTask(input as { id: string }),
-	);
-
 	server.addTool(createTaskTool);
 	server.addTool(listTaskTool);
 	server.addTool(searchTaskTool);
@@ -116,13 +104,11 @@ export function registerTaskTools(server: McpServer, config: BacklogConfig): voi
 	server.addTool(viewTaskTool);
 	server.addTool(archiveTaskTool);
 	server.addTool(reorderTaskTool);
-	server.addTool(completeTaskTool);
 }
 
 export type { TaskCreateArgs, TaskEditArgs, TaskListArgs, TaskReorderArgs, TaskSearchArgs } from "./handlers.ts";
 export {
 	taskArchiveSchema,
-	taskCompleteSchema,
 	taskListSchema,
 	taskReorderSchema,
 	taskSearchSchema,

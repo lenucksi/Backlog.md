@@ -1,4 +1,3 @@
-import { basename, join } from "node:path";
 import { isCreateLockError } from "../../../file-system/operations.ts";
 import {
 	isLocalEditableTask,
@@ -373,7 +372,7 @@ export class TaskHandlers {
 		const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
 		if (isTerminalStatus(task.status, statuses, terminalStatuses)) {
 			throw AppError.validation(
-				`Task ${task.id} is ${terminalStatus ?? "Done"}. ${terminalStatus ?? "Done"} tasks should be completed (moved to the completed folder), not archived. Use task_complete instead.`,
+				`Task ${task.id} is ${terminalStatus ?? "Done"}. Set status via task_edit before archiving, or complete the task from the board UI.`,
 			);
 		}
 
@@ -384,36 +383,6 @@ export class TaskHandlers {
 
 		const refreshed = (await this.core.getTask(task.id)) ?? task;
 		return await formatTaskCallResult(refreshed);
-	}
-
-	async completeTask(args: { id: string }): Promise<CallToolResult> {
-		const task = await this.loadTaskOrThrow(args.id);
-
-		if (!isLocalEditableTask(task)) {
-			throw AppError.validation(`Cannot complete task from another branch: ${task.id}`);
-		}
-
-		const config = await this.core.filesystem.loadConfig();
-		const statuses = config?.statuses ?? [];
-		const terminalStatuses = config?.terminalStatuses;
-		const terminalStatus = getTerminalStatus(statuses, terminalStatuses);
-		if (!isTerminalStatus(task.status, statuses, terminalStatuses)) {
-			throw AppError.validation(
-				`Task ${task.id} is not ${terminalStatus ?? "Done"}. Set status to "${terminalStatus ?? "Done"}" with task_edit before completing it.`,
-			);
-		}
-
-		const filePath = task.filePath ?? null;
-		const completedFilePath = filePath ? join(this.core.filesystem.archiveTasksDir, basename(filePath)) : undefined;
-
-		const success = await this.core.completeTask(task.id);
-		if (!success) {
-			throw AppError.internal(`Failed to complete task: ${args.id}`);
-		}
-
-		return await formatTaskCallResult(task, [`Completed task ${task.id}.`], {
-			filePathOverride: completedFilePath,
-		});
 	}
 
 	async demoteTask(args: { id: string }): Promise<CallToolResult> {

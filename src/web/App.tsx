@@ -319,6 +319,42 @@ function App() {
     }
   }, [applySearchResults]);
 
+  const refreshAllData = useCallback(async () => {
+    try {
+      const [statusesData, configData, searchResults, milestonesData, archivedMilestonesData, archivedDocsData, completedTasksData, authorsData] = await Promise.all([
+        apiClient.fetchStatuses(),
+        apiClient.fetchConfig(),
+        apiClient.search(),
+        apiClient.fetchMilestones(),
+        apiClient.fetchArchivedMilestones(),
+        apiClient.fetchArchivedDocs(),
+        apiClient.fetchCompletedTasks(),
+        apiClient.fetchAuthors(),
+      ]);
+
+      const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
+      const milestoneAliases = buildMilestoneAliasMap(milestonesData, archivedMilestonesData);
+      const { tasks: tasksList } = applySearchResults(searchResults, archivedKeys, milestoneAliases);
+
+      setStatuses(statusesData);
+      setProjectName(configData.projectName);
+      setAvailableLabels((configData.labels || []).map((l) => (typeof l === "string" ? l : l.name)));
+      setAvailableAuthors(authorsData.map((a) => ({ name: a.name, color: a.color ?? null })));
+      setConfig(configData);
+      setMilestoneEntities(milestonesData);
+      setArchivedMilestones(archivedMilestonesData);
+      setArchivedDocs(archivedDocsData);
+      setCompletedTasks(completedTasksData);
+      setMilestones(
+        collectMilestoneIds(tasksList, milestonesData, archivedMilestonesData).filter(
+          (milestone) => !archivedKeys.has(milestoneKey(milestone)),
+        ),
+      );
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+    }
+  }, [applySearchResults]);
+
   React.useEffect(() => {
     // Only load data when initialized
     if (isInitialized === true) {
@@ -329,31 +365,9 @@ function App() {
   // Reload data when connection is restored
   React.useEffect(() => {
     if (isOnline && previousOnlineRef.current === false) {
-      // Connection restored, reload data
-      const loadData = async () => {
-        try {
-          const [results, milestonesData, archivedMilestonesData] = await Promise.all([
-            apiClient.search(),
-            apiClient.fetchMilestones(),
-            apiClient.fetchArchivedMilestones(),
-          ]);
-          const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
-          const milestoneAliases = buildMilestoneAliasMap(milestonesData, archivedMilestonesData);
-          const { tasks: tasksList } = applySearchResults(results, archivedKeys, milestoneAliases);
-          setMilestoneEntities(milestonesData);
-          setArchivedMilestones(archivedMilestonesData);
-          setMilestones(
-            collectMilestoneIds(tasksList, milestonesData, archivedMilestonesData).filter(
-              (milestone) => !archivedKeys.has(milestoneKey(milestone)),
-            ),
-          );
-        } catch (error) {
-          console.error('Failed to reload data:', error);
-        }
-      };
-      loadData();
+      refreshAllData();
     }
-  }, [applySearchResults, isOnline]);
+  }, [refreshAllData, isOnline]);
 
   // Update document title when project name changes
   React.useEffect(() => {
@@ -425,8 +439,8 @@ function App() {
   };
 
   const refreshData = useCallback(async () => {
-    await loadAllData();
-  }, [loadAllData]);
+    await refreshAllData();
+  }, [refreshAllData]);
 
   // Sync editingTask with refreshed tasks data to prevent stale state
   // This fixes the bug where acceptance criteria disappears after save (GitHub #467)
@@ -447,12 +461,11 @@ function App() {
       if (event.data === "tasks-updated") {
         refreshData();
       } else if (event.data === "config-updated") {
-        // Reload statuses when config changes
-        loadAllData();
+        refreshAllData();
       }
     };
     return () => ws.close();
-  }, [refreshData, loadAllData]);
+  }, [refreshData, refreshAllData]);
 
   // Deep link support: open modal when URL matches /board/:id/:title or /tasks/:id/:title
   useEffect(() => {

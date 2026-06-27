@@ -29,6 +29,7 @@ import {
 import { buildTaskUpdateInput } from "../utils/task-edit-builder.ts";
 import { normalizeTaskId, taskIdsEqual } from "../utils/task-path.ts";
 import { sortTasks } from "../utils/task-sorting.ts";
+import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 import { pickTaskForEditWizard, runTaskCreateWizard, runTaskEditWizard } from "./task-wizard.ts";
 
 function hasCreateFieldFlags(options: Record<string, unknown>): boolean {
@@ -957,32 +958,6 @@ async function handleTaskReorderCommand(taskId: string, options: Record<string, 
 	}
 }
 
-async function handleTaskCompleteCommand(ids: string[]) {
-	const cwd = await requireProjectRoot();
-	const core = new Core(cwd);
-	await core.ensureConfigLoaded();
-
-	let hasError = false;
-	for (const rawId of ids) {
-		try {
-			const task = await core.loadTaskById(rawId);
-			if (!task) {
-				console.error(`Task ${rawId} not found.`);
-				hasError = true;
-				continue;
-			}
-			await core.completeTask(task.id);
-			console.log(`Task ${task.id} — ${task.title} archived`);
-		} catch (error) {
-			console.error(AppError.formatCLIError(error));
-			hasError = true;
-		}
-	}
-	if (hasError) {
-		process.exitCode = 1;
-	}
-}
-
 async function viewTaskSection(task: Task, section: string, core: Core, options: { json?: boolean }): Promise<void> {
 	const normalized = section.toLowerCase().replaceAll(/[_-]/g, "");
 
@@ -1415,6 +1390,23 @@ export function registerTaskCommand(program: Command): void {
 		.action(async (taskId: string) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
+			await core.ensureConfigLoaded();
+			const task = await core.filesystem.loadTask(taskId);
+			if (!task) {
+				console.error(`Task ${taskId} not found.`);
+				return;
+			}
+			const config = await core.filesystem.loadConfig();
+			const statuses = config?.statuses ?? [];
+			const terminalStatuses = config?.terminalStatuses;
+			if (isTerminalStatus(task.status, statuses, terminalStatuses)) {
+				const terminalStatus = getTerminalStatus(statuses, terminalStatuses) ?? "Done";
+				console.error(
+					`Task ${taskId} is ${terminalStatus}. Set status via task_edit before archiving, or use the board UI.`,
+				);
+				process.exitCode = 1;
+				return;
+			}
 			const success = await core.archiveTask(taskId);
 			if (success) {
 				console.log(`Archived task ${taskId}`);
@@ -1453,20 +1445,13 @@ export function registerTaskCommand(program: Command): void {
 		});
 
 	taskCmd
-		.command("complete <id1> [id2...]")
-		.description("mark one or more tasks as Done")
-		.action(async (id1: string, idsRest: string[], _options: Record<string, unknown>) => {
-			await handleTaskCompleteCommand([id1, ...(idsRest ?? [])]);
-		});
-
-	taskCmd
 		.argument("[taskId]")
 		.option("--plain", "use plain text output")
 		.action(async (taskId: string | undefined, options: { plain?: boolean }) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 
-			const reservedCommands = ["create", "list", "edit", "view", "archive", "demote", "reorder", "complete"];
+			const reservedCommands = ["create", "list", "edit", "view", "archive", "demote", "reorder"];
 			if (taskId && reservedCommands.includes(taskId)) {
 				console.error(`Unknown command: ${taskId}`);
 				taskCmd.help();

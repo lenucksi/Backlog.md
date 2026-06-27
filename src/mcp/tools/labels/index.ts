@@ -10,7 +10,7 @@ export function registerLabelTools(server: McpServer): void {
 
 	const listTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_label_list",
+			name: "label_list",
 			description: "List all labels from config.yml",
 			inputSchema: labelListSchema,
 			annotations: { title: "List Labels", readOnlyHint: true, destructiveHint: false },
@@ -21,7 +21,7 @@ export function registerLabelTools(server: McpServer): void {
 
 	const addTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_label_add",
+			name: "label_add",
 			description: "Add a new label to config.yml",
 			inputSchema: labelAddSchema,
 			annotations: { title: "Add Label", destructiveHint: false },
@@ -32,7 +32,7 @@ export function registerLabelTools(server: McpServer): void {
 
 	const renameTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_label_rename",
+			name: "label_rename",
 			description: "Rename a label in config.yml and update all task/doc/decision frontmatter",
 			inputSchema: labelRenameSchema,
 			annotations: { title: "Rename Label", destructiveHint: false },
@@ -43,7 +43,7 @@ export function registerLabelTools(server: McpServer): void {
 
 	const setColorTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_label_set_color",
+			name: "label_set_color",
 			description: "Set or change the color of a label",
 			inputSchema: labelSetColorSchema,
 			annotations: { title: "Set Label Color", destructiveHint: false },
@@ -54,7 +54,7 @@ export function registerLabelTools(server: McpServer): void {
 
 	const removeColorTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_label_remove_color",
+			name: "label_remove_color",
 			description: "Remove color from a label (reverts to plain string)",
 			inputSchema: labelRemoveColorSchema,
 			annotations: { title: "Remove Label Color", destructiveHint: false },
@@ -65,7 +65,7 @@ export function registerLabelTools(server: McpServer): void {
 
 	const removeTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_label_remove",
+			name: "label_remove",
 			description: "Remove a label from config.yml (does NOT remove from existing tasks/docs/decisions)",
 			inputSchema: labelRemoveSchema,
 			annotations: { title: "Remove Label", destructiveHint: true },

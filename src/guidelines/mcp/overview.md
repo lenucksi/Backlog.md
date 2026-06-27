@@ -52,8 +52,6 @@ Backlog tracks **commitments** (what will be built). Use your judgment to distin
 
 ### MCP Tools Quick Reference
 
-**Note:** "Done" tasks stay in the Done column until periodic cleanup moves them to the completed folder. Don't use `task_complete` immediately after finishing—it's for batch cleanup, not per-task workflow.
-
 - `task_list` — list tasks with optional filtering by status, assignee, or labels
 - `task_search` — search tasks by title and description, or use `modifiedFiles` to filter by project-root-relative modified file path substrings
 - `task_view` — read full task context (description, plan, notes, final summary, acceptance criteria, Definition of Done)
@@ -67,8 +65,8 @@ Backlog tracks **commitments** (what will be built). Use your judgment to distin
 - `task_create` — create new tasks with description and acceptance criteria; DoD fields are for **exceptional** task-level overrides only (`definitionOfDoneAdd`, `disableDefinitionOfDoneDefaults`)
 - `task_edit` — update task metadata, status, plan, notes, final summary, acceptance criteria, task-level Definition of Done (`definitionOfDoneAdd/Remove/Check/Uncheck`) for **exceptional** per-task updates, and dependencies
 - DoD is not acceptance criteria: acceptance criteria define scope/behavior, while DoD tracks completion hygiene
-- `task_complete` — move a Done task to the completed folder (periodic cleanup, not immediate)
-- `task_archive` — archive a task that should not be completed (duplicate, canceled, invalid). Note: archived task IDs can be reused by new tasks (soft delete behavior).
+- `task_archive` — archive a task (moves to archive directory, sets status to Archived). Note: archived task IDs can be reused by new tasks (soft delete behavior).
+- To mark work complete, use `task_edit(status: "Done")` — the terminal status is set explicitly, not via a separate complete command.
 
 **Document path rules:** document paths are relative to the docs directory. Use `path` values like `guides/setup`; absolute paths and `..` traversal are rejected.
 

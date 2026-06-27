@@ -10,7 +10,7 @@ export function registerOpenTools(server: McpServer, _config: BacklogConfig): vo
 
 	const tool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_open_in_browser",
+			name: "open_in_browser",
 			description: "Open a backlog task, document, or decision in the browser",
 			inputSchema: openInBrowserSchema,
 			annotations: { title: "Open in Browser", readOnlyHint: true, destructiveHint: false },

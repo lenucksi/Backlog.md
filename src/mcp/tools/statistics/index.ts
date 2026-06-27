@@ -10,7 +10,7 @@ export function registerStatisticsTools(server: McpServer): void {
 
 	const statsTool: McpToolHandler = createSimpleValidatedTool(
 		{
-			name: "backlog_get_statistics",
+			name: "get_statistics",
 			description:
 				"Get backlog statistics including task counts, completion percentage, status and priority breakdowns, and project health metrics. Optionally scope to a milestone.",
 			inputSchema: statisticsSchema,

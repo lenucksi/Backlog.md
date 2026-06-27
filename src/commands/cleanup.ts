@@ -105,7 +105,7 @@ export function registerCleanupCommand(program: Command): void {
 				const taskFilename = basename(fromPath);
 				const toPath = join(core.filesystem.archiveTasksDir, taskFilename);
 
-				const success = await core.completeTask(task.id);
+				const success = await core.archiveTask(task.id);
 				if (success) {
 					successCount++;
 					movedTasks.push({ fromPath, toPath, taskId: task.id });

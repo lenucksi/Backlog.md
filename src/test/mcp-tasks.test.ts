@@ -263,7 +263,7 @@ describe("MCP task tools (MVP)", () => {
 		expect(draftText).not.toContain("DRAFT-2 - Draft Milestone Two");
 	});
 
-	it("includes completed tasks in task_search results and excludes archived tasks", async () => {
+	it("includes archived tasks in task_search results", async () => {
 		await mcpServer.testInterface.callTool({
 			params: {
 				name: "task_create",
@@ -277,15 +277,14 @@ describe("MCP task tools (MVP)", () => {
 			params: {
 				name: "task_create",
 				arguments: {
-					title: "Completed task",
-					status: "Done",
+					title: "Archived task A",
 				},
 			},
 		});
 
 		await mcpServer.testInterface.callTool({
 			params: {
-				name: "task_complete",
+				name: "task_archive",
 				arguments: {
 					id: "task-2",
 				},
@@ -296,7 +295,7 @@ describe("MCP task tools (MVP)", () => {
 			params: {
 				name: "task_create",
 				arguments: {
-					title: "Archived task",
+					title: "Archived task B",
 				},
 			},
 		});
@@ -315,9 +314,9 @@ describe("MCP task tools (MVP)", () => {
 		});
 
 		const searchText = getText(searchResult.content);
-		expect(searchText).toContain("TASK-2 - Completed task");
+		expect(searchText).toContain("TASK-2 - Archived task A");
+		expect(searchText).toContain("TASK-3 - Archived task B");
 		expect(searchText).toContain("(Archived)");
-		expect(searchText).not.toContain("TASK-3 - Archived task");
 	});
 
 	it("exposes status enums and defaults from configuration", async () => {

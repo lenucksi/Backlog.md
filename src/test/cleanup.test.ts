@@ -66,7 +66,7 @@ describe("Cleanup functionality", () => {
 			expect(activeTasks[0]?.id).toBe("TASK-1");
 
 			// Move to completed
-			const success = await core.completeTask("task-1", false);
+			const success = await core.archiveTask("task-1", false);
 			expect(success).toBe(true);
 
 			// Verify task is no longer in active tasks
@@ -284,7 +284,7 @@ describe("Cleanup functionality", () => {
 
 	describe("Error handling", () => {
 		it("should handle non-existent task gracefully", async () => {
-			const success = await core.completeTask("non-existent", false);
+			const success = await core.archiveTask("non-existent", false);
 			expect(success).toBe(false);
 		});
 

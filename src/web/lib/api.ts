@@ -266,10 +266,6 @@ export class ApiClient {
 		await this.fetchWithRetry(`${API_BASE}/tasks/${id}`, { method: "DELETE" });
 	}
 
-	async completeTask(id: string): Promise<void> {
-		await this.fetchWithRetry(`${API_BASE}/tasks/${id}/complete`, { method: "POST" });
-	}
-
 	async demoteTask(id: string): Promise<void> {
 		await this.fetchWithRetry(`${API_BASE}/tasks/${id}/demote`, { method: "POST" });
 	}

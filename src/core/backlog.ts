@@ -2358,37 +2358,6 @@ export class Core {
 		return result;
 	}
 
-	async completeTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
-		// Stamp lifecycle dates before moving the file
-		const task = await this.fs.loadTask(taskId);
-		if (task && !task.completedDate) {
-			const now = new Date().toISOString().slice(0, 16).replace("T", " ");
-			task.completedDate = now;
-			task.updatedDate = now;
-			await this.fs.saveTask(task);
-		}
-
-		// Get paths before moving the file
-		const archiveTasksDir = this.fs.archiveTasksDir;
-		const taskPath = await getTaskPath(taskId, this);
-		const taskFilename = await getTaskFilename(taskId, this);
-
-		if (!taskPath || !taskFilename) return false;
-
-		const fromPath = taskPath;
-		const toPath = join(archiveTasksDir, taskFilename);
-
-		const success = await this.fs.completeTask(taskId);
-
-		if (success && (await this.shouldAutoCommit(autoCommit))) {
-			// Stage the file move for proper Git tracking
-			const repoRoot = await this.git.stageFileMove(fromPath, toPath);
-			await this.git.commitChanges(`backlog: Complete task ${normalizeTaskId(taskId)}`, repoRoot);
-		}
-
-		return success;
-	}
-
 	async bulkArchive(ids: string[]): Promise<BulkOperationResult> {
 		const succeeded: string[] = [];
 		const failed: { id: string; error: string }[] = [];

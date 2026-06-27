@@ -2,6 +2,7 @@ import { isCreateLockError } from "../../file-system/operations.ts";
 import type { SearchResultType } from "../../types/index.ts";
 import { labelsToLower } from "../../utils/label-filter.ts";
 import { attachSubtaskSummaries } from "../../utils/task-subtasks.ts";
+import { isTerminalStatus } from "../../utils/terminal-status.ts";
 import type { ServerHandlerContext } from "../types.ts";
 import {
 	buildSearchFilters,
@@ -225,32 +226,23 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 	}
 
 	async function handleDeleteTask(taskId: string): Promise<Response> {
-		const success = await ctx.core.archiveTask(taskId);
-		if (!success) {
+		const task = await ctx.core.filesystem.loadTask(taskId);
+		if (!task) {
 			return Response.json({ error: "Task not found" }, { status: 404 });
 		}
-		return Response.json({ success: true });
-	}
-
-	async function handleCompleteTask(taskId: string): Promise<Response> {
-		try {
-			const task = await ctx.core.filesystem.loadTask(taskId);
-			if (!task) {
-				return Response.json({ error: "Task not found" }, { status: 404 });
-			}
-
-			const success = await ctx.core.completeTask(taskId);
-			if (!success) {
-				return Response.json({ error: "Failed to complete task" }, { status: 500 });
-			}
-
-			ctx.broadcastTasksUpdated();
-			return Response.json({ success: true });
-		} catch (error) {
-			const message = error instanceof Error ? error.message : "Failed to complete task";
-			console.error("Error completing task:", error);
-			return Response.json({ error: message }, { status: 500 });
+		const config = await ctx.core.filesystem.loadConfig();
+		const statuses = config?.statuses ?? [];
+		const terminalStatuses = config?.terminalStatuses;
+		if (isTerminalStatus(task.status, statuses, terminalStatuses)) {
+			const terminalStatus = terminalStatuses?.[0] ?? statuses[statuses.length - 1] ?? "Done";
+			return Response.json({ error: `Task is ${terminalStatus}. Use the board UI to archive.` }, { status: 400 });
 		}
+		const success = await ctx.core.archiveTask(taskId);
+		if (!success) {
+			return Response.json({ error: "Failed to archive task" }, { status: 500 });
+		}
+		ctx.broadcastTasksUpdated();
+		return Response.json({ success: true });
 	}
 
 	async function handleReorderTask(req: Request): Promise<Response> {
@@ -370,7 +362,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 
 			for (const task of tasksToCleanup) {
 				try {
-					const success = await ctx.core.completeTask(task.id);
+					const success = await ctx.core.archiveTask(task.id);
 					if (success) {
 						successCount++;
 					} else {
@@ -543,7 +535,6 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		handleGetTask,
 		handleUpdateTask,
 		handleDeleteTask,
-		handleCompleteTask,
 		handleDemoteTask,
 		handleReorderTask,
 		handleCleanupPreview,

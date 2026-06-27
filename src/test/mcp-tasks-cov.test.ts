@@ -130,16 +130,6 @@ describe("MCP task tools coverage", () => {
 		expect(result.isError).toBe(true);
 	});
 
-	it("returns error for completeTask on nonexistent task", async () => {
-		const result = await mcpServer.testInterface.callTool({
-			params: {
-				name: "task_complete",
-				arguments: { id: "nonexistent" },
-			},
-		});
-		expect(result.isError).toBe(true);
-	});
-
 	it("returns not-found for viewTask on nonexistent id", async () => {
 		const result = await mcpServer.testInterface.callTool({
 			params: {
@@ -255,17 +245,17 @@ describe("MCP task tools coverage", () => {
 		expect(text).toContain("TASK-1");
 	});
 
-	it("completes a task that is in terminal status", async () => {
+	it("archives a non-terminal task", async () => {
 		await mcpServer.testInterface.callTool({
 			params: {
 				name: "task_create",
-				arguments: { title: "Completable", status: "Done" },
+				arguments: { title: "Archivable", status: "To Do" },
 			},
 		});
 
-		const completeResult = await mcpServer.testInterface.callTool({
-			params: { name: "task_complete", arguments: { id: "task-1" } },
+		const archiveResult = await mcpServer.testInterface.callTool({
+			params: { name: "task_archive", arguments: { id: "task-1" } },
 		});
-		expect(getText(completeResult.content)).toContain("Completed task");
+		expect(getText(archiveResult.content)).toContain("TASK-1");
 	});
 });

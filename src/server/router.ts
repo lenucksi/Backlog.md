@@ -6,7 +6,6 @@ export type RouteHandlers = {
 		handleGetTask: (taskId: string) => Promise<Response>;
 		handleUpdateTask: (req: Request, taskId: string) => Promise<Response>;
 		handleDeleteTask: (taskId: string) => Promise<Response>;
-		handleCompleteTask: (taskId: string) => Promise<Response>;
 		handleDemoteTask: (taskId: string) => Promise<Response>;
 		handleReorderTask: (req: Request) => Promise<Response>;
 		handleCleanupPreview: (req: Request) => Promise<Response>;
@@ -94,9 +93,6 @@ export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
 			GET: async (req: Request & { params: { id: string } }) => await tasks.handleGetTask(req.params.id),
 			PUT: async (req: Request & { params: { id: string } }) => await tasks.handleUpdateTask(req, req.params.id),
 			DELETE: async (req: Request & { params: { id: string } }) => await tasks.handleDeleteTask(req.params.id),
-		},
-		"/api/tasks/:id/complete": {
-			POST: async (req: Request & { params: { id: string } }) => await tasks.handleCompleteTask(req.params.id),
 		},
 		"/api/tasks/:id/demote": {
 			POST: async (req: Request & { params: { id: string } }) => await tasks.handleDemoteTask(req.params.id),

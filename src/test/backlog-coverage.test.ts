@@ -135,27 +135,27 @@ describe("Core backlog coverage", () => {
 		});
 	});
 
-	describe("completeTask", () => {
-		it("completes a task and returns true", async () => {
-			await initializeTestProject(core, "Complete Test");
+	describe("archiveTask", () => {
+		it("archives a task and returns true", async () => {
+			await initializeTestProject(core, "Archive Test");
 			await core.createTask({
 				id: "task-comp",
-				title: "To Complete",
+				title: "To Archive",
 				status: "To Do",
 				assignee: [],
 				createdDate: "2025-01-01",
 				labels: [],
 				dependencies: [],
 			});
-			const result = await core.completeTask("task-comp");
+			const result = await core.archiveTask("task-comp");
 			expect(result).toBe(true);
 			const loaded = await core.filesystem.loadTask("task-comp");
-			expect(loaded).toBeNull(); // should be moved to completed
+			expect(loaded).toBeNull(); // should be moved to archive
 		});
 
 		it("returns false for non-existent task", async () => {
-			await initializeTestProject(core, "Complete Fail");
-			const result = await core.completeTask("task-999");
+			await initializeTestProject(core, "Archive Fail");
+			const result = await core.archiveTask("task-999");
 			expect(result).toBe(false);
 		});
 	});

@@ -648,30 +648,6 @@ export class FileSystem {
 			// Use rename for proper Git move detection
 			await rename(sourcePath, targetPath);
 
-			return true;
-		} catch (_error) {
-			return false;
-		}
-	}
-
-	async completeTask(taskId: string): Promise<boolean> {
-		try {
-			const tasksDir = await this.getTasksDir();
-			const archiveTasksDir = await this.getArchiveTasksDir();
-			const core = { filesystem: { tasksDir } };
-			const sourcePath = await getTaskPath(taskId, core as TaskPathContext);
-			const taskFile = await getTaskFilename(taskId, core as TaskPathContext);
-
-			if (!sourcePath || !taskFile) return false;
-
-			const targetPath = join(archiveTasksDir, taskFile);
-
-			// Ensure target directory exists
-			await this.ensureDirectoryExists(dirname(targetPath));
-
-			// Use rename for proper Git move detection
-			await rename(sourcePath, targetPath);
-
 			// Set frontmatter status to "Archived" after move
 			const content = await Bun.file(targetPath).text();
 			const parsed = parseFrontmatter(content);
