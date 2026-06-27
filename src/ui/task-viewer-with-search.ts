@@ -32,7 +32,12 @@ import { openHelpPopup } from "./components/help-popup.ts";
 import { formatFooterContent } from "./footer-content.ts";
 import { formatHeading } from "./heading.ts";
 import { createLoadingScreen } from "./loading.ts";
-import { formatStatusWithIcon, getStatusColor } from "./status-icon.ts";
+import {
+	formatStatusWithIcon,
+	getStatusColor,
+	type StatusStyleOptions,
+	statusOptionsFromConfig,
+} from "./status-icon.ts";
 import { createScreen } from "./tui.ts";
 
 function getPriorityDisplay(priority?: "high" | "medium" | "low"): string {
@@ -198,6 +203,7 @@ export async function viewTaskEnhanced(
 	// Show loading screen while loading tasks (can be slow with cross-branch loading)
 	let allTasks: Task[];
 	let statuses: string[];
+	let statusStyleOptions: StatusStyleOptions = {};
 	let labels: (string | LabelConfig)[];
 	let availableLabels: string[] = [];
 	// When tasks are provided, use in-memory search; otherwise use ContentStore-backed search
@@ -212,6 +218,7 @@ export async function viewTaskEnhanced(
 		allTasks = options.tasks.filter((t) => t.id && t.id.trim() !== "" && hasAnyPrefix(t.id));
 		const config = await core.filesystem.loadConfig();
 		statuses = config?.statuses || ["To Do", "In Progress", "Done"];
+		statusStyleOptions = statusOptionsFromConfig(config ?? undefined);
 		labels = config?.labels || [];
 		taskSearchIndex = createTaskSearchIndex(allTasks);
 	} else {
@@ -221,6 +228,7 @@ export async function viewTaskEnhanced(
 			loadingScreen?.update("Loading configuration...");
 			const config = await core.filesystem.loadConfig();
 			statuses = config?.statuses || ["To Do", "In Progress", "Done"];
+			statusStyleOptions = statusOptionsFromConfig(config ?? undefined);
 			labels = config?.labels || [];
 
 			loadingScreen?.update("Loading tasks from branches...");
@@ -771,8 +779,8 @@ export async function viewTaskEnhanced(
 			height: "100%-3",
 			itemRenderer: (task: Task) => {
 				const checkbox = selectedTaskIds.has(task.id) ? "{green-fg}[✓]{/}" : "{gray-fg}[ ]{/}";
-				const statusIcon = formatStatusWithIcon(task.status);
-				const statusColor = getStatusColor(task.status);
+				const statusIcon = formatStatusWithIcon(task.status, statusStyleOptions);
+				const statusColor = getStatusColor(task.status, statusStyleOptions);
 				const assigneeText = task.assignee?.length
 					? ` {cyan-fg}${task.assignee[0]?.startsWith("@") ? task.assignee[0] : `@${task.assignee[0]}`}{/}`
 					: "";
@@ -968,7 +976,7 @@ export async function viewTaskEnhanced(
 
 		screen.title = `Task ${currentSelectedTask.id} - ${currentSelectedTask.title}`;
 
-		const detailContent = generateDetailContent(currentSelectedTask, resolveMilestoneLabel);
+		const detailContent = generateDetailContent(currentSelectedTask, resolveMilestoneLabel, statusStyleOptions);
 
 		// Calculate header height based on content and available width
 		const detailPaneWidth = typeof detailPane.width === "number" ? detailPane.width : 60;
@@ -1558,9 +1566,10 @@ export async function viewTaskEnhanced(
 function generateDetailContent(
 	task: Task,
 	resolveMilestoneLabel?: (milestone: string) => string,
+	statusStyleOptions?: StatusStyleOptions,
 ): { headerContent: string[]; bodyContent: string[] } {
 	const headerContent = [
-		` {${getStatusColor(task.status)}-fg}${formatStatusWithIcon(task.status)}{/} {bold}{blue-fg}${task.id}{/blue-fg}{/bold} - ${task.title}`,
+		` {${getStatusColor(task.status, statusStyleOptions)}-fg}${formatStatusWithIcon(task.status, statusStyleOptions)}{/} {bold}{blue-fg}${task.id}{/blue-fg}{/bold} - ${task.title}`,
 	];
 
 	// Add cross-branch indicator if task is from another branch
@@ -1736,6 +1745,7 @@ export async function createTaskPopup(
 	screen: ScreenInterface,
 	task: Task,
 	resolveMilestoneLabel?: (milestone: string) => string,
+	statusStyleOptions?: StatusStyleOptions,
 ): Promise<{
 	background: BoxInterface;
 	popup: BoxInterface;
@@ -1772,7 +1782,7 @@ export async function createTaskPopup(
 
 	popup.setFront?.();
 
-	const { headerContent, bodyContent } = generateDetailContent(task, resolveMilestoneLabel);
+	const { headerContent, bodyContent } = generateDetailContent(task, resolveMilestoneLabel, statusStyleOptions);
 
 	// Calculate header height based on content and available width
 	const popupWidth = typeof popup.width === "number" ? popup.width : 80;

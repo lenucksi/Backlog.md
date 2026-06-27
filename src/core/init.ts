@@ -28,6 +28,8 @@ export interface InitializeProjectOptions {
 	filesystemOnly?: boolean;
 	advancedConfig?: {
 		statuses?: string[];
+		newStatuses?: string[];
+		runningStatuses?: string[];
 		terminalStatuses?: string[];
 		blockedStatuses?: string[];
 		checkActiveBranches?: boolean;
@@ -204,6 +206,8 @@ function buildInitConfig(
 		},
 	};
 
+	const hasNewStatusesOverride = Object.hasOwn(normalizedAdvancedConfig, "newStatuses");
+	const hasRunningStatusesOverride = Object.hasOwn(normalizedAdvancedConfig, "runningStatuses");
 	const hasTerminalStatusesOverride = Object.hasOwn(normalizedAdvancedConfig, "terminalStatuses");
 	const hasBlockedStatusesOverride = Object.hasOwn(normalizedAdvancedConfig, "blockedStatuses");
 	const hasDefaultEditorOverride = Object.hasOwn(normalizedAdvancedConfig, "defaultEditor");
@@ -229,6 +233,25 @@ function buildInitConfig(
 			config.definitionOfDone = [...(normalizedAdvancedConfig.definitionOfDone as string[])];
 		} else {
 			delete config.definitionOfDone;
+		}
+	}
+
+	if (hasNewStatusesOverride) {
+		if (Array.isArray(normalizedAdvancedConfig.newStatuses) && normalizedAdvancedConfig.newStatuses.length > 0) {
+			config.newStatuses = [...(normalizedAdvancedConfig.newStatuses as string[])];
+		} else {
+			delete config.newStatuses;
+		}
+	}
+
+	if (hasRunningStatusesOverride) {
+		if (
+			Array.isArray(normalizedAdvancedConfig.runningStatuses) &&
+			normalizedAdvancedConfig.runningStatuses.length > 0
+		) {
+			config.runningStatuses = [...(normalizedAdvancedConfig.runningStatuses as string[])];
+		} else {
+			delete config.runningStatuses;
 		}
 	}
 

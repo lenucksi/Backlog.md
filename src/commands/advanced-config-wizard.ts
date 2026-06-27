@@ -214,6 +214,8 @@ export async function runAdvancedConfigWizard({
 	let autoOpenBrowser = config?.autoOpenBrowser ?? true;
 	let definitionOfDone = normalizeDefinitionOfDoneItems(config?.definitionOfDone);
 	const statuses = config?.statuses ? [...config.statuses] : ["To Do", "In Progress", "Done"];
+	let newStatuses = config?.newStatuses ? [...config.newStatuses] : undefined;
+	let runningStatuses = config?.runningStatuses ? [...config.runningStatuses] : undefined;
 	let terminalStatuses = config?.terminalStatuses ? [...config.terminalStatuses] : undefined;
 	let blockedStatuses = config?.blockedStatuses ? [...config.blockedStatuses] : undefined;
 	let installClaudeAgent = false;
@@ -263,12 +265,19 @@ export async function runAdvancedConfigWizard({
 		}
 	}
 
-	// Smart defaults for terminal/blocked
+	// Smart defaults for status categories
 	const terminalPatterns = ["done", "cancelled", "complete", "closed"];
 	const matchedTerminal = statuses.filter((s) => terminalPatterns.some((p) => s.toLowerCase().includes(p)));
 	const terminalDefault = matchedTerminal.length > 0 ? matchedTerminal.join(", ") : "Done";
 	const matchedBlocked = statuses.filter((s) => s.toLowerCase().includes("block"));
 	const blockedDefault = matchedBlocked.length > 0 ? matchedBlocked.join(", ") : "Blocked";
+	const newDefault = (statuses.length > 0 ? statuses[0] : "To Do") ?? "To Do";
+	const matchedRunning = statuses.filter(
+		(s) =>
+			![...matchedTerminal, ...matchedBlocked, statuses[0] ?? ""].includes(s) &&
+			!/^(to do|todo|neu|offen|backlog|new)$/i.test(s),
+	);
+	const runningDefault = matchedRunning.length > 0 ? matchedRunning.join(", ") : undefined;
 
 	const terminalResult = await promptImpl(
 		{
@@ -308,6 +317,46 @@ export async function runAdvancedConfigWizard({
 				.filter(Boolean)
 		: blockedRaw === ""
 			? blockedDefault.split(",").map((s) => s.trim())
+			: undefined;
+
+	const newResult = await promptImpl(
+		{
+			type: "text",
+			name: "newStatusesInput",
+			message: "New/not-started statuses (comma-separated, leave blank for default):",
+			hint: "Tasks with these statuses get a white indicator",
+			initial: newStatuses?.join(", ") ?? newDefault,
+		},
+		{ onCancel },
+	);
+	const newRaw = String(newResult.newStatusesInput ?? "").trim();
+	newStatuses = newRaw
+		? newRaw
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean)
+		: newRaw === ""
+			? newDefault.split(",").map((s) => s.trim())
+			: undefined;
+
+	const runningResult = await promptImpl(
+		{
+			type: "text",
+			name: "runningStatusesInput",
+			message: "In-progress statuses (comma-separated, leave blank for auto-detect):",
+			hint: "Tasks with these statuses get a yellow indicator. Middle statuses default to this.",
+			initial: runningStatuses?.join(", ") ?? runningDefault ?? "",
+		},
+		{ onCancel },
+	);
+	const runningRaw = String(runningResult.runningStatusesInput ?? "").trim();
+	runningStatuses = runningRaw
+		? runningRaw
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean)
+		: runningRaw === "" && runningDefault
+			? runningDefault.split(",").map((s) => s.trim())
 			: undefined;
 
 	const completionPrompt = await promptImpl(
@@ -724,6 +773,8 @@ export async function runAdvancedConfigWizard({
 	return {
 		config: {
 			statuses,
+			newStatuses,
+			runningStatuses,
 			terminalStatuses,
 			blockedStatuses,
 			checkActiveBranches,

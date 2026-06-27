@@ -646,6 +646,10 @@ function App() {
 	                  onRefreshData={refreshData}
 	                  labelColors={labelColors}
 	                  authorColors={authorColors}
+	                  newStatuses={config?.newStatuses}
+	                  runningStatuses={config?.runningStatuses}
+	                  terminalStatuses={config?.terminalStatuses}
+	                  blockedStatuses={config?.blockedStatuses}
 	                />
 	              }
 	            />
@@ -664,6 +668,10 @@ function App() {
 	                  onRefreshData={refreshData}
 	                  labelColors={labelColors}
 	                  authorColors={authorColors}
+	                  newStatuses={config?.newStatuses}
+	                  runningStatuses={config?.runningStatuses}
+	                  terminalStatuses={config?.terminalStatuses}
+	                  blockedStatuses={config?.blockedStatuses}
 	                />
 	              }
 	            />
@@ -682,6 +690,10 @@ function App() {
 	                  onRefreshData={refreshData}
 	                  labelColors={labelColors}
 	                  authorColors={authorColors}
+	                  newStatuses={config?.newStatuses}
+	                  runningStatuses={config?.runningStatuses}
+	                  terminalStatuses={config?.terminalStatuses}
+	                  blockedStatuses={config?.blockedStatuses}
 	                />
 	              }
 	            />
@@ -709,7 +721,7 @@ function App() {
             ].map(({ path, Component, props }) => (
               <Route key={path} path={path} element={<Component {...props as any} onRefreshData={refreshData} />} />
             ))}
-            <Route path="statistics" element={<Statistics tasks={tasks} isLoading={isLoading} onEditTask={handleEditTask} projectName={projectName} />} />
+            <Route path="statistics" element={<Statistics tasks={tasks} isLoading={isLoading} onEditTask={handleEditTask} projectName={projectName} statuses={statuses} newStatuses={config?.newStatuses} runningStatuses={config?.runningStatuses} terminalStatuses={config?.terminalStatuses} blockedStatuses={config?.blockedStatuses} />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>

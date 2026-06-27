@@ -3,6 +3,7 @@ import { Core } from "../core/backlog.ts";
 import { getTaskStatistics } from "../core/statistics.ts";
 import { createLoadingScreen } from "../ui/loading.ts";
 import { renderOverviewTui } from "../ui/overview-tui.ts";
+import { statusOptionsFromConfig } from "../ui/status-icon.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 
 export function formatTime(ms: number): string {
@@ -41,7 +42,7 @@ export async function runOverviewCommand(core: Core): Promise<void> {
 		console.log(`\nPerformance summary: Total time ${totalTime}ms (stats calculation: ${statsTime}ms)`);
 
 		const config = await core.filesystem.loadConfig();
-		await renderOverviewTui(statistics, config?.projectName || "Project");
+		await renderOverviewTui(statistics, config?.projectName || "Project", statusOptionsFromConfig(config ?? undefined));
 	} catch (error) {
 		loadingScreen?.close();
 		throw error;

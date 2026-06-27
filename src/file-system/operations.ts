@@ -1451,6 +1451,32 @@ ${description || `Milestone: ${title}`}`,
 		}
 	}
 
+	async setMilestoneDescription(
+		identifier: string,
+		description?: string,
+	): Promise<{ success: boolean; milestone?: Milestone }> {
+		try {
+			const milestoneMatch = await this.findMilestoneFile(identifier, "active");
+			if (!milestoneMatch) {
+				return { success: false };
+			}
+
+			const { milestone } = milestoneMatch;
+			const sectionPattern = /(##\s+Description\s*(?:\r?\n)+)([\s\S]*?)(?=(?:\r?\n)##\s+|$)/i;
+			const newBody = (description ?? "").trim() || `Milestone: ${milestone.title}`;
+			const nextRawContent = milestone.rawContent.replace(sectionPattern, (fullSection, heading) => {
+				const trailingWhitespace = fullSection.match(/\s*$/)?.[0] ?? "";
+				return `${heading}${newBody}${trailingWhitespace}`;
+			});
+			const updatedContent = this.serializeMilestoneContent(milestone.id, milestone.title, nextRawContent);
+			await Bun.write(milestoneMatch.filepath, updatedContent);
+
+			return { success: true, milestone: parseMilestone(updatedContent) };
+		} catch {
+			return { success: false };
+		}
+	}
+
 	async archiveMilestone(identifier: string): Promise<{
 		success: boolean;
 		sourcePath?: string;
@@ -1533,6 +1559,8 @@ ${description || `Milestone: ${title}`}`,
 			...config,
 			...(this.configSource === "root" ? { backlogDirectory: this.resolvedBacklogDirName } : {}),
 			definitionOfDone: this.normalizeDefinitionOfDone(config.definitionOfDone),
+			newStatuses: config.newStatuses?.length ? config.newStatuses : undefined,
+			runningStatuses: config.runningStatuses?.length ? config.runningStatuses : undefined,
 			terminalStatuses: config.terminalStatuses?.length ? config.terminalStatuses : undefined,
 			blockedStatuses: config.blockedStatuses?.length ? config.blockedStatuses : undefined,
 		};
@@ -1656,6 +1684,8 @@ ${description || `Milestone: ${title}`}`,
 		default_reporter: "defaultReporter",
 		default_status: "defaultStatus",
 		statuses: "statuses",
+		new_statuses: "newStatuses",
+		running_statuses: "runningStatuses",
 		terminal_statuses: "terminalStatuses",
 		blocked_statuses: "blockedStatuses",
 		labels: "labels",
@@ -1718,6 +1748,8 @@ ${description || `Milestone: ${title}`}`,
 				defaultAssignee: config.defaultAssignee as string | undefined,
 				defaultReporter: config.defaultReporter as string | undefined,
 				statuses: (config.statuses as string[]) || [...DEFAULT_STATUSES],
+				newStatuses: config.newStatuses as string[] | undefined,
+				runningStatuses: config.runningStatuses as string[] | undefined,
 				terminalStatuses: config.terminalStatuses as string[] | undefined,
 				blockedStatuses: config.blockedStatuses as string[] | undefined,
 				labels: (config.labels as Array<string | LabelConfig>) || [],
@@ -1751,6 +1783,8 @@ ${description || `Milestone: ${title}`}`,
 			defaultReporter: "default_reporter",
 			defaultStatus: "default_status",
 			statuses: "statuses",
+			newStatuses: "new_statuses",
+			runningStatuses: "running_statuses",
 			terminalStatuses: "terminal_statuses",
 			blockedStatuses: "blocked_statuses",
 			labels: "labels",

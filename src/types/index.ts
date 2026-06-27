@@ -72,6 +72,7 @@ export interface Task {
 export interface MilestoneBucket {
 	key: string;
 	label: string;
+	description: string;
 	milestone?: string;
 	isNoMilestone: boolean;
 	isCompleted: boolean;
@@ -334,6 +335,8 @@ export interface BacklogConfig {
 	defaultReporter?: string;
 	statuses: string[];
 	terminalStatuses?: string[];
+	runningStatuses?: string[];
+	newStatuses?: string[];
 	blockedStatuses?: string[];
 	labels: Array<string | LabelConfig>;
 	authors?: Array<string | AuthorConfig>;

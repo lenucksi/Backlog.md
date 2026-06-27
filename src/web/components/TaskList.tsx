@@ -31,6 +31,10 @@ interface TaskListProps {
   onRefreshData?: () => Promise<void>;
   labelColors?: Record<string, string>;
   authorColors?: Record<string, string>;
+  newStatuses?: string[];
+  runningStatuses?: string[];
+  terminalStatuses?: string[];
+  blockedStatuses?: string[];
 }
 
 const PRIORITY_OPTIONS: SearchPriorityFilter[] = ["high", "medium", "low"];
@@ -92,6 +96,10 @@ const TaskList: React.FC<TaskListProps> = ({
   onRefreshData,
   labelColors,
   authorColors,
+  newStatuses,
+  runningStatuses,
+  terminalStatuses,
+  blockedStatuses,
 }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [statusFilter, setStatusFilter] = useState<string[]>(() => {
@@ -515,16 +523,27 @@ const TaskList: React.FC<TaskListProps> = ({
 	};
 
 	const getStatusColor = (status: string) => {
-		switch (status.toLowerCase()) {
-			case "to do":
+		const lower = status.toLowerCase();
+		if (blockedStatuses?.some((s) => s.toLowerCase() === lower))
+			return "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200";
+		if (terminalStatuses?.some((s) => s.toLowerCase() === lower))
+			return "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200";
+		if (runningStatuses?.some((s) => s.toLowerCase() === lower))
+			return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200";
+		if (newStatuses?.some((s) => s.toLowerCase() === lower))
+			return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+		// Fallback: first → new, last → terminal, middle → running
+		if (availableStatuses.length) {
+			const first = availableStatuses[0]?.toLowerCase();
+			const last = availableStatuses[availableStatuses.length - 1]?.toLowerCase();
+			if (lower === first)
 				return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
-			case "in progress":
-				return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200";
-			case "done":
+			if (lower === last)
 				return "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200";
-			default:
-				return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+			if (availableStatuses.length >= 3)
+				return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200";
 		}
+		return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
 	};
 
 	const getPriorityColor = (priority?: string) => {

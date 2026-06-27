@@ -57,6 +57,20 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		default: ["Done"],
 	},
 	{
+		key: "new_statuses",
+		type: "string[]",
+		description: "Statuses that mark a task as new/not started",
+		configKey: "newStatuses",
+		default: [],
+	},
+	{
+		key: "running_statuses",
+		type: "string[]",
+		description: "Statuses that mark a task as in progress",
+		configKey: "runningStatuses",
+		default: [],
+	},
+	{
 		key: "blocked_statuses",
 		type: "string[]",
 		description: "Statuses that mark a task as blocked",

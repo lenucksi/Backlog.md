@@ -15,6 +15,11 @@ interface StatisticsProps {
 	isLoading?: boolean;
 	onEditTask?: (task: Task) => void;
 	projectName?: string;
+	statuses?: string[];
+	newStatuses?: string[];
+	runningStatuses?: string[];
+	terminalStatuses?: string[];
+	blockedStatuses?: string[];
 }
 
 const Statistics: React.FC<StatisticsProps> = ({
@@ -22,6 +27,11 @@ const Statistics: React.FC<StatisticsProps> = ({
 	isLoading: externalLoading,
 	onEditTask,
 	projectName,
+	statuses: availableStatuses,
+	newStatuses,
+	runningStatuses,
+	terminalStatuses,
+	blockedStatuses,
 }) => {
 	const [statistics, setStatistics] = useState<StatisticsData | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -247,12 +257,24 @@ const Statistics: React.FC<StatisticsProps> = ({
 	};
 
 	const getStatusColor = (status: string) => {
-		switch (status.toLowerCase()) {
-			case 'to do': return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
-			case 'in progress': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
-			case 'done': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
-			default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
+		const lower = status.toLowerCase();
+		if (blockedStatuses?.some((s) => s.toLowerCase() === lower))
+			return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200';
+		if (terminalStatuses?.some((s) => s.toLowerCase() === lower))
+			return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
+		if (runningStatuses?.some((s) => s.toLowerCase() === lower))
+			return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
+		if (newStatuses?.some((s) => s.toLowerCase() === lower))
+			return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
+		// Fallback: first → new, last → terminal, middle → running
+		if (availableStatuses?.length) {
+			const first = availableStatuses[0]?.toLowerCase();
+			const last = availableStatuses[availableStatuses.length - 1]?.toLowerCase();
+			if (lower === first) return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
+			if (lower === last) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
+			if (availableStatuses.length >= 3) return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
 		}
+		return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
 	};
 
 	const getPriorityColor = (priority: string) => {

@@ -23,7 +23,7 @@ import { openCreateDraftScreen } from "./create-draft.ts";
 import { openCreateMilestoneScreen } from "./create-milestone.ts";
 import { openCreateTaskPopup } from "./create-task.ts";
 import { formatFooterContent } from "./footer-content.ts";
-import { getStatusIcon } from "./status-icon.ts";
+import { getStatusIcon, type StatusStyleOptions } from "./status-icon.ts";
 import {
 	createTaskPopup,
 	resolveSearchExitTargetIndex,
@@ -154,8 +154,8 @@ function buildRenderedTaskListItems(
 	};
 }
 
-function formatColumnLabel(status: string, count: number, blockedStatuses?: readonly string[]): string {
-	return `\u00A0${getStatusIcon(status, blockedStatuses as string[] | undefined)} ${status || "No Status"} (${count})\u00A0`;
+function formatColumnLabel(status: string, count: number, options?: StatusStyleOptions): string {
+	return `\u00A0${getStatusIcon(status, options)} ${status || "No Status"} (${count})\u00A0`;
 }
 
 const DEFAULT_FOOTER_CONTENT =
@@ -218,6 +218,8 @@ export async function renderBoardTui(
 		milestoneMode?: boolean;
 		milestoneEntities?: Milestone[];
 		terminalStatuses?: readonly string[] | null;
+		runningStatuses?: readonly string[] | null;
+		newStatuses?: readonly string[] | null;
 		blockedStatuses?: readonly string[] | null;
 	},
 	injectedScreen?: ScreenInterface,
@@ -260,7 +262,16 @@ export async function renderBoardTui(
 		let currentColumnsData = initialColumns;
 		let currentStatuses = currentColumnsData.map((column) => column.status);
 		const currentTerminalStatuses = options?.terminalStatuses;
+		const currentRunningStatuses = options?.runningStatuses;
+		const currentNewStatuses = options?.newStatuses;
 		const currentBlockedStatuses = options?.blockedStatuses;
+		const statusStyleOptions: StatusStyleOptions = {
+			blockedStatuses: (currentBlockedStatuses ?? undefined) as string[] | undefined,
+			newStatuses: (currentNewStatuses ?? undefined) as string[] | undefined,
+			runningStatuses: (currentRunningStatuses ?? undefined) as string[] | undefined,
+			terminalStatuses: (currentTerminalStatuses ?? undefined) as string[] | undefined,
+			statuses,
+		};
 		let currentCol = 0;
 		let selectedTaskIds = new Set<string>();
 		let popupOpen = false;
@@ -619,7 +630,7 @@ export async function renderBoardTui(
 					height: "100%",
 					border: { type: "line" },
 					style: { border: { fg: "gray" } },
-					label: formatColumnLabel(columnData.status, columnData.tasks.length, currentBlockedStatuses ?? undefined),
+					label: formatColumnLabel(columnData.status, columnData.tasks.length, statusStyleOptions),
 				});
 
 				const taskList = list({
@@ -753,9 +764,7 @@ export async function renderBoardTui(
 				column.plainItems = renderedItems.plain;
 				column.highlightedIndex = undefined;
 				column.list.setItems(renderedItems.rich);
-				column.box.setLabel?.(
-					formatColumnLabel(columnData.status, columnData.tasks.length, currentBlockedStatuses ?? undefined),
-				);
+				column.box.setLabel?.(formatColumnLabel(columnData.status, columnData.tasks.length, statusStyleOptions));
 			});
 			restoreSelection(selectedTaskId);
 		};
@@ -1352,7 +1361,7 @@ export async function renderBoardTui(
 			if (!task) return;
 			popupOpen = true;
 
-			const popup = await createTaskPopup(screen, task, resolveMilestoneLabel);
+			const popup = await createTaskPopup(screen, task, resolveMilestoneLabel, statusStyleOptions);
 			if (!popup) {
 				popupOpen = false;
 				return;
