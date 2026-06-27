@@ -1,0 +1,28 @@
+src/web/components/TaskCard.tsx
+  s_8b82b142d69ed2::t_98b5297e5b3f80 172
+  s_8b82b142d69ed2::t_7714f633798664 204
+  s_8b82b142d69ed2::t_d529ebd3da938f 3
+src/utils/color.ts
+  s_8b82b142d69ed2::t_06f098dc3b4ad9 15
+  s_8b82b142d69ed2::t_abfc4a293efccf 1-14,16-17
+src/web/components/TaskList.tsx
+  s_8b82b142d69ed2::t_78a1a09df8962d 995
+  s_8b82b142d69ed2::t_79e51bd8e9a8c6 1022
+  s_8b82b142d69ed2::t_4fd25d9c75373b 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "fcea884b52d4a11318f015034fba9e448b662d2f",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
