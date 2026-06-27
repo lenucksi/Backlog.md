@@ -192,6 +192,15 @@ const SideNavigation = memo(function SideNavigation({
 	const [archivedDocsOpen, setArchivedDocsOpen] = useState(false);
 	const [supersededOpen, setSupersededOpen] = useState(false);
 	const [version, setVersion] = useState<string>('');
+	const [sidebarWidth, setSidebarWidth] = useState(() => {
+		const saved = localStorage.getItem('sideNavWidth');
+		if (saved) {
+			const parsed = parseInt(saved, 10);
+			if (!isNaN(parsed)) return Math.min(Math.max(parsed, 240), 600);
+		}
+		return 380;
+	});
+	const [isResizing, setIsResizing] = useState(false);
 	const [docSortField, setDocSortField] = useState<"id" | "title" | "lastModified" | "createdDate">("title");
 	const [docSortDir, setDocSortDir] = useState<"asc" | "desc">("asc");
 	const [decisionSortField, setDecisionSortField] = useState<"id" | "title" | "date">("title");
@@ -343,13 +352,45 @@ const SideNavigation = memo(function SideNavigation({
 			});
 	}, [decisions, decisionSortField, decisionSortDir]);
 
+	const handleResizeStart = useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+		setIsResizing(true);
+
+		const startX = e.clientX;
+		const startWidth = sidebarWidth;
+
+		document.body.style.userSelect = 'none';
+		document.body.style.cursor = 'col-resize';
+
+		const handleMouseMove = (e: MouseEvent) => {
+			const delta = e.clientX - startX;
+			const newWidth = Math.min(Math.max(startWidth + delta, 240), 600);
+			setSidebarWidth(newWidth);
+			localStorage.setItem('sideNavWidth', String(newWidth));
+		};
+
+		const handleMouseUp = () => {
+			setIsResizing(false);
+			document.body.style.userSelect = '';
+			document.body.style.cursor = '';
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+	}, [sidebarWidth]);
+
 	const toggleCollapse = useCallback(() => {
 		setIsCollapsed((prev: any) => !prev);
 	}, []);
 
 	return (
 		<ErrorBoundary>
-			<div className={`relative bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col min-h-full z-10 ${isCollapsed ? 'w-16' : 'w-80 min-w-80'}`}>
+			<div
+				className={`relative bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col min-h-full z-10 ${isCollapsed ? 'w-16' : ''} ${isResizing ? 'transition-none' : 'transition-[width,opacity] duration-300'}`}
+				style={isCollapsed ? undefined : { width: sidebarWidth }}
+			>
 			{/* Search Bar */}
 			<div className={`${isCollapsed ? 'px-2' : 'px-4'} border-b border-gray-200 dark:border-gray-700 h-18 flex items-center relative`}>
 				{/* Collapse Toggle Button - Always positioned on the border */}
@@ -473,7 +514,7 @@ const SideNavigation = memo(function SideNavigation({
 			)}
 
 
-			<nav className="flex-1 overflow-y-auto">
+			<nav className="flex-1 overflow-y-auto overflow-x-hidden">
 				{/* Loading Indicator - only show when expanded since collapsed nav is static */}
 				{isLoading && !isCollapsed && (
 					<SidebarSkeleton isCollapsed={false} />
@@ -945,6 +986,14 @@ const SideNavigation = memo(function SideNavigation({
 				)}
 			</div>
 
+			{!isCollapsed && (
+				<div
+					onMouseDown={handleResizeStart}
+					className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-20 group"
+				>
+					<div className="absolute inset-y-0 right-px w-0.5 bg-transparent group-hover:bg-blue-400 group-active:bg-blue-500 transition-colors duration-150" />
+				</div>
+			)}
 			<Tooltip id="sidebar-tooltip" place="right" />
 			</div>
 		</ErrorBoundary>
