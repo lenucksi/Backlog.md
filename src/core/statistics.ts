@@ -7,6 +7,7 @@ export interface TaskStatistics {
 	priorityCounts: Map<string, number>;
 	totalTasks: number;
 	completedTasks: number;
+	doneTasks: number;
 	completionPercentage: number;
 	draftCount: number;
 	archivedCount: number;
@@ -142,6 +143,7 @@ export function getTaskStatistics(
 		priorityCounts,
 		totalTasks,
 		completedTasks: combinedCompleted,
+		doneTasks: completedTasks,
 		completionPercentage,
 		draftCount: drafts.length,
 		archivedCount,

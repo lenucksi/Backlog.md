@@ -343,16 +343,49 @@ const Statistics: React.FC<StatisticsProps> = ({
 			{/* Progress Bar */}
 			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 				<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Overall Progress</h3>
-				<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-circle h-4 mb-2">
-					<div
-						className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-circle transition-all duration-300"
-						style={{ width: `${Math.min(statistics.completionPercentage, 100)}%` }}
-					></div>
-				</div>
-				<div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-					<span>{statistics.completedTasks} completed</span>
-					<span>{Math.max(statistics.totalTasks - statistics.completedTasks, 0)} remaining</span>
-				</div>
+				{(() => {
+					const total = statistics.totalTasks;
+					const done = statistics.doneTasks;
+					const archived = statistics.archivedCount;
+					const donePct = total > 0 ? Math.round((done / total) * 100) : 0;
+					const archivedPct = total > 0 ? Math.round((archived / total) * 100) : 0;
+					const remainingPct = Math.max(100 - donePct - archivedPct, 0);
+					return (
+						<>
+							<div
+								className="w-full bg-gray-200 dark:bg-gray-700 rounded-circle h-4 mb-2 flex overflow-hidden"
+								title={`${done} done (${donePct}%) · ${archived} archived (${archivedPct}%) · ${total - done - archived} remaining (${remainingPct}%)`}
+							>
+								{donePct > 0 && (
+									<div
+										className="bg-green-500 h-4 transition-all duration-300"
+										style={{ width: `${donePct}%` }}
+									></div>
+								)}
+								{archivedPct > 0 && (
+									<div
+										className="bg-blue-400 h-4 transition-all duration-300"
+										style={{ width: `${archivedPct}%` }}
+									></div>
+								)}
+							</div>
+							<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 dark:text-gray-400">
+								<span className="flex items-center gap-1.5">
+									<span className="inline-block w-2.5 h-2.5 rounded-circle bg-green-500"></span>
+									{done} done
+								</span>
+								<span className="flex items-center gap-1.5">
+									<span className="inline-block w-2.5 h-2.5 rounded-circle bg-blue-400"></span>
+									{archived} archived
+								</span>
+								<span className="flex items-center gap-1.5">
+									<span className="inline-block w-2.5 h-2.5 rounded-circle bg-gray-300 dark:bg-gray-600"></span>
+									{total - done - archived} remaining
+								</span>
+							</div>
+						</>
+					);
+				})()}
 			</div>
 
 			{/* Status and Priority Distribution */}
