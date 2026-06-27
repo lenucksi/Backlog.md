@@ -510,6 +510,14 @@ export class FilterHeader {
 			return false;
 		});
 
+		this.searchInput.key(["C-g"], () => {
+			this.searchInput?.setValue?.("");
+			this.state.search = "";
+			this.emitFilterChange();
+			(this.searchInput?.screen as ScreenInterface)?.render();
+			return false;
+		});
+
 		let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 		this.searchInput.on("keypress", () => {
 			if (searchTimeout) {

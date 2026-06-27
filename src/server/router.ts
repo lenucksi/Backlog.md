@@ -15,6 +15,13 @@ export type RouteHandlers = {
 		handleMoveSequence: (req: Request) => Promise<Response>;
 		handleListCompletedTasks: () => Promise<Response>;
 		handleReopenTask: (taskId: string) => Promise<Response>;
+		handleBulkArchive: (req: Request) => Promise<Response>;
+		handleBulkStatus: (req: Request) => Promise<Response>;
+		handleBulkPriority: (req: Request) => Promise<Response>;
+		handleBulkAssignee: (req: Request) => Promise<Response>;
+		handleBulkLabels: (req: Request) => Promise<Response>;
+		handleBulkMilestone: (req: Request) => Promise<Response>;
+		handleBulkDueDate: (req: Request) => Promise<Response>;
 	};
 	documents: {
 		handleListDocs: () => Promise<Response>;
@@ -99,6 +106,27 @@ export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
 		},
 		"/api/tasks/:id/reopen": {
 			POST: async (req: Request & { params: { id: string } }) => await tasks.handleReopenTask(req.params.id),
+		},
+		"/api/tasks/bulk/archive": {
+			POST: async (req: Request) => await tasks.handleBulkArchive(req),
+		},
+		"/api/tasks/bulk/status": {
+			POST: async (req: Request) => await tasks.handleBulkStatus(req),
+		},
+		"/api/tasks/bulk/priority": {
+			POST: async (req: Request) => await tasks.handleBulkPriority(req),
+		},
+		"/api/tasks/bulk/assignee": {
+			POST: async (req: Request) => await tasks.handleBulkAssignee(req),
+		},
+		"/api/tasks/bulk/labels": {
+			POST: async (req: Request) => await tasks.handleBulkLabels(req),
+		},
+		"/api/tasks/bulk/milestone": {
+			POST: async (req: Request) => await tasks.handleBulkMilestone(req),
+		},
+		"/api/tasks/bulk/due-date": {
+			POST: async (req: Request) => await tasks.handleBulkDueDate(req),
 		},
 		"/api/statuses": {
 			GET: async () => await config.handleGetStatuses(),

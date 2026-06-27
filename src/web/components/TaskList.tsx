@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiClient } from "../lib/api";
 import type {
+	BulkOperationResult,
 	Milestone,
 	SearchPriorityFilter,
 	Task,
@@ -118,6 +119,7 @@ const TaskList: React.FC<TaskListProps> = ({
 	const [error, setError] = useState<string | null>(null);
 	const [showCleanupModal, setShowCleanupModal] = useState(false);
 	const [cleanupSuccessMessage, setCleanupSuccessMessage] = useState<string | null>(null);
+	const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
 	const [sortColumn, setSortColumn] = useState<TaskSortColumn>("id");
 	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 	const tableHeaderScrollRef = useRef<HTMLDivElement | null>(null);
@@ -435,6 +437,68 @@ const TaskList: React.FC<TaskListProps> = ({
 		setError(null);
 	};
 
+	const handleToggleSelect = (taskId: string) => {
+		setSelectedTaskIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(taskId)) {
+				next.delete(taskId);
+			} else {
+				next.add(taskId);
+			}
+			return next;
+		});
+	};
+
+	const handleSelectAll = () => {
+		if (selectedTaskIds.size === hierarchicalTasks.length) {
+			setSelectedTaskIds(new Set());
+		} else {
+			setSelectedTaskIds(new Set(hierarchicalTasks.map(({ task }) => task.id)));
+		}
+	};
+
+	const handleBulkAction = async (
+		action: () => Promise<BulkOperationResult>,
+	) => {
+		const result = await action();
+		if (result.failed.length > 0) {
+			console.error("Bulk action failed for:", result.failed);
+		}
+		setSelectedTaskIds(new Set());
+		if (onRefreshData) {
+			await onRefreshData();
+		}
+	};
+
+	const handleBulkArchive = () => {
+		if (!window.confirm(`Archive ${selectedTaskIds.size} selected task(s)? This action moves tasks to archive.`)) return;
+		handleBulkAction(() => apiClient.bulkArchive([...selectedTaskIds]));
+	};
+
+	const handleBulkStatus = (status: string) => {
+		handleBulkAction(() => apiClient.bulkUpdateStatus([...selectedTaskIds], status));
+	};
+
+	const handleBulkPriority = (priority: string) => {
+		handleBulkAction(() => apiClient.bulkUpdatePriority([...selectedTaskIds], priority));
+	};
+
+	const handleBulkAssignee = (assignee: string) => {
+		handleBulkAction(() => apiClient.bulkUpdateAssignee([...selectedTaskIds], [assignee]));
+	};
+
+	const handleBulkLabels = (labels: string) => {
+		handleBulkAction(() => apiClient.bulkUpdateLabels([...selectedTaskIds], labels.split(",").map((l) => l.trim()).filter(Boolean)));
+	};
+
+	const handleBulkMilestone = (milestone: string) => {
+		handleBulkAction(() => apiClient.bulkUpdateMilestone([...selectedTaskIds], milestone || null));
+	};
+
+	const handleBulkDueDate = (dueDate: string) => {
+		handleBulkAction(() => apiClient.bulkUpdateDueDate([...selectedTaskIds], dueDate || null));
+	};
+
 	const handleCleanupSuccess = async (movedCount: number) => {
 		setShowCleanupModal(false);
 		setCleanupSuccessMessage(`Successfully moved ${movedCount} task${movedCount !== 1 ? 's' : ''} to completed folder`);
@@ -523,6 +587,7 @@ const TaskList: React.FC<TaskListProps> = ({
 
 	const renderColumnGroup = () => (
 		<colgroup>
+			<col style={{ width: "3rem" }} />
 			<col style={{ width: "8rem" }} />
 			<col style={{ width: "24rem" }} />
 			<col style={{ width: "8rem" }} />
@@ -767,8 +832,23 @@ const TaskList: React.FC<TaskListProps> = ({
 									syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter, v);
 								}}
 								placeholder="Search..."
-								className="h-10 pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 w-[180px]"
+								className="h-10 pl-9 pr-8 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 w-[180px]"
 							/>
+							{filterQuery && (
+								<button
+									type="button"
+									onClick={() => {
+										setFilterQuery("");
+										syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter, "");
+									}}
+									className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+									aria-label="Clear search"
+								>
+									<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+									</svg>
+								</button>
+							)}
 						</div>
 
 						{isFilteringTerminalStatus && currentCount > 0 && (
@@ -864,6 +944,84 @@ const TaskList: React.FC<TaskListProps> = ({
 				)}
 			</div>
 
+			{selectedTaskIds.size > 0 && (
+				<div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+					<span className="text-sm font-medium text-blue-700 dark:text-blue-300 mr-2">
+						{selectedTaskIds.size} selected
+					</span>
+					<button
+						type="button"
+						onClick={handleBulkArchive}
+						className="px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/60"
+					>
+						Archive
+					</button>
+					<select
+						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+						value=""
+						onChange={(e) => { if (e.target.value) { handleBulkStatus(e.target.value); e.target.value = ""; } }}
+					>
+						<option value="">Set Status</option>
+						{availableStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+					</select>
+					<select
+						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+						value=""
+						onChange={(e) => { if (e.target.value) { handleBulkPriority(e.target.value); e.target.value = ""; } }}
+					>
+						<option value="">Set Priority</option>
+						{PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+					</select>
+					<select
+						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+						value=""
+						onChange={(e) => { if (e.target.value) { handleBulkMilestone(e.target.value); e.target.value = ""; } }}
+					>
+						<option value="">Set Milestone</option>
+						<option value="">(none)</option>
+						{milestoneOptions.map((m) => <option key={m} value={m}>{milestoneLabelMap[m] ?? m}</option>)}
+					</select>
+					<input
+						type="date"
+						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 w-36"
+						title="Set Due Date (bulk)"
+						onChange={(e) => { if (e.target.value) { handleBulkDueDate(e.target.value); e.target.value = ""; } }}
+					/>
+					<select
+						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+						value=""
+						onChange={(e) => { if (e.target.value) { handleBulkAssignee(e.target.value); e.target.value = ""; } }}
+					>
+						<option value="">Set Assignee</option>
+						{uniqueAssignees.length > 0
+							? uniqueAssignees.map((a) => <option key={a} value={a}>{a}</option>)
+							: <option value="" disabled>No assignees</option>
+						}
+					</select>
+					<div className="relative inline-block">
+						<input
+							type="text"
+							placeholder="Labels..."
+							className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 w-28"
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									const val = (e.target as HTMLInputElement).value.trim();
+									if (val) handleBulkLabels(val);
+									(e.target as HTMLInputElement).value = "";
+								}
+							}}
+						/>
+					</div>
+					<button
+						type="button"
+						onClick={() => setSelectedTaskIds(new Set())}
+						className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 ml-auto"
+					>
+						Clear
+					</button>
+				</div>
+			)}
+
 			{currentCount === 0 ? (
 				<div className="text-center py-12">
 					<svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -886,6 +1044,17 @@ const TaskList: React.FC<TaskListProps> = ({
 								{renderColumnGroup()}
 								<thead>
 									<tr className="text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+										<th className="px-1 py-2 w-8">
+											<input
+												type="checkbox"
+												className="rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-400 cursor-pointer"
+												checked={hierarchicalTasks.length > 0 && selectedTaskIds.size === hierarchicalTasks.length}
+												ref={(el) => {
+													if (el) el.indeterminate = selectedTaskIds.size > 0 && selectedTaskIds.size < hierarchicalTasks.length;
+												}}
+												onChange={handleSelectAll}
+											/>
+										</th>
 										{renderSortableHeader("ID", "id")}
 										{renderSortableHeader("Title", "title")}
 										{renderSortableHeader("Status", "status")}
@@ -925,6 +1094,15 @@ const TaskList: React.FC<TaskListProps> = ({
 													: "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700/50"
 											}`}
 										>
+											<td className="px-1 py-2.5 w-8 text-center">
+												<input
+													type="checkbox"
+													className="rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-400 cursor-pointer"
+													checked={selectedTaskIds.has(task.id)}
+													onChange={() => handleToggleSelect(task.id)}
+													onClick={(e) => e.stopPropagation()}
+												/>
+											</td>
 											<td className="px-3 py-2.5 text-xs font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
 												{task.id}
 											</td>

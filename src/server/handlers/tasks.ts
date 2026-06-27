@@ -447,6 +447,95 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		}
 	}
 
+	function createBulkHandler(
+		operation: (
+			ids: string[],
+			value?: unknown,
+		) => Promise<{ succeeded: string[]; failed: { id: string; error: string }[] }>,
+		validate?: (body: Record<string, unknown>) => string | null,
+	) {
+		return async (req: Request): Promise<Response> => {
+			try {
+				const body = await req.json();
+				const ids = Array.isArray(body.ids) ? body.ids.map(String).filter(Boolean) : [];
+				if (ids.length === 0) {
+					return Response.json({ error: "ids must be a non-empty array of strings" }, { status: 400 });
+				}
+				if (validate) {
+					const error = validate(body);
+					if (error) return Response.json({ error }, { status: 400 });
+				}
+				const value = "value" in body ? body.value : undefined;
+				const result = await operation(ids, value);
+				ctx.broadcastTasksUpdated();
+				return Response.json(result);
+			} catch (error) {
+				const message = error instanceof Error ? error.message : "Bulk operation failed";
+				return Response.json({ error: message }, { status: 500 });
+			}
+		};
+	}
+
+	const handleBulkArchive = createBulkHandler(async (ids) => ctx.core.bulkArchive(ids));
+
+	const handleBulkStatus = createBulkHandler(
+		async (ids, value) => ctx.core.bulkUpdateTasks(ids, { status: String(value) }),
+		(body) => {
+			if (!body.value || typeof body.value !== "string") return "status is required";
+			return null;
+		},
+	);
+
+	const handleBulkPriority = createBulkHandler(
+		async (ids, value) => {
+			const priority = String(value);
+			if (!["high", "medium", "low"].includes(priority)) {
+				throw new Error("priority must be high, medium, or low");
+			}
+			return ctx.core.bulkUpdateTasks(ids, { priority: priority as "high" | "medium" | "low" });
+		},
+		(body) => {
+			if (!body.value || typeof body.value !== "string") return "priority is required";
+			if (!["high", "medium", "low"].includes(body.value)) return "priority must be high, medium, or low";
+			return null;
+		},
+	);
+
+	const handleBulkAssignee = createBulkHandler(
+		async (ids, value) => ctx.core.bulkUpdateTasks(ids, { assignee: Array.isArray(value) ? value.map(String) : [] }),
+		(body) => {
+			if (!Array.isArray(body.value)) return "assignee must be an array of strings";
+			return null;
+		},
+	);
+
+	const handleBulkLabels = createBulkHandler(
+		async (ids, value) => ctx.core.bulkUpdateTasks(ids, { labels: Array.isArray(value) ? value.map(String) : [] }),
+		(body) => {
+			if (!Array.isArray(body.value)) return "labels must be an array of strings";
+			return null;
+		},
+	);
+
+	const handleBulkMilestone = createBulkHandler(
+		async (ids, value) => {
+			const milestone = value === null ? null : String(value);
+			return ctx.core.bulkUpdateTasks(ids, { milestone: milestone as string | null });
+		},
+		(body) => {
+			if (body.value !== null && typeof body.value !== "string") return "milestone must be a string or null";
+			return null;
+		},
+	);
+
+	const handleBulkDueDate = createBulkHandler(
+		async (ids, value) => ctx.core.bulkUpdateTasks(ids, { dueDate: value === null ? null : String(value) }),
+		(body) => {
+			if (body.value !== null && typeof body.value !== "string") return "dueDate must be a string (YYYY-MM-DD) or null";
+			return null;
+		},
+	);
+
 	return {
 		handleListTasks,
 		handleSearch,
@@ -463,5 +552,12 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		handleMoveSequence,
 		handleListCompletedTasks,
 		handleReopenTask,
+		handleBulkArchive,
+		handleBulkStatus,
+		handleBulkPriority,
+		handleBulkAssignee,
+		handleBulkLabels,
+		handleBulkMilestone,
+		handleBulkDueDate,
 	};
 }

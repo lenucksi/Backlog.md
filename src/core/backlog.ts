@@ -6,6 +6,7 @@ import { GitOperations } from "../git/operations.ts";
 import {
 	type AcceptanceCriterion,
 	type BacklogConfig,
+	type BulkOperationResult,
 	type Decision,
 	DOCUMENT_TYPE_VALUES,
 	type Document,
@@ -2386,6 +2387,86 @@ export class Core {
 		}
 
 		return success;
+	}
+
+	async bulkArchive(ids: string[]): Promise<BulkOperationResult> {
+		const succeeded: string[] = [];
+		const failed: { id: string; error: string }[] = [];
+
+		for (const rawId of ids) {
+			const id = normalizeTaskId(rawId.trim());
+			if (!id) {
+				failed.push({ id: rawId, error: "Invalid task ID" });
+				continue;
+			}
+			try {
+				const ok = await this.archiveTask(id, false);
+				if (ok) {
+					succeeded.push(id);
+				} else {
+					failed.push({ id, error: "Task not found" });
+				}
+			} catch (error) {
+				failed.push({ id, error: error instanceof Error ? error.message : "Unknown error" });
+			}
+		}
+
+		if (succeeded.length > 0 && (await this.shouldAutoCommit(undefined))) {
+			const backlogDir = await this.getBacklogDirectoryName();
+			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
+			const taskWord = succeeded.length === 1 ? "task" : "tasks";
+			await this.git.commitChanges(`backlog: Archive ${succeeded.length} ${taskWord}`, repoRoot);
+		}
+
+		return { succeeded, failed };
+	}
+
+	async bulkUpdateTasks(
+		ids: string[],
+		fields: {
+			status?: string;
+			priority?: "high" | "medium" | "low";
+			milestone?: string | null;
+			dueDate?: string | null;
+			labels?: string[];
+			assignee?: string[];
+		},
+	): Promise<BulkOperationResult> {
+		const succeeded: string[] = [];
+		const failed: { id: string; error: string }[] = [];
+		const tasksToUpdate: Task[] = [];
+
+		for (const rawId of ids) {
+			const id = normalizeTaskId(rawId.trim());
+			if (!id) {
+				failed.push({ id: rawId, error: "Invalid task ID" });
+				continue;
+			}
+			try {
+				const task = await this.fs.loadTask(id);
+				if (!task) {
+					failed.push({ id, error: "Task not found" });
+					continue;
+				}
+				if (fields.status !== undefined) task.status = fields.status;
+				if (fields.priority !== undefined) task.priority = fields.priority;
+				if (fields.milestone !== undefined) task.milestone = fields.milestone ?? undefined;
+				if (fields.dueDate !== undefined) task.dueDate = fields.dueDate ?? undefined;
+				if (fields.labels !== undefined) task.labels = fields.labels;
+				if (fields.assignee !== undefined) task.assignee = fields.assignee;
+				task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
+				tasksToUpdate.push(task);
+				succeeded.push(id);
+			} catch (error) {
+				failed.push({ id, error: error instanceof Error ? error.message : "Unknown error" });
+			}
+		}
+
+		if (tasksToUpdate.length > 0) {
+			await this.updateTasksBulk(tasksToUpdate, `backlog: Bulk update ${tasksToUpdate.length} task(s)`);
+		}
+
+		return { succeeded, failed };
 	}
 
 	async getTerminalStatusTasksByAge(olderThanDays: number): Promise<Task[]> {

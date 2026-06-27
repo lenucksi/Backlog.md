@@ -174,6 +174,11 @@ export interface TaskListFilter {
 	labels?: string[];
 }
 
+export type BulkOperationResult = {
+	succeeded: string[];
+	failed: { id: string; error: string }[];
+};
+
 export interface Decision {
 	id: string;
 	title: string;

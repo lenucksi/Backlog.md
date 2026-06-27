@@ -1,5 +1,5 @@
 import type { BoxInterface, ListInterface, ScreenInterface } from "neo-neo-bblessed";
-import { box, list } from "neo-neo-bblessed";
+import { box, list, textbox } from "neo-neo-bblessed";
 import {
 	type BoardLayout,
 	buildKanbanStatusGroups,
@@ -122,7 +122,8 @@ function prepareBoardColumns(
 	});
 }
 
-export function formatTaskListItem(task: Task, isMoving = false): string {
+export function formatTaskListItem(task: Task, isMoving = false, selectedTaskIds?: Set<string>): string {
+	const checkbox = selectedTaskIds?.has(task.id) ? "{green-fg}[✓]{/} " : selectedTaskIds ? "{gray-fg}[ ]{/} " : "";
 	const assignee = task.assignee?.[0]
 		? ` {cyan-fg}${task.assignee[0].startsWith("@") ? task.assignee[0] : `@${task.assignee[0]}`}{/}`
 		: "";
@@ -131,7 +132,7 @@ export function formatTaskListItem(task: Task, isMoving = false): string {
 	const branch = isCrossBranch ? ` {green-fg}(${(task as Task & { branch?: string }).branch}){/}` : "";
 
 	// Cross-branch tasks are dimmed to indicate read-only status
-	const content = `{bold}${task.id}{/bold} - ${task.title}${assignee}${labels}${branch}`;
+	const content = `${checkbox}{bold}${task.id}{/bold} - ${task.title}${assignee}${labels}${branch}`;
 	if (isMoving) {
 		return `{magenta-fg}► ${content}{/}`;
 	}
@@ -141,8 +142,12 @@ export function formatTaskListItem(task: Task, isMoving = false): string {
 	return content;
 }
 
-function buildRenderedTaskListItems(tasks: Task[], movingTaskId?: string): { rich: string[]; plain: string[] } {
-	const rich = tasks.map((task) => formatTaskListItem(task, movingTaskId === task.id));
+function buildRenderedTaskListItems(
+	tasks: Task[],
+	movingTaskId?: string,
+	selectedTaskIds?: Set<string>,
+): { rich: string[]; plain: string[] } {
+	const rich = tasks.map((task) => formatTaskListItem(task, movingTaskId === task.id, selectedTaskIds));
 	return {
 		rich,
 		plain: rich.map((item) => stripBlessedFgTags(item)),
@@ -154,7 +159,7 @@ function formatColumnLabel(status: string, count: number, blockedStatuses?: read
 }
 
 const DEFAULT_FOOTER_CONTENT =
-	" {cyan-fg}[Tab]{/} View | {cyan-fg}[/]{/} Search | {cyan-fg}[P/F/I]{/} Filter | {cyan-fg}[←→/↑↓]{/} Nav | {cyan-fg}[Enter]{/} Details | {cyan-fg}[N]{/} New | {cyan-fg}[E/M/C/A]{/} Edit/Move/Comp/Arch | {cyan-fg}[m/d/D]{/} Milestone/Draft/Doc | {cyan-fg}[Y]{/} Yank | {cyan-fg}[?]{/} Help | {cyan-fg}[q]{/} Quit";
+	" {cyan-fg}[Tab]{/} View | {cyan-fg}[/]{/} Search | {cyan-fg}[P/F/I]{/} Filter | {cyan-fg}[←→/↑↓]{/} Nav | {cyan-fg}[Space]{/} Select | {cyan-fg}[C-a]{/} All | {cyan-fg}[Enter]{/} Details | {cyan-fg}[N]{/} New | {cyan-fg}[E/M/C/A]{/} Edit/Move/Comp/Arch | {cyan-fg}[m/d/D]{/} Milestone/Draft/Doc | {cyan-fg}[Y]{/} Yank | {cyan-fg}[?]{/} Help | {cyan-fg}[q]{/} Quit";
 
 export function shouldRebuildColumns(current: ColumnData[], next: ColumnData[]): boolean {
 	if (current.length !== next.length) {
@@ -257,6 +262,7 @@ export async function renderBoardTui(
 		const currentTerminalStatuses = options?.terminalStatuses;
 		const currentBlockedStatuses = options?.blockedStatuses;
 		let currentCol = 0;
+		let selectedTaskIds = new Set<string>();
 		let popupOpen = false;
 		let currentFocus: "board" | "filters" = "board";
 		let filterPopupOpen = false;
@@ -352,6 +358,172 @@ export async function renderBoardTui(
 		};
 		let moveOp: MoveOperation | null = null;
 
+		const getFilteredTaskIds = (): string[] => {
+			const grouped = getProjectedColumns(getFilteredTasks(), moveOp);
+			return grouped.flatMap((g) => g.tasks.map((t) => t.id));
+		};
+
+		const toggleBoardSelection = (taskId: string) => {
+			if (selectedTaskIds.has(taskId)) {
+				selectedTaskIds.delete(taskId);
+			} else {
+				selectedTaskIds.add(taskId);
+			}
+		};
+
+		const clearBoardSelection = () => {
+			if (selectedTaskIds.size === 0) return;
+			selectedTaskIds = new Set();
+			renderView();
+		};
+
+		const getSelectedBoardTaskIds = (): string[] => {
+			return getFilteredTaskIds().filter((id) => selectedTaskIds.has(id));
+		};
+
+		const executeBoardBulkAction = async (_action: "archive") => {
+			const ids = getSelectedBoardTaskIds();
+			if (ids.length === 0) return;
+			const confirmed = await runWithModalGuard(() =>
+				openConfirmPopup({
+					screen,
+					title: "Bulk Archive",
+					message: `Archive {bold}${ids.length}{/bold} selected task(s)?`,
+				}),
+			);
+			if (!confirmed) return;
+
+			const core = new Core(process.cwd());
+			const result = await core.bulkArchive(ids);
+
+			if (result.succeeded.length > 0) {
+				currentTasks = currentTasks.filter((t) => !result.succeeded.includes(t.id));
+				selectedTaskIds = new Set();
+				renderView();
+				showTransientFooter(` {green-fg}Archived ${result.succeeded.length} task(s){/}`);
+			}
+			if (result.failed.length > 0) {
+				showTransientFooter(
+					` {red-fg}${result.failed.length} task(s) failed: ${result.failed.map((f: { id: string }) => f.id).join(", ")}{/}`,
+				);
+			}
+		};
+
+		const executeBoardBulkUpdate = async (field: string) => {
+			const ids = getSelectedBoardTaskIds();
+			if (ids.length === 0) return;
+
+			const core = new Core(process.cwd());
+			const { genericSelectList, genericMultiSelect } = await import("./components/generic-list.ts");
+
+			const fields: {
+				status?: string;
+				priority?: "high" | "medium" | "low";
+				milestone?: string | null;
+				dueDate?: string | null;
+				labels?: string[];
+				assignee?: string[];
+			} = {};
+
+			if (field === "status") {
+				const chosen = await runWithModalGuard(() =>
+					genericSelectList(
+						"Set Status",
+						currentStatuses.map((s: string) => ({ id: s })),
+					),
+				);
+				if (!chosen) return;
+				fields.status = chosen.id;
+			} else if (field === "priority") {
+				const chosen = await runWithModalGuard(() =>
+					genericSelectList(
+						"Set Priority",
+						["high", "medium", "low"].map((p) => ({ id: p })),
+					),
+				);
+				if (!chosen) return;
+				fields.priority = chosen.id as "high" | "medium" | "low";
+			} else if (field === "milestone") {
+				const opts = [{ id: "(clear)" }, ...availableMilestones.map((m: string) => ({ id: m }))];
+				const chosen = await runWithModalGuard(() => genericSelectList("Set Milestone", opts));
+				if (!chosen) return;
+				fields.milestone = chosen.id === "(clear)" ? null : chosen.id;
+			} else if (field === "dueDate") {
+				const dateStr = await runWithModalGuard(
+					() =>
+						new Promise<string | null>((resolve) => {
+							const popupBox = box({
+								parent: screen,
+								top: "center",
+								left: "center",
+								width: 40,
+								height: 5,
+								border: { type: "line" },
+								style: { border: { fg: "cyan" }, bg: "black" },
+								tags: true,
+								content: "{bold}Due Date{/} (YYYY-MM-DD, empty to clear)",
+							});
+							const input = textbox({
+								parent: popupBox,
+								top: 2,
+								left: 2,
+								right: 2,
+								height: 1,
+								inputOnFocus: true,
+								style: { bg: "blue", fg: "white" },
+							});
+							input.focus();
+							input.key(["escape"], () => {
+								popupBox.destroy();
+								screen.render();
+								resolve(null);
+							});
+							input.key(["enter"], () => {
+								const val = input.getValue();
+								popupBox.destroy();
+								screen.render();
+								resolve(val || null);
+							});
+							screen.render();
+						}),
+				);
+				if (dateStr === undefined) return;
+				fields.dueDate = dateStr === "" ? null : dateStr;
+			} else if (field === "labels") {
+				const chosen = await runWithModalGuard(() =>
+					genericMultiSelect(
+						"Set Labels",
+						configuredLabels.map((l: string) => ({ id: l })),
+					),
+				);
+				if (!chosen) return;
+				fields.labels = chosen.map((l: { id: string }) => l.id);
+			} else if (field === "assignee") {
+				const config = await core.filesystem.loadConfig();
+				const authorNames = (config?.authors ?? []).map((a: string | { name: string; color?: string }) =>
+					typeof a === "string" ? a : a.name,
+				);
+				const opts = [{ id: "(clear)" }, ...authorNames.map((n: string) => ({ id: n }))];
+				const chosen = await runWithModalGuard(() => genericSelectList("Set Assignee", opts));
+				if (!chosen) return;
+				fields.assignee = chosen.id === "(clear)" ? [] : [chosen.id];
+			}
+
+			if (Object.keys(fields).length === 0) return;
+
+			const result = await core.bulkUpdateTasks(ids, fields);
+			if (result.succeeded.length > 0) {
+				selectedTaskIds = new Set();
+				renderView();
+				showTransientFooter(` {green-fg}${field} updated for ${result.succeeded.length} task(s){/}`);
+			}
+			if (result.failed.length > 0) {
+				showTransientFooter(
+					` {red-fg}${result.failed.length} task(s) failed: ${result.failed.map((f: { id: string }) => f.id).join(", ")}{/}`,
+				);
+			}
+		};
+
 		const footerBox = box({
 			parent: screen,
 			bottom: 0,
@@ -427,7 +599,7 @@ export async function renderBoardTui(
 		};
 
 		const getFormattedItems = (tasks: Task[]) => {
-			return buildRenderedTaskListItems(tasks, moveOp?.taskId);
+			return buildRenderedTaskListItems(tasks, moveOp?.taskId, selectedTaskIds);
 		};
 
 		const createColumnViews = (data: ColumnData[]) => {
@@ -799,6 +971,10 @@ export async function renderBoardTui(
 				setFooterContent(
 					" {green-fg}MOVE MODE{/} | {cyan-fg}[←→]{/} Change Column | {cyan-fg}[↑↓]{/} Reorder | {cyan-fg}[Enter/M]{/} Confirm | {cyan-fg}[Esc]{/} Cancel",
 				);
+			} else if (selectedTaskIds.size > 0) {
+				setFooterContent(
+					` {green-fg}${selectedTaskIds.size} selected{/} | {cyan-fg}[A]{/} Archive | {cyan-fg}[S]{/} Status | {cyan-fg}[P]{/} Priority | {cyan-fg}[U]{/} Due Date | {cyan-fg}[I]{/} Milestone | {cyan-fg}[F]{/} Labels | {cyan-fg}[E]{/} Assignee | {cyan-fg}[Esc]{/} Clear`,
+				);
 			} else {
 				const base = DEFAULT_FOOTER_CONTENT;
 				setFooterContent(hasActiveSharedFilters() ? `${base} | {yellow-fg}Filtered{/}` : base);
@@ -897,17 +1073,29 @@ export async function renderBoardTui(
 		});
 
 		screen.key(["p", "P"], () => {
-			if (popupOpen || filterPopupOpen || modalOpen || moveOp) return;
+			if (popupOpen || filterPopupOpen || modalOpen) return;
+			if (selectedTaskIds.size > 0) {
+				void executeBoardBulkUpdate("priority");
+				return;
+			}
 			void openFilterPicker("priority");
 		});
 
 		screen.key(["f", "F"], () => {
 			if (popupOpen || filterPopupOpen || modalOpen || moveOp) return;
+			if (selectedTaskIds.size > 0) {
+				void executeBoardBulkUpdate("labels");
+				return;
+			}
 			void openFilterPicker("labels");
 		});
 
 		screen.key(["i", "I"], () => {
 			if (popupOpen || filterPopupOpen || modalOpen || moveOp) return;
+			if (selectedTaskIds.size > 0) {
+				void executeBoardBulkUpdate("milestone");
+				return;
+			}
 			void openFilterPicker("milestone");
 		});
 
@@ -1175,8 +1363,40 @@ export async function renderBoardTui(
 			screen.render();
 		});
 
+		screen.key(["space"], () => {
+			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
+			const column = columns[currentCol];
+			if (!column) return;
+			const idx = column.list.selected ?? 0;
+			const task = column.tasks[idx];
+			if (!task) return;
+			toggleBoardSelection(task.id);
+			renderView();
+		});
+
+		screen.key(["C-a"], () => {
+			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
+			const allIds = getFilteredTaskIds();
+			if (selectedTaskIds.size === allIds.length) {
+				selectedTaskIds = new Set();
+			} else {
+				selectedTaskIds = new Set(allIds);
+			}
+			renderView();
+		});
+
+		screen.key(["s", "S"], () => {
+			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
+			if (selectedTaskIds.size === 0) return;
+			void executeBoardBulkUpdate("status");
+		});
+
 		screen.key(["e", "E", "S-e"], async () => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters") return;
+			if (selectedTaskIds.size > 0) {
+				void executeBoardBulkUpdate("assignee");
+				return;
+			}
 			const column = columns[currentCol];
 			if (!column) return;
 			const idx = column.list.selected ?? 0;
@@ -1184,6 +1404,13 @@ export async function renderBoardTui(
 			const task = column.tasks[idx];
 			if (!task) return;
 			await openTaskEditor(task);
+		});
+
+		screen.key(["u", "U"], () => {
+			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters") return;
+			if (selectedTaskIds.size > 0) {
+				void executeBoardBulkUpdate("dueDate");
+			}
 		});
 
 		const performTaskMove = async () => {
@@ -1451,8 +1678,16 @@ export async function renderBoardTui(
 			}
 		};
 
-		screen.key(["c", "C"], handleGlobalComplete);
-		screen.key(["a", "A"], handleGlobalArchive);
+		screen.key(["c", "C"], () => {
+			void handleGlobalComplete();
+		});
+		screen.key(["a", "A"], () => {
+			if (selectedTaskIds.size > 0) {
+				void executeBoardBulkAction("archive");
+				return;
+			}
+			void handleGlobalArchive();
+		});
 
 		screen.key(["q", "C-c"], () => {
 			if (popupOpen || filterPopupOpen || modalOpen) return;
@@ -1471,6 +1706,11 @@ export async function renderBoardTui(
 			// In move mode, ESC cancels and restores original position
 			if (moveOp) {
 				cancelMove();
+				return;
+			}
+
+			if (selectedTaskIds.size > 0) {
+				clearBoardSelection();
 				return;
 			}
 

@@ -1,6 +1,7 @@
 import type { TaskStatistics } from "../../core/statistics.ts";
 import type {
 	BacklogConfig,
+	BulkOperationResult,
 	Decision,
 	Document,
 	Milestone,
@@ -647,6 +648,55 @@ export class ApiClient {
 				body: JSON.stringify(options),
 			},
 		);
+	}
+
+	async bulkArchive(ids: string[]): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/archive`, {
+			method: "POST",
+			body: JSON.stringify({ ids }),
+		});
+	}
+
+	async bulkUpdateStatus(ids: string[], status: string): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/status`, {
+			method: "POST",
+			body: JSON.stringify({ ids, value: status }),
+		});
+	}
+
+	async bulkUpdatePriority(ids: string[], priority: string): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/priority`, {
+			method: "POST",
+			body: JSON.stringify({ ids, value: priority }),
+		});
+	}
+
+	async bulkUpdateAssignee(ids: string[], assignee: string[]): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/assignee`, {
+			method: "POST",
+			body: JSON.stringify({ ids, value: assignee }),
+		});
+	}
+
+	async bulkUpdateLabels(ids: string[], labels: string[]): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/labels`, {
+			method: "POST",
+			body: JSON.stringify({ ids, value: labels }),
+		});
+	}
+
+	async bulkUpdateMilestone(ids: string[], milestone: string | null): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/milestone`, {
+			method: "POST",
+			body: JSON.stringify({ ids, value: milestone }),
+		});
+	}
+
+	async bulkUpdateDueDate(ids: string[], dueDate: string | null): Promise<BulkOperationResult> {
+		return this.fetchJson<BulkOperationResult>(`${API_BASE}/tasks/bulk/due-date`, {
+			method: "POST",
+			body: JSON.stringify({ ids, value: dueDate }),
+		});
 	}
 }
 

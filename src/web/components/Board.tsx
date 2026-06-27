@@ -569,8 +569,20 @@ const Board: React.FC<BoardProps> = ({
                     value={filterQuery}
                     onChange={e => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority, query: e.target.value })}
                     placeholder="Search..."
-                    className="h-10 pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 w-[180px]"
+                    className="h-10 pl-9 pr-8 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 w-[180px]"
                   />
+                  {filterQuery && (
+                    <button
+                      type="button"
+                      onClick={() => onFiltersChange({ assignee: filterAssignee, labels: normalizedFilterLabels, priority: filterPriority, query: '' })}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                      aria-label="Clear search"
+                    >
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 {hasActiveFilters && (
