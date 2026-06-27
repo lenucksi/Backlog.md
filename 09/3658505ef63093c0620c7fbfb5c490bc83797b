@@ -1,0 +1,21 @@
+src/web/components/MilestonesPage.tsx
+  s_8b82b142d69ed2::t_14d04f6f0772cf 154-156
+  s_8b82b142d69ed2::t_226634ccb0864a 805-813
+  s_8b82b142d69ed2::t_8b42845cc2602f 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "093658505ef63093c0620c7fbfb5c490bc83797b",
+  "prompts": {},
+  "sessions": {
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
