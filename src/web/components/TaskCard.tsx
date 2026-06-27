@@ -1,5 +1,6 @@
 import React from 'react';
 import { type Task } from '../../types';
+import { getContrastTextColor } from '../../utils/color';
 import { parseStoredUtcDate } from '../utils/date-display';
 
 interface TaskCardProps {
@@ -168,7 +169,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
                   className={`inline-block px-1.5 py-0.5 text-[10px] rounded transition-colors duration-200 ${
                     bgColor ? "" : "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300"
                   }`}
-                    style={bgColor ? { backgroundColor: bgColor, filter: "saturate(0.55) brightness(1.35)", color: "#fff" } : undefined}
+                    style={bgColor ? { backgroundColor: bgColor, filter: "saturate(0.55) brightness(1.35)", color: getContrastTextColor(bgColor) } : undefined}
                 >
                   {label}
                 </span>
@@ -200,7 +201,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDragStart, onDragEn
                   <span
                     key={i}
                     className={`inline-block px-1 py-0.5 text-[10px] rounded ${color ? '' : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300'}`}
-                    style={color ? { backgroundColor: color, filter: "saturate(0.55) brightness(1.35)", color: '#fff' } : undefined}
+                    style={color ? { backgroundColor: color, filter: "saturate(0.55) brightness(1.35)", color: getContrastTextColor(color) } : undefined}
                   >
                     {a}
                   </span>
