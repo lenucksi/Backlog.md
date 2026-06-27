@@ -166,7 +166,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 			activeMilestones: [...sortedActive, ...sortedEmpty],
 			completedMilestones: sortedCompleted,
 		};
-	}, [visibleBuckets]);
+	}, [visibleBuckets, showEmptyMilestones]);
 	const removeReassignOptions = useMemo(() => {
 		const currentMilestoneId = removingBucket?.milestone;
 		return milestoneEntities.filter(
@@ -983,65 +983,73 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 			{/* Remove modal */}
 			<Modal isOpen={removingBucket !== null} onClose={closeRemoveModal} title="Remove milestone" maxWidthClass="max-w-md">
 				<div className="space-y-4">
-					<p className="text-sm text-gray-600 dark:text-gray-300">
-						Remove milestone &quot;{removingBucket?.label ?? ""}&quot; and choose what happens to its tasks.
-					</p>
-					<div className="space-y-3">
-						<label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200">
-							<input
-								type="radio"
-								name="remove-milestone-task-handling"
-								value="clear"
-								checked={removeTaskHandling === "clear"}
-								onChange={() => {
-									setRemoveTaskHandling("clear");
-									setModalError(null);
-								}}
-								className="mt-0.5"
-							/>
-							<span>
-								<span className="block font-medium text-gray-900 dark:text-gray-100">Leave tasks unassigned</span>
-								<span className="block text-xs text-gray-500 dark:text-gray-400">
-									Clear this milestone from matching local tasks.
-								</span>
-							</span>
-						</label>
-						<label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200">
-							<input
-								type="radio"
-								name="remove-milestone-task-handling"
-								value="reassign"
-								checked={removeTaskHandling === "reassign"}
-								disabled={!canReassignRemovedMilestone}
-								onChange={() => {
-									setRemoveTaskHandling("reassign");
-									setModalError(null);
-								}}
-								className="mt-0.5"
-							/>
-							<span className="flex-1">
-								<span className="block font-medium text-gray-900 dark:text-gray-100">Reassign tasks</span>
-								<span className="block text-xs text-gray-500 dark:text-gray-400">
-									Move matching local tasks to another milestone.
-								</span>
-								<select
-									value={removeReassignTo}
-									onChange={(event) => {
-										setRemoveReassignTo(event.target.value);
-										setModalError(null);
-									}}
-									disabled={removeTaskHandling !== "reassign" || !canReassignRemovedMilestone}
-									className="mt-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 disabled:opacity-60"
-								>
-									{removeReassignOptions.map((milestone) => (
-										<option key={milestone.id} value={milestone.id}>
-											{milestone.title}
-										</option>
-									))}
-								</select>
-							</span>
-						</label>
-					</div>
+					{removingBucket?.total === 0 ? (
+						<p className="text-sm text-gray-600 dark:text-gray-300">
+							Remove milestone &quot;{removingBucket?.label ?? ""}&quot;? This cannot be undone.
+						</p>
+					) : (
+						<>
+							<p className="text-sm text-gray-600 dark:text-gray-300">
+								Remove milestone &quot;{removingBucket?.label ?? ""}&quot; and choose what happens to its tasks.
+							</p>
+							<div className="space-y-3">
+								<label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200">
+									<input
+										type="radio"
+										name="remove-milestone-task-handling"
+										value="clear"
+										checked={removeTaskHandling === "clear"}
+										onChange={() => {
+											setRemoveTaskHandling("clear");
+											setModalError(null);
+										}}
+										className="mt-0.5"
+									/>
+									<span>
+										<span className="block font-medium text-gray-900 dark:text-gray-100">Leave tasks unassigned</span>
+										<span className="block text-xs text-gray-500 dark:text-gray-400">
+											Clear this milestone from matching local tasks.
+										</span>
+									</span>
+								</label>
+								<label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200">
+									<input
+										type="radio"
+										name="remove-milestone-task-handling"
+										value="reassign"
+										checked={removeTaskHandling === "reassign"}
+										disabled={!canReassignRemovedMilestone}
+										onChange={() => {
+											setRemoveTaskHandling("reassign");
+											setModalError(null);
+										}}
+										className="mt-0.5"
+									/>
+									<span className="flex-1">
+										<span className="block font-medium text-gray-900 dark:text-gray-100">Reassign tasks</span>
+										<span className="block text-xs text-gray-500 dark:text-gray-400">
+											Move matching local tasks to another milestone.
+										</span>
+										<select
+											value={removeReassignTo}
+											onChange={(event) => {
+												setRemoveReassignTo(event.target.value);
+												setModalError(null);
+											}}
+											disabled={removeTaskHandling !== "reassign" || !canReassignRemovedMilestone}
+											className="mt-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 disabled:opacity-60"
+										>
+											{removeReassignOptions.map((milestone) => (
+												<option key={milestone.id} value={milestone.id}>
+													{milestone.title}
+												</option>
+											))}
+										</select>
+									</span>
+								</label>
+							</div>
+						</>
+					)}
 					{modalError && <p className="text-xs text-red-600 dark:text-red-400">{modalError}</p>}
 					<div className="flex justify-end gap-2">
 						<button
