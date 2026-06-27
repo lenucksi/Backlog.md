@@ -1,0 +1,95 @@
+src/test/config-commands.test.ts
+  s_90372390bcfa96::t_88ed78352addbb 136-137
+  s_90372390bcfa96::t_bed13c1e536108 42-43
+  s_90372390bcfa96::t_11cc72bd5aa69b 85-86
+src/web/App.tsx
+  s_90372390bcfa96::t_e9f5b32e0541c7 649-652,671-674,693-696
+  s_90372390bcfa96::t_29c6e78372e149 724
+src/file-system/operations.ts
+  s_90372390bcfa96::t_23739ed3239585 1751-1752
+  s_90372390bcfa96::t_22569a21ed5b27 1562-1563
+  s_b16c5e41f09562::t_ea9b3912a7ed0e 1454-1479
+  s_90372390bcfa96::t_38e6dcd454c8a4 1687-1688
+  s_90372390bcfa96::t_c06a15eff3aaa9 1786-1787
+src/web/components/Statistics.tsx
+  s_90372390bcfa96::t_0d0f84e03e35b5 30-34
+  s_90372390bcfa96::t_f801d5d837a47b 260-275,277
+  s_90372390bcfa96::t_139118f020c6c2 18-22
+src/commands/overview.ts
+  s_90372390bcfa96::t_23739ed3239585 6
+  s_90372390bcfa96::t_60c99039076e0e 45
+src/ui/status-icon.ts
+  s_90372390bcfa96::t_23739ed3239585 99-104
+  s_90372390bcfa96::t_ca634e1ea92fc8 87-89
+  s_90372390bcfa96::t_4e858183adb4cc 3-4,10-21,23-35,37-42,46,51-86,90-98,105-111,119-120,128-129,137-138
+src/utils/config-schema.ts
+  s_90372390bcfa96::t_e7997dc2358bed 59-72
+src/ui/task-viewer-with-search.ts
+  s_90372390bcfa96::t_23739ed3239585 35-40
+  s_90372390bcfa96::t_89572d6be6e09b 782-783
+  s_90372390bcfa96::t_383dc8445c52f8 206
+  s_90372390bcfa96::t_9cb0dae3678276 979
+  s_90372390bcfa96::t_38f97c6f2e202e 1569
+  s_90372390bcfa96::t_cbb2c3f0a93e83 1572
+  s_90372390bcfa96::t_97226cefba318a 221
+  s_90372390bcfa96::t_99aab696be8e9f 1785
+  s_90372390bcfa96::t_b078f1fc2f636b 231
+  s_90372390bcfa96::t_d6ce56e6b1d510 1748
+src/types/index.ts
+  s_90372390bcfa96::t_c05621d1cf661c 338-339
+  s_b16c5e41f09562::t_539509b8462f15 75
+src/ui/overview-tui.ts
+  s_90372390bcfa96::t_0e9bc20257596e 66
+  s_90372390bcfa96::t_b7999ea9f4e9b3 9-13
+  s_90372390bcfa96::t_c2bd5ce857eee5 3
+src/commands/advanced-config-wizard.ts
+  s_90372390bcfa96::t_76ef23c0ec7d5d 274
+  s_90372390bcfa96::t_71fa73729316b5 217-218
+  s_90372390bcfa96::t_a9a5a2fc639aa7 776-777
+  s_90372390bcfa96::t_aacae08506b055 322-361
+  s_90372390bcfa96::t_f97a694a1e4681 268,275-280
+src/test/status-icon.test.ts
+  s_90372390bcfa96::t_14226957799807 5-10,13,20-39,43,45-53,59-68,77-86,96-104
+src/ui/board.ts
+  s_90372390bcfa96::t_9bbd7268b275b7 1364
+  s_90372390bcfa96::t_543d6bdaee8bab 221-222
+  s_90372390bcfa96::t_8c5d2142a38cde 265-266,268-274
+  s_90372390bcfa96::t_d9861b3a47a6d4 26
+  s_90372390bcfa96::t_29cc7f0985fa1c 633
+  s_90372390bcfa96::t_23739ed3239585 767
+  s_90372390bcfa96::t_8baea986fc868f 157-158
+src/core/init.ts
+  s_90372390bcfa96::t_ce7883e255a82d 31-32
+  s_90372390bcfa96::t_23739ed3239585 248-251
+  s_90372390bcfa96::t_ec893bb43e2d50 209-210
+  s_90372390bcfa96::t_841e292ef51e10 239-247,252-257
+src/web/components/TaskList.tsx
+  s_90372390bcfa96::t_e85c5fd8183297 34-37
+  s_90372390bcfa96::t_55e0e3d85f92a4 526,528,530,532,534-539,541,543-544,546
+  s_90372390bcfa96::t_dbba11ffee6465 527,529,531,533
+  s_90372390bcfa96::t_71b72a81b54219 99-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "e6abb204a7ce355404aa384278380a68b2b999af",
+  "prompts": {},
+  "sessions": {
+    "s_90372390bcfa96": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f523ed0dffeChoFKp25UqK2cg",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_b16c5e41f09562": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f53275d5ffeVYDeJ8kp2s1WDN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
