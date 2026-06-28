@@ -1,0 +1,19 @@
+.codex/skills/elysia-swagger-openapi.md
+  s_8045a9ad90bb43::t_cd85b7710b5e8e 1-223
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "3cb097b6561c341c7664896417e2ce3f7a6b6fb9",
+  "prompts": {},
+  "sessions": {
+    "s_8045a9ad90bb43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f25a9acdffenf5BrNSmlmZnpi",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
