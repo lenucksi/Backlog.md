@@ -94,7 +94,9 @@ export class BacklogServer {
 		for (const ws of this.sockets) {
 			try {
 				ws.send("tasks-updated");
-			} catch {}
+			} catch {
+				// expected: client may have disconnected
+			}
 		}
 	}
 
@@ -102,7 +104,9 @@ export class BacklogServer {
 		for (const ws of this.sockets) {
 			try {
 				ws.send("config-updated");
-			} catch {}
+			} catch {
+				// expected: client may have disconnected
+			}
 		}
 	}
 
@@ -286,12 +290,16 @@ export class BacklogServer {
 		try {
 			this.unsubscribeContentStore?.();
 			this.unsubscribeContentStore = undefined;
-		} catch {}
+		} catch {
+			// expected: resource already disposed
+		}
 
 		try {
 			this.configWatcher?.stop();
 			this.configWatcher = null;
-		} catch {}
+		} catch {
+			// expected: watcher already disposed
+		}
 
 		this.core.disposeSearchService();
 		this.core.disposeContentStore();
@@ -302,7 +310,9 @@ export class BacklogServer {
 		for (const ws of this.sockets) {
 			try {
 				ws.close();
-			} catch {}
+			} catch {
+				// expected: client may have disconnected
+			}
 		}
 		this.sockets.clear();
 
@@ -311,7 +321,9 @@ export class BacklogServer {
 			const stopPromise = (async () => {
 				try {
 					await serverRef.stop();
-				} catch {}
+				} catch {
+					// expected: server already stopped
+				}
 			})();
 			const timeout = new Promise<void>((resolve) => setTimeout(resolve, 1500));
 			await Promise.race([stopPromise, timeout]);

@@ -1,12 +1,4 @@
-export function hexToRgb(hex: string): { r: number; g: number; b: number } {
-	const h = hex.replace("#", "");
-	const num = Number.parseInt(h, 16);
-	return {
-		r: (num >> 16) & 255,
-		g: (num >> 8) & 255,
-		b: num & 255,
-	};
-}
+import { hexToRgb } from "./color.ts";
 
 export function hexToAnsi256(hex: string): number {
 	const { r, g, b } = hexToRgb(hex);

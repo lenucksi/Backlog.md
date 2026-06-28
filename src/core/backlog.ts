@@ -671,10 +671,7 @@ function filterTasksWithCompleted(
 }
 
 export class Core {
-	/**
-	 * @deprecated Use `core.filesystem` instead. This field will be removed in a future version.
-	 */
-	public fs: FileSystem;
+	private _filesystem: FileSystem;
 	public git: GitOperations;
 	private contentStore?: ContentStore;
 	private searchService?: SearchService;
@@ -686,8 +683,8 @@ export class Core {
 	}
 
 	constructor(projectRoot: string, options?: { enableWatchers?: boolean }) {
-		this.fs = new FileSystem(projectRoot);
-		this.git = new GitOperations(projectRoot, null, () => this.fs.loadConfig());
+		this._filesystem = new FileSystem(projectRoot);
+		this.git = new GitOperations(projectRoot, null, () => this._filesystem.loadConfig());
 		// Disable watchers by default for CLI commands (non-interactive)
 		// Interactive modes (TUI, browser, MCP) should explicitly pass enableWatchers: true
 		this.enableWatchers = options?.enableWatchers ?? false;
@@ -695,7 +692,7 @@ export class Core {
 	}
 
 	async withCreateLock<T>(fn: () => Promise<T>): Promise<T> {
-		return await this.fs.withCreateLock(fn);
+		return await this._filesystem.withCreateLock(fn);
 	}
 
 	private async resolveCreateOrdinal(inputOrdinal: number | undefined, isDraft: boolean): Promise<number | undefined> {
@@ -706,7 +703,7 @@ export class Core {
 			return undefined;
 		}
 
-		const tasks = await this.fs.listTasks();
+		const tasks = await this._filesystem.listTasks();
 		const ordinals = tasks
 			.map((task) => task.ordinal)
 			.filter((ordinal): ordinal is number => typeof ordinal === "number" && Number.isFinite(ordinal));
@@ -721,7 +718,7 @@ export class Core {
 	async getContentStore(): Promise<ContentStore> {
 		if (!this.contentStore) {
 			// Use loadTasks as the task loader to include cross-branch tasks
-			this.contentStore = new ContentStore(this.fs, () => this.loadTasks(), this.enableWatchers);
+			this.contentStore = new ContentStore(this._filesystem, () => this.loadTasks(), this.enableWatchers);
 		}
 		await this.contentStore.ensureInitialized();
 		return this.contentStore;
@@ -872,7 +869,7 @@ export class Core {
 		const trimmedQuery = query?.trim();
 		const includeCrossBranch = options.includeCrossBranch ?? true;
 		const milestoneResolverPromise = filters?.milestone
-			? Promise.all([this.fs.listMilestones(), this.fs.listArchivedMilestones()]).then(
+			? Promise.all([this._filesystem.listMilestones(), this._filesystem.listArchivedMilestones()]).then(
 					([activeMilestones, archivedMilestones]) =>
 						createMilestoneFilterValueResolver([...activeMilestones, ...archivedMilestones]),
 				)
@@ -940,7 +937,7 @@ export class Core {
 		}
 
 		// Pass raw ID to loadTask - it will handle prefix detection via getTaskPath
-		return await this.fs.loadTask(taskId);
+		return await this._filesystem.loadTask(taskId);
 	}
 
 	async getTaskWithSubtasks(taskId: string, localTasks?: Task[]): Promise<Task | null> {
@@ -949,17 +946,17 @@ export class Core {
 			return null;
 		}
 
-		const tasks = localTasks ?? (await this.fs.listTasks());
+		const tasks = localTasks ?? (await this._filesystem.listTasks());
 		return attachSubtaskSummaries(task, tasks);
 	}
 
 	async loadTaskById(taskId: string): Promise<Task | null> {
 		// Pass raw ID to loadTask - it will handle prefix detection via getTaskPath
-		const localTask = await this.fs.loadTask(taskId);
+		const localTask = await this._filesystem.loadTask(taskId);
 		if (localTask) return localTask;
 
 		// Check config for remote operations
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		if (config?.checkActiveBranches === false) return null;
 
 		const sinceDays = config?.activeBranchDays ?? 30;
@@ -998,7 +995,7 @@ export class Core {
 	}
 
 	async getDocument(documentId: string): Promise<Document | null> {
-		const documents = await this.fs.listDocuments();
+		const documents = await this._filesystem.listDocuments();
 		const match = documents.find((doc) => documentIdsEqual(documentId, doc.id));
 		return match ?? null;
 	}
@@ -1008,7 +1005,7 @@ export class Core {
 		if (!document) return null;
 
 		const relativePath = normalizeDocumentRelativePath(document.path ?? `${document.id}.md`);
-		const filePath = join(this.fs.docsDir, ...relativePath.split("/"));
+		const filePath = join(this._filesystem.docsDir, ...relativePath.split("/"));
 		try {
 			return await Bun.file(filePath).text();
 		} catch {
@@ -1023,8 +1020,8 @@ export class Core {
 	reinitializeProjectRoot(projectRoot: string): void {
 		this.disposeSearchService();
 		this.disposeContentStore();
-		this.fs = new FileSystem(projectRoot);
-		this.git = new GitOperations(projectRoot, null, () => this.fs.loadConfig());
+		this._filesystem = new FileSystem(projectRoot);
+		this.git = new GitOperations(projectRoot, null, () => this._filesystem.loadConfig());
 	}
 
 	disposeSearchService(): void {
@@ -1043,7 +1040,7 @@ export class Core {
 
 	// Backward compatibility aliases
 	get filesystem() {
-		return this.fs;
+		return this._filesystem;
 	}
 
 	get gitOps() {
@@ -1052,7 +1049,7 @@ export class Core {
 
 	async ensureConfigLoaded(): Promise<void> {
 		try {
-			const config = await this.fs.loadConfig();
+			const config = await this._filesystem.loadConfig();
 			this._config = config;
 			this.git.setConfig(config);
 		} catch (error) {
@@ -1065,11 +1062,11 @@ export class Core {
 	}
 
 	private async getBacklogDirectoryName(): Promise<string> {
-		return this.fs.backlogDirName;
+		return this._filesystem.backlogDirName;
 	}
 
 	async shouldAutoCommit(overrideValue?: boolean): Promise<boolean> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		this.git.setConfig(config);
 		if (config?.filesystemOnly) {
 			return false;
@@ -1163,7 +1160,7 @@ export class Core {
 
 	private async extractLegacyConfigMilestones(): Promise<string[]> {
 		try {
-			const configPath = this.fs.configFilePath;
+			const configPath = this._filesystem.configFilePath;
 			const content = await Bun.file(configPath).text();
 			const lines = content.split("\n");
 			for (let i = 0; i < lines.length; i += 1) {
@@ -1233,7 +1230,7 @@ export class Core {
 		if (legacyMilestones.length === 0) {
 			return;
 		}
-		const existingMilestones = await this.fs.listMilestones();
+		const existingMilestones = await this._filesystem.listMilestones();
 		const existingKeys = new Set<string>();
 		for (const milestone of existingMilestones) {
 			const idKey = milestone.id.trim().toLowerCase();
@@ -1251,7 +1248,7 @@ export class Core {
 			if (!normalized || existingKeys.has(key)) {
 				continue;
 			}
-			const created = await this.fs.createMilestone(normalized);
+			const created = await this._filesystem.createMilestone(normalized);
 			const createdIdKey = created.id.trim().toLowerCase();
 			const createdTitleKey = created.title.trim().toLowerCase();
 			if (createdIdKey) {
@@ -1266,7 +1263,7 @@ export class Core {
 	async ensureConfigMigrated(): Promise<void> {
 		await this.ensureConfigLoaded();
 		const legacyMilestones = await this.extractLegacyConfigMilestones();
-		let config = await this.fs.loadConfig();
+		let config = await this._filesystem.loadConfig();
 		const needsSchemaMigration = !config || needsMigration(config);
 
 		if (needsSchemaMigration) {
@@ -1277,7 +1274,7 @@ export class Core {
 		}
 		if (config && (needsSchemaMigration || legacyMilestones.length > 0)) {
 			// Rewrite config to apply schema defaults and strip legacy milestones key after successful migration.
-			await this.fs.saveConfig(config);
+			await this._filesystem.saveConfig(config);
 		}
 
 		// Run draft prefix migration if needed (one-time migration)
@@ -1302,7 +1299,7 @@ export class Core {
 	 * - Decision: /decisions only
 	 */
 	async generateNextId(type: EntityType = EntityType.Task, parent?: string): Promise<string> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		const prefix = getPrefixForType(type, config ?? undefined);
 
 		// Collect existing IDs based on entity type
@@ -1361,11 +1358,11 @@ export class Core {
 	 * This is used for ID generation to determine the next available ID.
 	 */
 	private async getActiveAndCompletedTaskIds(): Promise<string[]> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 
 		// Load local active and completed tasks
 		const localTasks = await this.listTasksWithMetadata();
-		const localCompletedTasks = await this.fs.listCompletedTasks();
+		const localCompletedTasks = await this._filesystem.listCompletedTasks();
 
 		// Build initial state entries from local tasks
 		const stateEntries: BranchTaskStateEntry[] = [];
@@ -1431,15 +1428,15 @@ export class Core {
 				return this.getActiveAndCompletedTaskIds();
 			}
 			case EntityType.Draft: {
-				const drafts = await this.fs.listDrafts();
+				const drafts = await this._filesystem.listDrafts();
 				return drafts.map((d) => d.id);
 			}
 			case EntityType.Document: {
-				const documents = await this.fs.listDocuments();
+				const documents = await this._filesystem.listDocuments();
 				return documents.map((d) => d.id);
 			}
 			case EntityType.Decision: {
-				const decisions = await this.fs.listDecisions();
+				const decisions = await this._filesystem.listDecisions();
 				return decisions.map((d) => d.id);
 			}
 			default:
@@ -1451,11 +1448,11 @@ export class Core {
 		if (isDraft) {
 			task.status = "Draft";
 			normalizeAssignee(task);
-			return await this.fs.saveDraft(task);
+			return await this._filesystem.saveDraft(task);
 		}
 
 		normalizeAssignee(task);
-		return await this.fs.saveTask(task);
+		return await this._filesystem.saveTask(task);
 	}
 
 	private async finalizeCreatedTask(
@@ -1464,7 +1461,7 @@ export class Core {
 		isDraft: boolean,
 		autoCommit?: boolean,
 	): Promise<Task | null> {
-		const savedTask = isDraft ? await this.fs.loadDraft(task.id) : await this.fs.loadTask(task.id);
+		const savedTask = isDraft ? await this._filesystem.loadDraft(task.id) : await this._filesystem.loadTask(task.id);
 
 		if (!isDraft && this.contentStore && savedTask) {
 			this.contentStore.upsertTask(savedTask);
@@ -1538,7 +1535,7 @@ export class Core {
 					}))
 					.filter((criterion) => criterion.text.length > 0)
 			: [];
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		const definitionOfDoneItems = buildDefinitionOfDoneItems({
 			defaults: config?.definitionOfDone,
 			add: input.definitionOfDoneAdd,
@@ -1588,7 +1585,7 @@ export class Core {
 
 	async createTask(task: Task, autoCommit?: boolean): Promise<string> {
 		if (!task.status) {
-			const config = await this.fs.loadConfig();
+			const config = await this._filesystem.loadConfig();
 			task.status = config?.defaultStatus || FALLBACK_STATUS;
 		}
 
@@ -1602,14 +1599,14 @@ export class Core {
 		normalizeAssignee(task);
 
 		// Load original task to detect status changes for callbacks
-		const originalTask = await this.fs.loadTask(task.id);
+		const originalTask = await this._filesystem.loadTask(task.id);
 		const oldStatus = originalTask?.status ?? "";
 		const newStatus = task.status ?? "";
 		const statusChanged = oldStatus !== newStatus;
 
 		// Auto-stamp completedDate when transitioning to terminal status (immutable)
 		if (statusChanged && !task.completedDate) {
-			const config = await this.fs.loadConfig();
+			const config = await this._filesystem.loadConfig();
 			const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
 			if (isTerminalStatus(newStatus, statuses, config?.terminalStatuses)) {
 				const now = new Date().toISOString().slice(0, 16).replace("T", " ");
@@ -1620,10 +1617,10 @@ export class Core {
 		// Always set updatedDate when updating a task
 		task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
 
-		await this.fs.saveTask(task);
+		await this._filesystem.saveTask(task);
 		// Keep any in-process ContentStore in sync for immediate UI/search freshness.
 		if (this.contentStore) {
-			const savedTask = await this.fs.loadTask(task.id);
+			const savedTask = await this._filesystem.loadTask(task.id);
 			if (savedTask) {
 				this.contentStore.upsertTask(savedTask);
 			}
@@ -1766,7 +1763,7 @@ export class Core {
 	}
 
 	async updateTaskFromInput(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const task = await this.fs.loadTask(taskId);
+		const task = await this._filesystem.loadTask(taskId);
 		if (!task) {
 			throw new Error(`Task not found: ${taskId}`);
 		}
@@ -1785,7 +1782,7 @@ export class Core {
 		}
 
 		await this.updateTask(task, autoCommit);
-		const refreshed = await this.fs.loadTask(taskId);
+		const refreshed = await this._filesystem.loadTask(taskId);
 		return refreshed ?? task;
 	}
 
@@ -1795,7 +1792,7 @@ export class Core {
 		normalizeAssignee(task);
 		task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
 
-		const filepath = await this.fs.saveDraft(task);
+		const filepath = await this._filesystem.saveDraft(task);
 
 		if (await this.shouldAutoCommit(autoCommit)) {
 			await this.git.addFile(filepath);
@@ -1804,7 +1801,7 @@ export class Core {
 	}
 
 	async updateDraftFromInput(draftId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const draft = await this.fs.loadDraft(draftId);
+		const draft = await this._filesystem.loadDraft(draftId);
 		if (!draft) {
 			throw new Error(`Draft not found: ${draftId}`);
 		}
@@ -1821,12 +1818,12 @@ export class Core {
 		}
 
 		await this.updateDraft(draft, autoCommit);
-		const refreshed = await this.fs.loadDraft(draftId);
+		const refreshed = await this._filesystem.loadDraft(draftId);
 		return refreshed ?? draft;
 	}
 
 	async editTaskOrDraft(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const draft = await this.fs.loadDraft(taskId);
+		const draft = await this._filesystem.loadDraft(taskId);
 		if (draft) {
 			const requestedStatus = input.status?.trim();
 			const wantsDraft = requestedStatus?.toLowerCase() === "draft";
@@ -1836,7 +1833,7 @@ export class Core {
 			return await this.updateDraftFromInput(draft.id, input, autoCommit);
 		}
 
-		const task = await this.fs.loadTask(taskId);
+		const task = await this._filesystem.loadTask(taskId);
 		if (!task) {
 			throw new Error(`Task not found: ${taskId}`);
 		}
@@ -1880,7 +1877,7 @@ export class Core {
 			};
 
 			normalizeAssignee(promotedTask);
-			const savedPath = await this.fs.saveTask(promotedTask);
+			const savedPath = await this._filesystem.saveTask(promotedTask);
 
 			if (draftPath) {
 				await unlink(draftPath);
@@ -1889,7 +1886,7 @@ export class Core {
 			return { promotedTask, savedPath };
 		});
 
-		const savedTask = await this.fs.loadTask(promotedTask.id);
+		const savedTask = await this._filesystem.loadTask(promotedTask.id);
 		if (this.contentStore && savedTask) {
 			this.contentStore.upsertTask(savedTask);
 		}
@@ -1926,7 +1923,7 @@ export class Core {
 			};
 
 			normalizeAssignee(demotedDraft);
-			const savedPath = await this.fs.saveDraft(demotedDraft);
+			const savedPath = await this._filesystem.saveDraft(demotedDraft);
 
 			if (taskPath) {
 				await unlink(taskPath);
@@ -1941,7 +1938,7 @@ export class Core {
 			await this.git.commitChanges(`backlog: Demote task ${normalizeTaskId(task.id)}`, repoRoot);
 		}
 
-		return (await this.fs.loadDraft(demotedDraft.id)) ?? { ...demotedDraft, filePath: savedPath };
+		return (await this._filesystem.loadDraft(demotedDraft.id)) ?? { ...demotedDraft, filePath: savedPath };
 	}
 
 	/**
@@ -1950,7 +1947,7 @@ export class Core {
 	 * Failures are logged but don't block the status change.
 	 */
 	private async executeStatusChangeCallback(task: Task, oldStatus: string, newStatus: string): Promise<void> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 
 		// Per-task callback takes precedence over global config
 		const callbackCommand = task.onStatusChange ?? config?.onStatusChange;
@@ -1965,7 +1962,7 @@ export class Core {
 				oldStatus,
 				newStatus,
 				taskTitle: task.title,
-				cwd: this.fs.rootDir,
+				cwd: this._filesystem.rootDir,
 			});
 
 			if (!result.success) {
@@ -1983,7 +1980,7 @@ export class Core {
 
 	async editTask(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
 		// Reopen guard: reject edits on archived tasks
-		const archiveDir = this.fs.archiveTasksDir;
+		const archiveDir = this._filesystem.archiveTasksDir;
 		const taskPath = await getTaskPath(taskId, this);
 		if (taskPath?.startsWith(archiveDir)) {
 			throw new Error(`Cannot edit archived task ${normalizeTaskId(taskId)}`);
@@ -2130,8 +2127,8 @@ export class Core {
 
 	// Sequences operations (business logic lives in core, not server)
 	async listActiveSequences(): Promise<{ unsequenced: Task[]; sequences: Sequence[] }> {
-		const all = await this.fs.listTasks();
-		const config = await this.fs.loadConfig();
+		const all = await this._filesystem.listTasks();
+		const config = await this._filesystem.loadConfig();
 		const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
 		const active = all.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 		return computeSequences(active);
@@ -2145,11 +2142,11 @@ export class Core {
 		const taskId = String(params.taskId || "").trim();
 		if (!taskId) throw new Error("taskId is required");
 
-		const allTasks = await this.fs.listTasks();
+		const allTasks = await this._filesystem.listTasks();
 		const exists = allTasks.some((t) => t.id === taskId);
 		if (!exists) throw new Error(`Task ${taskId} not found`);
 
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
 		const active = allTasks.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 		const { sequences } = computeSequences(active);
@@ -2169,7 +2166,7 @@ export class Core {
 		}
 
 		// Return updated sequences
-		const afterAll = await this.fs.listTasks();
+		const afterAll = await this._filesystem.listTasks();
 		const afterActive = afterAll.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 		return computeSequences(afterActive);
 	}
@@ -2185,7 +2182,7 @@ export class Core {
 		);
 
 		// Search tasks
-		const tasks = await this.fs.listTasks();
+		const tasks = await this._filesystem.listTasks();
 		for (const task of tasks) {
 			const searchFields = [task.title, task.description || "", task.rawContent || ""].join("\n");
 			const match = refRegex.exec(searchFields);
@@ -2201,7 +2198,7 @@ export class Core {
 		}
 
 		// Search documents
-		const documents = await this.fs.listDocuments();
+		const documents = await this._filesystem.listDocuments();
 		for (const doc of documents) {
 			const searchFields = [doc.title, doc.rawContent || ""].join("\n");
 			const match = refRegex.exec(searchFields);
@@ -2217,7 +2214,7 @@ export class Core {
 		}
 
 		// Search decisions
-		const decisions = await this.fs.listDecisions();
+		const decisions = await this._filesystem.listDecisions();
 		for (const decision of decisions) {
 			const searchFields = [
 				decision.title,
@@ -2243,7 +2240,7 @@ export class Core {
 	}
 
 	async archiveTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
-		const taskToArchive = await this.fs.loadTask(taskId);
+		const taskToArchive = await this._filesystem.loadTask(taskId);
 		if (!taskToArchive) {
 			return false;
 		}
@@ -2252,7 +2249,7 @@ export class Core {
 			const now = new Date().toISOString().slice(0, 16).replace("T", " ");
 			taskToArchive.archivedDate = now;
 			taskToArchive.updatedDate = now;
-			await this.fs.saveTask(taskToArchive);
+			await this._filesystem.saveTask(taskToArchive);
 		}
 		const normalizedTaskId = taskToArchive.id;
 
@@ -2263,14 +2260,14 @@ export class Core {
 		if (!taskPath || !taskFilename) return false;
 
 		const fromPath = taskPath;
-		const toPath = join(await this.fs.getArchiveTasksDir(), taskFilename);
+		const toPath = join(await this._filesystem.getArchiveTasksDir(), taskFilename);
 
-		const success = await this.fs.archiveTask(normalizedTaskId);
+		const success = await this._filesystem.archiveTask(normalizedTaskId);
 		if (!success) {
 			return false;
 		}
 
-		const activeTasks = await this.fs.listTasks();
+		const activeTasks = await this._filesystem.listTasks();
 		const sanitizedTasks = this.sanitizeArchivedTaskLinks(activeTasks, normalizedTaskId);
 		if (sanitizedTasks.length > 0) {
 			await this.updateTasksBulk(sanitizedTasks, undefined, false);
@@ -2294,7 +2291,7 @@ export class Core {
 		identifier: string,
 		autoCommit?: boolean,
 	): Promise<{ success: boolean; sourcePath?: string; targetPath?: string; milestone?: Milestone }> {
-		const result = await this.fs.archiveMilestone(identifier);
+		const result = await this._filesystem.archiveMilestone(identifier);
 
 		if (result.success && result.sourcePath && result.targetPath && (await this.shouldAutoCommit(autoCommit))) {
 			const repoRoot = await this.git.stageFileMove(result.sourcePath, result.targetPath);
@@ -2332,7 +2329,7 @@ export class Core {
 		milestone?: Milestone;
 		previousTitle?: string;
 	}> {
-		const result = await this.fs.renameMilestone(identifier, title);
+		const result = await this._filesystem.renameMilestone(identifier, title);
 		if (!result.success) {
 			return result;
 		}
@@ -2347,7 +2344,7 @@ export class Core {
 				await this.git.resetPaths(commitPaths, repoRoot);
 				const rollbackTitle = result.previousTitle ?? title;
 				try {
-					await this.fs.renameMilestone(result.milestone?.id ?? identifier, rollbackTitle);
+					await this._filesystem.renameMilestone(result.milestone?.id ?? identifier, rollbackTitle);
 				} catch {
 					// Ignore rollback failure and propagate original commit error.
 				}
@@ -2412,7 +2409,7 @@ export class Core {
 				continue;
 			}
 			try {
-				const task = await this.fs.loadTask(id);
+				const task = await this._filesystem.loadTask(id);
 				if (!task) {
 					failed.push({ id, error: "Task not found" });
 					continue;
@@ -2439,8 +2436,8 @@ export class Core {
 	}
 
 	async getTerminalStatusTasksByAge(olderThanDays: number): Promise<Task[]> {
-		const tasks = await this.fs.listTasks();
-		const config = await this.fs.loadConfig();
+		const tasks = await this._filesystem.listTasks();
+		const config = await this._filesystem.loadConfig();
 		const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
 		const cutoffDate = new Date();
 		cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
@@ -2458,7 +2455,7 @@ export class Core {
 	}
 
 	async archiveDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
-		const success = await this.fs.archiveDraft(draftId);
+		const success = await this._filesystem.archiveDraft(draftId);
 
 		if (success && (await this.shouldAutoCommit(autoCommit))) {
 			const backlogDir = await this.getBacklogDirectoryName();
@@ -2470,7 +2467,7 @@ export class Core {
 	}
 
 	async promoteDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
-		const success = await this.fs.promoteDraft(draftId);
+		const success = await this._filesystem.promoteDraft(draftId);
 
 		if (success && (await this.shouldAutoCommit(autoCommit))) {
 			const backlogDir = await this.getBacklogDirectoryName();
@@ -2482,7 +2479,7 @@ export class Core {
 	}
 
 	async demoteTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
-		const success = await this.fs.demoteTask(taskId);
+		const success = await this._filesystem.demoteTask(taskId);
 
 		if (success && (await this.shouldAutoCommit(autoCommit))) {
 			const backlogDir = await this.getBacklogDirectoryName();
@@ -2497,7 +2494,7 @@ export class Core {
 	 * Add acceptance criteria to a task
 	 */
 	async addAcceptanceCriteria(taskId: string, criteria: string[], autoCommit?: boolean): Promise<void> {
-		const task = await this.fs.loadTask(taskId);
+		const task = await this._filesystem.loadTask(taskId);
 		if (!task) {
 			throw new Error(`Task not found: ${taskId}`);
 		}
@@ -2521,7 +2518,7 @@ export class Core {
 	 * @returns Array of removed indices
 	 */
 	async removeAcceptanceCriteria(taskId: string, indices: number[], autoCommit?: boolean): Promise<number[]> {
-		const task = await this.fs.loadTask(taskId);
+		const task = await this._filesystem.loadTask(taskId);
 		if (!task) {
 			throw new Error(`Task not found: ${taskId}`);
 		}
@@ -2565,7 +2562,7 @@ export class Core {
 		checked: boolean,
 		autoCommit?: boolean,
 	): Promise<number[]> {
-		const task = await this.fs.loadTask(taskId);
+		const task = await this._filesystem.loadTask(taskId);
 		if (!task) {
 			throw new Error(`Task not found: ${taskId}`);
 		}
@@ -2602,7 +2599,7 @@ export class Core {
 	 * List all acceptance criteria for a task
 	 */
 	async listAcceptanceCriteria(taskId: string): Promise<AcceptanceCriterion[]> {
-		const task = await this.fs.loadTask(taskId);
+		const task = await this._filesystem.loadTask(taskId);
 		if (!task) {
 			throw new Error(`Task not found: ${taskId}`);
 		}
@@ -2611,7 +2608,7 @@ export class Core {
 	}
 
 	async createDecision(decision: Decision, autoCommit?: boolean): Promise<void> {
-		await this.fs.saveDecision(decision);
+		await this._filesystem.saveDecision(decision);
 
 		if (await this.shouldAutoCommit(autoCommit)) {
 			const backlogDir = await this.getBacklogDirectoryName();
@@ -2621,7 +2618,7 @@ export class Core {
 	}
 
 	async editDecision(id: string, updates: { labels?: string[] }): Promise<void> {
-		const existingDecision = await this.fs.loadDecision(id);
+		const existingDecision = await this._filesystem.loadDecision(id);
 		if (!existingDecision) {
 			throw new Error(`Decision ${id} not found`);
 		}
@@ -2635,7 +2632,7 @@ export class Core {
 	}
 
 	async resolveDecision(decisionId: string, autoCommit?: boolean): Promise<Decision> {
-		const existingDecision = await this.fs.loadDecision(decisionId);
+		const existingDecision = await this._filesystem.loadDecision(decisionId);
 		if (!existingDecision) {
 			throw new Error(`Decision ${decisionId} not found`);
 		}
@@ -2649,7 +2646,7 @@ export class Core {
 	}
 
 	async updateDecisionFromContent(decisionId: string, content: string, autoCommit?: boolean): Promise<void> {
-		const existingDecision = await this.fs.loadDecision(decisionId);
+		const existingDecision = await this._filesystem.loadDecision(decisionId);
 		if (!existingDecision) {
 			throw new Error(`Decision ${decisionId} not found`);
 		}
@@ -2701,7 +2698,7 @@ export class Core {
 	}
 
 	async createDocument(doc: Document, autoCommit?: boolean, subPath = ""): Promise<void> {
-		const relativePath = await this.fs.saveDocument(doc, normalizeDocumentSubPath(subPath));
+		const relativePath = await this._filesystem.saveDocument(doc, normalizeDocumentSubPath(subPath));
 		doc.path = relativePath;
 
 		if (await this.shouldAutoCommit(autoCommit)) {
@@ -2795,7 +2792,7 @@ export class Core {
 	async listTasksWithMetadata(
 		includeBranchMeta = false,
 	): Promise<Array<Task & { lastModified?: Date; branch?: string }>> {
-		const tasks = await this.fs.listTasks();
+		const tasks = await this._filesystem.listTasks();
 		return await Promise.all(
 			tasks.map(async (task) => {
 				const filePath = await getTaskPath(task.id, this);
@@ -2837,7 +2834,7 @@ export class Core {
 			return { changed: false, task: resolvedTask, reason: "read_only" };
 		}
 
-		const localTask = await this.fs.loadTask(resolvedTask.id);
+		const localTask = await this._filesystem.loadTask(resolvedTask.id);
 		const editableTask = localTask ?? resolvedTask;
 
 		const filePath = await getTaskPath(editableTask.id, this);
@@ -2865,7 +2862,7 @@ export class Core {
 		}
 
 		if (afterContent === beforeContent) {
-			const refreshedTask = await this.fs.loadTask(editableTask.id);
+			const refreshedTask = await this._filesystem.loadTask(editableTask.id);
 			return { changed: false, task: refreshedTask ?? editableTask };
 		}
 
@@ -2873,7 +2870,7 @@ export class Core {
 		const withUpdatedDate = upsertTaskUpdatedDate(afterContent, now);
 		await Bun.write(filePath, withUpdatedDate);
 
-		const refreshedTask = await this.fs.loadTask(editableTask.id);
+		const refreshedTask = await this._filesystem.loadTask(editableTask.id);
 		if (refreshedTask && this.contentStore) {
 			this.contentStore.upsertTask(refreshedTask);
 		}
@@ -2885,7 +2882,7 @@ export class Core {
 	}
 
 	async openEditor(filePath: string, screen?: BlessedScreen): Promise<boolean> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 
 		// If no screen provided, use simple editor opening
 		if (!screen) {
@@ -2947,7 +2944,7 @@ export class Core {
 		terminalStatuses?: string[];
 		blockedStatuses?: string[];
 	}> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		const statuses = (config?.statuses || DEFAULT_STATUSES) as string[];
 		const resolutionStrategy = config?.taskResolutionStrategy || "most_progressed";
 
@@ -2955,7 +2952,7 @@ export class Core {
 		progressCallback?.("Loading local tasks...");
 		const [localTasks, completedTasks] = await Promise.all([
 			this.listTasksWithMetadata(),
-			this.fs.listCompletedTasks(),
+			this._filesystem.listCompletedTasks(),
 		]);
 
 		// Load remote tasks and local branch tasks in parallel
@@ -3020,7 +3017,7 @@ export class Core {
 
 		// Load drafts
 		progressCallback?.("Loading drafts...");
-		const drafts = await this.fs.listDrafts();
+		const drafts = await this._filesystem.listDrafts();
 
 		return {
 			tasks: activeTasks,
@@ -3040,7 +3037,7 @@ export class Core {
 		abortSignal?: AbortSignal,
 		options?: { includeCompleted?: boolean },
 	): Promise<Task[]> {
-		const config = await this.fs.loadConfig();
+		const config = await this._filesystem.loadConfig();
 		const statuses = config?.statuses || [...DEFAULT_STATUSES];
 		const resolutionStrategy: "most_recent" | "most_progressed" =
 			(config?.taskResolutionStrategy as "most_recent" | "most_progressed") || "most_progressed";
@@ -3052,7 +3049,7 @@ export class Core {
 
 		const [localTasks, completedTasks] = await Promise.all([
 			this.listTasksWithMetadata(),
-			includeCompleted ? this.fs.listCompletedTasks() : Promise.resolve([]),
+			includeCompleted ? this._filesystem.listCompletedTasks() : Promise.resolve([]),
 		]);
 
 		if (abortSignal?.aborted) {

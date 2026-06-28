@@ -15,10 +15,12 @@ import type {
 } from "../types/index.ts";
 import type { BacklogConfigSource } from "../utils/backlog-directory.ts";
 import { normalizeProjectBacklogDirectory, resolveBacklogDirectory } from "../utils/backlog-directory.ts";
+import { KNOWN_CONFIG_KEYS } from "../utils/config-schema.ts";
 import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
 import { normalizeDocumentRelativePath, normalizeDocumentSubPath } from "../utils/document-path.ts";
 import { lockDirectory } from "../utils/file-lock.ts";
 import { parseFrontmatter, stringifyFrontmatter } from "../utils/frontmatter.ts";
+import { tryWarn } from "../utils/log-error.ts";
 import {
 	buildGlobPattern,
 	extractAnyPrefix,
@@ -324,7 +326,9 @@ export class FileSystem {
 					parsed.data.status = "Archived";
 					await Bun.write(target, stringifyFrontmatter(parsed.content, parsed.data));
 					migrated++;
-				} catch {}
+				} catch (err) {
+					tryWarn("FileSystem", err, "migrateCompletedTasks");
+				}
 			}
 
 			const remaining = await readdir(completedDir);
@@ -621,7 +625,9 @@ export class FileSystem {
 					const content = await Bun.file(filepath).text();
 					const task = parseTask(content);
 					tasks.push({ ...task, filePath: filepath });
-				} catch {}
+				} catch (err) {
+					tryWarn("FileSystem", err, "loadTask iteration");
+				}
 			}
 
 			return sortByTaskId(tasks);
@@ -1712,6 +1718,13 @@ ${description || `Milestone: ${title}`}`,
 	private parseConfig(content: string): { config: BacklogConfig; raw: Record<string, unknown> } {
 		const raw = parseYaml(content) as Record<string, unknown>;
 		const config: Partial<BacklogConfig> = {};
+
+		for (const key of Object.keys(raw)) {
+			if (key === "dod_defaults" || key === "definition_of_done" || this.snakeToCamel[key]) continue;
+			if (!KNOWN_CONFIG_KEYS.includes(key)) {
+				console.warn(`Config: unknown key "${key}" — ignoring`);
+			}
+		}
 
 		// Handle dod_defaults as legacy alias for definition_of_done
 		if (raw.dod_defaults !== undefined && raw.definition_of_done === undefined) {

@@ -36,7 +36,9 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 					proc.stdin.write(text);
 					await proc.stdin.end();
 					if ((await proc.exited) === 0) return true;
-				} catch {}
+				} catch {
+					// expected: clipboard tool not available
+				}
 			}
 		}
 

@@ -68,7 +68,9 @@ export function watchTasks(core: Core, callbacks: TaskWatcherCallbacks): { stop:
 		stop() {
 			try {
 				watcher.close();
-			} catch {}
+			} catch {
+				// expected: watcher already closed
+			}
 		},
 	};
 }

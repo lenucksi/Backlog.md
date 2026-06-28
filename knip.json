@@ -1,7 +1,7 @@
 {
 	"entry": ["src/cli.ts", "src/server/index.ts", "src/mcp/server.ts", "src/web/main.tsx", "scripts/**/*.cjs"],
 	"project": ["src/**/*.ts"],
-	"ignore": ["src/test/**", "src/completions/**", "src/ui/enhanced-views.ts", "src/ui/simple-unified-view.ts"],
+	"ignore": ["src/test/**", "src/completions/**"],
 	"ignoreDependencies": [
 		"shell-quote",
 		"yaml",
@@ -11,7 +11,6 @@
 		"@types/shell-quote",
 		"@uiw/react-markdown-preview",
 		"@uiw/react-md-editor",
-		"install",
 		"react-tooltip"
 	],
 	"ignoreBinaries": [

@@ -75,7 +75,9 @@ export async function migrateDraftPrefixes(fs: FileSystem): Promise<void> {
 
 			// Delete old task- file
 			await unlink(filePath);
-		} catch {}
+		} catch {
+			// expected: file may have been moved already
+		}
 	}
 
 	// Update config with prefixes section

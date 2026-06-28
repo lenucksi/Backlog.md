@@ -45,6 +45,11 @@ if (process.env.BUN_OPTIONS) {
 // Get version from package.json
 const version = await getVersion();
 
+// Frühzeitige argv-Parsing für --path und --cwd (vor Commander-Init nötig)
+// Commander registriert diese Optionen ebenfalls. Die Duplizierung ist bewusst:
+// Splash-Screen (Zeile 124) und Config-Migration (Zeile 165) laufen BEVOR
+// program.parseAsync() aufgerufen wird. Sobald diese Pre-Init-Logik entfällt,
+// können diese Funktionen entfernt werden.
 function getPathOverrideFromArgv(argv = process.argv): string | undefined {
 	const args = argv.slice(2);
 	for (let i = 0; i < args.length; i++) {
@@ -182,7 +187,8 @@ program
 	.name("backlog")
 	.description("Backlog.md - Project management CLI")
 	.version(version, "-v, --version", "display version number")
-	.option("--path <path>", "Path to the Backlog.md project root (overrides auto-detection)");
+	.option("--path <path>", "Path to the Backlog.md project root (overrides auto-detection)")
+	.option("--cwd <path>", "Working directory for MCP start command");
 
 // Register all command groups
 registerInitCommand(program);

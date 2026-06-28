@@ -130,7 +130,9 @@ function parseStringArray(rawValue: string): string[] {
 		if (Array.isArray(parsed) && parsed.every((s: unknown) => typeof s === "string")) {
 			return parsed;
 		}
-	} catch {}
+	} catch {
+		// expected: value is not valid JSON
+	}
 	return rawValue
 		.split(",")
 		.map((s) => s.trim())
