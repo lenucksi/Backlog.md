@@ -1,0 +1,23 @@
+package.json
+  s_8045a9ad90bb43::t_b33df6afac9dce 57
+  s_8045a9ad90bb43::t_db3ab359f9a18c 116-117,119
+  s_8045a9ad90bb43::t_6164589ce965b1 31
+  s_8045a9ad90bb43::t_a0bfbec6eb772f 41,43
+  s_8045a9ad90bb43::t_f6993d8c228a15 83-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "c865bcff9ba2a8a40cb4809387e3a66da284252c",
+  "prompts": {},
+  "sessions": {
+    "s_8045a9ad90bb43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f25a9acdffenf5BrNSmlmZnpi",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
