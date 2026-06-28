@@ -1,0 +1,19 @@
+src/server/index.ts
+  s_8045a9ad90bb43::t_3123cbc7066ca6 24,158,168,170-174,177-188,192-233,252-253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "051188fb6714d77941d4b44001b16f54ac017ab2",
+  "prompts": {},
+  "sessions": {
+    "s_8045a9ad90bb43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f25a9acdffenf5BrNSmlmZnpi",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
