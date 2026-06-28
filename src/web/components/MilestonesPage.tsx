@@ -59,6 +59,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 	onRefreshData,
 }) => {
 	const [newMilestone, setNewMilestone] = useState("");
+	const [newMilestoneDescription, setNewMilestoneDescription] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
@@ -74,6 +75,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 	const [removingMilestoneKey, setRemovingMilestoneKey] = useState<string | null>(null);
 	const [editingBucket, setEditingBucket] = useState<MilestoneBucket | null>(null);
 	const [editMilestoneName, setEditMilestoneName] = useState("");
+	const [editMilestoneDescription, setEditMilestoneDescription] = useState("");
 	const [removingBucket, setRemovingBucket] = useState<MilestoneBucket | null>(null);
 	const [removeTaskHandling, setRemoveTaskHandling] = useState<RemoveTaskHandling>("clear");
 	const [removeReassignTo, setRemoveReassignTo] = useState("");
@@ -236,6 +238,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 	const closeAddModal = () => {
 		setShowAddModal(false);
 		setNewMilestone("");
+		setNewMilestoneDescription("");
 		setError(null);
 	};
 
@@ -252,8 +255,10 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		setError(null);
 		setSuccess(null);
 		try {
-			await apiClient.createMilestone(value);
+			const desc = newMilestoneDescription.trim() || undefined;
+			await apiClient.createMilestone(value, desc);
 			setNewMilestone("");
+			setNewMilestoneDescription("");
 			setSuccess(`Added milestone "${value}"`);
 			setShowAddModal(false);
 			if (onRefreshData) {
@@ -311,8 +316,12 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 
 	const openEditModal = (bucket: MilestoneBucket) => {
 		if (!bucket.milestone) return;
+		const entity = milestoneEntities.find(
+			(m) => milestoneKey(m.id) === milestoneKey(bucket.milestone!),
+		);
 		setEditingBucket(bucket);
 		setEditMilestoneName(bucket.label || bucket.milestone);
+		setEditMilestoneDescription(entity?.description ?? "");
 		setModalError(null);
 		setError(null);
 		setSuccess(null);
@@ -321,6 +330,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 	const closeEditModal = () => {
 		setEditingBucket(null);
 		setEditMilestoneName("");
+		setEditMilestoneDescription("");
 		setModalError(null);
 	};
 
@@ -354,7 +364,8 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		setError(null);
 		setSuccess(null);
 		try {
-			await apiClient.updateMilestone(bucket.milestone, value);
+			const desc = editMilestoneDescription.trim() || undefined;
+			await apiClient.updateMilestone(bucket.milestone, value, desc);
 			closeEditModal();
 			setSuccess(`Renamed milestone "${previousLabel}" to "${value}"`);
 			if (onRefreshData) {
@@ -528,6 +539,14 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 							</div>
 						)}
 					</div>
+
+					{/* Description - hide auto-generated placeholders */}
+					{bucket.description &&
+						bucket.description !== `Milestone: ${bucket.label}` && (
+							<p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+								{bucket.description}
+							</p>
+						)}
 
 					{/* Progress bar - only for non-empty */}
 					{!isEmpty && (
@@ -922,6 +941,16 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 						/>
 						{error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
 					</div>
+					<div className="space-y-2">
+						<label className="text-sm font-medium text-gray-900 dark:text-gray-100">Description (optional)</label>
+						<textarea
+							value={newMilestoneDescription}
+							onChange={(e) => setNewMilestoneDescription(e.target.value)}
+							placeholder="e.g. Focus area for Q3 release"
+							rows={3}
+							className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+						/>
+					</div>
 					<div className="flex justify-end gap-2">
 						<button
 							type="button"
@@ -960,6 +989,19 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 							Renaming updates local tasks that reference this milestone.
 						</p>
 						{modalError && <p className="text-xs text-red-600 dark:text-red-400">{modalError}</p>}
+					</div>
+					<div className="space-y-2">
+						<label htmlFor="edit-milestone-description" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+							Description (optional)
+						</label>
+						<textarea
+							id="edit-milestone-description"
+							value={editMilestoneDescription}
+							onChange={(e) => setEditMilestoneDescription(e.target.value)}
+							placeholder="e.g. Focus area for Q3 release"
+							rows={3}
+							className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+						/>
 					</div>
 					<div className="flex justify-end gap-2">
 						<button

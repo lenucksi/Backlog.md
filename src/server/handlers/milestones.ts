@@ -129,21 +129,28 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 		try {
 			const body = await readOptionalJsonBody(req);
 			const title = typeof body.title === "string" ? body.title.trim() : "";
+			const description =
+				typeof body.description === "string" || body.description === null ? (body.description ?? undefined) : undefined;
 			const updateTasks = typeof body.updateTasks === "boolean" ? body.updateTasks : true;
 
 			if (!title) {
 				return Response.json({ error: "Milestone title is required" }, { status: 400 });
 			}
 
-			const sourceMilestone = await ctx.core.filesystem.loadMilestone(milestoneId);
 			const result = await new MilestoneHandlers(ctx.core).renameMilestone({
 				from: milestoneId,
 				to: title,
 				updateTasks,
 			});
-			const milestone =
-				(await ctx.core.filesystem.loadMilestone(sourceMilestone?.id ?? milestoneId)) ??
-				(await ctx.core.filesystem.loadMilestone(title));
+			if (!result.success) {
+				return Response.json({ error: "Failed to update milestone" }, { status: 500 });
+			}
+
+			if (description !== undefined) {
+				await ctx.core.filesystem.setMilestoneDescription(milestoneId, description);
+			}
+
+			const milestone = await ctx.core.filesystem.loadMilestone(milestoneId);
 			ctx.broadcastTasksUpdated();
 			return Response.json({
 				success: true,

@@ -19,6 +19,7 @@ export type MilestoneAddArgs = {
 export type MilestoneRenameArgs = {
 	from: string;
 	to: string;
+	description?: string;
 	updateTasks?: boolean;
 };
 
@@ -320,7 +321,11 @@ export class MilestoneHandlers {
 			.sort((a, b) => a.localeCompare(b));
 
 		const blocks: string[] = [];
-		const milestoneLines = fileMilestones.map((m) => `${m.id}: ${m.title}`);
+		const milestoneLines = fileMilestones.map((m) => {
+			const desc =
+				m.description && m.description !== `Milestone: ${m.title}` ? ` — ${m.description.slice(0, 60)}` : "";
+			return `${m.id}: ${m.title}${desc}`;
+		});
 		blocks.push(formatListBlock(`Milestones (${fileMilestones.length}):`, milestoneLines));
 		blocks.push(formatListBlock(`Milestones found on tasks without files (${unconfigured.length}):`, unconfigured));
 		blocks.push(
@@ -428,6 +433,14 @@ export class MilestoneHandlers {
 		}
 
 		const renamedMilestone = renameResult.milestone;
+		let descriptionUpdated = false;
+		if (args.description !== undefined) {
+			const descResult = await this.core.filesystem.setMilestoneDescription(sourceMilestone.id, args.description);
+			if (!descResult.success) {
+				throw AppError.internal(`Failed to update description for milestone "${renamedMilestone.title}".`);
+			}
+			descriptionUpdated = true;
+		}
 		const previousMilestones = new Map<string, string | undefined>();
 		if (shouldUpdateTasks) {
 			try {
@@ -480,6 +493,9 @@ export class MilestoneHandlers {
 		const summaryLines: string[] = [
 			`Renamed milestone "${sourceMilestone.title}" (${sourceMilestone.id}) → "${renamedMilestone.title}" (${renamedMilestone.id}).`,
 		];
+		if (descriptionUpdated) {
+			summaryLines.push(`Updated description.`);
+		}
 		if (shouldUpdateTasks) {
 			summaryLines.push(
 				`Updated ${updatedTaskIds.length} local task${updatedTaskIds.length === 1 ? "" : "s"}: ${formatTaskIdList(updatedTaskIds)}`,

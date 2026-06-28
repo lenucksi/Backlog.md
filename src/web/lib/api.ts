@@ -545,13 +545,14 @@ export class ApiClient {
 	async updateMilestone(
 		id: string,
 		title: string,
+		description?: string,
 	): Promise<{ success: boolean; milestone?: Milestone | null; message?: string }> {
 		const response = await fetch(`${API_BASE}/milestones/${encodeURIComponent(id)}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ title }),
+			body: JSON.stringify(description !== undefined ? { title, description } : { title }),
 		});
 		if (!response.ok) {
 			const data = await response.json().catch(() => ({}));

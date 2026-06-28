@@ -41,6 +41,11 @@ export const milestoneRenameSchema: JsonSchema = {
 			maxLength: 100,
 			description: "New milestone name (trimmed; case-insensitive uniqueness)",
 		},
+		description: {
+			type: "string",
+			maxLength: 2000,
+			description: "Optional new description for the milestone. Pass empty string to reset to default.",
+		},
 		updateTasks: {
 			type: "boolean",
 			description: "Whether to update local tasks that reference the milestone (default: true)",

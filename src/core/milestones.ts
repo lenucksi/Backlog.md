@@ -301,10 +301,15 @@ function createBucket(
 
 	const key = bucketMilestoneKey ? bucketMilestoneKey : NO_MILESTONE_KEY;
 	const label = getMilestoneLabel(milestoneId, milestoneEntities);
+	const entity = milestoneId
+		? milestoneEntities.find((m) => milestoneKey(m.id) === milestoneKey(milestoneId))
+		: undefined;
+	const description = entity?.description ?? "";
 
 	return {
 		key,
 		label,
+		description,
 		milestone: milestoneId,
 		isNoMilestone,
 		isCompleted,
