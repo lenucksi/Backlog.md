@@ -21,7 +21,7 @@ import { createMilestoneHandlers } from "./handlers/milestones.ts";
 import { createSystemHandlers } from "./handlers/system.ts";
 import { createTaskHandlers } from "./handlers/tasks.ts";
 import { applyNoStoreHeaders, findNextAvailablePort, isPortAvailable, markHtmlBundleNoStore } from "./middleware.ts";
-import { buildRoutes } from "./router.ts";
+import { buildElysiaApp } from "./router.ts";
 import type { ServerHandlerContext } from "./types.ts";
 
 export { findNextAvailablePort, isPortAvailable, markHtmlBundleNoStore };
@@ -155,7 +155,7 @@ export class BacklogServer {
 
 			const ctx = this.createHandlerContext();
 
-			const routes = buildRoutes({
+			const handlers = {
 				tasks: createTaskHandlers(ctx),
 				documents: createDocumentHandlers(ctx),
 				decisions: createDecisionHandlers(ctx),
@@ -165,39 +165,72 @@ export class BacklogServer {
 				config: createConfigHandlers(ctx),
 				system: createSystemHandlers(ctx),
 				backlinks: createBacklinkHandlers(ctx),
-			});
-
-			const spaHandler: Record<string, unknown> = {
-				GET: async () => {
-					const htmlFile = await this.resolveHtml();
-					return new Response(htmlFile, {
-						headers: { "Content-Type": "text/html" },
-					});
-				},
 			};
-			for (const path of [
-				"/tasks",
-				"/tasks/*",
-				"/board",
-				"/board/*",
-				"/milestones",
-				"/drafts",
-				"/documentation",
-				"/documentation/*",
-				"/decisions",
-				"/decisions/*",
-				"/statistics",
-				"/settings",
-			]) {
-				(routes as Record<string, unknown>)[path] = spaHandler;
-			}
 
-			const serveOptions = {
+			const spaHandler = async () => {
+				const htmlFile = await this.resolveHtml();
+				return new Response(htmlFile, {
+					headers: { "Content-Type": "text/html" },
+				});
+			};
+
+			const app = buildElysiaApp(handlers, spaHandler);
+
+			const getContentType = (path: string): string => {
+				if (path.endsWith(".css")) return "text/css";
+				if (path.endsWith(".tsx") || path.endsWith(".ts")) return "application/typescript";
+				if (path.endsWith(".js")) return "application/javascript";
+				if (path.endsWith(".png")) return "image/png";
+				if (path.endsWith(".svg")) return "image/svg+xml";
+				return "application/octet-stream";
+			};
+
+			this.server = Bun.serve({
 				port: finalPort,
 				development: process.env.NODE_ENV === "development",
-				routes,
 				fetch: async (req: Request, server: Server<unknown>) => {
-					const res = await this.handleRequest(req, server);
+					if (req.headers.get("upgrade")?.toLowerCase() === "websocket") {
+						const success = server.upgrade(req, { data: undefined });
+						if (success) {
+							return new Response(null, { status: 101 });
+						}
+						return new Response("WebSocket upgrade failed", { status: 400 });
+					}
+
+					const url = new URL(req.url);
+					const pathname = url.pathname;
+
+					if (pathname === "/") {
+						const htmlFile = await this.resolveHtml();
+						return new Response(htmlFile, {
+							headers: { "Content-Type": "text/html" },
+						});
+					}
+
+					if (pathname.startsWith("/favicon")) {
+						const faviconFile = Bun.file(favicon);
+						return new Response(faviconFile, {
+							headers: { "Content-Type": "image/png" },
+						});
+					}
+
+					if (
+						pathname.startsWith("/web/") ||
+						pathname.startsWith("/styles/") ||
+						pathname.startsWith("/assets/") ||
+						pathname.endsWith(".tsx") ||
+						pathname.endsWith(".js")
+					) {
+						const webPath = pathname.replace(/^\//, "");
+						const asset = await this.resolveAsset(webPath);
+						if (asset) {
+							return new Response(asset, {
+								headers: { "Content-Type": getContentType(webPath) },
+							});
+						}
+					}
+
+					const res = await app.fetch(req);
 
 					if (req.method === "GET" || req.method === "HEAD") {
 						applyNoStoreHeaders(res.headers);
@@ -205,7 +238,6 @@ export class BacklogServer {
 
 					return res;
 				},
-				error: this.handleError.bind(this),
 				websocket: {
 					open: (ws: ServerWebSocket) => {
 						this.sockets.add(ws);
@@ -217,9 +249,8 @@ export class BacklogServer {
 						this.sockets.delete(ws);
 					},
 				},
-				/* biome-ignore format: keep cast on single line below for type narrowing */
-			};
-			this.server = Bun.serve(serveOptions as unknown as Parameters<typeof Bun.serve>[0]);
+				error: this.handleError.bind(this),
+			});
 
 			const url = `http://localhost:${finalPort}`;
 			console.log(`🚀 Backlog.md browser interface running at ${url}`);
@@ -329,59 +360,6 @@ export class BacklogServer {
 		}
 
 		return null;
-	}
-
-	private async handleRequest(req: Request, server: Server<unknown>): Promise<Response> {
-		const getContentType = (path: string): string => {
-			if (path.endsWith(".css")) return "text/css";
-			if (path.endsWith(".tsx") || path.endsWith(".ts")) return "application/typescript";
-			if (path.endsWith(".js")) return "application/javascript";
-			if (path.endsWith(".png")) return "image/png";
-			if (path.endsWith(".svg")) return "image/svg+xml";
-			return "application/octet-stream";
-		};
-
-		const url = new URL(req.url);
-		const pathname = url.pathname;
-
-		if (req.headers.get("upgrade")?.toLowerCase() === "websocket") {
-			const success = server.upgrade(req, { data: undefined });
-			if (success) {
-				return new Response(null, { status: 101 });
-			}
-			return new Response("WebSocket upgrade failed", { status: 400 });
-		}
-
-		if (pathname === "/") {
-			const htmlFile = await this.resolveHtml();
-			return new Response(htmlFile, {
-				headers: { "Content-Type": "text/html" },
-			});
-		}
-
-		if (pathname.startsWith("/favicon")) {
-			const faviconFile = Bun.file(favicon);
-			return new Response(faviconFile, {
-				headers: { "Content-Type": "image/png" },
-			});
-		}
-
-		if (
-			pathname.startsWith("/web/") ||
-			pathname.startsWith("/styles/") ||
-			pathname.endsWith(".tsx") ||
-			pathname.endsWith(".js")
-		) {
-			const webPath = pathname.replace(/^\//, "");
-			const asset = await this.resolveAsset(webPath);
-			if (asset) {
-				return new Response(asset, {
-					headers: { "Content-Type": getContentType(webPath) },
-				});
-			}
-		}
-
-		return new Response("Not Found", { status: 404 });
 	}
 
 	private handleError(error: Error): Response {
