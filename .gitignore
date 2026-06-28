@@ -53,3 +53,5 @@ tmp/
 data/
 tools
 worktrees/
+docs/
+.husky/
