@@ -1,3 +1,9 @@
+import { cors } from "@elysiajs/cors";
+import { swagger } from "@elysiajs/swagger";
+import { Elysia, t } from "elysia";
+
+import { CleanupPreviewQuery, FileContentQuery, IdParam, SearchQuery, TaskListFilterQuery } from "./schemas";
+
 export type RouteHandlers = {
 	tasks: {
 		handleListTasks: (req: Request) => Promise<Response>;
@@ -81,169 +87,706 @@ export type RouteHandlers = {
 	};
 };
 
-export function buildRoutes(handlers: RouteHandlers): Record<string, unknown> {
+export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promise<Response>) {
 	const { tasks, documents, decisions, drafts, milestones, config, system, files, backlinks } = handlers;
 
-	return {
-		"/api/tasks": {
-			GET: async (req: Request) => await tasks.handleListTasks(req),
-			POST: async (req: Request) => await tasks.handleCreateTask(req),
-		},
-		"/api/tasks/:id": {
-			GET: async (req: Request & { params: { id: string } }) => await tasks.handleGetTask(req.params.id),
-			PUT: async (req: Request & { params: { id: string } }) => await tasks.handleUpdateTask(req, req.params.id),
-			DELETE: async (req: Request & { params: { id: string } }) => await tasks.handleDeleteTask(req.params.id),
-		},
-		"/api/tasks/:id/demote": {
-			POST: async (req: Request & { params: { id: string } }) => await tasks.handleDemoteTask(req.params.id),
-		},
-		"/api/tasks/completed": {
-			GET: async () => await tasks.handleListCompletedTasks(),
-		},
-		"/api/tasks/:id/reopen": {
-			POST: async (req: Request & { params: { id: string } }) => await tasks.handleReopenTask(req.params.id),
-		},
-		"/api/tasks/bulk/archive": {
-			POST: async (req: Request) => await tasks.handleBulkArchive(req),
-		},
-		"/api/tasks/bulk/status": {
-			POST: async (req: Request) => await tasks.handleBulkStatus(req),
-		},
-		"/api/tasks/bulk/priority": {
-			POST: async (req: Request) => await tasks.handleBulkPriority(req),
-		},
-		"/api/tasks/bulk/assignee": {
-			POST: async (req: Request) => await tasks.handleBulkAssignee(req),
-		},
-		"/api/tasks/bulk/labels": {
-			POST: async (req: Request) => await tasks.handleBulkLabels(req),
-		},
-		"/api/tasks/bulk/milestone": {
-			POST: async (req: Request) => await tasks.handleBulkMilestone(req),
-		},
-		"/api/tasks/bulk/due-date": {
-			POST: async (req: Request) => await tasks.handleBulkDueDate(req),
-		},
-		"/api/statuses": {
-			GET: async () => await config.handleGetStatuses(),
-		},
-		"/api/config": {
-			GET: async () => await config.handleGetConfig(),
-			PUT: async (req: Request) => await config.handleUpdateConfig(req),
-		},
-		"/api/docs": {
-			GET: async () => await documents.handleListDocs(),
-			POST: async (req: Request) => await documents.handleCreateDoc(req),
-		},
-		"/api/docs/:id": {
-			GET: async (req: Request & { params: { id: string } }) => await documents.handleGetDoc(req.params.id),
-			PUT: async (req: Request & { params: { id: string } }) => await documents.handleUpdateDoc(req, req.params.id),
-			DELETE: async (req: Request & { params: { id: string } }) => await documents.handleDocumentDelete(req.params.id),
-		},
-		"/api/docs/archived": {
-			GET: async () => await documents.handleListArchivedDocs(),
-		},
-		"/api/docs/:id/restore": {
-			POST: async (req: Request & { params: { id: string } }) => await documents.handleRestoreDocument(req.params.id),
-		},
-		"/api/docs/:id/archive": {
-			POST: async (req: Request & { params: { id: string } }) => await documents.handleDocumentArchive(req.params.id),
-		},
-		"/api/decisions": {
-			GET: async () => await decisions.handleListDecisions(),
-			POST: async (req: Request) => await decisions.handleCreateDecision(req),
-		},
-		"/api/decisions/:id": {
-			GET: async (req: Request & { params: { id: string } }) => await decisions.handleGetDecision(req.params.id),
-			PUT: async (req: Request & { params: { id: string } }) =>
-				await decisions.handleUpdateDecision(req, req.params.id),
-		},
-		"/api/decisions/:id/resolve": {
-			POST: async (req: Request & { params: { id: string } }) => await decisions.handleResolveDecision(req.params.id),
-		},
-		"/api/drafts": {
-			GET: async () => await drafts.handleListDrafts(),
-		},
-		"/api/drafts/:id/promote": {
-			POST: async (req: Request & { params: { id: string } }) => await drafts.handlePromoteDraft(req.params.id),
-		},
-		"/api/milestones": {
-			GET: async () => await milestones.handleListMilestones(),
-			POST: async (req: Request) => await milestones.handleCreateMilestone(req),
-		},
-		"/api/milestones/archived": {
-			GET: async () => await milestones.handleListArchivedMilestones(),
-		},
-		"/api/milestones/:id": {
-			GET: async (req: Request & { params: { id: string } }) => await milestones.handleGetMilestone(req.params.id),
-			PUT: async (req: Request & { params: { id: string } }) =>
-				await milestones.handleUpdateMilestone(req, req.params.id),
-			DELETE: async (req: Request & { params: { id: string } }) =>
-				await milestones.handleRemoveMilestone(req, req.params.id),
-		},
-		"/api/milestones/:id/archive": {
-			POST: async (req: Request & { params: { id: string } }) => await milestones.handleArchiveMilestone(req.params.id),
-		},
-		"/api/config/labels": {
-			GET: async () => await config.handleListLabels(),
-			POST: async (req: Request) => await config.handleAddLabel(req),
-		},
-		"/api/config/labels/:name": {
-			PUT: async (req: Request & { params: { name: string } }) => await config.handleRenameLabel(req),
-			DELETE: async (req: Request & { params: { name: string } }) => await config.handleRemoveLabel(req),
-		},
-		"/api/config/authors": {
-			GET: async () => await config.handleListAuthors(),
-			POST: async (req: Request) => await config.handleAddAuthor(req),
-		},
-		"/api/config/authors/:name": {
-			PUT: async (req: Request & { params: { name: string } }) => await config.handleRenameAuthor(req),
-			DELETE: async (req: Request & { params: { name: string } }) => await config.handleRemoveAuthor(req),
-		},
-		"/api/tasks/reorder": {
-			POST: async (req: Request) => await tasks.handleReorderTask(req),
-		},
-		"/api/tasks/cleanup": {
-			GET: async (req: Request) => await tasks.handleCleanupPreview(req),
-		},
-		"/api/tasks/cleanup/execute": {
-			POST: async (req: Request) => await tasks.handleCleanupExecute(req),
-		},
-		"/api/version": {
-			GET: async () => await system.handleGetVersion(),
-		},
-		"/api/statistics": {
-			GET: async () => await system.handleGetStatistics(),
-		},
-		"/api/status": {
-			GET: async () => await system.handleGetStatus(),
-		},
-		"/api/duplicates": {
-			GET: async () => await system.handleGetDuplicates(),
-		},
-		"/api/init": {
-			POST: async (req: Request) => await system.handleInit(req),
-		},
-		"/api/search": {
-			GET: async (req: Request) => await tasks.handleSearch(req),
-		},
-		"/api/sequences": {
-			GET: async () => await tasks.handleGetSequences(),
-		},
-		"/api/sequences/move": {
-			POST: async (req: Request) => await tasks.handleMoveSequence(req),
-		},
-		"/assets/*": {
-			GET: async (req: Request) => await system.handleAssetRequest(req),
-		},
-		"/api/file-content": {
-			GET: async (req: Request) => await files.handleGetFileContent(req),
-		},
-		"/api/backlinks": {
-			GET: async (_req: Request) => await backlinks.handleGetBacklinks(""),
-		},
-		"/api/backlinks/:id": {
-			GET: async (req: Request & { params: { id: string } }) => await backlinks.handleGetBacklinks(req.params.id),
-		},
+	const enrichRequest = <T extends Record<string, string>>(req: Request, params: T): Request & { params: T } => {
+		const r = req as Request & { params: T };
+		r.params = params;
+		return r;
 	};
+
+	return (
+		new Elysia()
+			.use(cors())
+			.use(
+				swagger({
+					path: "/swagger",
+					documentation: {
+						info: {
+							title: "Backlog.md API",
+							version: "1.5.0",
+							description:
+								"REST API for Backlog.md task management — OpenAPI 3.0 spec auto-generated by @elysiajs/swagger",
+							contact: {
+								name: "Backlog.md Team",
+								url: "https://github.com/backlog-md/backlog.md",
+							},
+							license: {
+								name: "MIT",
+								url: "https://opensource.org/licenses/MIT",
+							},
+						},
+						externalDocs: {
+							description: "Backlog.md Documentation",
+							url: "https://github.com/backlog-md/backlog.md",
+						},
+						tags: [
+							{ name: "Tasks", description: "Task CRUD, bulk operations, cleanup, sequences, and search" },
+							{ name: "Documents", description: "Document CRUD and archival" },
+							{ name: "Decisions", description: "Decision CRUD and resolution" },
+							{ name: "Drafts", description: "Draft listing and promotion to task" },
+							{ name: "Milestones", description: "Milestone CRUD and archival" },
+							{ name: "Config", description: "Application configuration, labels, and authors" },
+							{ name: "System", description: "Version, statistics, server status, and initialization" },
+							{ name: "Search", description: "Full-text search across tasks, documents, and decisions" },
+							{ name: "Sequences", description: "Task sequence ordering for parallel execution" },
+							{ name: "Files", description: "File content access" },
+							{ name: "Backlinks", description: "Backlink resolution between entities" },
+						],
+					},
+				}),
+			)
+			// --- Tasks ---
+			.get("/api/tasks", ({ request }) => tasks.handleListTasks(request), {
+				query: TaskListFilterQuery,
+				detail: {
+					summary: "List all tasks",
+					description: "Returns all tasks, optionally filtered by status, assignee, priority, milestone, or label",
+					tags: ["Tasks"],
+					responses: { 200: { description: "Array of Task objects" } },
+				},
+			})
+			.post("/api/tasks", ({ request }) => tasks.handleCreateTask(request), {
+				detail: {
+					summary: "Create a task",
+					description:
+						"Creates a new task with title, status, priority, labels, assignees, and optional fields. The task ID is auto-generated.",
+					tags: ["Tasks"],
+					responses: { 201: { description: "Created Task object" } },
+				},
+			})
+			.get("/api/tasks/completed", () => tasks.handleListCompletedTasks(), {
+				detail: {
+					summary: "List completed tasks",
+					description: "Returns all tasks from the completed/ directory",
+					tags: ["Tasks"],
+					responses: { 200: { description: "Array of Task objects" } },
+				},
+			})
+			.get("/api/tasks/:id", ({ params: { id } }) => tasks.handleGetTask(id), {
+				params: IdParam,
+				detail: {
+					summary: "Get task by ID",
+					description: "Returns a single task by its ID (e.g. BACK-123). Includes subtask summaries.",
+					tags: ["Tasks"],
+					responses: {
+						200: { description: "Task object with subtaskSummaries" },
+						404: { description: "Task not found" },
+					},
+				},
+			})
+			.put("/api/tasks/:id", ({ request, params: { id } }) => tasks.handleUpdateTask(request, id), {
+				params: IdParam,
+				detail: {
+					summary: "Update a task",
+					description:
+						"Updates title, status, description, priority, labels, assignee, milestone, dependencies, implementation plan, acceptance criteria, due date, and other fields of an existing task",
+					tags: ["Tasks"],
+					responses: {
+						200: { description: "Updated Task object" },
+						400: { description: "Invalid input data" },
+						404: { description: "Task not found" },
+					},
+				},
+			})
+			.delete("/api/tasks/:id", ({ params: { id } }) => tasks.handleDeleteTask(id), {
+				params: IdParam,
+				detail: {
+					summary: "Delete a task",
+					description: "Permanently deletes a task. The task file is removed from disk.",
+					tags: ["Tasks"],
+					responses: {
+						200: { description: "Confirmation { success: true }" },
+						400: { description: "Task has open subtasks" },
+						404: { description: "Task not found" },
+					},
+				},
+			})
+			.post("/api/tasks/:id/demote", ({ params: { id } }) => tasks.handleDemoteTask(id), {
+				params: IdParam,
+				detail: {
+					summary: "Demote task to draft",
+					description: "Converts a task into a draft. The task file is deleted and a draft file is created.",
+					tags: ["Tasks"],
+					responses: { 200: { description: "Confirmation { success: true }" } },
+				},
+			})
+			.post("/api/tasks/:id/reopen", ({ params: { id } }) => tasks.handleReopenTask(id), {
+				params: IdParam,
+				detail: {
+					summary: "Reopen a task",
+					description: "Moves a completed or archived task back to an active status",
+					tags: ["Tasks"],
+					responses: { 200: { description: "Confirmation { success: true }" } },
+				},
+			})
+			.post("/api/tasks/bulk/archive", ({ request }) => tasks.handleBulkArchive(request), {
+				detail: {
+					summary: "Bulk archive tasks",
+					description: "Archives multiple tasks at once by their IDs",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/bulk/status", ({ request }) => tasks.handleBulkStatus(request), {
+				detail: {
+					summary: "Bulk update status",
+					description: "Updates the status for multiple tasks at once",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/bulk/priority", ({ request }) => tasks.handleBulkPriority(request), {
+				detail: {
+					summary: "Bulk update priority",
+					description: "Updates the priority (high/medium/low) for multiple tasks at once",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/bulk/assignee", ({ request }) => tasks.handleBulkAssignee(request), {
+				detail: {
+					summary: "Bulk update assignee",
+					description: "Updates the assignees for multiple tasks at once",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/bulk/labels", ({ request }) => tasks.handleBulkLabels(request), {
+				detail: {
+					summary: "Bulk update labels",
+					description: "Updates the labels for multiple tasks at once",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/bulk/milestone", ({ request }) => tasks.handleBulkMilestone(request), {
+				detail: {
+					summary: "Bulk update milestone",
+					description: "Sets or removes the milestone for multiple tasks at once",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/bulk/due-date", ({ request }) => tasks.handleBulkDueDate(request), {
+				detail: {
+					summary: "Bulk update due date",
+					description: "Sets or removes the due date for multiple tasks at once",
+					tags: ["Tasks"],
+					responses: { 200: { description: "BulkOperationResult with succeeded/failed arrays" } },
+				},
+			})
+			.post("/api/tasks/reorder", ({ request }) => tasks.handleReorderTask(request), {
+				detail: {
+					summary: "Reorder tasks",
+					description:
+						"Moves a task to a different status column and/or a different position within the column. Optionally changes the milestone as well.",
+					tags: ["Tasks"],
+					responses: {
+						200: { description: "Object with success and updated task" },
+					},
+				},
+			})
+			.get("/api/tasks/cleanup", ({ request }) => tasks.handleCleanupPreview(request), {
+				query: CleanupPreviewQuery,
+				detail: {
+					summary: "Preview cleanup",
+					description: "Previews which tasks would be cleaned up (archived) based on the minimum age",
+					tags: ["Tasks"],
+					responses: { 200: { description: "Object with count and tasks array" } },
+				},
+			})
+			.post("/api/tasks/cleanup/execute", ({ request }) => tasks.handleCleanupExecute(request), {
+				detail: {
+					summary: "Execute cleanup",
+					description: "Archives all tasks older than the specified number of days to the completed/ directory",
+					tags: ["Tasks"],
+					responses: { 200: { description: "Object with success, movedCount, totalCount" } },
+				},
+			})
+			// --- Documents ---
+			.get("/api/docs", () => documents.handleListDocs(), {
+				detail: {
+					summary: "List documents",
+					description: "Returns all documents from the docs/ directory",
+					tags: ["Documents"],
+					responses: { 200: { description: "Array of Document objects" } },
+				},
+			})
+			.post("/api/docs", ({ request }) => documents.handleCreateDoc(request), {
+				detail: {
+					summary: "Create a document",
+					description: "Creates a new document in the docs/ directory. Type: readme, guide, specification, or other.",
+					tags: ["Documents"],
+					responses: { 201: { description: "Created Document object" } },
+				},
+			})
+			.get("/api/docs/archived", () => documents.handleListArchivedDocs(), {
+				detail: {
+					summary: "List archived documents",
+					description: "Returns all archived documents from the docs/archive/ directory",
+					tags: ["Documents"],
+					responses: { 200: { description: "Array of Document objects" } },
+				},
+			})
+			.get("/api/docs/:id", ({ params: { id } }) => documents.handleGetDoc(id), {
+				params: IdParam,
+				detail: {
+					summary: "Get document by ID",
+					description: "Returns a single document with its full markdown content",
+					tags: ["Documents"],
+					responses: {
+						200: { description: "Document object with rawContent" },
+						404: { description: "Document not found" },
+					},
+				},
+			})
+			.put("/api/docs/:id", ({ request, params: { id } }) => documents.handleUpdateDoc(request, id), {
+				params: IdParam,
+				detail: {
+					summary: "Update a document",
+					description: "Updates content, title, type, path, labels, or tags of a document",
+					tags: ["Documents"],
+					responses: {
+						200: { description: "Updated Document object" },
+						404: { description: "Document not found" },
+					},
+				},
+			})
+			.delete("/api/docs/:id", ({ params: { id } }) => documents.handleDocumentDelete(id), {
+				params: IdParam,
+				detail: {
+					summary: "Delete a document",
+					description: "Permanently deletes a document. Non-archived documents are archived first, then deleted.",
+					tags: ["Documents"],
+					responses: {
+						200: { description: "Confirmation { success: true }" },
+						404: { description: "Document not found" },
+					},
+				},
+			})
+			.post("/api/docs/:id/restore", ({ params: { id } }) => documents.handleRestoreDocument(id), {
+				params: IdParam,
+				detail: {
+					summary: "Restore archived document",
+					description: "Restores an archived document from docs/archive/ back to docs/",
+					tags: ["Documents"],
+					responses: {
+						200: { description: "Confirmation { success: true }" },
+						404: { description: "Archived document not found" },
+					},
+				},
+			})
+			.post("/api/docs/:id/archive", ({ params: { id } }) => documents.handleDocumentArchive(id), {
+				params: IdParam,
+				detail: {
+					summary: "Archive a document",
+					description: "Moves a document to the docs/archive/ directory",
+					tags: ["Documents"],
+					responses: {
+						200: { description: "Confirmation { success: true }" },
+						404: { description: "Document not found" },
+					},
+				},
+			})
+			// --- Decisions ---
+			.get("/api/decisions", () => decisions.handleListDecisions(), {
+				detail: {
+					summary: "List decisions",
+					description: "Returns all Architectural Decision Records (ADRs)",
+					tags: ["Decisions"],
+					responses: { 200: { description: "Array of Decision objects" } },
+				},
+			})
+			.post("/api/decisions", ({ request }) => decisions.handleCreateDecision(request), {
+				detail: {
+					summary: "Create a decision",
+					description: "Creates a new Architectural Decision Record in the decisions/ directory",
+					tags: ["Decisions"],
+					responses: { 201: { description: "Created Decision object" } },
+				},
+			})
+			.get("/api/decisions/:id", ({ params: { id } }) => decisions.handleGetDecision(id), {
+				params: IdParam,
+				detail: {
+					summary: "Get decision by ID",
+					description: "Returns a single Architectural Decision Record",
+					tags: ["Decisions"],
+					responses: {
+						200: { description: "Decision object" },
+						404: { description: "Decision not found" },
+					},
+				},
+			})
+			.put("/api/decisions/:id", ({ request, params: { id } }) => decisions.handleUpdateDecision(request, id), {
+				params: IdParam,
+				detail: {
+					summary: "Update a decision",
+					description: "Updates the content (raw text) of an Architectural Decision Record",
+					tags: ["Decisions"],
+					responses: {
+						200: { description: "Confirmation { success: true }" },
+						404: { description: "Decision not found" },
+					},
+				},
+			})
+			.post("/api/decisions/:id/resolve", ({ params: { id } }) => decisions.handleResolveDecision(id), {
+				params: IdParam,
+				detail: {
+					summary: "Resolve a decision",
+					description: "Sets a decision to 'accepted' status. Fails if already resolved or superseded.",
+					tags: ["Decisions"],
+					responses: {
+						200: { description: "Confirmation with updated decision" },
+						404: { description: "Decision not found" },
+						409: { description: "Decision already resolved or superseded" },
+					},
+				},
+			})
+			// --- Drafts ---
+			.get("/api/drafts", () => drafts.handleListDrafts(), {
+				detail: {
+					summary: "List drafts",
+					description: "Returns all drafts from the drafts/ directory",
+					tags: ["Drafts"],
+					responses: { 200: { description: "Array of Draft objects" } },
+				},
+			})
+			.post("/api/drafts/:id/promote", ({ params: { id } }) => drafts.handlePromoteDraft(id), {
+				params: IdParam,
+				detail: {
+					summary: "Promote draft to task",
+					description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
+					tags: ["Drafts"],
+					responses: {
+						200: { description: "Confirmation { success: true }" },
+						404: { description: "Draft not found" },
+						409: { description: "Conflict: draft cannot be promoted" },
+					},
+				},
+			})
+			// --- Milestones ---
+			.get("/api/milestones", () => milestones.handleListMilestones(), {
+				detail: {
+					summary: "List milestones",
+					description: "Returns all milestones from the milestones/ directory",
+					tags: ["Milestones"],
+					responses: { 200: { description: "Array of Milestone objects" } },
+				},
+			})
+			.post("/api/milestones", ({ request }) => milestones.handleCreateMilestone(request), {
+				detail: {
+					summary: "Create a milestone",
+					description: "Creates a new milestone in the milestones/ directory",
+					tags: ["Milestones"],
+					responses: { 201: { description: "Created Milestone object" } },
+				},
+			})
+			.get("/api/milestones/archived", () => milestones.handleListArchivedMilestones(), {
+				detail: {
+					summary: "List archived milestones",
+					description: "Returns all archived milestones",
+					tags: ["Milestones"],
+					responses: { 200: { description: "Array of Milestone objects" } },
+				},
+			})
+			.get("/api/milestones/:id", ({ params: { id } }) => milestones.handleGetMilestone(id), {
+				params: IdParam,
+				detail: {
+					summary: "Get milestone by ID",
+					description: "Returns a single milestone",
+					tags: ["Milestones"],
+					responses: {
+						200: { description: "Milestone object" },
+						404: { description: "Milestone not found" },
+					},
+				},
+			})
+			.put("/api/milestones/:id", ({ request, params: { id } }) => milestones.handleUpdateMilestone(request, id), {
+				params: IdParam,
+				detail: {
+					summary: "Update a milestone",
+					description: "Updates the title and description of a milestone. Optionally renames linked tasks.",
+					tags: ["Milestones"],
+					responses: {
+						200: { description: "Object with success, milestone, and message" },
+						404: { description: "Milestone not found" },
+					},
+				},
+			})
+			.delete("/api/milestones/:id", ({ request, params: { id } }) => milestones.handleRemoveMilestone(request, id), {
+				params: IdParam,
+				detail: {
+					summary: "Delete a milestone",
+					description:
+						"Deletes a milestone. Options for handling associated tasks: clear (removes milestone), keep (keeps reference), reassign (moves to another milestone).",
+					tags: ["Milestones"],
+					responses: {
+						200: { description: "Object with success and message" },
+						404: { description: "Milestone not found" },
+					},
+				},
+			})
+			.post("/api/milestones/:id/archive", ({ params: { id } }) => milestones.handleArchiveMilestone(id), {
+				params: IdParam,
+				detail: {
+					summary: "Archive a milestone",
+					description: "Archives a milestone (moves it from milestones/ to the archive)",
+					tags: ["Milestones"],
+					responses: {
+						200: { description: "Object with success and milestone" },
+						404: { description: "Milestone not found" },
+					},
+				},
+			})
+			// --- Config ---
+			.get("/api/statuses", () => config.handleGetStatuses(), {
+				detail: {
+					summary: "Get status list",
+					description: "Returns the configured status values from backlog.config.yml",
+					tags: ["Config"],
+					responses: { 200: { description: "Array of status strings" } },
+				},
+			})
+			.get("/api/config", () => config.handleGetConfig(), {
+				detail: {
+					summary: "Get configuration",
+					description: "Returns the full backlog.config.yml as a BacklogConfig object",
+					tags: ["Config"],
+					responses: { 200: { description: "BacklogConfig object" } },
+				},
+			})
+			.put("/api/config", ({ request }) => config.handleUpdateConfig(request), {
+				detail: {
+					summary: "Update configuration",
+					description: "Updates backlog.config.yml with new values. Requires at least projectName.",
+					tags: ["Config"],
+					responses: { 200: { description: "Updated BacklogConfig object" } },
+				},
+			})
+			.get("/api/config/labels", () => config.handleListLabels(), {
+				detail: {
+					summary: "List labels",
+					description: "Returns all configured labels (name + optional color)",
+					tags: ["Config"],
+					responses: { 200: { description: "Array of LabelConfig objects" } },
+				},
+			})
+			.post("/api/config/labels", ({ request }) => config.handleAddLabel(request), {
+				detail: {
+					summary: "Add a label",
+					description: "Adds a new label with name and optional color (hex code)",
+					tags: ["Config"],
+					responses: { 200: { description: "Updated array of LabelConfig objects" } },
+				},
+			})
+			.put(
+				"/api/config/labels/:name",
+				({ request, params }) => {
+					return config.handleRenameLabel(enrichRequest(request, params));
+				},
+				{
+					params: t.Object({
+						name: t.String({ description: "Current label name (URL-encoded)" }),
+					}),
+					detail: {
+						summary: "Rename a label",
+						description: "Changes the name and/or color of an existing label",
+						tags: ["Config"],
+						responses: { 200: { description: "Updated array of LabelConfig objects" } },
+					},
+				},
+			)
+			.delete(
+				"/api/config/labels/:name",
+				({ request, params }) => {
+					return config.handleRemoveLabel(enrichRequest(request, params));
+				},
+				{
+					params: t.Object({
+						name: t.String({ description: "Label name (URL-encoded)" }),
+					}),
+					detail: {
+						summary: "Remove a label",
+						description: "Removes a label from the configuration",
+						tags: ["Config"],
+						responses: { 200: { description: "Updated array of LabelConfig objects" } },
+					},
+				},
+			)
+			.get("/api/config/authors", () => config.handleListAuthors(), {
+				detail: {
+					summary: "List authors",
+					description: "Returns all configured authors (name + optional color)",
+					tags: ["Config"],
+					responses: { 200: { description: "Array of AuthorConfig objects" } },
+				},
+			})
+			.post("/api/config/authors", ({ request }) => config.handleAddAuthor(request), {
+				detail: {
+					summary: "Add an author",
+					description: "Adds a new author with name and optional color (hex code)",
+					tags: ["Config"],
+					responses: { 200: { description: "Updated array of AuthorConfig objects" } },
+				},
+			})
+			.put(
+				"/api/config/authors/:name",
+				({ request, params }) => {
+					return config.handleRenameAuthor(enrichRequest(request, params));
+				},
+				{
+					params: t.Object({
+						name: t.String({ description: "Current author name (URL-encoded)" }),
+					}),
+					detail: {
+						summary: "Rename an author",
+						description: "Changes the name and/or color of an existing author",
+						tags: ["Config"],
+						responses: { 200: { description: "Updated array of AuthorConfig objects" } },
+					},
+				},
+			)
+			.delete(
+				"/api/config/authors/:name",
+				({ request, params }) => {
+					return config.handleRemoveAuthor(enrichRequest(request, params));
+				},
+				{
+					params: t.Object({
+						name: t.String({ description: "Author name (URL-encoded)" }),
+					}),
+					detail: {
+						summary: "Remove an author",
+						description: "Removes an author from the configuration",
+						tags: ["Config"],
+						responses: { 200: { description: "Updated array of AuthorConfig objects" } },
+					},
+				},
+			)
+			// --- System ---
+			.get("/api/version", () => system.handleGetVersion(), {
+				detail: {
+					summary: "Get API version",
+					description: "Returns the current Backlog.md version number",
+					tags: ["System"],
+					responses: { 200: { description: "Object with version string" } },
+				},
+			})
+			.get("/api/statistics", () => system.handleGetStatistics(), {
+				detail: {
+					summary: "Get statistics",
+					description: "Returns project statistics: task count, status and priority distributions",
+					tags: ["System"],
+					responses: { 200: { description: "Statistics object with statusCounts and priorityCounts" } },
+				},
+			})
+			.get("/api/status", () => system.handleGetStatus(), {
+				detail: {
+					summary: "Get server status",
+					description: "Returns the current server status (initialized, project path, config source)",
+					tags: ["System"],
+					responses: { 200: { description: "Status object with initialized project details" } },
+				},
+			})
+			.get("/api/duplicates", () => system.handleGetDuplicates(), {
+				detail: {
+					summary: "Find duplicates",
+					description: "Searches tasks for potential duplicates (e.g. based on similar titles)",
+					tags: ["System"],
+					responses: { 200: { description: "Array of DuplicateInfo objects" } },
+				},
+			})
+			.post("/api/init", ({ request }) => system.handleInit(request), {
+				detail: {
+					summary: "Initialize project",
+					description: "Initializes a new Backlog.md project. Creates backlog.config.yml and optional MCP setup.",
+					tags: ["System"],
+					responses: { 200: { description: "Object with success, projectName, and mcpResults" } },
+				},
+			})
+			.get("/assets/*", ({ request }) => system.handleAssetRequest(request), {
+				detail: {
+					summary: "Serve static assets",
+					description: "Serves static files (CSS, JS, fonts, images) from the assets/ directory",
+					tags: ["System"],
+				},
+			})
+			// --- Search ---
+			.get("/api/search", ({ request }) => tasks.handleSearch(request), {
+				query: SearchQuery,
+				detail: {
+					summary: "Full-text search",
+					description:
+						"Searches tasks, documents, and decisions for a term. Supports filtering by type, status, assignee, label, priority, milestone, and file path.",
+					tags: ["Search"],
+					responses: { 200: { description: "Array of SearchResult objects (Task, Document, or Decision)" } },
+				},
+			})
+			// --- Sequences ---
+			.get("/api/sequences", () => tasks.handleGetSequences(), {
+				detail: {
+					summary: "List sequences",
+					description: "Returns all task sequences. Each sequence contains tasks that can run in parallel.",
+					tags: ["Sequences"],
+					responses: { 200: { description: "Array of Sequence objects with indexed tasks" } },
+				},
+			})
+			.post("/api/sequences/move", ({ request }) => tasks.handleMoveSequence(request), {
+				detail: {
+					summary: "Move task in sequence",
+					description: "Moves a task to a different sequence or removes it from sequence ordering",
+					tags: ["Sequences"],
+					responses: { 200: { description: "Updated array of Sequence objects" } },
+				},
+			})
+			// --- Files ---
+			.get("/api/file-content", ({ request }) => files.handleGetFileContent(request), {
+				query: FileContentQuery,
+				detail: {
+					summary: "Get file content",
+					description:
+						"Reads the content of a file relative to the project root. Used for attachment previews and file inspection.",
+					tags: ["Files"],
+					responses: {
+						200: { description: "File content as text" },
+					},
+				},
+			})
+			// --- Backlinks ---
+			.get("/api/backlinks", () => backlinks.handleGetBacklinks(""), {
+				detail: {
+					summary: "List backlinks (global)",
+					description: "Returns 400 because entityId is missing. Use /api/backlinks/:id for a specific task.",
+					tags: ["Backlinks"],
+					responses: { 400: { description: "entityId is required" } },
+					deprecated: true,
+				},
+			})
+			.get("/api/backlinks/:id", ({ params: { id } }) => backlinks.handleGetBacklinks(id), {
+				params: IdParam,
+				detail: {
+					summary: "Get backlinks for entity",
+					description: "Returns all backlinks (references from other entities to this ID)",
+					tags: ["Backlinks"],
+					responses: {
+						200: { description: "Array of Backlink objects" },
+					},
+				},
+			})
+			// --- SPA fallback ---
+			.get("/tasks", spaHandler)
+			.get("/tasks/*", spaHandler)
+			.get("/board", spaHandler)
+			.get("/board/*", spaHandler)
+			.get("/milestones", spaHandler)
+			.get("/drafts", spaHandler)
+			.get("/documentation", spaHandler)
+			.get("/documentation/*", spaHandler)
+			.get("/decisions", spaHandler)
+			.get("/decisions/*", spaHandler)
+			.get("/statistics", spaHandler)
+			.get("/settings", spaHandler)
+	);
 }

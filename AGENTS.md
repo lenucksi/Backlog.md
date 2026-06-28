@@ -59,6 +59,26 @@ When a modality is intentionally excluded, document the N/A status with justific
 
 When reviewing changed files, use the `.claude/skills/modality-parity-check.md` skill to flag cross-modality gaps.
 
+## Task Standards
+
+### Milestones
+
+- **Jedes Ticket braucht einen Milestone.** Existierende Milestones verwenden (`backlog milestone list`).
+- Falls ein neuer Milestone nötig ist: Nutzer fragen mit Namens- und Beschreibungsvorschlag.
+
+### Tickets schreiben
+
+- **Description**: für Menschen — Outcome, Kontext, Motivation.
+- **Implementation Plan**: für LLMs — konkrete Dateien, API-Entscheidungen, Schritte.
+- **Notes**: Gotchas, Edge Cases, Referenzen, Links.
+- **Acceptance Criteria**: gehören ins Frontmatter (`--ac`), nicht in Notes. Erst abhaken wenn tatsächlich erfüllt.
+
+### Während der Bearbeitung
+
+- **Status aktuell halten**: Ticket auf `In Arbeit` sobald implementation beginnt. Erst auf `Fertig` wenn alle ACs gehakt UND DoD-Check durch ist.
+- **References anreichern**: `--ref`, `--doc`, `--modified-file` während der Arbeit setzen, nicht erst am Ende — damit Subagenten den Kontext sofort haben.
+- **Final Summary**: bei Task-Abschluss schreiben (was wurde gemacht, welche Dateien, welche Entscheidungen).
+
 ## Commands
 
 ### Development
@@ -107,6 +127,43 @@ When reviewing changed files, use the `.claude/skills/modality-parity-check.md` 
 
 The pre-commit hook automatically runs `biome check --write` on staged files to ensure code quality. If linting errors
 are found, the commit will be blocked until fixed.
+
+### Swagger/OpenAPI Documentation
+
+All Swagger documentation (`summary`, `description`, `responses.*.description`, schema field `description`) MUST be written in **English only**. This is the standard language for REST API documentation and ensures consistency for external consumers.
+
+```typescript
+.get("/api/tasks/:id", handler, {
+    params: t.Object({
+        id: t.String({ description: "Task ID (e.g. BACK-123)" }),
+    }),
+    detail: {
+        summary: "Get task by ID",
+        description: "Returns a single task with its full metadata including subtask summaries",
+        tags: ["Tasks"],
+        responses: {
+            200: { description: "Task object with subtaskSummaries" },
+            404: { description: "Task not found" },
+        },
+    },
+})
+```
+
+- Every route MUST have `detail.summary`, `detail.description`, and `detail.responses` (at minimum 200 + 404 where applicable)
+- Path params MUST have a `params` schema with `description` on each field
+- Use `t.Optional()` for nullable/optional schema fields
+- Do NOT add `body` schemas unless the handler is refactored to use Elysia's parsed body instead of `await req.json()`
+
+### WebUI Conventions
+
+- **shadcn/ui**: Komponenten via `bun x shadcn@latest add <name>`. Keine custom Modals — `Dialog`, `AlertDialog` aus `@/components/ui/` verwenden. `Dialog`/`Sheet`/`Drawer` brauchen immer einen `DialogTitle` (auch `sr-only` wenn unsichtbar).
+- **Buttons**: `Button` aus shadcn mit `variant` (`default`, `outline`, `destructive`, `ghost`, `link`). Nie rohe `<button>` mit custom Klassen.
+- **Semantic colors**: `bg-background`, `text-foreground`, `text-muted-foreground`, `bg-primary`. Keine raw-Farben wie `bg-blue-500`, `text-white`. Kein `dark:` override — Theme-Tokens decken dark mode ab.
+- **cn()**: `cn()` aus `@/lib/utils` für alle bedingten Klassen. Nie Template-Literals.
+- **size-*** statt `w-* h-*` bei gleicher Breite/Höhe (Icons, Avatare, Buttons).
+- **gap-*** statt `space-x-*`/`space-y-*` für Abstände in Flex/Grid.
+- **Loading states**: `<Skeleton>` aus shadcn, nie "Lade..."-Text.
+- **Dark Mode**: `bootstrapTheme()` in `src/web/main.tsx` **vor** `createRoot` aufrufen (verhindert FOUC). Präferenz in localStorage persistieren.
 
 ## Git Workflow
 
