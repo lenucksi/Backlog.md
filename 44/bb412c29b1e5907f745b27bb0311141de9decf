@@ -1,0 +1,28 @@
+.gitignore
+  s_0956ae952ff87c::t_df51708c06ad62 56
+  s_b16c5e41f09562::t_3f955bcfbc57df 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "44bb412c29b1e5907f745b27bb0311141de9decf",
+  "prompts": {},
+  "sessions": {
+    "s_0956ae952ff87c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_119f90f7affeBbZkxi7PRIsUou",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_b16c5e41f09562": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f53275d5ffeVYDeJ8kp2s1WDN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
