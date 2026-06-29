@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { initializeProject } from "../core/init.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
 
 const CLI_PATH = join(process.cwd(), "src", "cli.ts");
@@ -20,9 +21,10 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 async function initFilesystemOnlyProject(projectName = "No Git Project"): Promise<Core> {
-	const result = await $`bun ${CLI_PATH} init ${projectName} --no-git --defaults --integration-mode none`
-		.cwd(TEST_DIR)
-		.quiet();
+	const result = await runBacklogCli(
+		["init", projectName, "--no-git", "--defaults", "--integration-mode", "none"],
+		TEST_DIR,
+	);
 	expect(result.exitCode).toBe(0);
 	return new Core(TEST_DIR);
 }
@@ -93,9 +95,9 @@ describe("CLI init without Git", () => {
 		expect(await core.gitOps.listRecentBranches(30)).toEqual([]);
 		expect(await core.gitOps.hasAnyRemote()).toBe(false);
 
-		const taskResult = await $`bun ${CLI_PATH} task create "No Git Task" --plain`.cwd(TEST_DIR).quiet();
+		const taskResult = await runBacklogCli(["task", "create", "No Git Task", "--plain"], TEST_DIR);
 		expect(taskResult.exitCode).toBe(0);
-		expect(taskResult.stdout.toString()).toContain("Task TASK-1 - No Git Task");
+		expect(taskResult.stdout).toContain("Task TASK-1 - No Git Task");
 
 		const draftResult = await $`bun ${CLI_PATH} draft create "No Git Draft"`.cwd(TEST_DIR).quiet();
 		expect(draftResult.exitCode).toBe(0);

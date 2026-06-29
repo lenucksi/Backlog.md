@@ -1,14 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import type { PromptRunner } from "../commands/advanced-config-wizard.ts";
 import { configureAdvancedSettings } from "../commands/configure-advanced-settings.ts";
 import { Core } from "../core/backlog.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("Config commands", () => {
 	let core: Core;
@@ -170,25 +169,25 @@ describe("Config commands", () => {
 	});
 
 	it("exposes config list/get/set subcommands", async () => {
-		const listOutput = await $`bun ${CLI_PATH} config list`.cwd(TEST_DIR).text();
-		expect(listOutput).toContain("project_name");
-		expect(listOutput).toContain("default_port");
-		expect(listOutput).toContain("statuses");
+		const listOutput = await runBacklogCli(["config", "list"], TEST_DIR);
+		expect(listOutput.stdout).toContain("project_name");
+		expect(listOutput.stdout).toContain("default_port");
+		expect(listOutput.stdout).toContain("statuses");
 
-		await $`bun ${CLI_PATH} config set default_port 7001`.cwd(TEST_DIR).quiet();
+		await runBacklogCli(["config", "set", "default_port", "7001"], TEST_DIR);
 
-		const portOutput = await $`bun ${CLI_PATH} config get default_port`.cwd(TEST_DIR).text();
-		expect(portOutput.trim()).toBe("7001");
+		const portOutput = await runBacklogCli(["config", "get", "default_port"], TEST_DIR);
+		expect(portOutput.stdout.trim()).toBe("7001");
 	});
 
 	it("surfaces milestones in config get/list from milestone files", async () => {
 		await core.filesystem.createMilestone("Release 1");
 
-		const milestonesOutput = await $`bun ${CLI_PATH} config get milestones`.cwd(TEST_DIR).text();
-		expect(milestonesOutput.trim()).toBe("m-0");
+		const milestonesOutput = await runBacklogCli(["config", "get", "milestones"], TEST_DIR);
+		expect(milestonesOutput.stdout.trim()).toBe("m-0");
 
-		const listOutput = await $`bun ${CLI_PATH} config list`.cwd(TEST_DIR).text();
-		expect(listOutput).toContain("milestones: [m-0]");
+		const listOutput = await runBacklogCli(["config", "list"], TEST_DIR);
+		expect(listOutput.stdout).toContain("milestones: [m-0]");
 	});
 
 	afterEach(async () => {
@@ -260,10 +259,10 @@ describe("Config commands", () => {
 	});
 
 	it("config set terminal_statuses saves comma-separated list and config get reads it back", async () => {
-		await $`bun ${CLI_PATH} config set terminal_statuses "Abgeschlossen,Abgebrochen"`.cwd(TEST_DIR).quiet();
+		await runBacklogCli(["config", "set", "terminal_statuses", "Abgeschlossen,Abgebrochen"], TEST_DIR);
 
-		const output = await $`bun ${CLI_PATH} config get terminal_statuses`.cwd(TEST_DIR).text();
-		expect(output.trim()).toBe("Abgeschlossen, Abgebrochen");
+		const output = await runBacklogCli(["config", "get", "terminal_statuses"], TEST_DIR);
+		expect(output.stdout.trim()).toBe("Abgeschlossen, Abgebrochen");
 
 		// Fresh core avoids cached config from before CLI set
 		const freshCore = new Core(TEST_DIR);
@@ -272,8 +271,8 @@ describe("Config commands", () => {
 	});
 
 	it("config get terminal_statuses returns empty string when key is not set", async () => {
-		const output = await $`bun ${CLI_PATH} config get terminal_statuses`.cwd(TEST_DIR).text();
-		expect(output.trim()).toBe("");
+		const output = await runBacklogCli(["config", "get", "terminal_statuses"], TEST_DIR);
+		expect(output.stdout.trim()).toBe("");
 
 		const config = await core.filesystem.loadConfig();
 		expect(config?.terminalStatuses).toBeUndefined();
@@ -302,9 +301,8 @@ describe("Config commands", () => {
 	});
 
 	it("config get returns error for unknown key", async () => {
-		const result = await $`bun ${CLI_PATH} config get unknownKey`.cwd(TEST_DIR).nothrow();
+		const result = await runBacklogCli(["config", "get", "unknownKey"], TEST_DIR);
 		expect(result.exitCode).not.toBe(0);
-		const stderr = result.stderr.toString();
-		expect(stderr).toContain("Unknown config key");
+		expect(result.stderr).toContain("Unknown config key");
 	});
 });
