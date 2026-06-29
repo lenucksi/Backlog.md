@@ -79,6 +79,10 @@ dependencies: []
 	async getFileLastModifiedTime(_ref: string, _file: string): Promise<Date | null> {
 		return new Date("2025-06-13");
 	}
+
+	async resolveCommit(_ref: string): Promise<string | null> {
+		return "abc123";
+	}
 }
 
 describe("Parallel remote task loading", () => {

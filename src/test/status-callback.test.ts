@@ -133,9 +133,6 @@ on_status_change: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" > "${callbackOutputP
 				status: "To Do",
 			});
 
-			// Invalidate config cache to ensure fresh read
-			core.fs.invalidateConfigCache();
-
 			// Update status
 			await core.updateTaskFromInput(task.id, { status: "In Progress" });
 
@@ -295,9 +292,6 @@ on_status_change: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" >> "${callbackOutput
 				title: "Reorder Callback Test",
 				status: "To Do",
 			});
-
-			// Invalidate config cache
-			core.fs.invalidateConfigCache();
 
 			// Reorder task to "In Progress" column (simulating board drag)
 			await core.reorderTask({

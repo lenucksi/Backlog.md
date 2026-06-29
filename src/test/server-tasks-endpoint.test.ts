@@ -242,20 +242,21 @@ describe("BacklogServer task endpoints", () => {
 		expect(res.status).toBe(404);
 	});
 
-	it("completes a task via POST to /complete endpoint", async () => {
+	it("archives a task via DELETE /api/tasks/:id", async () => {
 		const created = await fetchJson<{ id: string }>("/api/tasks", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ title: "Completable task", status: "Done" }),
+			body: JSON.stringify({ title: "Archivable task", status: "To Do" }),
 		});
 
-		await fetchJson<{ success: boolean }>(`/api/tasks/${created.id}/complete`, { method: "POST" });
-		const completed = await fetchJson<{ id: string }>(`/api/tasks/${created.id}`);
-		expect(completed).toBeDefined();
+		const result = await fetchJson<{ success: boolean }>(`/api/tasks/${created.id}`, {
+			method: "DELETE",
+		});
+		expect(result.success).toBe(true);
 	});
 
-	it("returns 404 when completing non-existent task", async () => {
-		const res = await fetch(`http://127.0.0.1:${serverPort}/api/tasks/nonexistent/complete`, { method: "POST" });
+	it("returns 404 when deleting non-existent task", async () => {
+		const res = await fetch(`http://127.0.0.1:${serverPort}/api/tasks/nonexistent`, { method: "DELETE" });
 		expect(res.status).toBe(404);
 	});
 

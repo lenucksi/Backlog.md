@@ -28,6 +28,7 @@ describe("findTaskInRemoteBranches", () => {
 			listRecentRemoteBranches: async () => ["main"],
 			listFilesInTree: async () => ["backlog/tasks/task-1 - some task.md"],
 			getBranchLastModifiedMap: async () => new Map([["backlog/tasks/task-1 - some task.md", new Date()]]),
+			resolveCommit: async () => "abc123",
 		};
 		const result = await findTaskInRemoteBranches(mockGit as GitOperations, "task-999");
 		expect(result).toBeNull();
@@ -55,6 +56,7 @@ Test description
 			getBranchLastModifiedMap: async () =>
 				new Map([["backlog/tasks/task-123 - Test Task.md", new Date("2025-01-01")]]),
 			showFile: async () => mockTaskContent,
+			resolveCommit: async () => "abc123",
 		};
 
 		const result = await findTaskInRemoteBranches(mockGit as GitOperations, "task-123");
@@ -105,6 +107,7 @@ From local branch
 			getBranchLastModifiedMap: async () =>
 				new Map([["backlog/tasks/task-456 - Local Branch Task.md", new Date("2025-01-01")]]),
 			showFile: async () => mockTaskContent,
+			resolveCommit: async () => "abc123",
 		};
 
 		const result = await findTaskInLocalBranches(mockGit as GitOperations, "task-456");

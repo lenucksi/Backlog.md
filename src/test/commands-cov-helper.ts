@@ -7,14 +7,6 @@ export interface CliResult {
 	exitCode: number;
 }
 
-const originalArgv = process.argv;
-const originalExitCode = process.exitCode;
-const originalExit = process.exit;
-const originalLog = console.log;
-const originalError = console.error;
-const originalWarn = console.warn;
-const originalBacklogCwd = process.env[BACKLOG_CWD_ENV];
-
 let helpersInitialized = false;
 let registerInit: ((program: Command) => void) | null = null;
 let registerTask: ((program: Command) => void) | null = null;
@@ -33,10 +25,27 @@ async function initHelpers() {
 	helpersInitialized = true;
 }
 
+let cliQueue = Promise.resolve();
+
 export async function runBacklogCli(args: string[], cwd: string): Promise<CliResult> {
+	const prev = cliQueue;
+	let release: (() => void) | undefined;
+	cliQueue = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	await prev;
+
 	const stdout: string[] = [];
 	const stderr: string[] = [];
 	let exitCode = 0;
+
+	const originalArgv = process.argv;
+	const originalExitCode = process.exitCode;
+	const originalExit = process.exit;
+	const originalLog = console.log;
+	const originalError = console.error;
+	const originalWarn = console.warn;
+	const originalBacklogCwd = process.env[BACKLOG_CWD_ENV];
 
 	process.env[BACKLOG_CWD_ENV] = cwd;
 	process.argv = ["bun", "src/cli.ts", ...args];
@@ -85,6 +94,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		} else {
 			process.env[BACKLOG_CWD_ENV] = originalBacklogCwd;
 		}
+		release?.();
 	}
 
 	if (caught) {

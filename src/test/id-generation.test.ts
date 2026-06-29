@@ -42,7 +42,7 @@ describe("Task ID Generation with Archives", () => {
 		await core.archiveTask("task-5", false);
 
 		// Verify tasks directory has no active tasks
-		const activeTasks = await core.fs.listTasks();
+		const activeTasks = await core.filesystem.listTasks();
 		expect(activeTasks.length).toBe(0);
 
 		// Create new task - should be TASK-6 (archived IDs are now in archive/tasks/ so not reusable)
@@ -68,7 +68,7 @@ describe("Task ID Generation with Archives", () => {
 		await core.archiveTask("task-2", false);
 
 		// Keep task-3 active
-		const activeTasks = await core.fs.listTasks();
+		const activeTasks = await core.filesystem.listTasks();
 		expect(activeTasks.length).toBe(1);
 		expect(activeTasks[0]?.id).toBe("TASK-3");
 
@@ -78,11 +78,11 @@ describe("Task ID Generation with Archives", () => {
 		expect(result.task.id).toBe("TASK-4");
 
 		// Verify archived task still exists
-		const archivedTasks = await core.fs.listArchivedTasks();
+		const archivedTasks = await core.filesystem.listArchivedTasks();
 		expect(archivedTasks.some((t) => t.id === "TASK-1")).toBe(true);
 
 		// Verify completed task still exists
-		const completedTasks = await core.fs.listCompletedTasks();
+		const completedTasks = await core.filesystem.listCompletedTasks();
 		expect(completedTasks.some((t) => t.id === "TASK-2")).toBe(true);
 	});
 
@@ -113,10 +113,10 @@ describe("Task ID Generation with Archives", () => {
 
 	it("should work with zero-padded IDs and reuse archived IDs", async () => {
 		// Update config to use zero-padded IDs
-		const config = await core.fs.loadConfig();
+		const config = await core.filesystem.loadConfig();
 		if (config) {
 			config.zeroPaddedIds = 3;
-			await core.fs.saveConfig(config);
+			await core.filesystem.saveConfig(config);
 		}
 
 		// Create and archive tasks with padding
@@ -137,7 +137,7 @@ describe("Task ID Generation with Archives", () => {
 
 		// Simulate legacy lowercase subtask by directly writing to filesystem
 		// This represents a file created before the uppercase ID change
-		const tasksDir = core.fs.tasksDir;
+		const tasksDir = core.filesystem.tasksDir;
 		const legacySubtask: Task = {
 			id: "task-1.1", // Lowercase - legacy format
 			title: "Legacy Subtask",

@@ -105,13 +105,6 @@ describe("task command coverage", () => {
 		expect(r.stdout).toContain("Viewable");
 	});
 
-	it("task complete marks task done", async () => {
-		await runBacklogCli(["task", "create", "Completable"], TEST_DIR);
-		const r = await runBacklogCli(["task", "complete", "task-1"], TEST_DIR);
-		expect(r.exitCode).toBe(0);
-		expect(r.stdout).toContain("archived");
-	});
-
 	it("task archive existing task", async () => {
 		await runBacklogCli(["task", "create", "Archivable"], TEST_DIR);
 		const r = await runBacklogCli(["task", "archive", "task-1"], TEST_DIR);
@@ -230,13 +223,6 @@ describe("task command coverage", () => {
 	it("task view non-existent task fails", async () => {
 		const r = await runBacklogCli(["task", "view", "task-999"], TEST_DIR);
 		expect(r.stderr).toContain("not found");
-	});
-
-	it("task complete non-existent task handles error", async () => {
-		await runBacklogCli(["task", "create", "Real task"], TEST_DIR);
-		const r = await runBacklogCli(["task", "complete", "task-1", "task-999"], TEST_DIR);
-		expect(r.exitCode).not.toBe(0);
-		expect(r.stdout).toContain("Real task");
 	});
 
 	it("task catch-all with taskId shows task", async () => {

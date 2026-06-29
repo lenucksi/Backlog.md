@@ -129,10 +129,10 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 		if (!this.isMultiSelect && this.items.length > 0) {
 			const firstItem = this.items[0];
 			if (firstItem) {
-				setTimeout(() => this.onSelect?.(firstItem, 0), 0);
+				this.onSelect?.(firstItem, 0);
 			}
 		} else {
-			setTimeout(() => this.onSelect?.([], []), 0);
+			this.onSelect?.([], []);
 		}
 	}
 

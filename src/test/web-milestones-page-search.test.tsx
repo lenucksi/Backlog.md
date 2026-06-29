@@ -44,6 +44,14 @@ let activeRoot: Root | null = null;
 const originalUpdateMilestone = apiClient.updateMilestone.bind(apiClient);
 const originalRemoveMilestone = apiClient.removeMilestone.bind(apiClient);
 
+const savedGlobals = {
+	window: globalThis.window,
+	document: globalThis.document,
+	navigator: globalThis.navigator,
+	localStorage: globalThis.localStorage,
+	IS_REACT_ACT_ENVIRONMENT: (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT,
+};
+
 const setupDom = () => {
 	const dom = new JSDOM("<!doctype html><html><body><div id='root'></div></body></html>", { url: "http://localhost" });
 	(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -76,6 +84,14 @@ const setupDom = () => {
 	if (typeof htmlElementPrototype.detachEvent !== "function") {
 		htmlElementPrototype.detachEvent = () => {};
 	}
+};
+
+const restoreGlobals = () => {
+	globalThis.window = savedGlobals.window;
+	globalThis.document = savedGlobals.document;
+	globalThis.navigator = savedGlobals.navigator;
+	globalThis.localStorage = savedGlobals.localStorage;
+	(globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = savedGlobals.IS_REACT_ACT_ENVIRONMENT;
 };
 
 const renderPage = (
@@ -157,6 +173,7 @@ afterEach(() => {
 	}
 	apiClient.updateMilestone = originalUpdateMilestone;
 	apiClient.removeMilestone = originalRemoveMilestone;
+	restoreGlobals();
 });
 
 describe("Web milestones page search", () => {
@@ -180,6 +197,16 @@ describe("Web milestones page search", () => {
 		expect(initialText).toContain("Draft release notes");
 		expect(initialText).toContain("Release 1");
 		expect(initialText).toContain("Release 2");
+
+		// Enable "Show empty" so milestone sections remain visible when filtered
+		const showEmptyCheckbox = container.querySelector<HTMLInputElement>(
+			'label:has(> input[type="checkbox"])',
+		)?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+		if (showEmptyCheckbox) {
+			act(() => {
+				showEmptyCheckbox.click();
+			});
+		}
 
 		setSearchValue(container, "authentication");
 		const filteredText = container.textContent ?? "";
@@ -212,6 +239,14 @@ describe("Web milestones page search", () => {
 
 	it("no-match search keeps milestone and unassigned sections visible", () => {
 		const container = renderPage();
+		const showEmptyCheckbox = container.querySelector<HTMLInputElement>(
+			'label:has(> input[type="checkbox"])',
+		)?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+		if (showEmptyCheckbox) {
+			act(() => {
+				showEmptyCheckbox.click();
+			});
+		}
 
 		setSearchValue(container, "zzzz-no-match");
 		const noMatchText = container.textContent ?? "";

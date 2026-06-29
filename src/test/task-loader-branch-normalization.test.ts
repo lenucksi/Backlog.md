@@ -13,6 +13,10 @@ class MockGit implements Partial<GitOperations> {
 	async getBranchLastModifiedMap(_ref: string, _path: string): Promise<Map<string, Date>> {
 		return new Map([["backlog/tasks/task-1 - Test.md", new Date()]]);
 	}
+
+	async resolveCommit(_ref: string): Promise<string | null> {
+		return "abc123";
+	}
 }
 
 describe("buildRemoteTaskIndex branch handling", () => {
@@ -61,6 +65,9 @@ describe("buildRemoteTaskIndex branch handling", () => {
 					["backlog/tasks/task-1 - Active.md", new Date()],
 				]);
 			},
+			async resolveCommit(_ref: string): Promise<string | null> {
+				return "abc123";
+			},
 		};
 
 		const index = await buildRemoteTaskIndex(
@@ -84,6 +91,9 @@ describe("buildRemoteTaskIndex branch handling", () => {
 			},
 			async getBranchLastModifiedMap(_ref: string, _path: string): Promise<Map<string, Date>> {
 				return new Map([["backlog/docs/readme.md", new Date()]]);
+			},
+			async resolveCommit(_ref: string): Promise<string | null> {
+				return "abc123";
 			},
 		};
 
