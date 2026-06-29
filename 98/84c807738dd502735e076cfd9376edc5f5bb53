@@ -1,0 +1,21 @@
+src/core/backlog.ts
+  s_3376b886d496c6::t_42b63d87e926da 1283
+src/test/acceptance-criteria.test.ts
+  s_3376b886d496c6::t_72aa5be7f8f275 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "9884c807738dd502735e076cfd9376edc5f5bb53",
+  "prompts": {},
+  "sessions": {
+    "s_3376b886d496c6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ebccb13effewJL8oJNbbgJmLv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
