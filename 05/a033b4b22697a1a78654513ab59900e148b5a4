@@ -1,0 +1,39 @@
+src/utils/version.ts
+  s_789a208fcc192a::t_ccb0096da1087b 10-14,17-21
+  s_789a208fcc192a::t_bb9955a3490de3 15-16
+  s_789a208fcc192a::t_e832fc691e21a5 1-2
+backlog/config.yml
+  s_789a208fcc192a::t_57e5d8a0ddbc5b 174-176,179
+  s_789a208fcc192a::t_74e2d41aafcea3 180
+src/commands/browser.ts
+  s_789a208fcc192a::t_befb217c1c4568 3,6-7,18-32
+src/test/commands-test-helper.ts
+  s_789a208fcc192a::t_4c6d0a61cbe8ab 2,9,21
+  s_789a208fcc192a::t_5944e4bb9db315 74-78
+"backlog/tasks/back-0576 - Adapt-upstream-test-suite-4x-speed-up-approach-in-process-API-parallel.md"
+  s_789a208fcc192a::t_4043c219646b53 7,92-120
+  s_789a208fcc192a::t_211533f474cced 4,121
+src/commands/init.ts
+  s_789a208fcc192a::t_a42713188b642f 21
+  s_789a208fcc192a::t_32ce1ec803ad20 735
+src/test/commands-cov-helper.ts
+  s_789a208fcc192a::t_8b65d64b963c1c 83-87
+  s_789a208fcc192a::t_ef1b6b927b4311 41
+  s_789a208fcc192a::t_551e7baaa68d43 2,16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "05a033b4b22697a1a78654513ab59900e148b5a4",
+  "prompts": {},
+  "sessions": {
+    "s_789a208fcc192a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ecfe892cffekD64cl0kN6HuLZ",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
