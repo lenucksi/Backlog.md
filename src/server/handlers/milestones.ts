@@ -142,15 +142,17 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 				to: title,
 				updateTasks,
 			});
-			if (!result.success) {
-				return Response.json({ error: "Failed to update milestone" }, { status: 500 });
-			}
 
 			if (description !== undefined) {
 				await ctx.core.filesystem.setMilestoneDescription(milestoneId, description);
 			}
 
-			const milestone = await ctx.core.filesystem.loadMilestone(milestoneId);
+			let milestone = await ctx.core.filesystem.loadMilestone(milestoneId);
+			if (!milestone && title) {
+				const allMilestones = await ctx.core.filesystem.listMilestones();
+				const lowerNewTitle = title.toLowerCase();
+				milestone = allMilestones.find((m) => m.title.toLowerCase() === lowerNewTitle) ?? null;
+			}
 			ctx.broadcastTasksUpdated();
 			return Response.json({
 				success: true,
