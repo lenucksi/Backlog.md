@@ -1,0 +1,20 @@
+src/ui/status-icon.ts
+  s_2b9625fb73f18e::t_c3a8b4a2bf1d35 95-97,99-100,106-109
+  s_2b9625fb73f18e::t_1cac0db17267b6 98,101-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "dec6ca4f3b341bbb760311c178adc15599e43674",
+  "prompts": {},
+  "sessions": {
+    "s_2b9625fb73f18e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eb95c9e7ffeQBfGWzKoXxKEFv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
