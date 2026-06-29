@@ -1,0 +1,50 @@
+src/test/zz-task-viewer-coverage.test.ts
+  s_97e2c7657089d4::t_7b8e65e6b71ce4 395,403,405
+src/test/cli-board-integration.test.ts
+  s_97e2c7657089d4::t_d1a3d0589813c9 55
+src/test/status-callback.test.ts
+  s_97e2c7657089d4::t_7a90d50c6d49ba 319
+  s_97e2c7657089d4::t_b52542e27b8e08 143-152,186-196,222-223,310-318
+  s_97e2c7657089d4::t_cf1317601be406 7,142
+src/test/content-store-comprehensive.test.ts
+  s_97e2c7657089d4::t_b52542e27b8e08 284-290,347-356,378-386,405-412
+  s_97e2c7657089d4::t_95be3a8690bb31 413
+  s_97e2c7657089d4::t_e9a0988e0882c5 5
+src/test/tui-termless-core.test.ts
+  s_97e2c7657089d4::t_0a261d9a27aef6 56,103
+  s_d020ad1dcbcedc::t_7ff1e4314f8fca 112
+package.json
+  s_97e2c7657089d4::t_b4c7ea40095167 58-59,62
+src/test/zz-board-coverage.test.ts
+  s_97e2c7657089d4::t_e3e03fbfd84101 331,333,341,343,351,359,367,369,377,379,387
+src/test/board-command.test.ts
+  s_97e2c7657089d4::t_275403df8575a9 72
+src/test/zz-sequences-coverage.test.ts
+  s_97e2c7657089d4::t_55def734eee0ec 163
+src/test/tui-interactive-editor-handoff.test.ts
+  s_97e2c7657089d4::t_88b4920095bf25 98,104-105,107,109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "22a3c95e20aa7fec5c535dc386b08fccf3d87ec4",
+  "prompts": {},
+  "sessions": {
+    "s_97e2c7657089d4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ebb4fff7ffe9qnV6B1C0EbGv3",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_d020ad1dcbcedc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f031e69dffe6qyRORK371R5Kw",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
