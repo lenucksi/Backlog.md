@@ -1,0 +1,19 @@
+backlog/config.yml
+  s_9c49ce95d62150::t_10f11535a86725 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "da4ba3a2c4285ccf946132f417bb84b90e120d91",
+  "prompts": {},
+  "sessions": {
+    "s_9c49ce95d62150": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f0eb66f3ffenJTvdteacbR18t",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Test User <test@example.com>"
+    }
+  }
+}
