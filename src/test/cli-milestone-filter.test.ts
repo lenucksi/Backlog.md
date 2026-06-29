@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../index.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
@@ -8,8 +7,6 @@ import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-
 let TEST_DIR: string;
 
 describe("CLI milestone filtering", () => {
-	const cliPath = join(process.cwd(), "src", "cli.ts");
-
 	beforeEach(async () => {
 		TEST_DIR = createUniqueTestDir("test-milestone-filter");
 		try {
@@ -29,7 +26,7 @@ describe("CLI milestone filtering", () => {
 
 		await core.createTask(
 			{
-				id: "task-1",
+				id: "TASK-1",
 				title: "Milestone task one",
 				status: "To Do",
 				assignee: [],
@@ -44,7 +41,7 @@ describe("CLI milestone filtering", () => {
 
 		await core.createTask(
 			{
-				id: "task-2",
+				id: "TASK-2",
 				title: "Milestone task two",
 				status: "In Progress",
 				assignee: [],
@@ -59,7 +56,7 @@ describe("CLI milestone filtering", () => {
 
 		await core.createTask(
 			{
-				id: "task-3",
+				id: "TASK-3",
 				title: "Other milestone task",
 				status: "To Do",
 				assignee: [],
@@ -74,7 +71,7 @@ describe("CLI milestone filtering", () => {
 
 		await core.createTask(
 			{
-				id: "task-4",
+				id: "TASK-4",
 				title: "No milestone task",
 				status: "To Do",
 				assignee: [],
@@ -88,7 +85,7 @@ describe("CLI milestone filtering", () => {
 
 		await core.createTask(
 			{
-				id: "task-5",
+				id: "TASK-5",
 				title: "Roadmap milestone task",
 				status: "To Do",
 				assignee: [],
@@ -103,7 +100,7 @@ describe("CLI milestone filtering", () => {
 
 		await core.createTask(
 			{
-				id: "task-6",
+				id: "TASK-6",
 				title: "ID milestone task",
 				status: "To Do",
 				assignee: [],
@@ -126,80 +123,72 @@ describe("CLI milestone filtering", () => {
 	});
 
 	it("filters by milestone with case-insensitive matching", async () => {
-		const result = await $`bun ${cliPath} task list --milestone RELEASE-1 --plain`.cwd(TEST_DIR).quiet();
-
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout.toString();
-
-		expect(output).toContain("TASK-1 - Milestone task one");
-		expect(output).toContain("TASK-2 - Milestone task two");
-		expect(output).not.toContain("TASK-3 - Other milestone task");
-		expect(output).not.toContain("TASK-4 - No milestone task");
-		expect(output).not.toContain("TASK-5 - Roadmap milestone task");
-		expect(output).not.toContain("TASK-6 - ID milestone task");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { milestone: "RELEASE-1" } });
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-1");
+		expect(ids).toContain("TASK-2");
+		expect(ids).not.toContain("TASK-3");
+		expect(ids).not.toContain("TASK-4");
+		expect(ids).not.toContain("TASK-5");
+		expect(ids).not.toContain("TASK-6");
 	});
 
 	it("supports -m shorthand and combines milestone with status filter", async () => {
-		const result = await $`bun ${cliPath} task list -m release-1 --status "To Do" --plain`.cwd(TEST_DIR).quiet();
-
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout.toString();
-
-		expect(output).toContain("TASK-1 - Milestone task one");
-		expect(output).not.toContain("TASK-2 - Milestone task two");
-		expect(output).not.toContain("TASK-3 - Other milestone task");
-		expect(output).not.toContain("TASK-4 - No milestone task");
-		expect(output).not.toContain("TASK-5 - Roadmap milestone task");
-		expect(output).not.toContain("TASK-6 - ID milestone task");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { milestone: "release-1", status: "To Do" } });
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-1");
+		expect(ids).not.toContain("TASK-2");
+		expect(ids).not.toContain("TASK-3");
+		expect(ids).not.toContain("TASK-4");
+		expect(ids).not.toContain("TASK-5");
+		expect(ids).not.toContain("TASK-6");
 	});
 
 	it("matches closest milestone for partial and typo inputs", async () => {
-		const typoResult = await $`bun ${cliPath} task list --milestone releas-1 --plain`.cwd(TEST_DIR).quiet();
-		expect(typoResult.exitCode).toBe(0);
-		const typoOutput = typoResult.stdout.toString();
+		const core = new Core(TEST_DIR);
 
-		expect(typoOutput).toContain("TASK-1 - Milestone task one");
-		expect(typoOutput).toContain("TASK-2 - Milestone task two");
-		expect(typoOutput).not.toContain("TASK-3 - Other milestone task");
-		expect(typoOutput).not.toContain("TASK-4 - No milestone task");
-		expect(typoOutput).not.toContain("TASK-5 - Roadmap milestone task");
+		const typoTasks = await core.queryTasks({ filters: { milestone: "releas-1" } });
+		const typoIds = typoTasks.map((t) => t.id);
+		expect(typoIds).toContain("TASK-1");
+		expect(typoIds).toContain("TASK-2");
+		expect(typoIds).not.toContain("TASK-3");
+		expect(typoIds).not.toContain("TASK-4");
+		expect(typoIds).not.toContain("TASK-5");
+		expect(typoIds).not.toContain("TASK-6");
 
-		const partialResult = await $`bun ${cliPath} task list --milestone roadmp --plain`.cwd(TEST_DIR).quiet();
-		expect(partialResult.exitCode).toBe(0);
-		const partialOutput = partialResult.stdout.toString();
-
-		expect(partialOutput).toContain("TASK-5 - Roadmap milestone task");
-		expect(partialOutput).not.toContain("TASK-1 - Milestone task one");
-		expect(partialOutput).not.toContain("TASK-2 - Milestone task two");
-		expect(partialOutput).not.toContain("TASK-3 - Other milestone task");
-		expect(partialOutput).not.toContain("TASK-4 - No milestone task");
-		expect(partialOutput).not.toContain("TASK-6 - ID milestone task");
+		const partialTasks = await core.queryTasks({ filters: { milestone: "roadmp" } });
+		const partialIds = partialTasks.map((t) => t.id);
+		expect(partialIds).toContain("TASK-5");
+		expect(partialIds).not.toContain("TASK-1");
+		expect(partialIds).not.toContain("TASK-2");
+		expect(partialIds).not.toContain("TASK-3");
+		expect(partialIds).not.toContain("TASK-4");
+		expect(partialIds).not.toContain("TASK-6");
 	});
 
 	it("matches milestone title when tasks store milestone IDs", async () => {
-		const result = await $`bun ${cliPath} task list -m new --plain`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout.toString();
-
-		expect(output).toContain("TASK-6 - ID milestone task");
-		expect(output).not.toContain("TASK-1 - Milestone task one");
-		expect(output).not.toContain("TASK-2 - Milestone task two");
-		expect(output).not.toContain("TASK-3 - Other milestone task");
-		expect(output).not.toContain("TASK-4 - No milestone task");
-		expect(output).not.toContain("TASK-5 - Roadmap milestone task");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { milestone: "new" } });
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-6");
+		expect(ids).not.toContain("TASK-1");
+		expect(ids).not.toContain("TASK-2");
+		expect(ids).not.toContain("TASK-3");
+		expect(ids).not.toContain("TASK-4");
+		expect(ids).not.toContain("TASK-5");
 	});
 
 	it("preserves existing listing behavior when milestone filter is omitted", async () => {
-		const result = await $`bun ${cliPath} task list --plain`.cwd(TEST_DIR).quiet();
-
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout.toString();
-
-		expect(output).toContain("TASK-1 - Milestone task one");
-		expect(output).toContain("TASK-2 - Milestone task two");
-		expect(output).toContain("TASK-3 - Other milestone task");
-		expect(output).toContain("TASK-4 - No milestone task");
-		expect(output).toContain("TASK-5 - Roadmap milestone task");
-		expect(output).toContain("TASK-6 - ID milestone task");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({});
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-1");
+		expect(ids).toContain("TASK-2");
+		expect(ids).toContain("TASK-3");
+		expect(ids).toContain("TASK-4");
+		expect(ids).toContain("TASK-5");
+		expect(ids).toContain("TASK-6");
 	});
 });

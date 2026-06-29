@@ -1,12 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import type { Decision, Document, Task } from "../types";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
-
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 let TEST_DIR: string;
 
@@ -47,10 +44,9 @@ describe("CLI ID Incrementing Behavior", () => {
 		};
 		await core.createTask(task1);
 
-		const result = await $`bun ${CLI_PATH} task create "Second Task"`.cwd(TEST_DIR).quiet();
-
-		expect(result.exitCode).toBe(0);
-		expect(result.stdout.toString()).toContain("Created task TASK-2");
+		const { task: created } = await core.createTaskFromInput({ title: "Second Task" });
+		expect(created.id).toBe("TASK-2");
+		expect(created.title).toBe("Second Task");
 
 		const task2 = await core.filesystem.loadTask("task-2");
 		expect(task2).toBeDefined();
@@ -67,15 +63,14 @@ describe("CLI ID Incrementing Behavior", () => {
 		};
 		await core.createDocument(doc1);
 
-		const result = await $`bun ${CLI_PATH} doc create "Second Doc"`.cwd(TEST_DIR).quiet();
-
-		expect(result.exitCode).toBe(0);
-		expect(result.stdout.toString()).toContain("Created document doc-2");
+		const doc2 = await core.createDocumentFromInput({ title: "Second Doc" });
+		expect(doc2.id).toBe("doc-2");
+		expect(doc2.title).toBe("Second Doc");
 
 		const docs = await core.filesystem.listDocuments();
-		const doc2 = docs.find((d) => d.id === "doc-2");
-		expect(doc2).toBeDefined();
-		expect(doc2?.title).toBe("Second Doc");
+		const found = docs.find((d) => d.id === "doc-2");
+		expect(found).toBeDefined();
+		expect(found?.title).toBe("Second Doc");
 	});
 
 	test("should increment decision IDs correctly", async () => {
@@ -91,13 +86,12 @@ describe("CLI ID Incrementing Behavior", () => {
 		};
 		await core.createDecision(decision1);
 
-		const result = await $`bun ${CLI_PATH} decision create "Second Decision"`.cwd(TEST_DIR).quiet();
+		const decision2 = await core.createDecisionWithTitle("Second Decision");
+		expect(decision2.id).toBe("decision-2");
+		expect(decision2.title).toBe("Second Decision");
 
-		expect(result.exitCode).toBe(0);
-		expect(result.stdout.toString()).toContain("Created decision decision-2");
-
-		const decision2 = await core.filesystem.loadDecision("decision-2");
-		expect(decision2).not.toBeNull();
-		expect(decision2?.title).toBe("Second Decision");
+		const loaded = await core.filesystem.loadDecision("decision-2");
+		expect(loaded).not.toBeNull();
+		expect(loaded?.title).toBe("Second Decision");
 	});
 });

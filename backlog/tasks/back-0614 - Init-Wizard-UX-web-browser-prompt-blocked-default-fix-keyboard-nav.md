@@ -4,12 +4,14 @@ title: "Init-Wizard UX: web-browser prompt, blocked-default fix, keyboard-nav"
 status: Done
 assignee: []
 created_date: 2026-06-29 15:00
-updated_date: 2026-06-29 15:00
+updated_date: 2026-06-29 15:03
 labels:
   - ux
   - init
   - web-ui
 dependencies: []
+references:
+  - "15b2743 fix(init): BACK-614 - Init-Wizard UX"
 modified_files:
   - src/commands/browser.ts
   - src/commands/advanced-config-wizard.ts

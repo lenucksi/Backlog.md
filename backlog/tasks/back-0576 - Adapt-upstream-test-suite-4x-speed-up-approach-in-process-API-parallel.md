@@ -4,7 +4,7 @@ title: Adapt upstream test suite 4x speed-up approach (in-process API + --parall
 status: In Progress
 assignee: []
 created_date: 2026-06-26 17:33
-updated_date: 2026-06-29 10:54
+updated_date: 2026-06-29 15:06
 labels:
   - upstream
   - infrastructure
@@ -118,6 +118,24 @@ Migrate ~37 files systematically. Extend `test-helpers.ts` with missing Core-bas
 ### Phase 4 — --parallel aktivieren
 Update package.json, fix flaky tests, validate full suite.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Session 2026-06-29 — completed work
+- Phase 0.1 ✅ getVersionSync() already existed
+- Phase 0.3 ✅ Fixed process.chdir() in readme.test.ts (added cwd param to updateReadmeWithBoard), task-path.test.ts (pass core explicit), runtime-cwd.test.ts (added NO-PARALLEL annotation)
+- Phase 1 ✅ cli.test.ts was already split (done in prior sessions)
+
+## Remaining work (will be tracked as subtickets)
+1. acceptance-criteria.test.ts migration (46 $ calls)
+2. CLI task operation tests migration
+3. CLI filter/output tests migration  
+4. CLI init/config/docs tests migration
+5. Business logic tests migration
+6. MCP tests migration
+7. setTimeout reduction + --parallel enablement
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

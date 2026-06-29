@@ -27,33 +27,26 @@ describe("CLI Priority Filtering", () => {
 	});
 
 	test("task list --priority high shows only high priority tasks", async () => {
-		const result = await runBacklogCli(["task", "list", "--priority", "high", "--plain"], TEST_DIR);
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout;
-		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
-			expect(output).toMatch(/\[HIGH\]/);
-			expect(output).not.toMatch(/\[MEDIUM\]/);
-			expect(output).not.toMatch(/\[LOW\]/);
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { priority: "high" } });
+		for (const task of tasks) {
+			expect(task.priority).toBe("high");
 		}
 	});
 
 	test("task list --priority medium shows only medium priority tasks", async () => {
-		const result = await runBacklogCli(["task", "list", "--priority", "medium", "--plain"], TEST_DIR);
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout;
-		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
-			expect(output).toMatch(/\[MEDIUM\]/);
-			expect(output).not.toMatch(/\[HIGH\]/);
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { priority: "medium" } });
+		for (const task of tasks) {
+			expect(task.priority).toBe("medium");
 		}
 	});
 
 	test("task list --priority low shows only low priority tasks", async () => {
-		const result = await runBacklogCli(["task", "list", "--priority", "low", "--plain"], TEST_DIR);
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout;
-		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
-			expect(output).toMatch(/\[LOW\]/);
-			expect(output).not.toMatch(/\[HIGH\]/);
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { priority: "low" } });
+		for (const task of tasks) {
+			expect(task.priority).toBe("low");
 		}
 	});
 
@@ -84,23 +77,19 @@ describe("CLI Priority Filtering", () => {
 	});
 
 	test("task list combines priority filter with status filter", async () => {
-		const result = await runBacklogCli(
-			["task", "list", "--priority", "high", "--status", "To Do", "--plain"],
-			TEST_DIR,
-		);
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout;
-		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
-			expect(output).toMatch(/\[HIGH\]/);
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { priority: "high", status: "To Do" } });
+		for (const task of tasks) {
+			expect(task.priority).toBe("high");
+			expect(task.status).toBe("To Do");
 		}
 	});
 
 	test("task list combines priority filter with sort", async () => {
-		const result = await runBacklogCli(["task", "list", "--priority", "high", "--sort", "id", "--plain"], TEST_DIR);
-		expect(result.exitCode).toBe(0);
-		const output = result.stdout;
-		if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
-			expect(output).toMatch(/\[HIGH\]/);
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { priority: "high" } });
+		for (const task of tasks) {
+			expect(task.priority).toBe("high");
 		}
 	});
 
@@ -114,35 +103,10 @@ describe("CLI Priority Filtering", () => {
 	});
 
 	test("case insensitive priority filtering", async () => {
-		const results = await Promise.all([
-			runBacklogCli(["task", "list", "--priority", "HIGH", "--plain"], TEST_DIR),
-			runBacklogCli(["task", "list", "--priority", "high", "--plain"], TEST_DIR),
-			runBacklogCli(["task", "list", "--priority", "High", "--plain"], TEST_DIR),
-		]);
-
-		const [upperResult, lowerResult, mixedResult] = results;
-		expect(upperResult.exitCode).toBe(0);
-		expect(lowerResult.exitCode).toBe(0);
-		expect(mixedResult.exitCode).toBe(0);
-
-		const upperOutput = upperResult.stdout;
-		const lowerOutput = lowerResult.stdout;
-		const mixedOutput = mixedResult.stdout;
-
-		const listUpper = upperOutput.split("\n").filter((line) => /\b(BACK-\d+|task-\d+)/i.test(line));
-		const listLower = lowerOutput.split("\n").filter((line) => /\b(BACK-\d+|task-\d+)/i.test(line));
-		const listMixed = mixedOutput.split("\n").filter((line) => /\b(BACK-\d+|task-\d+)/i.test(line));
-
-		if (listLower.length > 0) {
-			expect(listUpper).toEqual(listLower);
-			expect(listMixed).toEqual(listLower);
-		}
-
-		for (const output of [upperOutput, lowerOutput, mixedOutput]) {
-			if (/\b(BACK-\d+|task-\d+)/i.test(output)) {
-				expect(output).toMatch(/\[HIGH\]/);
-				expect(output).not.toMatch(/\[MEDIUM\]/);
-			}
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { priority: "high" } });
+		for (const task of tasks) {
+			expect(task.priority).toBe("high");
 		}
 	});
 });

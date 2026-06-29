@@ -1,11 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { mkdir, readdir, rm } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, rm } from "node:fs/promises";
 import { $ } from "bun";
-import { Core } from "../core/backlog.ts";
+import { Core, EntityType } from "../index.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
-
-const CLI_PATH = join(process.cwd(), "src/cli.ts");
 
 let TEST_DIR: string;
 
@@ -45,57 +42,51 @@ describe("CLI Zero Padded IDs Feature", () => {
 	});
 
 	test("should create a task with a zero-padded ID", async () => {
-		const result = await $`bun ${CLI_PATH} task create "Padded Task"`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
-		const tasksDir = join(TEST_DIR, "backlog", "tasks");
-		const files = await readdir(tasksDir);
-		expect(files.length).toBe(1);
-		expect(files[0]).toStartWith("task-001");
+		const core = new Core(TEST_DIR);
+		const result = await core.createTaskFromInput({ title: "Padded Task" });
+		expect(result.task.id).toMatch(/^task-001/i);
 	});
 
 	test("should create a document with a zero-padded ID", async () => {
-		const result = await $`bun ${CLI_PATH} doc create "Padded Doc"`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
-		const docsDir = join(TEST_DIR, "backlog", "docs");
-		const files = await readdir(docsDir);
-		expect(files.length).toBe(1);
-		expect(files[0]).toStartWith("doc-001");
+		const core = new Core(TEST_DIR);
+		const id = await core.generateNextId(EntityType.Document);
+		await core.filesystem.saveDocument({
+			id,
+			title: "Padded Doc",
+			type: "guide",
+			createdDate: new Date().toISOString().slice(0, 10),
+			rawContent: "Padded doc content",
+		});
+		expect(id).toMatch(/^doc-001/i);
 	});
 
 	test("should create a decision with a zero-padded ID", async () => {
-		const result = await $`bun ${CLI_PATH} decision create "Padded Decision"`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
-		const decisionsDir = join(TEST_DIR, "backlog", "decisions");
-		const files = await readdir(decisionsDir);
-		expect(files.length).toBe(1);
-		expect(files[0]).toStartWith("decision-001");
+		const core = new Core(TEST_DIR);
+		const id = await core.generateNextId(EntityType.Decision);
+		await core.filesystem.saveDecision({
+			id,
+			title: "Padded Decision",
+			date: new Date().toISOString().slice(0, 10),
+			status: "proposed",
+			context: "Context",
+			decision: "Decision",
+			consequences: "Consequences",
+			rawContent: "Decision content",
+		});
+		expect(id).toMatch(/^decision-001/i);
 	});
 
 	test("should correctly increment a padded task ID", async () => {
-		await $`bun ${CLI_PATH} task create "First Padded Task"`.cwd(TEST_DIR).quiet();
-		const result = await $`bun ${CLI_PATH} task create "Second Padded Task"`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
-		const tasksDir = join(TEST_DIR, "backlog", "tasks");
-		const files = await readdir(tasksDir);
-		expect(files.length).toBe(2);
-		expect(files.some((file) => file.startsWith("task-002"))).toBe(true);
+		const core = new Core(TEST_DIR);
+		await core.createTaskFromInput({ title: "First Padded Task" });
+		const result = await core.createTaskFromInput({ title: "Second Padded Task" });
+		expect(result.task.id).toMatch(/^task-002/i);
 	});
 
 	test("should create a sub-task with a zero-padded ID", async () => {
-		// Create parent task first
-		await $`bun ${CLI_PATH} task create "Parent Task"`.cwd(TEST_DIR).quiet();
-
-		// Create sub-task
-		const result = await $`bun ${CLI_PATH} task create "Padded Sub-task" -p task-001`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
-		const tasksDir = join(TEST_DIR, "backlog", "tasks");
-		const files = await readdir(tasksDir);
-		expect(files.length).toBe(2);
-		expect(files.some((file) => file.startsWith("task-001.01"))).toBe(true);
+		const core = new Core(TEST_DIR);
+		const parent = await core.createTaskFromInput({ title: "Parent Task" });
+		const child = await core.createTaskFromInput({ title: "Padded Sub-task", parentTaskId: parent.task.id });
+		expect(child.task.id).toMatch(/^task-001\.01/i);
 	});
 });

@@ -27,17 +27,11 @@ describe("Final Summary CLI", () => {
 	});
 
 	it("supports --final-summary on task create", async () => {
-		const result = await $`bun ${[CLI_PATH, "task", "create", "Task A", "--final-summary", "PR-ready summary"]}`
-			.cwd(TEST_DIR)
-			.quiet()
-			.nothrow();
-		expect(result.exitCode).toBe(0);
-
 		const core = new Core(TEST_DIR);
-		const task = await core.filesystem.loadTask("task-1");
-		expect(task).not.toBeNull();
-		expect(task?.rawContent).toContain("## Final Summary");
-		expect(extractStructuredSection(task?.rawContent ?? "", "finalSummary")).toBe("PR-ready summary");
+		const { task } = await core.createTaskFromInput({ title: "Task A", finalSummary: "PR-ready summary" });
+		expect(task.id).toBe("TASK-1");
+		expect(task.rawContent).toContain("## Final Summary");
+		expect(extractStructuredSection(task.rawContent ?? "", "finalSummary")).toBe("PR-ready summary");
 	});
 
 	it("supports set/append/clear flags on task edit", async () => {
@@ -54,36 +48,15 @@ describe("Final Summary CLI", () => {
 		};
 		await core.createTask(base, false);
 
-		let res = await $`bun ${[CLI_PATH, "task", "edit", "1", "--final-summary", "Initial summary"]}`
-			.cwd(TEST_DIR)
-			.quiet()
-			.nothrow();
-		expect(res.exitCode).toBe(0);
-
+		await core.editTask("task-1", { finalSummary: "Initial summary" });
 		let body = await core.getTaskContent("task-1");
 		expect(extractStructuredSection(body ?? "", "finalSummary")).toBe("Initial summary");
 
-		res = await $`bun ${[
-			CLI_PATH,
-			"task",
-			"edit",
-			"1",
-			"--append-final-summary",
-			"Second",
-			"--append-final-summary",
-			"Third",
-		]}`
-			.cwd(TEST_DIR)
-			.quiet()
-			.nothrow();
-		expect(res.exitCode).toBe(0);
-
+		await core.editTask("task-1", { appendFinalSummary: ["Second", "Third"] });
 		body = await core.getTaskContent("task-1");
 		expect(extractStructuredSection(body ?? "", "finalSummary")).toBe("Initial summary\n\nSecond\n\nThird");
 
-		res = await $`bun ${[CLI_PATH, "task", "edit", "1", "--clear-final-summary"]}`.cwd(TEST_DIR).quiet().nothrow();
-		expect(res.exitCode).toBe(0);
-
+		await core.editTask("task-1", { clearFinalSummary: true });
 		body = await core.getTaskContent("task-1");
 		expect(extractStructuredSection(body ?? "", "finalSummary")).toBeUndefined();
 		expect(body).not.toContain("## Final Summary");

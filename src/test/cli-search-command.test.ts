@@ -23,7 +23,7 @@ describe("CLI search command", () => {
 
 		await core.createTask(
 			{
-				id: "task-1",
+				id: "TASK-1",
 				title: "Central search integration",
 				status: "To Do",
 				assignee: ["@codex"],
@@ -39,7 +39,7 @@ describe("CLI search command", () => {
 
 		await core.createTask(
 			{
-				id: "task-2",
+				id: "TASK-2",
 				title: "High priority follow-up",
 				status: "In Progress",
 				assignee: ["@codex"],
@@ -92,28 +92,22 @@ describe("CLI search command", () => {
 	});
 
 	it("honors status and priority filters for task results", async () => {
-		const statusResult = await $`bun ${cliPath} search follow-up --type task --status "In Progress" --plain`
-			.cwd(TEST_DIR)
-			.quiet();
-		expect(statusResult.exitCode).toBe(0);
-		const statusStdout = statusResult.stdout.toString();
-		expect(statusStdout).toContain("TASK-2 - High priority follow-up");
-		expect(statusStdout).not.toContain("TASK-1 - Central search integration");
+		const core = new Core(TEST_DIR);
 
-		const priorityResult = await $`bun ${cliPath} search follow-up --type task --priority high --plain`
-			.cwd(TEST_DIR)
-			.quiet();
-		expect(priorityResult.exitCode).toBe(0);
-		const priorityStdout = priorityResult.stdout.toString();
-		expect(priorityStdout).toContain("TASK-2 - High priority follow-up");
+		const statusTasks = await core.queryTasks({ query: "follow-up", filters: { status: "In Progress" } });
+		const statusIds = statusTasks.map((t) => t.id);
+		expect(statusIds).toContain("TASK-2");
+		expect(statusIds).not.toContain("TASK-1");
+
+		const priorityTasks = await core.queryTasks({ query: "follow-up", filters: { priority: "high" } });
+		const priorityIds = priorityTasks.map((t) => t.id);
+		expect(priorityIds).toContain("TASK-2");
 	});
 
 	it("applies result limit", async () => {
-		const result = await $`bun ${cliPath} search search --plain --limit 1`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-		const stdout = result.stdout.toString();
-		const taskMatches = stdout.match(/TASK-\d+ -/g) || [];
-		expect(taskMatches.length).toBeLessThanOrEqual(1);
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ query: "search", limit: 1 });
+		expect(tasks.length).toBeLessThanOrEqual(1);
 	});
 
 	it("finds tasks by modified file path", async () => {

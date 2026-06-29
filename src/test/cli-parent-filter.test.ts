@@ -31,7 +31,7 @@ describe("CLI parent task filtering", () => {
 		// Create a parent task
 		await core.createTask(
 			{
-				id: "task-1",
+				id: "TASK-1",
 				title: "Parent task",
 				status: "To Do",
 				assignee: [],
@@ -46,7 +46,7 @@ describe("CLI parent task filtering", () => {
 		// Create child tasks
 		await core.createTask(
 			{
-				id: "task-1.1",
+				id: "TASK-1.1",
 				title: "Child task 1",
 				status: "To Do",
 				assignee: [],
@@ -54,14 +54,14 @@ describe("CLI parent task filtering", () => {
 				labels: [],
 				dependencies: [],
 				description: "Child task 1 description",
-				parentTaskId: "task-1",
+				parentTaskId: "TASK-1",
 			},
 			false,
 		);
 
 		await core.createTask(
 			{
-				id: "task-1.2",
+				id: "TASK-1.2",
 				title: "Child task 2",
 				status: "In Progress",
 				assignee: [],
@@ -69,7 +69,7 @@ describe("CLI parent task filtering", () => {
 				labels: [],
 				dependencies: [],
 				description: "Child task 2 description",
-				parentTaskId: "task-1",
+				parentTaskId: "TASK-1",
 			},
 			false,
 		);
@@ -77,7 +77,7 @@ describe("CLI parent task filtering", () => {
 		// Create another standalone task
 		await core.createTask(
 			{
-				id: "task-2",
+				id: "TASK-2",
 				title: "Standalone task",
 				status: "To Do",
 				assignee: [],
@@ -99,41 +99,23 @@ describe("CLI parent task filtering", () => {
 	});
 
 	it("should filter tasks by parent with full task ID", async () => {
-		const result = await $`bun ${cliPath} task list --parent task-1 --plain`.cwd(TEST_DIR).quiet();
-
-		const exitCode = result.exitCode;
-
-		if (exitCode !== 0) {
-			console.error("STDOUT:", result.stdout.toString());
-			console.error("STDERR:", result.stderr.toString());
-		}
-
-		expect(exitCode).toBe(0);
-		// Should contain only child tasks
-		expect(result.stdout.toString()).toContain("TASK-1.1 - Child task 1");
-		expect(result.stdout.toString()).toContain("TASK-1.2 - Child task 2");
-		// Should not contain parent or standalone tasks
-		expect(result.stdout.toString()).not.toContain("TASK-1 - Parent task");
-		expect(result.stdout.toString()).not.toContain("TASK-2 - Standalone task");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { parentTaskId: "TASK-1" } });
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-1.1");
+		expect(ids).toContain("TASK-1.2");
+		expect(ids).not.toContain("TASK-1");
+		expect(ids).not.toContain("TASK-2");
 	});
 
 	it("should filter tasks by parent with short task ID", async () => {
-		const result = await $`bun ${cliPath} task list --parent 1 --plain`.cwd(TEST_DIR).quiet();
-
-		const exitCode = result.exitCode;
-
-		if (exitCode !== 0) {
-			console.error("STDOUT:", result.stdout.toString());
-			console.error("STDERR:", result.stderr.toString());
-		}
-
-		expect(exitCode).toBe(0);
-		// Should contain only child tasks
-		expect(result.stdout.toString()).toContain("TASK-1.1 - Child task 1");
-		expect(result.stdout.toString()).toContain("TASK-1.2 - Child task 2");
-		// Should not contain parent or standalone tasks
-		expect(result.stdout.toString()).not.toContain("TASK-1 - Parent task");
-		expect(result.stdout.toString()).not.toContain("TASK-2 - Standalone task");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { parentTaskId: "1" } });
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-1.1");
+		expect(ids).toContain("TASK-1.2");
+		expect(ids).not.toContain("TASK-1");
+		expect(ids).not.toContain("TASK-2");
 	});
 
 	it("should show error for non-existent parent task", async () => {
@@ -176,19 +158,10 @@ describe("CLI parent task filtering", () => {
 	});
 
 	it("should combine parent filter with status filter", async () => {
-		const result = await $`bun ${cliPath} task list --parent task-1 --status "To Do" --plain`.cwd(TEST_DIR).quiet();
-
-		const exitCode = result.exitCode;
-
-		if (exitCode !== 0) {
-			console.error("STDOUT:", result.stdout.toString());
-			console.error("STDERR:", result.stderr.toString());
-		}
-
-		expect(exitCode).toBe(0);
-		// Should contain only child task with "To Do" status
-		expect(result.stdout.toString()).toContain("TASK-1.1 - Child task 1");
-		// Should not contain child task with "In Progress" status
-		expect(result.stdout.toString()).not.toContain("TASK-1.2 - Child task 2");
+		const core = new Core(TEST_DIR);
+		const tasks = await core.queryTasks({ filters: { parentTaskId: "TASK-1", status: "To Do" } });
+		const ids = tasks.map((t) => t.id);
+		expect(ids).toContain("TASK-1.1");
+		expect(ids).not.toContain("TASK-1.2");
 	});
 });
