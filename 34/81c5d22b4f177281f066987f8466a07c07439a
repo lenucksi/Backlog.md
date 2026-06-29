@@ -1,0 +1,20 @@
+src/test/commands-cov-helper.ts
+  s_a7fc10816319a8::t_0f45947dd06d4b 19,71,80,83-87
+  s_a7fc10816319a8::t_49151093c2e453 10-15,43-47,50-53,55-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "3481c5d22b4f177281f066987f8466a07c07439a",
+  "prompts": {},
+  "sessions": {
+    "s_a7fc10816319a8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eaa4f023ffenyaDuOMOMhxQMg",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
