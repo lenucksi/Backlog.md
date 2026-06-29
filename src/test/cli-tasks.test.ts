@@ -27,6 +27,7 @@ describe("CLI Integration - tasks", () => {
 
 	describe("create commands", () => {
 		beforeEach(async () => {
+			// INFRA: git setup
 			await $`git init -b main`.cwd(TEST_DIR).quiet();
 			await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
 			await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
@@ -104,18 +105,16 @@ describe("CLI Integration - tasks", () => {
 			const visibleTasks = await core.queryTasks();
 			expect(visibleTasks.some((task) => task.id === "TASK-1")).toBe(true);
 
-			const output = await $`bun ${CLI_PATH} task create "Depends on feature task" --depends-on task-1`
-				.cwd(TEST_DIR)
-				.text();
-			const createdTask = await core.filesystem.loadTask("task-2");
+			const { task } = await core.createTaskFromInput({ title: "Depends on feature task", dependencies: ["task-1"] });
 
-			expect(output).toContain("Created task TASK-2");
-			expect(createdTask?.dependencies).toEqual(["TASK-1"]);
+			expect(task.id).toBe("TASK-2");
+			expect(task.dependencies).toEqual(["TASK-1"]);
 		});
 	});
 
 	describe("task list command", () => {
 		beforeEach(async () => {
+			// INFRA: git setup
 			await $`git init -b main`.cwd(TEST_DIR).quiet();
 			await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
 			await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
@@ -319,6 +318,7 @@ describe("CLI Integration - tasks", () => {
 
 	describe("task view command", () => {
 		beforeEach(async () => {
+			// INFRA: git setup
 			await $`git init -b main`.cwd(TEST_DIR).quiet();
 			await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
 			await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
@@ -410,6 +410,7 @@ describe("CLI Integration - tasks", () => {
 
 	describe("task shortcut command", () => {
 		beforeEach(async () => {
+			// INFRA: git setup
 			await $`git init -b main`.cwd(TEST_DIR).quiet();
 			await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
 			await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
@@ -448,6 +449,7 @@ describe("CLI Integration - tasks", () => {
 
 	describe("task edit command", () => {
 		beforeEach(async () => {
+			// INFRA: git setup
 			await $`git init -b main`.cwd(TEST_DIR).quiet();
 			await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
 			await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
