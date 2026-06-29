@@ -1,0 +1,162 @@
+src/file-system/operations.ts
+  s_dfe5f6b48eeddd::t_76e06948dafb5d 18
+  s_dfe5f6b48eeddd::t_22b81ccb2e8264 628-630
+  s_dfe5f6b48eeddd::t_1c4ce3f46158de 329-331
+  s_dfe5f6b48eeddd::t_dac64e949f1b8d 1722-1728
+  s_dfe5f6b48eeddd::t_26f95b6ecfb8fa 23
+src/utils/ansi.ts
+  s_dfe5f6b48eeddd::t_07ab7153913f24 1
+knip.json
+  s_5010281c16dec7::t_2b700dadaf6e79 4
+src/core/prefix-migration.ts
+  s_dfe5f6b48eeddd::t_7cd062c55b278e 78-80
+src/lsp/sonarlint-wrapper.ts
+  s_dfe5f6b48eeddd::t_154a39794c06c4 4,6-8
+  s_dfe5f6b48eeddd::t_502a764f508d33 1-3,5,9-14
+src/cli.ts
+  s_dfe5f6b48eeddd::t_0d5dd67a24212b 190-191
+  s_dfe5f6b48eeddd::t_74a25d4561325c 48-52
+package.json
+  s_dfe5f6b48eeddd::t_ea38ddcd8978ab 113-114
+src/commands/config.ts
+  s_dfe5f6b48eeddd::t_cbfc0b3915d909 133-135
+src/utils/task-watcher.ts
+  s_dfe5f6b48eeddd::t_a0032cc4326ae4 71-73
+src/utils/clipboard.ts
+  s_dfe5f6b48eeddd::t_4393075b3be424 39-41
+src/server/index.ts
+  s_dfe5f6b48eeddd::t_b0166af70d32db 97-99,107-109,313-315
+  s_dfe5f6b48eeddd::t_4904d6490040dd 324-326
+src/core/backlog.ts
+  s_dfe5f6b48eeddd::t_e83c2b6d043dc4 686-687,695,706,721,872,940,949,955,959,998,1008,1023-1024,1043,1052,1065,1069,1163,1233,1251,1266,1277,1302,1361,1365,1431,1435,1439,1451,1455,1464,1538,1588,1602,1609,1620,1623,1766,1785,1795,1804,1821,1826,1836,1880,1889,1926,1941,1950,1965,1983,2130-2131,2145,2149,2169,2185,2201,2217,2243,2252,2263,2265,2270,2294,2332,2347,2412,2439-2440,2458,2470,2482,2497,2521,2565,2602,2611,2621,2635,2649,2701,2795,2837,2865,2873,2885,2947,2955,3020,3040,3052
+subagent-reports/tech-debt-scout.md
+  s_dfe5f6b48eeddd::t_d403fe00c1759e 1-156
+src/utils/log-error.ts
+  s_dfe5f6b48eeddd::t_2d9b3d5b386d97 1-8
+subagent-reports/sonarlint-large-file-analysis.md
+  s_dfe5f6b48eeddd::t_d403fe00c1759e 1-384
+"backlog/archive/milestones/m-17 - test-empty.md"
+  s_8b82b142d69ed2::t_a635358fecf68b 1-8
+"backlog/milestones/m-18 - chrome-test.md"
+  s_b16c5e41f09562::t_d94fedcbee44ac 1-8
+"backlog/tasks/back-0574 - Fix-repeated-label-add-label-remove-label-flags-dropping-values-silently.md"
+  s_6b2c76cac374ba::t_078e578c670fc0 1-112
+"backlog/tasks/back-0575 - Cherry-pick-and-adapt-commit-SHA-pinning-for-cross-branch-task-hydration-PR-696.md"
+  s_6b2c76cac374ba::t_ab77229b9b3aec 1-115
+"backlog/tasks/back-0576 - Adapt-upstream-test-suite-4x-speed-up-approach-in-process-API-parallel.md"
+  s_6b2c76cac374ba::t_dd047298bc7118 1-98
+"backlog/tasks/back-0577 - Implement-coherent-temporal-model-planning-dates-lifecycle-dates.md"
+  s_6b2c76cac374ba::t_7c6d8a29180913 1-150
+"backlog/tasks/back-0586 - Vision-Based-Test-Discovery-PoC.md"
+  s_b4bed409187691::t_249195d3399f57 1-67
+"backlog/tasks/back-0589.02 - WebUI-milestone-description-display-and-editing.md"
+  s_731d5a6083a88d::t_20635fac1ba6ff 1-74
+"backlog/tasks/back-0593 - BACK-593-Build-Pipeline-Audit-Cleanup.md"
+  s_98cbe6435d5f59::t_0364c9be774223 1-85
+"backlog/tasks/back-0593.01 - BACK-593.1-Replace-jq-dependency-with-Bun.file.json-in-build.ts.md"
+  s_98cbe6435d5f59::t_7e8f7939687f1c 1-71
+"backlog/tasks/back-0593.02 - BACK-593.3-Use-Vite-JS-API-instead-of-Bun.spawnSync-in-build.ts.md"
+  s_98cbe6435d5f59::t_a1ab7c30df1ab2 1-79
+"backlog/tasks/back-0593.03 - BACK-593.6-Fix-getContentType-non-standard-MIME-clean-up-asset-routing.md"
+  s_98cbe6435d5f59::t_5fb16531788c97 1-79
+"backlog/tasks/back-0593.04 - BACK-593.5-Remove-concurrently-dependency-use-bun-built-in-for-dev.md"
+  s_98cbe6435d5f59::t_a131551a7734a4 1-70
+"backlog/tasks/back-0593.05 - BACK-593.4-Parallelize-guard-build-Vite-build-in-build.ts.md"
+  s_98cbe6435d5f59::t_bf3300ecbf7e8e 1-76
+"backlog/tasks/back-0593.06 - BACK-593.2-Resolve-dual-Tailwind-CSS-compilation-path.md"
+  s_98cbe6435d5f59::t_648adaac3dc3b8 1-99
+"backlog/tasks/back-0593.07 - BACK-593.7-Clean-up-package.json.md"
+  s_98cbe6435d5f59::t_131cfe202fa8a5 1-73
+"backlog/tasks/back-0593.08 - BACK-593.10-Merge-Bun.serve-Elysia-into-single-routing-layer.md"
+  s_98cbe6435d5f59::t_096b4965acc173 1-77
+"backlog/tasks/back-0593.09 - BACK-593.8-Add-Vite-config-overlap-validation-CI-check.md"
+  s_98cbe6435d5f59::t_a0d7b8283f0a28 1-70
+"backlog/tasks/back-0593.10 - BACK-593.9-Embed-frontend-assets-into-compiled-binary.md"
+  s_98cbe6435d5f59::t_251cd11957bfec 1-73
+"backlog/tasks/back-0594 - BACK-594-Selective-shadcn-ui-Adoption.md"
+  s_98cbe6435d5f59::t_0955db239f9510 1-61
+"backlog/tasks/back-0594.01 - BACK-594.1-Init-shadcn-add-Dialog-AlertDialog-Switch.md"
+  s_98cbe6435d5f59::t_284b549f935dd0 1-49
+"backlog/tasks/back-0594.02 - BACK-594.2-Replace-Modal.tsx-consumers-with-shadcn-Dialog.md"
+  s_98cbe6435d5f59::t_2034e3b4591cc3 1-71
+"backlog/tasks/back-0594.03 - BACK-594.3-Replace-window.confirm-with-shadcn-AlertDialog.md"
+  s_98cbe6435d5f59::t_6fdbe75ad23880 1-56
+"backlog/tasks/back-0594.04 - BACK-594.4-Replace-SuccessToast-with-sonner.md"
+  s_98cbe6435d5f59::t_47879f51443a94 1-58
+"backlog/tasks/back-0594.05 - BACK-594.5-Replace-CSS-toggle-switches-with-shadcn-Switch.md"
+  s_98cbe6435d5f59::t_7fec162b929848 1-52
+"backlog/tasks/back-0594.06 - BACK-594.6-WebUI-conventions-und-Task-Standards-in-AGENTS.md.md"
+  s_98cbe6435d5f59::t_65efc603efe2cc 1-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "bdb8b33b0f74b58a614ea80f2b5c2ab6ce305ef7",
+  "prompts": {},
+  "sessions": {
+    "s_5010281c16dec7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b4ec4ad4ffe8mg1dFrmwrQtgB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_6b2c76cac374ba": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1587e012effeSp2dC7UiV3JeEs",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_731d5a6083a88d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f52d5bacffeBxSHltdY5lTJMb",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_8b82b142d69ed2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_12aee7411ffeV9Al0Nn9SpeGWV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_98cbe6435d5f59": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f2a6038fffePnYasrVsCSlfUh",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_b16c5e41f09562": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f53275d5ffeVYDeJ8kp2s1WDN",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_b4bed409187691": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f78affe9ffeCbt21d0Tx2sHlx",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_dfe5f6b48eeddd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f137b9e7ffe6hb1msT8WDIRXr",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
