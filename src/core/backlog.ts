@@ -1280,7 +1280,7 @@ export class Core {
 		// Run draft prefix migration if needed (one-time migration)
 		// This renames task-*.md files in drafts/ to draft-*.md
 		if (needsDraftPrefixMigration(config)) {
-			await migrateDraftPrefixes(this.fs);
+			await migrateDraftPrefixes(this.filesystem);
 		}
 	}
 

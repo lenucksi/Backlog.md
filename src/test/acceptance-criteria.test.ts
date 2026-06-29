@@ -7,6 +7,7 @@ import { AcceptanceCriteriaManager } from "../markdown/structured-sections.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
+const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("Acceptance Criteria CLI", () => {
 	beforeEach(async () => {
