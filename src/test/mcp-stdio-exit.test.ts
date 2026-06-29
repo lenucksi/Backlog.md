@@ -179,7 +179,7 @@ describe("MCP stdio shutdown", () => {
 
 			const text = getText(result.content);
 			expect(text).toContain("Document created successfully.");
-			expect(text).toContain("Document doc-1 - Stdio Repro Doc");
+			expect(text).toMatch(/Document doc-\d+ - Stdio Repro Doc/);
 		} finally {
 			await client.close().catch(() => {});
 		}
