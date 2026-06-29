@@ -3,8 +3,8 @@ import { createInterface } from "node:readline/promises";
 import * as clack from "@clack/prompts";
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
-import { resolveRuntimeCwd } from "../utils/cli-context.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
+import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 
 export function registerBrowserCommand(program: Command): void {
 	program

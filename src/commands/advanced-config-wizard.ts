@@ -305,7 +305,7 @@ export async function runAdvancedConfigWizard({
 			name: "blockedStatusesInput",
 			message: "Blocked statuses (comma-separated, leave blank for default):",
 			hint: "Tasks with these statuses get a blocked indicator",
-			initial: blockedStatuses?.join(", ") ?? blockedDefault,
+			initial: blockedDefault,
 		},
 		{ onCancel },
 	);
