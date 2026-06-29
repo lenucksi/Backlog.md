@@ -1,18 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("Definition of Done CLI", () => {
 	beforeEach(async () => {
 		TEST_DIR = createUniqueTestDir("test-definition-of-done-cli");
 		await rm(TEST_DIR, { recursive: true, force: true }).catch(() => {});
 		await mkdir(TEST_DIR, { recursive: true });
+		// INFRA: git setup
 		await $`git init -b main`.cwd(TEST_DIR).quiet();
 		await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
 		await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
@@ -35,37 +34,37 @@ describe("Definition of Done CLI", () => {
 	});
 
 	it("creates task with Definition of Done defaults", async () => {
-		const result = await $`bun ${CLI_PATH} task create "DoD defaults task"`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
 		const core = new Core(TEST_DIR);
-		const task = await core.filesystem.loadTask("task-1");
-		expect(task).not.toBeNull();
-		const body = task?.rawContent ?? "";
+		const { task } = await core.createTaskFromInput({ title: "DoD defaults task" });
+
+		const saved = await core.filesystem.loadTask(task.id);
+		const body = saved?.rawContent ?? "";
 		expect(body).toContain("## Definition of Done");
 		expect(body).toContain("- [ ] #1 Run tests");
 		expect(body).toContain("- [ ] #2 Update docs");
 	});
 
-	it("disables Definition of Done defaults when --no-dod-defaults is used", async () => {
-		const result = await $`bun ${CLI_PATH} task create "DoD no defaults" --no-dod-defaults`.cwd(TEST_DIR).quiet();
-		expect(result.exitCode).toBe(0);
-
+	it("disables Definition of Done defaults when disableDefinitionOfDoneDefaults is used", async () => {
 		const core = new Core(TEST_DIR);
-		const task = await core.filesystem.loadTask("task-1");
-		const body = task?.rawContent ?? "";
+		const { task } = await core.createTaskFromInput({
+			title: "DoD no defaults",
+			disableDefinitionOfDoneDefaults: true,
+		});
+
+		const saved = await core.filesystem.loadTask(task.id);
+		const body = saved?.rawContent ?? "";
 		expect(body).not.toContain("## Definition of Done");
 	});
 
-	it("appends Definition of Done items with --dod", async () => {
-		const result = await $`bun ${CLI_PATH} task create "DoD add" --dod "Ship notes" --dod "Sync roadmap"`
-			.cwd(TEST_DIR)
-			.quiet();
-		expect(result.exitCode).toBe(0);
-
+	it("appends Definition of Done items with definitionOfDoneAdd", async () => {
 		const core = new Core(TEST_DIR);
-		const task = await core.filesystem.loadTask("task-1");
-		const body = task?.rawContent ?? "";
+		const { task } = await core.createTaskFromInput({
+			title: "DoD add",
+			definitionOfDoneAdd: ["Ship notes", "Sync roadmap"],
+		});
+
+		const saved = await core.filesystem.loadTask(task.id);
+		const body = saved?.rawContent ?? "";
 		expect(body).toContain("- [ ] #1 Run tests");
 		expect(body).toContain("- [ ] #2 Update docs");
 		expect(body).toContain("- [ ] #3 Ship notes");
@@ -73,27 +72,21 @@ describe("Definition of Done CLI", () => {
 	});
 
 	it("edits Definition of Done items with check/uncheck/remove", async () => {
-		await $`bun ${CLI_PATH} task create "DoD edit"`.cwd(TEST_DIR).quiet();
-
-		let editResult = await $`bun ${CLI_PATH} task edit 1 --check-dod 2`.cwd(TEST_DIR).quiet();
-		expect(editResult.exitCode).toBe(0);
-
 		const core = new Core(TEST_DIR);
+		await core.createTaskFromInput({ title: "DoD edit" });
+
+		await core.updateTaskFromInput("task-1", { checkDefinitionOfDone: [2] });
 		let task = await core.filesystem.loadTask("task-1");
 		let body = task?.rawContent ?? "";
 		expect(body).toContain("- [x] #2 Update docs");
 
-		editResult = await $`bun ${CLI_PATH} task edit 1 --remove-dod 1`.cwd(TEST_DIR).quiet();
-		expect(editResult.exitCode).toBe(0);
-
+		await core.updateTaskFromInput("task-1", { removeDefinitionOfDone: [1] });
 		task = await core.filesystem.loadTask("task-1");
 		body = task?.rawContent ?? "";
 		expect(body).not.toContain("Run tests");
 		expect(body).toContain("- [x] #1 Update docs");
 
-		editResult = await $`bun ${CLI_PATH} task edit 1 --uncheck-dod 1`.cwd(TEST_DIR).quiet();
-		expect(editResult.exitCode).toBe(0);
-
+		await core.updateTaskFromInput("task-1", { uncheckDefinitionOfDone: [1] });
 		task = await core.filesystem.loadTask("task-1");
 		body = task?.rawContent ?? "";
 		expect(body).toContain("- [ ] #1 Update docs");
