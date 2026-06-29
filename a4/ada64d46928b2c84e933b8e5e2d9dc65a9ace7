@@ -1,0 +1,48 @@
+src/test/cli-tasks.test.ts
+  s_789a208fcc192a::t_cfb3592b59d60e 1-688
+src/test/cli-init.test.ts
+  s_789a208fcc192a::t_b2d62d9acc32ed 5
+  s_789a208fcc192a::t_e39e5cecf89a1a 1-4,6-291
+src/web/styles/style.css
+  s_a8a26226c3044c::t_49d1187dfebdda 2
+hooks/backlog-guard/opencode-plugin.js
+  s_a8a26226c3044c::t_49d1187dfebdda 5,59,214,366,428,475,502,539,649,677,749,864,881,1018,1316,1437,1573,1592,1649,1710,1748,1900,2027,2046,2139,2158,2174,2189,2210,2234,2277,2319,2344,2408,2463,2538,2610,2639,2685,2761,2844,2926,2967,3058,3088,3168,3403,3468,3598,3638,3653,3666,3773,3821,3861,4052,4114,4307,4524,4602,4629,4732,4772,4963,5153,5211,5270,5371,5968,5996,6852,6946,6967,7165,7211
+src/commands/browser.ts
+  s_789a208fcc192a::t_b2d62d9acc32ed 7
+src/test/cli-board.test.ts
+  s_789a208fcc192a::t_cfb3592b59d60e 1-307
+src/guidelines/render.ts
+  s_d020ad1dcbcedc::t_1f18a84e134a3e 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "a4ada64d46928b2c84e933b8e5e2d9dc65a9ace7",
+  "prompts": {},
+  "sessions": {
+    "s_789a208fcc192a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ecfe892cffekD64cl0kN6HuLZ",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_a8a26226c3044c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ecca190cffeqnl4S5BteaZmJh",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_d020ad1dcbcedc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f031e69dffe6qyRORK371R5Kw",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
