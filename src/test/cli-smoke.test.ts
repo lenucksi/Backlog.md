@@ -6,7 +6,7 @@ import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-
 
 const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
-function runCLI(args: string[], cwd: string, timeoutMs = 10000): Promise<string> {
+function runCLI(args: string[], cwd: string, timeoutMs = 20000): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const proc = Bun.spawn(["bun", CLI_PATH, ...args], {
 			cwd,

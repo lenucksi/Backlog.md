@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { FileSystem } from "../file-system/operations.ts";
 import { BacklogServer } from "../server/index.ts";
 import type { Document } from "../types/index.ts";
@@ -180,42 +180,47 @@ describe("BacklogServer document endpoints", () => {
 		if (!server) {
 			throw new Error("Expected server to be started");
 		}
-		const core = (
-			server as unknown as {
-				core: {
-					createDocumentFromInput: (...args: unknown[]) => Promise<Document>;
-					updateDocumentFromInput: (...args: unknown[]) => Promise<Document>;
-				};
-			}
-		).core;
+		const consoleErrorSpy = spyOn(console, "error").mockImplementation(() => {});
+		try {
+			const core = (
+				server as unknown as {
+					core: {
+						createDocumentFromInput: (...args: unknown[]) => Promise<Document>;
+						updateDocumentFromInput: (...args: unknown[]) => Promise<Document>;
+					};
+				}
+			).core;
 
-		core.createDocumentFromInput = async () => {
-			throw new Error("disk full");
-		};
-		const createResponse = await fetch(`http://127.0.0.1:${serverPort}/api/docs`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				title: "Create Failure",
-				content: "Content",
-				type: "guide",
-			}),
-		});
-		expect(createResponse.status).toBe(500);
-		expect(await createResponse.text()).toContain("Failed to create document");
+			core.createDocumentFromInput = async () => {
+				throw new Error("disk full");
+			};
+			const createResponse = await fetch(`http://127.0.0.1:${serverPort}/api/docs`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					title: "Create Failure",
+					content: "Content",
+					type: "guide",
+				}),
+			});
+			expect(createResponse.status).toBe(500);
+			expect(await createResponse.text()).toContain("Failed to create document");
 
-		core.updateDocumentFromInput = async () => {
-			throw new Error("rename failed");
-		};
-		const updateResponse = await fetch(`http://127.0.0.1:${serverPort}/api/docs/doc-1`, {
-			method: "PUT",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				content: "Updated",
-				type: "guide",
-			}),
-		});
-		expect(updateResponse.status).toBe(500);
-		expect(await updateResponse.text()).toContain("Failed to update document");
+			core.updateDocumentFromInput = async () => {
+				throw new Error("rename failed");
+			};
+			const updateResponse = await fetch(`http://127.0.0.1:${serverPort}/api/docs/doc-1`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					content: "Updated",
+					type: "guide",
+				}),
+			});
+			expect(updateResponse.status).toBe(500);
+			expect(await updateResponse.text()).toContain("Failed to update document");
+		} finally {
+			consoleErrorSpy.mockRestore();
+		}
 	});
 });

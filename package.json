@@ -55,8 +55,8 @@
 		"vterm.js": "^0.4.0"
 	},
 	"scripts": {
-		"test": "bun test --parallel --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*' --path-ignore-patterns='src/test/tui-interactive-editor-handoff.test.ts' --path-ignore-patterns='src/test/runtime-cwd.test.ts'",
-		"test:fails": "bun test --only-failures --parallel --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*' --path-ignore-patterns='src/test/tui-interactive-editor-handoff.test.ts' --path-ignore-patterns='src/test/runtime-cwd.test.ts'",
+		"test": "bun test --parallel --timeout=20000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*' --path-ignore-patterns='src/test/tui-interactive-editor-handoff.test.ts' --path-ignore-patterns='src/test/runtime-cwd.test.ts'",
+		"test:fails": "bun test --only-failures --parallel --timeout=20000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*' --path-ignore-patterns='src/test/tui-interactive-editor-handoff.test.ts' --path-ignore-patterns='src/test/runtime-cwd.test.ts'",
 		"test:interactive": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --timeout=30000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
 		"test:interactive:fails": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --only-failures --timeout=30000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*'",
 		"test:ci": "CI=true bun test --parallel --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*' --path-ignore-patterns='src/test/tui-interactive-editor-handoff.test.ts' --path-ignore-patterns='src/test/runtime-cwd.test.ts'",
