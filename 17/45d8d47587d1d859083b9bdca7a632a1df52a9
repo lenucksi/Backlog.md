@@ -1,0 +1,19 @@
+"backlog/tasks/back-0576.06 - Migrate-remaining-business-logic-def-of-done-tests-to-Core-API-10-files.md"
+  s_3376b886d496c6::t_9230ff502c371b 4,8-9,16-20,81-84,87-101,104-106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "1745d8d47587d1d859083b9bdca7a632a1df52a9",
+  "prompts": {},
+  "sessions": {
+    "s_3376b886d496c6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ebccb13effewJL8oJNbbgJmLv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
