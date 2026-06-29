@@ -1,0 +1,37 @@
+src/test/description-newlines.test.ts
+  s_b67679fd71b6ec::t_901fa2fed46996 5,34-35,59-60,68-69
+src/test/cli-init-claude-default.test.ts
+  s_b67679fd71b6ec::t_aad4c4925e99f3 5,24,32
+src/test/config-commands.test.ts
+  s_b67679fd71b6ec::t_e2e174067899f7 7
+  s_b67679fd71b6ec::t_3ffa65f9e900f0 262,264-265
+  s_b67679fd71b6ec::t_5d017572c0bf71 274-275
+  s_b67679fd71b6ec::t_4b1a6ffc4e7d1d 304,306
+  s_b67679fd71b6ec::t_46d9fec414459f 172-175,177,179-180
+  s_b67679fd71b6ec::t_2e809652adcf92 186-187,189-190
+src/test/cli-init-no-git.test.ts
+  s_b67679fd71b6ec::t_78ad769d832906 98,100
+  s_b67679fd71b6ec::t_beed9fa86fb314 7,24-27
+src/test/desc-alias.test.ts
+  s_b67679fd71b6ec::t_21324487794a7c 6,42-43,45-48,52-53,78-79,85-91,93-95,97-98,101,103-107,109-111,113,117
+  s_b67679fd71b6ec::t_198b8b7b1e64a8 112
+  s_b67679fd71b6ec::t_8f2b7cabf369cc 92
+  s_b67679fd71b6ec::t_39e22923afb793 96
+  s_b67679fd71b6ec::t_5cfbac4f459cba 108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "41eb1e154eb65c880d043aaab697160d714a2611",
+  "prompts": {},
+  "sessions": {
+    "s_b67679fd71b6ec": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ebe3051cffecKMNJ5cRoBeey0",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
