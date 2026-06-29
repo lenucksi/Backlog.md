@@ -1,0 +1,93 @@
+src/guidelines/agent-guidelines.md
+  s_6326bbe04642e3::t_7e966c952290e5 469
+  s_6326bbe04642e3::t_437f6588f1e951 528-538
+  s_6326bbe04642e3::t_0dbffe42f8baaf 512-516
+  s_6326bbe04642e3::t_10340152619d97 21
+  s_6326bbe04642e3::t_d6bdb8251d29ca 68
+  s_6326bbe04642e3::t_29196d56b9ce8a 731-732,734-737,749-771
+  s_6326bbe04642e3::t_e47bcc29eb3208 27,392,395,447,451,454,457-458,461,479-482,730,733,738-742,779-780
+  s_6326bbe04642e3::t_3aa13c87aae4fd 35
+  s_6326bbe04642e3::t_8edee1be7fba43 772
+src/web/components/InitializationScreen.tsx
+  s_a8a26226c3044c::t_cd9bd695a6093b 194-212
+  s_a8a26226c3044c::t_683e49d38624fd 951
+CLI-INSTRUCTIONS.md
+  s_6326bbe04642e3::t_a291bad55d35d6 158
+  s_6326bbe04642e3::t_b6b18c5cdf7161 52-56,58
+  s_6326bbe04642e3::t_45dee429a0e034 327-336
+  s_6326bbe04642e3::t_723b4fb2f2d32b 60-66,69-71
+  s_6326bbe04642e3::t_b1b975058c0976 199-200,209-210,218-220
+  s_6326bbe04642e3::t_48f06715f361e4 235-239,247-253
+  s_6326bbe04642e3::t_0ef791bd435dff 159-161
+  s_6326bbe04642e3::t_156a9c16b3dcde 91-102
+  s_6326bbe04642e3::t_8f045c00da98eb 255-313
+  s_6326bbe04642e3::t_545f5e2a210b3c 254
+CONTRIBUTING.md
+  s_6326bbe04642e3::t_c75831479c5750 16
+.gitignore
+  s_6326bbe04642e3::t_25207d64a562a0 7
+src/test/task-path.test.ts
+  s_098eeddaa21350::t_632ead84064a82 233-235
+README.md
+  s_6326bbe04642e3::t_765f845200bc83 223
+src/guidelines/cli/overview.md
+  s_6326bbe04642e3::t_ac2f9131e9ffbe 1-61
+TEST-SCENARIOS-Auto-Linking-Backlinks.md
+  s_6326bbe04642e3::t_cd643e8409a363 5
+"backlog/tasks/back-0611 - CLI-Instructions-command-for-LLM-progressive-discovery.md"
+  s_098eeddaa21350::t_ac88b0f95df52c 1-53
+"backlog/tasks/back-0612 - Update-agent-guidelines.md-and-CLI-INSTRUCTIONS.md-to-use-json-instead-of-plain.md"
+  s_098eeddaa21350::t_ac88b0f95df52c 1-4,6-43
+  s_098eeddaa21350::t_661ce2397c8e3d 5
+  s_098eeddaa21350::t_71f68ab4eb71c6 44-46
+DEVELOPMENT.md
+  s_6326bbe04642e3::t_8e0e1abec6a7d8 43,46
+  s_6326bbe04642e3::t_1cc6749d7d4f57 20
+  s_6326bbe04642e3::t_82307d6aa20999 58,66,71,76
+src/readme.ts
+  s_098eeddaa21350::t_ab56ca0dfbd7bc 16-17
+  s_098eeddaa21350::t_4b2eed2c566d4d 47
+  s_098eeddaa21350::t_6d0bb93b9f1174 1
+  s_6326bbe04642e3::t_a97514325de937 9-15
+  s_098eeddaa21350::t_dc4ed2a6542bf4 27
+src/test/runtime-cwd.test.ts
+  s_098eeddaa21350::t_7b97cade98bcbd 1
+src/test/readme.test.ts
+  s_098eeddaa21350::t_dd4f4deccc6ae6 38
+ADVANCED-CONFIG.md
+  s_6326bbe04642e3::t_e174382d11472d 54
+src/guidelines/cli/index.ts
+  s_098eeddaa21350::t_c049b7d53c7bc8 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "83ddf371ab957460ff214226682d90c7cb52057d",
+  "prompts": {},
+  "sessions": {
+    "s_098eeddaa21350": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ec774859ffenjf3Mjv5kbU93b",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_6326bbe04642e3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ecbf8396ffep7FcrNaI2UVTTV",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_a8a26226c3044c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ecca190cffeqnl4S5BteaZmJh",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
