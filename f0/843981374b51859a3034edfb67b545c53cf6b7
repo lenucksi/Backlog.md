@@ -1,0 +1,27 @@
+src/test/definition-of-done-cli.test.ts
+  s_3376b886d496c6::t_035a6ad6081700 14,38-41,47,49-55,59,61-67,76-78,83,89
+src/test/parent-id-normalization.test.ts
+  s_3376b886d496c6::t_53e56f23b3c60a 10,14-17,43
+src/test/no-remote-preflight.test.ts
+  s_3376b886d496c6::t_eaf3cf68d8ca55 4,6,16,72,75,79-84
+  s_3376b886d496c6::t_e19a908e25bdf6 71,73-74,76-78
+  s_3376b886d496c6::t_78ab21cfa6a559 85-87
+src/test/remote-id-conflict.test.ts
+  s_3376b886d496c6::t_1fd329ba35edf6 63-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f0843981374b51859a3034edfb67b545c53cf6b7",
+  "prompts": {},
+  "sessions": {
+    "s_3376b886d496c6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ebccb13effewJL8oJNbbgJmLv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
