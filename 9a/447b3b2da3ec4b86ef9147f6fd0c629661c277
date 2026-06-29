@@ -1,0 +1,24 @@
+src/test/server-documents-endpoint.test.ts
+  s_9488a2cb641123::t_dd52e4fbebf832 1
+  s_9488a2cb641123::t_167a0476a541ab 183-224
+src/test/cli-smoke.test.ts
+  s_9488a2cb641123::t_3ede01a50159ef 9
+package.json
+  s_9488a2cb641123::t_fbc66480689194 58-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "9a447b3b2da3ec4b86ef9147f6fd0c629661c277",
+  "prompts": {},
+  "sessions": {
+    "s_9488a2cb641123": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eaeacefbffeJXReCKTR2SFAAP",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
