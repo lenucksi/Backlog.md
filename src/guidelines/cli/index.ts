@@ -1,9 +1,5 @@
+import { MCP_TASK_CREATION_GUIDE, MCP_TASK_EXECUTION_GUIDE, MCP_TASK_FINALIZATION_GUIDE } from "../mcp/index.ts";
 import { renderForCli } from "../render.ts";
-import {
-	MCP_TASK_CREATION_GUIDE,
-	MCP_TASK_EXECUTION_GUIDE,
-	MCP_TASK_FINALIZATION_GUIDE,
-} from "../mcp/index.ts";
 import cliOverview from "./overview.md" with { type: "text" };
 
 export const CLI_OVERVIEW = cliOverview.trim();

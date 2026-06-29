@@ -24,14 +24,14 @@ describe("CLI Integration - init command", () => {
 	});
 
 	describe("backlog init command", () => {
-	async function setupGit() {
-		// INFRA: git setup
-		await $`git init -b main`.cwd(TEST_DIR).quiet();
-		// INFRA: git setup
-		await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
-		// INFRA: git setup
-		await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
-	}
+		async function setupGit() {
+			// INFRA: git setup
+			await $`git init -b main`.cwd(TEST_DIR).quiet();
+			// INFRA: git setup
+			await $`git config user.name "Test User"`.cwd(TEST_DIR).quiet();
+			// INFRA: git setup
+			await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
+		}
 
 		it("should initialize backlog project in existing git repo", async () => {
 			await setupGit();
