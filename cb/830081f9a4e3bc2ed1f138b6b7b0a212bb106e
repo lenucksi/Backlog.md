@@ -1,0 +1,51 @@
+src/test/commands-cov-helper.ts
+  s_44ef7f1f9971b1::t_39ebdce9dbb8e5 28-29,31-37,42-49,97
+src/test/id-generation.test.ts
+  s_44ef7f1f9971b1::t_872b8a6bb1ba0e 45,71,81,85,116,119,140
+src/mcp/server.ts
+  s_44ef7f1f9971b1::t_feb52cdbf30faa 25
+  s_44ef7f1f9971b1::t_92e38149728a51 59
+src/test/server-assets.test.ts
+  s_44ef7f1f9971b1::t_15c460210c3b59 79
+src/test/atomic-task-create.test.ts
+  s_44ef7f1f9971b1::t_8ba6ef07a34363 174,216
+  s_44ef7f1f9971b1::t_28643917eafe02 246
+  s_44ef7f1f9971b1::t_97d5553052873f 243
+  s_44ef7f1f9971b1::t_fad687582abead 47,50,72-73,83,114-115,122,149-150,157,191-192,199,266,276
+src/test/find-task-in-branches.test.ts
+  s_44ef7f1f9971b1::t_d3c513487c15e9 31
+  s_44ef7f1f9971b1::t_48c4c499eef3c8 59
+  s_44ef7f1f9971b1::t_f6c48d4a95aa9e 110
+src/test/parallel-loading.test.ts
+  s_44ef7f1f9971b1::t_32873910996ef9 82-85
+src/ui/components/generic-list.ts
+  s_44ef7f1f9971b1::t_088608dc7e4d51 132,135
+src/test/server-tasks-endpoint.test.ts
+  s_44ef7f1f9971b1::t_4cfa231de67243 252-255,259
+  s_44ef7f1f9971b1::t_849090d2bab498 245,249,258
+src/test/task-loader-branch-normalization.test.ts
+  s_44ef7f1f9971b1::t_8122bb76899f45 68-70
+  s_44ef7f1f9971b1::t_ccceea448666f1 95-97
+  s_44ef7f1f9971b1::t_706de45fde26c3 16-19
+src/test/web-milestones-page-search.test.tsx
+  s_44ef7f1f9971b1::t_92d6d8293b5fbe 47-54,89-96,176
+  s_44ef7f1f9971b1::t_4ccf6ab8fc2b9c 201-202,205-210
+  s_44ef7f1f9971b1::t_9af14eb353a410 242-249
+  s_44ef7f1f9971b1::t_68f059d5a905f8 203-204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "cb830081f9a4e3bc2ed1f138b6b7b0a212bb106e",
+  "prompts": {},
+  "sessions": {
+    "s_44ef7f1f9971b1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eb752860ffenX6EQcUrLY4XHA",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
