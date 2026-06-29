@@ -5,6 +5,7 @@ import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
+import { getExplicitProjectPath } from "../utils/cli-context.ts";
 
 export function registerBrowserCommand(program: Command): void {
 	program
@@ -16,15 +17,17 @@ export function registerBrowserCommand(program: Command): void {
 		.action(async (options) => {
 			try {
 				const runtimeCwd = await resolveRuntimeCwd();
-				let cwd = await findBacklogRoot(runtimeCwd.cwd);
+				const explicitPath = getExplicitProjectPath();
+				const startDir = explicitPath || runtimeCwd.cwd;
+				let cwd = await findBacklogRoot(startDir);
 				if (!cwd) {
 					console.log("\nNo Backlog.md project found in this directory.");
 					const openWizard = await clack.confirm({
-						message: "Open web initialization wizard?",
+						message: (explicitPath ? `Initialize at ${explicitPath}?` : "Open web initialization wizard?"),
 						initialValue: true,
 					});
 					if (openWizard) {
-						cwd = runtimeCwd.cwd;
+						cwd = startDir;
 					} else {
 						console.log("Run `backlog init` to initialize.");
 						process.exit(0);

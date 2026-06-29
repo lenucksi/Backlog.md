@@ -4,6 +4,7 @@ import { Core } from "../core/backlog.ts";
 import type { AgentInstructionFile } from "../index.ts";
 import { addAgentInstructions } from "../index.ts";
 import { AppError } from "../utils/app-error.ts";
+import { getExplicitProjectPath } from "../utils/cli-context.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
 import type { RuntimeCwdResolution } from "../utils/runtime-cwd.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
@@ -23,6 +24,7 @@ export function registerAgentsCommand(program: Command): void {
 				return;
 			}
 			try {
+				const explicitPath = getExplicitProjectPath();
 				let runtimeCwd: RuntimeCwdResolution;
 				try {
 					runtimeCwd = await resolveRuntimeCwd();
@@ -31,7 +33,8 @@ export function registerAgentsCommand(program: Command): void {
 					console.error(message);
 					process.exit(1);
 				}
-				const cwd = (await findBacklogRoot(runtimeCwd.cwd)) ?? runtimeCwd.cwd;
+				const startDir = explicitPath || runtimeCwd.cwd;
+				const cwd = (await findBacklogRoot(startDir)) ?? startDir;
 				const core = new Core(cwd);
 
 				const config = await core.filesystem.loadConfig();
