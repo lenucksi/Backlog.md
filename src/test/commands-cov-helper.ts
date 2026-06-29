@@ -7,33 +7,16 @@ export interface CliResult {
 	exitCode: number;
 }
 
-let helpersInitialized = false;
-let registerInit: ((program: Command) => void) | null = null;
-let registerTask: ((program: Command) => void) | null = null;
-let registerConfig: ((program: Command) => void) | null = null;
-
-async function initHelpers() {
-	if (helpersInitialized) return;
-	const [initMod, taskMod, configMod] = await Promise.all([
-		import("../commands/init.ts"),
-		import("../commands/task.ts"),
-		import("../commands/config.ts"),
-	]);
-	registerInit = initMod.registerInitCommand;
-	registerTask = taskMod.registerTaskCommand;
-	registerConfig = configMod.registerConfigCommand;
-	helpersInitialized = true;
+class CliExitError extends Error {
+	code: number | undefined;
+	constructor(code?: number) {
+		super(`process.exit(${code})`);
+		this.code = code;
+	}
 }
 
-let cliQueue = Promise.resolve();
-
 export async function runBacklogCli(args: string[], cwd: string): Promise<CliResult> {
-	const prev = cliQueue;
-	let release: (() => void) | undefined;
-	cliQueue = new Promise<void>((resolve) => {
-		release = resolve;
-	});
-	await prev;
+	process.env[BACKLOG_CWD_ENV] = cwd;
 
 	const stdout: string[] = [];
 	const stderr: string[] = [];
@@ -45,9 +28,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 	const originalLog = console.log;
 	const originalError = console.error;
 	const originalWarn = console.warn;
-	const originalBacklogCwd = process.env[BACKLOG_CWD_ENV];
 
-	process.env[BACKLOG_CWD_ENV] = cwd;
 	process.argv = ["bun", "src/cli.ts", ...args];
 	process.exitCode = 0;
 	console.log = (...msgs: unknown[]) => stdout.push(msgs.map(String).join(" "));
@@ -58,15 +39,22 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		throw new CliExitError(code);
 	}) as (code?: number) => never;
 
-	let caught: Error | undefined;
 	try {
-		await initHelpers();
+		const [initMod, taskMod, configMod] = await Promise.all([
+			import("../commands/init.ts"),
+			import("../commands/task.ts"),
+			import("../commands/config.ts"),
+		]);
 		const program = new Command();
 		program.exitOverride();
+		program.configureOutput({
+			writeOut: (str: string) => stdout.push(str),
+			writeErr: (str: string) => stderr.push(str),
+		});
 
-		registerInit?.(program);
-		registerTask?.(program);
-		registerConfig?.(program);
+		initMod.registerInitCommand(program);
+		taskMod.registerTaskCommand(program);
+		configMod.registerConfigCommand(program);
 
 		await program.parseAsync(process.argv);
 		if (process.exitCode) {
@@ -80,7 +68,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		} else if (err instanceof Error && (err as { code?: string }).code === "commander.help") {
 			exitCode = 0;
 		} else {
-			caught = err as Error;
+			throw err;
 		}
 	} finally {
 		process.argv = originalArgv;
@@ -89,25 +77,12 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		console.log = originalLog;
 		console.error = originalError;
 		console.warn = originalWarn;
-		if (originalBacklogCwd === undefined) {
-			delete process.env[BACKLOG_CWD_ENV];
-		} else {
-			process.env[BACKLOG_CWD_ENV] = originalBacklogCwd;
-		}
-		release?.();
+		delete process.env[BACKLOG_CWD_ENV];
 	}
 
-	if (caught) {
-		throw caught;
-	}
-
-	return { stdout: stdout.join("\n"), stderr: stderr.join("\n"), exitCode };
-}
-
-class CliExitError extends Error {
-	code: number | undefined;
-	constructor(code?: number) {
-		super(`process.exit(${code})`);
-		this.code = code;
-	}
+	return {
+		stdout: stdout.join("\n").trim(),
+		stderr: stderr.join("\n").trim(),
+		exitCode,
+	};
 }
