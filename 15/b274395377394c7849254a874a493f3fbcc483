@@ -1,0 +1,21 @@
+src/guidelines/cli/index.ts
+  s_a8a26226c3044c::t_e841db317be186 1
+src/test/cli-init.test.ts
+  s_a8a26226c3044c::t_e841db317be186 27-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "15b274395377394c7849254a874a493f3fbcc483",
+  "prompts": {},
+  "sessions": {
+    "s_a8a26226c3044c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ecca190cffeqnl4S5BteaZmJh",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    }
+  }
+}
