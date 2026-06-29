@@ -171,16 +171,16 @@ definition_of_done:
   ]
 max_column_width: 20
 default_editor: vim
-auto_open_browser: true
-default_port: 6420
-remote_operations: true
+auto_open_browser: false
+default_port: 8888
+remote_operations: false
 auto_commit: false
 zero_padded_ids: 4
-bypass_git_hooks: true
-check_active_branches: true
+bypass_git_hooks: false
+check_active_branches: false
 active_branch_days: 10
 task_prefix: back
 terminal_statuses: [ Done ]
 auto_collapse_milestones: true
-filesystem_only: false
+filesystem_only: true
 blocked_statuses: [ Deferred, Blocked ]

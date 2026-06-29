@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import { BACKLOG_CWD_ENV } from "../utils/runtime-cwd.ts";
 
 export interface CliResult {
 	stdout: string;
@@ -6,13 +7,13 @@ export interface CliResult {
 	exitCode: number;
 }
 
-const originalCwd = process.cwd();
 const originalArgv = process.argv;
 const originalExitCode = process.exitCode;
 const originalExit = process.exit;
 const originalLog = console.log;
 const originalError = console.error;
 const originalWarn = console.warn;
+const originalBacklogCwd = process.env[BACKLOG_CWD_ENV];
 
 let helpersInitialized = false;
 let registerInit: ((program: Command) => void) | null = null;
@@ -37,7 +38,7 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 	const stderr: string[] = [];
 	let exitCode = 0;
 
-	process.chdir(cwd);
+	process.env[BACKLOG_CWD_ENV] = cwd;
 	process.argv = ["bun", "src/cli.ts", ...args];
 	process.exitCode = 0;
 	console.log = (...msgs: unknown[]) => stdout.push(msgs.map(String).join(" "));
@@ -73,13 +74,17 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 			caught = err as Error;
 		}
 	} finally {
-		process.chdir(originalCwd);
 		process.argv = originalArgv;
 		process.exitCode = originalExitCode;
 		process.exit = originalExit;
 		console.log = originalLog;
 		console.error = originalError;
 		console.warn = originalWarn;
+		if (originalBacklogCwd === undefined) {
+			delete process.env[BACKLOG_CWD_ENV];
+		} else {
+			process.env[BACKLOG_CWD_ENV] = originalBacklogCwd;
+		}
 	}
 
 	if (caught) {

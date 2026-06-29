@@ -1,10 +1,10 @@
 ---
 id: BACK-0576
 title: Adapt upstream test suite 4x speed-up approach (in-process API + --parallel)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-06-26 17:33
-updated_date: 2026-06-26 23:00
+updated_date: 2026-06-29 10:54
 labels:
   - upstream
   - infrastructure
@@ -88,6 +88,36 @@ Upstreams Codebase hat divergiert. Die Test-Dateien haben andere Strukturen, and
 - [ ] #7 getVersionSync() exists and is used in parallel-compatible tests
 - [ ] #8 bunx tsc --noEmit passes, bun run check . passes
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+## Approved Implementation Plan
+
+### Phase 0 — Prerequisites
+1. Add `getVersionSync()` to `src/utils/version.ts` — sync read of package.json version field
+2. Remove `process.chdir()` from `commands-test-helper.ts` & `commands-cov-helper.ts` — pass cwd via Core constructor instead
+3. Fix `process.chdir()` in `runtime-cwd.test.ts`, `task-path.test.ts`, `readme.test.ts` — wrap in isolated scope
+
+### Phase 1 — cli.test.ts Split
+Split 1779-line monolith into domain files:
+- `cli-init.test.ts` — init + git tests (lines 34-380)
+- `cli-tasks.test.ts` — create/list/view/edit/shortcut (lines 383-1086)
+- `cli-task-lifecycle.test.ts` — archive/state transitions (lines 1088-1328)
+- `cli-docs.test.ts` — doc + decision commands (lines 1330-1484)
+- `cli-board.test.ts` — board view/export (lines 1486-1779)
+
+Each new file: convert subprocess calls to Core API where possible, mark CLI-CONTRACT tests. Add missing helpers to `test-helpers.ts` as needed.
+
+### Phase 2 — $ → Core API Migration
+Migrate ~37 files systematically. Extend `test-helpers.ts` with missing Core-based helpers. Priority: largest files first.
+
+### Phase 3 — setTimeout Reduction
+17 files, 49 calls. Replace polling with `retry()` pattern.
+
+### Phase 4 — --parallel aktivieren
+Update package.json, fix flaky tests, validate full suite.
+<!-- SECTION:PLAN:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

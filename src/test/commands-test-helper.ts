@@ -1,11 +1,12 @@
 import { Command } from "commander";
+import { BACKLOG_CWD_ENV } from "../utils/runtime-cwd.ts";
 
-const originalCwd = process.cwd();
 const originalArgv = process.argv;
 const originalExit = process.exit;
 const originalLog = console.log;
 const originalError = console.error;
 const originalWarn = console.warn;
+const originalBacklogCwd = process.env[BACKLOG_CWD_ENV];
 
 export interface RunResult {
 	stdout: string;
@@ -17,7 +18,7 @@ export async function runBacklogCmd(args: string[], cwd: string): Promise<RunRes
 	const logs: string[] = [];
 	const errors: string[] = [];
 
-	process.chdir(cwd);
+	process.env[BACKLOG_CWD_ENV] = cwd;
 	process.argv = ["bun", "src/cli.ts", ...args];
 	console.log = (...a: unknown[]) => logs.push(a.map(String).join(" "));
 	console.error = (...a: unknown[]) => errors.push(a.map(String).join(" "));
@@ -65,12 +66,16 @@ async function runWithFreshProgram(args: string[], _cwd: string, logs: string[],
 }
 
 export function restoreGlobals(): void {
-	process.chdir(originalCwd);
 	process.argv = originalArgv;
 	process.exit = originalExit;
 	console.log = originalLog;
 	console.error = originalError;
 	console.warn = originalWarn;
+	if (originalBacklogCwd === undefined) {
+		delete process.env[BACKLOG_CWD_ENV];
+	} else {
+		process.env[BACKLOG_CWD_ENV] = originalBacklogCwd;
+	}
 }
 
 class ProcessExitError extends Error {

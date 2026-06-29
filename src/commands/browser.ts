@@ -1,8 +1,10 @@
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
+import * as clack from "@clack/prompts";
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
-import { requireProjectRoot } from "../utils/cli-context.ts";
+import { resolveRuntimeCwd } from "../utils/cli-context.ts";
+import { findBacklogRoot } from "../utils/find-backlog-root.ts";
 
 export function registerBrowserCommand(program: Command): void {
 	program
@@ -13,7 +15,21 @@ export function registerBrowserCommand(program: Command): void {
 		.option("--non-interactive", "automatically use next free port without asking")
 		.action(async (options) => {
 			try {
-				const cwd = await requireProjectRoot();
+				const runtimeCwd = await resolveRuntimeCwd();
+				let cwd = await findBacklogRoot(runtimeCwd.cwd);
+				if (!cwd) {
+					console.log("\nNo Backlog.md project found in this directory.");
+					const openWizard = await clack.confirm({
+						message: "Open web initialization wizard?",
+						initialValue: true,
+					});
+					if (openWizard) {
+						cwd = runtimeCwd.cwd;
+					} else {
+						console.log("Run `backlog init` to initialize.");
+						process.exit(0);
+					}
+				}
 				const { BacklogServer, findNextAvailablePort, isPortAvailable } = await import("../server/index.ts");
 				const server = new BacklogServer(cwd);
 

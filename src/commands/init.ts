@@ -16,7 +16,9 @@ import type { AgentSelectionValue } from "../utils/agent-selection.ts";
 import { processAgentSelection } from "../utils/agent-selection.ts";
 import { AppError } from "../utils/app-error.ts";
 import { normalizeProjectBacklogDirectory } from "../utils/backlog-directory.ts";
+import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 import { runAdvancedConfigWizard } from "./advanced-config-wizard.ts";
+
 import type { CompletionInstallResult } from "./completion.ts";
 import { installCompletion } from "./completion.ts";
 
@@ -730,7 +732,7 @@ function renderInitSummary(
 
 async function handleInitCommand(projectName: string | undefined, options: InitCommandOptions) {
 	try {
-		const cwd = process.cwd();
+		const { cwd } = await resolveRuntimeCwd();
 		const isRepo = await isGitRepository(cwd);
 		let filesystemOnly = options.git === false;
 
