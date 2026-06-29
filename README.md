@@ -220,7 +220,7 @@ If your IDE supports custom args but not env vars, you can also use `["mcp", "st
 > Backlog.md's instructions for agents are available at [`/src/guidelines/mcp/agent-nudge.md`](/src/guidelines/mcp/agent-nudge.md).
 
 
-Once connected, agents can read the Backlog.md workflow instructions via the resource `backlog://docs/task-workflow`.
+Once connected, agents can read the Backlog.md workflow instructions via the resource `backlog://workflow/overview`.
 Use `/mcp` command in your AI tool (Claude Code, Codex, Kiro) to verify if the connection is working.
 
 ---

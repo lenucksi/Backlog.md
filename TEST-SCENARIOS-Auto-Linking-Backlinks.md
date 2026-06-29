@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Start the web UI: `bun run cli browse` (oder `bun run dev`)
+1. Start the web UI: `backlog browser --non-interactive --no-open` (oder `bun run dev`)
 2. Öffne http://localhost:6420 im Browser
 
 ---

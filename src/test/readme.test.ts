@@ -14,17 +14,13 @@ Generated on: 2026-05-22 12:00:00
 
 describe("updateReadmeWithBoard", () => {
 	let testDir: string;
-	let origCwd: string;
 
 	beforeEach(async () => {
 		testDir = createUniqueTestDir("readme-test");
 		await mkdir(testDir, { recursive: true });
-		origCwd = process.cwd();
-		process.chdir(testDir);
 	});
 
 	afterEach(async () => {
-		process.chdir(origCwd);
 		await safeCleanup(testDir);
 	});
 
@@ -39,7 +35,7 @@ describe("updateReadmeWithBoard", () => {
 			await writeFile(filePath, BOARD_CONTENT_SAMPLE, "utf-8");
 		});
 
-		await updateReadmeWithBoard(tasks, statuses, projectName, version);
+		await updateReadmeWithBoard(tasks, statuses, projectName, version, testDir);
 
 		exportSpy.mockRestore();
 	}

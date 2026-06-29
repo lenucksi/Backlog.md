@@ -1,3 +1,4 @@
+import { rm } from "node:fs/promises";
 import { join } from "node:path";
 import { exportKanbanBoardToFile } from "./board.ts";
 import type { Task } from "./types/index.ts";
@@ -5,8 +6,15 @@ import type { Task } from "./types/index.ts";
 const BOARD_START = "<!-- BOARD_START -->";
 const BOARD_END = "<!-- BOARD_END -->";
 
-export async function updateReadmeWithBoard(tasks: Task[], statuses: string[], projectName: string, version?: string) {
-	const readmePath = join(process.cwd(), "README.md");
+export async function updateReadmeWithBoard(
+	tasks: Task[],
+	statuses: string[],
+	projectName: string,
+	version?: string,
+	cwd?: string,
+) {
+	const resolvedCwd = cwd ?? process.cwd();
+	const readmePath = join(resolvedCwd, "README.md");
 	let readmeContent = "";
 	try {
 		readmeContent = await Bun.file(readmePath).text();
@@ -16,7 +24,7 @@ export async function updateReadmeWithBoard(tasks: Task[], statuses: string[], p
 
 	// Use the same high-quality board generation as file export
 	// Create a temporary file to get the properly formatted board
-	const tempPath = join(process.cwd(), ".temp-board.md");
+	const tempPath = join(resolvedCwd, ".temp-board.md");
 	await exportKanbanBoardToFile(tasks, statuses, tempPath, projectName);
 	const fullBoardContent = await Bun.file(tempPath).text();
 
@@ -36,7 +44,7 @@ export async function updateReadmeWithBoard(tasks: Task[], statuses: string[], p
 	// Clean up temp file
 	try {
 		await Bun.file(tempPath).write("");
-		await Bun.$`rm -f ${tempPath}`;
+		await rm(tempPath, { force: true });
 	} catch {
 		// Ignore cleanup errors
 	}

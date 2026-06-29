@@ -1,3 +1,4 @@
+// NO-PARALLEL: uses process.chdir() — tests resolveRuntimeCwd which depends on process.cwd()
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, mkdtemp, realpath, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";

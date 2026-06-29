@@ -119,6 +119,9 @@ export interface TaskEditOptions {
 	dependencies?: string;
 	notes?: string;
 	plan?: string;
+	ac?: string;
+	addLabels?: string;
+	removeLabels?: string;
 }
 
 /**

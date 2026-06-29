@@ -17,7 +17,7 @@ bun test
 Format and lint:
 
 ```bash
-npx biome check .
+bun run check .
 ```
 
 For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -40,10 +40,10 @@ Install at least one AI coding assistant:
 
 ```bash
 # Terminal 1: Start the MCP server
-bun run mcp
+bun run cli mcp start
 
 # Optional: include debug logs
-bun run mcp -- --debug
+bun run cli mcp start -- --debug
 ```
 
 The server will start and listen on stdio. You should see log messages confirming the stdio transport is active.
@@ -55,7 +55,7 @@ Choose one of the methods below based on your agent:
 **Claude Code (Recommended for Development):**
 ```bash
 # Add to project (creates .mcp.json)
-claude mcp add backlog-dev -- bun run mcp
+claude mcp add backlog-dev -- bun run cli mcp start
 ```
 
 **Codex CLI:**
@@ -63,17 +63,17 @@ claude mcp add backlog-dev -- bun run mcp
 # Edit ~/.codex/config.toml
 [mcp_servers.backlog-dev]
 command = "bun"
-args = ["run", "mcp"]
+args = ["run", "cli", "mcp", "start"]
 ```
 
 **Gemini CLI:**
 ```bash
-gemini mcp add backlog-dev bun run mcp
+gemini mcp add backlog-dev bun run cli mcp start
 ```
 
 **Kiro CLI:**
 ```bash
-kiro-cli mcp add --scope global --name backlog-dev --command bun --args run,mcp
+kiro-cli mcp add --scope global --name backlog-dev --command bun --args run,cli,mcp,start
 ```
 
 #### 3. Test the Connection
@@ -136,9 +136,6 @@ npx @modelcontextprotocol/inspector-cli \
 ```
 
 The key detail in both flows is to call `src/cli.ts mcp start` directly (or `bun run --silent mcp`) so stdout stays pure JSON for the MCP handshake.
-
-### Adding New MCP Agents
-
 
 ### Project Structure
 

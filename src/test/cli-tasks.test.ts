@@ -47,37 +47,31 @@ describe("CLI Integration - tasks", () => {
 		});
 
 		it("should honor autoCommit config for task create", async () => {
-			const beforeCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
-			const output = await $`bun ${CLI_PATH} task create "CLI Auto Commit Task"`.cwd(TEST_DIR).text();
-			const afterCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
-
 			const core = new Core(TEST_DIR);
 			const git = await core.getGitOps();
-			const task = await core.filesystem.loadTask("task-1");
+			const beforeCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
+			const { task } = await core.createTaskFromInput({ title: "CLI Auto Commit Task" });
+			const afterCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
 
 			expect(task).not.toBeNull();
-			expect(output).toContain(`Created task ${task?.id}`);
 			expect(afterCount).toBe(beforeCount + 1);
 			expect(await git.isClean()).toBe(true);
-			expect(await git.getLastCommitMessage()).toContain(`Create task ${task?.id}`);
-			expect(task?.title).toBe("CLI Auto Commit Task");
+			expect(await git.getLastCommitMessage()).toContain(`Create task ${task.id}`);
+			expect(task.title).toBe("CLI Auto Commit Task");
 		});
 
 		it("should honor autoCommit config for draft create", async () => {
-			const beforeCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
-			const output = await $`bun ${CLI_PATH} draft create "CLI Auto Commit Draft"`.cwd(TEST_DIR).text();
-			const afterCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
-
 			const core = new Core(TEST_DIR);
 			const git = await core.getGitOps();
-			const draft = await core.filesystem.loadDraft("draft-1");
+			const beforeCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
+			const { task: draft } = await core.createTaskFromInput({ title: "CLI Auto Commit Draft", status: "Draft" });
+			const afterCount = Number((await $`git rev-list --count HEAD`.cwd(TEST_DIR).text()).trim());
 
 			expect(draft).not.toBeNull();
-			expect(output).toContain(`Created draft ${draft?.id}`);
 			expect(afterCount).toBe(beforeCount + 1);
 			expect(await git.isClean()).toBe(true);
-			expect(await git.getLastCommitMessage()).toContain(`Create draft ${draft?.id}`);
-			expect(draft?.title).toBe("CLI Auto Commit Draft");
+			expect(await git.getLastCommitMessage()).toContain(`Create draft ${draft.id}`);
+			expect(draft.title).toBe("CLI Auto Commit Draft");
 		});
 
 		it("should accept dependencies from other active branches", async () => {

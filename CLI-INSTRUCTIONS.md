@@ -49,11 +49,26 @@ You can rerun the wizard anytime with `backlog config`. All existing CLI flags (
 | Create with refs | `backlog task create "Feature" --ref https://docs.example.com --ref src/api.ts` |
 | Create with docs | `backlog task create "Feature" --doc https://design-docs.example.com --doc docs/spec.md` |
 | Create sub task | `backlog task create -p 14 "Add Login with Google"`|
+| Create with due date | `backlog task create "Feature" --due-date "2026-07-15"` |
+| Create with defer date | `backlog task create "Feature" --defer-date "2026-07-01"` |
+| Create with milestone | `backlog task create "Feature" --milestone "v2.0"` |
+| Create with ordinal | `backlog task create "Feature" --ordinal 1500` |
+| Create with modified files | `backlog task create "Feature" --modified-file src/api.ts --modified-file src/ui.ts` |
 | Create (all options) | `backlog task create "Feature" -d "Description" -a @sara -s "To Do" -l auth --priority high --ac "Must work" --notes "Initial setup done" --dep task-1 --ref src/api.ts --doc docs/spec.md -p 14` |
+| Create with JSON output | `backlog task create "Feature" --json` |
 | List tasks  | `backlog task list [-s <status>] [-a <assignee>] [-p <parent>]` |
+| List with JSON | `backlog task list --json` |
+| List with sort | `backlog task list --sort priority` (priority, id, ordinal, created, due) |
+| List overdue | `backlog task list --overdue` |
+| List due soon | `backlog task list --due-soon 7` (due within 7 days) |
+| List deferred | `backlog task list --deferred` (future defer dates) |
+| List by milestone | `backlog task list --milestone "v2.0"` |
+| List by priority | `backlog task list --priority high` |
 | List by parent | `backlog task list --parent 42` or `backlog task list -p task-42` |
 | View detail | `backlog task 7` (interactive UI, press 'E' to edit in editor) |
-| View (AI mode) | `backlog task 7 --plain`                           |
+| View (JSON) | `backlog task 7 --json` |
+| View specific section | `backlog task view 7 --json` (full task; or add section: `backlog task view 7 ac`, `backlog task view 7 plan`) |
+| View labels | `backlog task labels 7 --json` |
 | Edit        | `backlog task edit 7 -a @sara -l auth,backend`       |
 | Add plan    | `backlog task edit 7 --plan "Implementation approach"`    |
 | Add AC      | `backlog task edit 7 --ac "New criterion" --ac "Another one"` |
@@ -73,6 +88,18 @@ You can rerun the wizard anytime with `backlog config`. All existing CLI flags (
 | Append final summary | `backlog task edit 7 --append-final-summary "More details"` |
 | Clear final summary | `backlog task edit 7 --clear-final-summary` |
 | Add deps    | `backlog task edit 7 --dep task-1 --dep task-2`     |
+| Set due date | `backlog task edit 7 --due-date "2026-07-15"` |
+| Clear due date | `backlog task edit 7 --clear-due-date` |
+| Set defer date | `backlog task edit 7 --defer-date "2026-07-01"` |
+| Clear defer date | `backlog task edit 7 --clear-defer-date` |
+| Set milestone | `backlog task edit 7 --milestone "v2.0"` |
+| Clear milestone | `backlog task edit 7 --clear-milestone` |
+| Set ordinal | `backlog task edit 7 --ordinal 1500` |
+| Add label | `backlog task edit 7 --add-label frontend` |
+| Remove label | `backlog task edit 7 --remove-label frontend` |
+| Clear labels | `backlog task edit 7 --clear-labels` |
+| Add modified files | `backlog task edit 7 --modified-file src/api.ts --modified-file src/ui.ts` |
+| JSON output on edit | `backlog task edit 7 --json` |
 | Archive     | `backlog task archive 7`                             |
 
 ### Multi-line input (description/plan/notes/final summary)
@@ -128,7 +155,10 @@ Find tasks, documents, and decisions across your entire backlog with fuzzy searc
 | Filter by status   | `backlog search "api" --status "In Progress"`   |
 | Filter by priority | `backlog search "bug" --priority high`        |
 | Combine filters    | `backlog search "web" --status "To Do" --priority medium` |
-| Plain text output  | `backlog search "feature" --plain` (for scripts/AI) |
+| JSON output  | `backlog search "feature" --json` (for scripts/AI) |
+| Limit results | `backlog search "auth" --limit 10` |
+| Filter by modified file | `backlog search --modified-file src/api.ts` |
+| Filter by type (task/doc/decision) | `backlog search "api" --type task --type doc` (repeatable) |
 
 **Search features:**
 - **Fuzzy matching** -- finds "authentication" when searching for "auth"
@@ -166,6 +196,8 @@ Manage task dependencies to create execution sequences and prevent circular rela
 | Action      | Example                                              |
 |-------------|------------------------------------------------------|
 | Kanban board      | `backlog board` (interactive UI, press 'E' to edit in editor) |
+| Board with layout | `backlog board --layout vertical` (horizontal, vertical) |
+| Board by milestones | `backlog board --milestones` |
 | Export board | `backlog board export [file]` (exports Kanban board to markdown) |
 | Export with version | `backlog board export --export-version "v1.0.0"` (includes version in export) |
 
@@ -174,6 +206,8 @@ Manage task dependencies to create execution sequences and prevent circular rela
 | Action      | Example                                              |
 |-------------|------------------------------------------------------|
 | Project overview | `backlog overview` (interactive TUI showing project statistics) |
+| Stats (JSON) | `backlog stats --json` (project statistics as JSON) |
+| Stats by milestone | `backlog stats --milestone "v2.0"` |
 
 ## Web Interface
 
@@ -181,6 +215,9 @@ Manage task dependencies to create execution sequences and prevent circular rela
 |-------------|------------------------------------------------------|
 | Web interface | `backlog browser` (launches web UI on port 6420) |
 | Web custom port | `backlog browser --port 8080 --no-open` |
+| Non-interactive | `backlog browser --non-interactive` (auto-selects next free port) |
+| Open task in browser | `backlog open task-123` or `backlog open 123` |
+| Open with custom port | `backlog open task-123 --port 8080` |
 
 To keep the Web UI running in the background with auto-start on boot, see [Running Backlog.md as a Service](backlog/docs/doc-003%20-%20Running-Backlog-Browser-as-a-Service.md).
 
@@ -195,6 +232,11 @@ To keep the Web UI running in the background with auto-start on boot, see [Runni
 | Update metadata/path | `backlog doc update doc-1 --title "Setup Handbook" -t guide --tags setup,runbook -p guides` |
 | List docs | `backlog doc list` |
 | View doc | `backlog doc view doc-1` |
+| List docs (JSON) | `backlog doc list --json` |
+| View doc (JSON) | `backlog doc view doc-1 --json` |
+| Archive doc | `backlog doc archive doc-1` |
+| Delete doc | `backlog doc delete doc-1` |
+| Filter by label | `backlog doc list --label guide --label setup` (repeatable) |
 
 ## Decisions
 
@@ -202,6 +244,73 @@ To keep the Web UI running in the background with auto-start on boot, see [Runni
 |-------------|------------------------------------------------------|
 | Create decision | `backlog decision create "Use PostgreSQL for primary database"` |
 | Create with status | `backlog decision create "Migrate to TypeScript" -s proposed` |
+| List decisions (JSON) | `backlog decision list --json` |
+| View decision (JSON) | `backlog decision view doc-1 --json` |
+| Resolve decision | `backlog decision resolve doc-1` (mark superseded without replacement) |
+| Supersede decision | `backlog decision supersede doc-1 --title "New decision title"` |
+| Filter by supersedes | `backlog decision list --supersedes doc-1` |
+| Filter by superseded-by | `backlog decision list --superseded-by doc-1` |
+| Filter decisions by label | `backlog decision list --label deprecated` |
+
+## Config Management
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| List config       | `backlog config list` |
+| List config (JSON) | `backlog config list --json` |
+| Get config key    | `backlog config get project_name` |
+| Get config key (JSON) | `backlog config get definition_of_done --json` |
+| Set config key    | `backlog config set definition_of_done '["Tests pass","Docs updated"]'` |
+
+## Milestone Management
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| List milestones | `backlog milestone list` |
+| List milestones (JSON) | `backlog milestone list --json` |
+| Create milestone | `backlog milestone create "v2.0" -d "Spring 2026 release"` |
+| Rename milestone | `backlog milestone rename "v2.0" "v2.1"` |
+| Remove milestone | `backlog milestone remove "v2.0"` (clears from tasks) |
+| Archive milestone | `backlog milestone archive "v2.0"` |
+
+## Label Management
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| List labels | `backlog label list` |
+| List labels (JSON) | `backlog label list --json` |
+| Add label | `backlog label add frontend --color "#00ff00"` |
+| Rename label | `backlog label rename frontend ui` |
+| Remove label | `backlog label remove frontend` |
+| Set label color | `backlog label set-color frontend "#ff0000"` |
+| Remove label color | `backlog label remove-color frontend` |
+
+## Author Management
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| List authors | `backlog author list` |
+| List authors (JSON) | `backlog author list --json` |
+| Add author | `backlog author add @sara --color "#ff0000"` |
+| Rename author | `backlog author rename @sara @sarah` |
+| Remove author | `backlog author remove @sarah` |
+| Set author color | `backlog author set-color @sara "#00ff00"` |
+| Remove author color | `backlog author remove-color @sara` |
+
+## Sequence Management
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| List sequences | `backlog sequence list` (interactive by default) |
+| List sequences (plain) | `backlog sequence list --plain` |
+
+## Migration
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| Migrate archive structure | `backlog migrate archive-structure` |
+| Force migration | `backlog migrate archive-structure --force` |
+| Migrate without git | `backlog migrate archive-structure --no-git` |
 
 ## Agent Instructions
 
@@ -214,6 +323,16 @@ To keep the Web UI running in the background with auto-start on boot, see [Runni
 | Action      | Example                                                                                      |
 |-------------|----------------------------------------------------------------------------------------------|
 | Cleanup done tasks | `backlog cleanup` (move old completed tasks to completed folder to cleanup the kanban board) |
+
+## Workflow Guidance
+
+| Action      | Example                                              |
+|-------------|------------------------------------------------------|
+| List available guides | `backlog instructions` |
+| Read overview | `backlog instructions overview` |
+| Read task creation guide | `backlog instructions task-creation` |
+| Read task execution guide | `backlog instructions task-execution` |
+| Read task finalization guide | `backlog instructions task-finalization` |
 
 Full help: `backlog --help`
 

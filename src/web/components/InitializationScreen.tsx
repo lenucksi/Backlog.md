@@ -191,6 +191,25 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 		}
 	};
 
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key !== "Enter") return;
+		if (currentStep === "advancedConfig") {
+			const target = e.target as HTMLElement;
+			if (target.tagName === "INPUT") {
+				const type = (target as HTMLInputElement).type;
+				if (["text", "number", "url", "email", "search", "tel"].includes(type)) {
+					return;
+				}
+			}
+		}
+		e.preventDefault();
+		if (currentStep === "summary") {
+			if (!isInitializing) handleInitialize();
+		} else {
+			if (canProceed()) handleNext();
+		}
+	};
+
 	const toggleMcpClient = (client: McpClient) => {
 		setSelectedMcpClients((prev) =>
 			prev.includes(client) ? prev.filter((c) => c !== client) : [...prev, client],
@@ -929,7 +948,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200 p-4">
+		<div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200 p-4" onKeyDown={handleKeyDown}>
 			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-2xl w-full">
 				{/* Header */}
 				<div className="text-center mb-6">

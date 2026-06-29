@@ -81,7 +81,7 @@ export async function printSplash(opts: SplashOptions): Promise<void> {
 		lines.push(
 			`  ${accent(color, 'backlog task create "Title" -d "Description"')}  ${dim(color, "Create a new task")}`,
 		);
-		lines.push(`  ${accent(color, "backlog task list --plain")}  ${dim(color, "List tasks (plain text)")}`);
+		lines.push(`  ${accent(color, "backlog task list --json")}  ${dim(color, "List tasks (JSON output)")}`);
 		lines.push(`  ${accent(color, "backlog board")}  ${dim(color, "Open the TUI Kanban board")}`);
 		lines.push(`  ${accent(color, "backlog browser")}  ${dim(color, "Start the web UI")}`);
 		lines.push(`  ${accent(color, "backlog overview")}  ${dim(color, "Show project statistics")}`);
@@ -93,6 +93,7 @@ export async function printSplash(opts: SplashOptions): Promise<void> {
 	const hyperlinkEnabled = !!process.stdout.isTTY && !plain;
 	const clickable = osc8(linkTarget, linkTarget, hyperlinkEnabled);
 	lines.push(`${bold(color, "Docs:")} ${clickable}`);
+	lines.push(`${dim(color, "LLM agents: run 'backlog instructions overview' for workflow guidance")}`);
 	// Add a trailing blank line for visual spacing
 	lines.push("");
 

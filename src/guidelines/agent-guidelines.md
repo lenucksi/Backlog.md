@@ -18,13 +18,13 @@ remains fully synchronized and up-to-date.
 - ✅ **Dependencies**: Task relationships and subtask hierarchies
 - ✅ **Documentation & Decisions**: Structured docs and architectural decision records
 - ✅ **Export & Reporting**: Generate markdown reports and board snapshots
-- ✅ **AI-Optimized**: `--plain` flag provides clean text output for AI processing
+- ✅ **AI-Optimized**: `--json` flag provides structured JSON output for AI processing
 
 ### Why This Matters to You (AI Agent)
 
 1. **Comprehensive system** - Full project management capabilities through CLI
 2. **The CLI is the interface** - All operations go through `backlog` commands
-3. **Unified interaction model** - You can use CLI for both reading (`backlog task 1 --plain`) and writing (
+3. **Unified interaction model** - You can use CLI for both reading (`backlog task 1 --json`) and writing (
    `backlog task edit 1`)
 4. **Metadata stays synchronized** - The CLI handles all the complex relationships
 
@@ -32,7 +32,7 @@ remains fully synchronized and up-to-date.
 
 - **Tasks** live in `backlog/tasks/` as `task-<id> - <title>.md` files
 - **You interact via CLI only**: `backlog task create`, `backlog task edit`, etc.
-- **Use `--plain` flag** for AI-friendly output when viewing/listing
+- **Use `--json` flag** for structured JSON output when viewing/listing
 - **Never bypass the CLI** - It handles Git, metadata, file naming, and relationships
 
 ---
@@ -65,7 +65,7 @@ remains fully synchronized and up-to-date.
 
 - **All task operations MUST use the Backlog.md CLI tool**
 - This ensures metadata is correctly updated and the project stays in sync
-- **Always use `--plain` flag** when listing or viewing tasks for AI-friendly text output
+- **Always use `--json` flag** when listing or viewing tasks for structured JSON output
 - Create and update project docs through Backlog.md APIs so frontmatter and paths stay valid. For CLI users, run `backlog doc create "Title" -p guides/setup` or `backlog doc update doc-1 --content "Updated markdown"`; MCP users should use `document_create` / `document_update`.
 - Document paths are relative to `backlog/docs/`; absolute paths and `..` traversal are rejected.
 
@@ -389,10 +389,10 @@ implementation.
 
 ```bash
 # 1. Identify work
-backlog task list -s "To Do" --plain
+backlog task list -s "To Do" --json
 
 # 2. Read task details
-backlog task 42 --plain
+backlog task 42 --json
 
 # 3. Start work: assign yourself & change status
 backlog task edit 42 -s "In Progress" -a @myself
@@ -444,21 +444,21 @@ A task is **Done** only when **ALL** of the following are complete:
 
 ## 8. Finding Tasks and Content with Search
 
-When users ask you to find tasks related to a topic, use the `backlog search` command with `--plain` flag:
+When users ask you to find tasks related to a topic, use the `backlog search` command with `--json` flag:
 
 ```bash
 # Search for tasks about authentication
-backlog search "auth" --plain
+backlog search "auth" --json
 
 # Search only in tasks (not docs/decisions)
-backlog search "login" --type task --plain
+backlog search "login" --type task --json
 
 # Search with filters
-backlog search "api" --status "In Progress" --plain
-backlog search "bug" --priority high --plain
+backlog search "api" --status "In Progress" --json
+backlog search "bug" --priority high --json
 
 # Find tasks that modified a project file path
-backlog search --modified-file src/server/api.ts --plain
+backlog search --modified-file src/server/api.ts --json
 ```
 
 **Key points:**
@@ -466,7 +466,7 @@ backlog search --modified-file src/server/api.ts --plain
 - Searches task titles, descriptions, and content
 - Also searches `modified_files`; `--modified-file` applies a case-insensitive path substring filter
 - Also searches documents and decisions unless filtered with `--type task`
-- Always use `--plain` flag for AI-readable output
+- Always use `--json` flag for AI-readable JSON output
 
 ---
 
@@ -476,10 +476,10 @@ backlog search --modified-file src/server/api.ts --plain
 
 | Task         | ✅ DO                        | ❌ DON'T                         |
 |--------------|-----------------------------|---------------------------------|
-| View task    | `backlog task 42 --plain`   | Open and read .md file directly |
-| List tasks   | `backlog task list --plain` | Browse backlog/tasks folder     |
-| Check status | `backlog task 42 --plain`   | Look at file content            |
-| Find by topic| `backlog search "auth" --plain` | Manually grep through files |
+| View task    | `backlog task 42 --json`   | Open and read .md file directly |
+| List tasks   | `backlog task list --json` | Browse backlog/tasks folder     |
+| Check status | `backlog task 42 --json`   | Look at file content            |
+| Find by topic| `backlog search "auth" --json` | Manually grep through files |
 
 ### Modifying Tasks
 
@@ -509,6 +509,11 @@ backlog search --modified-file src/server/api.ts --plain
 | With all options | `backlog task create "Title" -d "Desc" -a @sara -s "To Do" -l auth --priority high --ref src/api.ts --doc docs/spec.md --modified-file src/api.ts` |
 | Create draft     | `backlog task create "Title" --draft`                                               |
 | Create subtask   | `backlog task create "Title" -p 42`                                                 |
+| With due date    | `backlog task create "Title" --due-date "2026-07-15"`                                |
+| With defer date  | `backlog task create "Title" --defer-date "2026-07-01"`                              |
+| With milestone   | `backlog task create "Title" --milestone "v2.0"`                                     |
+| With ordinal     | `backlog task create "Title" --ordinal 1500`                                         |
+| With JSON output | `backlog task create "Title" --json`                                                 |
 
 ### Task Modification
 
@@ -520,6 +525,17 @@ backlog search --modified-file src/server/api.ts --plain
 | Assign           | `backlog task edit 42 -a @sara`             |
 | Add labels       | `backlog task edit 42 -l backend,api`       |
 | Set priority     | `backlog task edit 42 --priority high`      |
+| Set due date     | `backlog task edit 42 --due-date "2026-07-15"` |
+| Clear due date   | `backlog task edit 42 --clear-due-date` |
+| Set defer date   | `backlog task edit 42 --defer-date "2026-07-01"` |
+| Clear defer date | `backlog task edit 42 --clear-defer-date` |
+| Set milestone    | `backlog task edit 42 --milestone "v2.0"` |
+| Clear milestone  | `backlog task edit 42 --clear-milestone` |
+| Add label        | `backlog task edit 42 --add-label frontend` |
+| Remove label     | `backlog task edit 42 --remove-label frontend` |
+| Clear labels     | `backlog task edit 42 --clear-labels` |
+| Set ordinal      | `backlog task edit 42 --ordinal 1500` |
+| JSON output      | `backlog task edit 42 --json` |
 
 ### Acceptance Criteria Management
 
@@ -711,18 +727,48 @@ backlog doc view doc-1
 
 | Action             | Command                                      |
 |--------------------|----------------------------------------------|
-| View task          | `backlog task 42 --plain`                    |
-| List tasks         | `backlog task list --plain`                  |
-| Search tasks       | `backlog search "topic" --plain`              |
-| Search with filter | `backlog search "api" --status "To Do" --plain` |
-| Search by modified file | `backlog search --modified-file src/api.ts --plain` |
-| Filter by status   | `backlog task list -s "In Progress" --plain` |
-| Filter by assignee | `backlog task list -a @sara --plain`         |
+| View task          | `backlog task 42 --json`                    |
+| View task section  | `backlog task view 42 ac` (ac, plan, notes, summary, dod, refs, deps, files) |
+| View labels        | `backlog task labels 42 --json` |
+| List tasks         | `backlog task list --json`                  |
+| List with sort     | `backlog task list --sort priority`         |
+| List overdue       | `backlog task list --overdue`               |
+| List due soon      | `backlog task list --due-soon 7`            |
+| List by milestone  | `backlog task list --milestone "v2.0"`      |
+| Search tasks       | `backlog search "topic" --json`              |
+| Search with filter | `backlog search "api" --status "To Do" --json` |
+| Search by modified file | `backlog search --modified-file src/api.ts --json` |
+| Filter by status   | `backlog task list -s "In Progress" --json` |
+| Filter by assignee | `backlog task list -a @sara --json`         |
 | Archive task       | `backlog task archive 42`                    |
 | Demote to draft    | `backlog task demote 42`                     |
 | Reorder task       | `backlog task reorder 42 --after 17`         |
 | Reorder before     | `backlog task reorder 42 --before 17`        |
 | Set ordinal        | `backlog task reorder 42 --ordinal 1500`     |
+
+### Other Commands
+
+| Action             | Command                                      |
+|--------------------|----------------------------------------------|
+| Board              | `backlog board`                             |
+| Board with layout  | `backlog board --layout vertical`           |
+| Board by milestone | `backlog board --milestones`                |
+| Browser (web UI)   | `backlog browser`                           |
+| Browser no-open    | `backlog browser --no-open`                 |
+| Browser non-int    | `backlog browser --non-interactive`         |
+| Overview           | `backlog overview`                          |
+| Stats (JSON)       | `backlog stats --json`                      |
+| Workflow guidance  | `backlog instructions overview`             |
+| Config list (JSON) | `backlog config list --json`                |
+| Config get         | `backlog config get definition_of_done --json` |
+| Config set         | `backlog config set definition_of_done '["Item"]'` |
+| Milestone list     | `backlog milestone list --json`             |
+| Milestone create   | `backlog milestone create "v2.0" -d "Release"` |
+| Label list (JSON)  | `backlog label list --json`                 |
+| Label add          | `backlog label add frontend --color "#0f0"` |
+| Author list (JSON) | `backlog author list --json`                |
+| Author add         | `backlog author add @sara --color "#f00"`   |
+| Open in browser    | `backlog open task-42`                      |
 
 ---
 
@@ -730,8 +776,8 @@ backlog doc view doc-1
 
 | Problem              | Solution                                                           |
 |----------------------|--------------------------------------------------------------------|
-| Task not found       | Check task ID with `backlog task list --plain`                     |
-| AC won't check       | Use correct index: `backlog task 42 --plain` to see AC numbers     |
+| Task not found       | Check task ID with `backlog task list --json`                     |
+| AC won't check       | Use correct index: `backlog task 42 --json` to see AC numbers     |
 | Changes not saving   | Ensure you're using CLI, not editing files                         |
 | Metadata out of sync | Re-edit via CLI to fix: `backlog task edit 42 -s <current-status>` |
 

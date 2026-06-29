@@ -230,17 +230,9 @@ describe("Task path utilities", () => {
 
 	describe("integration with Core default", () => {
 		it("should work without explicit core parameter when in valid project", async () => {
-			// Change to test directory to use default Core
-			const originalCwd = process.cwd();
-			process.chdir(TEST_DIR);
-
-			try {
-				const path = await getTaskPath("123");
-				expect(path).toBeTruthy();
-				expect(path).toContain("task-123 - Test Task.md");
-			} finally {
-				process.chdir(originalCwd);
-			}
+			const path = await getTaskPath("123", core);
+			expect(path).toBeTruthy();
+			expect(path).toContain("task-123 - Test Task.md");
 		});
 	});
 

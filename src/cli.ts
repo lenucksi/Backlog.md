@@ -12,6 +12,7 @@ import { registerDecisionCommand } from "./commands/decision.ts";
 import { registerDocCommand } from "./commands/doc.ts";
 import { registerDraftCommand } from "./commands/draft.ts";
 import { registerInitCommand } from "./commands/init.ts";
+import { registerInstructionsCommand } from "./commands/instructions.ts";
 import { registerLabelCommand } from "./commands/label.ts";
 import { registerMcpCommand } from "./commands/mcp.ts";
 import { registerMigrateCommand } from "./commands/migrate.ts";
@@ -212,6 +213,16 @@ registerOpenCommand(program);
 registerCompletionCommand(program);
 registerMcpCommand(program);
 registerMigrateCommand(program);
+registerInstructionsCommand(program);
+
+program.addHelpText(
+	"afterAll",
+	`
+LLM AGENTS:
+  Run 'backlog instructions' for detailed workflow guidance.
+  Example: backlog instructions overview
+`,
+);
 
 program.parseAsync(process.argv).finally(() => {
 	if (originalBunOptions) {
