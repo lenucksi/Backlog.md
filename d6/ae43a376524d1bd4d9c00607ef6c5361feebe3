@@ -1,0 +1,19 @@
+src/test/mcp-stdio-exit.test.ts
+  s_2b9625fb73f18e::t_fba9d0d1484a8b 182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "d6ae43a376524d1bd4d9c00607ef6c5361feebe3",
+  "prompts": {},
+  "sessions": {
+    "s_2b9625fb73f18e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eb95c9e7ffeQBfGWzKoXxKEFv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
