@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Core } from "../core/backlog.ts";
 import { executeStatusCallback } from "../utils/status-callback.ts";
+import { retry } from "./test-utils.ts";
 
 describe("Status Change Callbacks", () => {
 	describe("executeStatusCallback", () => {
@@ -138,12 +139,17 @@ on_status_change: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" > "${callbackOutputP
 			// Update status
 			await core.updateTaskFromInput(task.id, { status: "In Progress" });
 
-			// Wait a bit for async callback
-			await new Promise((resolve) => setTimeout(resolve, 200));
-
-			// Check callback was executed
-			const output = await Bun.file(callbackOutputFile).text();
-			expect(output.trim()).toBe(`${task.id}:To Do->In Progress`);
+			// Wait for async callback
+			const output = await retry(
+				async () => {
+					const content = await Bun.file(callbackOutputFile).text();
+					if (!content.trim()) throw new Error("Callback not yet executed");
+					return content.trim();
+				},
+				10,
+				50,
+			);
+			expect(output).toBe(`${task.id}:To Do->In Progress`);
 		});
 
 		test("per-task callback overrides global callback", async () => {
@@ -177,12 +183,17 @@ onStatusChange: 'echo "per-task:$NEW_STATUS" > "${callbackOutputPath}"'
 			// Update status
 			await core.updateTaskFromInput("task-1", { status: "Done" });
 
-			// Wait a bit for async callback
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// Check per-task callback was executed (not global)
-			const output = await Bun.file(callbackOutputFile).text();
-			expect(output.trim()).toBe("per-task:Done");
+			// Wait for async callback
+			const output = await retry(
+				async () => {
+					const content = await Bun.file(callbackOutputFile).text();
+					if (!content.trim()) throw new Error("Callback not yet executed");
+					return content.trim();
+				},
+				10,
+				50,
+			);
+			expect(output).toBe("per-task:Done");
 		});
 
 		test("no callback when status unchanged", async () => {
@@ -208,8 +219,8 @@ on_status_change: 'echo "callback-ran" > "${callbackOutputPath}"'
 			// Update something other than status
 			await core.updateTaskFromInput(task.id, { title: "Updated Title" });
 
-			// Wait a bit
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			// Give callback a moment (should NOT be executed)
+			await new Promise((resolve) => setTimeout(resolve, 50));
 
 			// Check callback was NOT executed
 			const exists = await Bun.file(callbackOutputFile).exists();
@@ -296,11 +307,16 @@ on_status_change: 'echo "$TASK_ID:$OLD_STATUS->$NEW_STATUS" >> "${callbackOutput
 			});
 
 			// Wait for callback
-			await new Promise((resolve) => setTimeout(resolve, 200));
-
-			// Check callback was executed
-			const output = await Bun.file(callbackOutputFile).text();
-			expect(output.trim()).toBe(`${task.id}:To Do->In Progress`);
+			const output = await retry(
+				async () => {
+					const content = await Bun.file(callbackOutputFile).text();
+					if (!content.trim()) throw new Error("Callback not yet executed");
+					return content.trim();
+				},
+				10,
+				50,
+			);
+			expect(output).toBe(`${task.id}:To Do->In Progress`);
 		});
 	});
 });

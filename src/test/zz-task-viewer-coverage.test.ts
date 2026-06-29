@@ -392,7 +392,7 @@ const canRunShell =
 			expect(t.screen.getText()).toContain("First Task");
 			expect(t.screen.getText()).toContain("Second Task");
 			t.press("down");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -400,9 +400,9 @@ const canRunShell =
 	it("activates search via / key", async () => {
 		await withTaskList(async (t) => {
 			t.press("/");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("Escape");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});

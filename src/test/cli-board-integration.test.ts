@@ -52,7 +52,7 @@ Test task for board CLI integration.`,
 
 	afterEach(async () => {
 		// Wait a bit to ensure any background operations from listTasksWithMetadata complete
-		await new Promise((resolve) => setTimeout(resolve, 100));
+		await new Promise((resolve) => setTimeout(resolve, 20));
 		try {
 			await safeCleanup(TEST_DIR);
 		} catch {

@@ -328,9 +328,9 @@ const canRunShell =
 	it("navigates left/right between columns", async () => {
 		await withBoard(async (t) => {
 			t.press("right");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("left");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -338,9 +338,9 @@ const canRunShell =
 	it("navigates up/down within a column", async () => {
 		await withBoard(async (t) => {
 			t.press("down");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("up");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -348,7 +348,7 @@ const canRunShell =
 	it("activates search via / key", async () => {
 		await withBoard(async (t) => {
 			t.press("/");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -356,7 +356,7 @@ const canRunShell =
 	it("opens priority filter via p", async () => {
 		await withBoard(async (t) => {
 			t.press("p");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -364,9 +364,9 @@ const canRunShell =
 	it("enters and cancels move mode", async () => {
 		await withBoard(async (t) => {
 			t.press("m");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("Escape");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -374,9 +374,9 @@ const canRunShell =
 	it("opens help popup via ?", async () => {
 		await withBoard(async (t) => {
 			t.press("?");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("Escape");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 			t.press("q");
 		});
 	});
@@ -384,7 +384,7 @@ const canRunShell =
 	it("exits via Escape", async () => {
 		await withBoard(async (t) => {
 			t.press("Escape");
-			await new Promise((r) => setTimeout(r, 500));
+			await new Promise((r) => setTimeout(r, 200));
 			expect(t.alive).toBe(false);
 		});
 	});

@@ -131,7 +131,6 @@ describe("help-popup", () => {
 		};
 
 		const promise = openHelpPopup(screen as any);
-		await new Promise((r) => setTimeout(r, 10));
 
 		// Find the escape handler registered on the popup
 		const escapeHandler = _allKeyHandlers.find((h) => h.keys.includes("escape") && h.keys.includes("q"));
@@ -281,7 +280,6 @@ describe("filter-header", () => {
 		header.setFocusChangeHandler((focus) => focusChanges.push(focus));
 
 		header.focusSearch();
-		await new Promise((r) => setTimeout(r, 5));
 		expect(focusChanges).toContain("search");
 
 		// setBorderColor does not throw
@@ -425,8 +423,6 @@ describe("confirm-popup", () => {
 			message: "Are you sure?",
 		});
 
-		await new Promise((r) => setTimeout(r, 10));
-
 		// Find the Enter key handler on the popup
 		const enterHandler = _allKeyHandlers.find((h) => h.keys.includes("enter") && h.keys.includes("y"));
 		expect(enterHandler).toBeDefined();
@@ -455,8 +451,6 @@ describe("confirm-popup", () => {
 			message: "Cancel test?",
 		});
 
-		await new Promise((r) => setTimeout(r, 10));
-
 		const escapeHandler = _allKeyHandlers.find((h) => h.keys.includes("escape") && h.keys.includes("n"));
 		expect(escapeHandler).toBeDefined();
 		escapeHandler?.handler();
@@ -483,8 +477,6 @@ describe("confirm-popup", () => {
 			title: "Test",
 			message: "Test",
 		});
-
-		await new Promise((r) => setTimeout(r, 10));
 
 		// Find and call the enter handler twice — second should be no-op
 		const enterHandler = _allKeyHandlers.find((h) => h.keys.includes("enter") && h.keys.includes("y"));
@@ -603,7 +595,6 @@ describe("generic-list", () => {
 			onSelect: (selected) => selections.push(selected),
 		});
 
-		await new Promise((r) => setTimeout(r, 10));
 		expect(selections.length).toBeGreaterThan(0);
 
 		list.destroy();
@@ -622,7 +613,6 @@ describe("generic-list", () => {
 			onSelect: (selected) => selections.push(selected),
 		});
 
-		await new Promise((r) => setTimeout(r, 10));
 		expect(selections.length).toBeGreaterThan(0);
 
 		list.destroy();

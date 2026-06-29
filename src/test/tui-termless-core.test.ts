@@ -53,7 +53,7 @@ describe("vterm.js backend for termless", () => {
 				found = true;
 				break;
 			}
-			await new Promise((r) => setTimeout(r, 200));
+			await new Promise((r) => setTimeout(r, 100));
 		}
 		expect(found).toBe(true);
 
@@ -100,7 +100,7 @@ describe("vterm.js backend for termless", () => {
 				found = true;
 				break;
 			}
-			await new Promise((r) => setTimeout(r, 200));
+			await new Promise((r) => setTimeout(r, 100));
 		}
 
 		console.log("Board output:", JSON.stringify(term.screen.getText().substring(0, 500)));
@@ -109,7 +109,7 @@ describe("vterm.js backend for termless", () => {
 		expect(found).toBe(true);
 
 		term.press("q");
-		await new Promise((r) => setTimeout(r, 500));
+		await new Promise((r) => setTimeout(r, 200));
 		await term.close();
 	});
 });

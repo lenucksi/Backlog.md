@@ -95,18 +95,18 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 		// Board zeigt Spalten-Header "To Do" als sichtbaren Text
 		await t.waitFor("To Do", 20000);
 		t.press("E");
-		await new Promise((r) => setTimeout(r, 500));
+		await new Promise((r) => setTimeout(r, 200));
 
 		// Editor-Output geht auf main screen (blessed verlässt alt-screen).
 		// Vterm.js speichert main-screen output in scrollback, aber getText()
 		// zeigt nur visible screen. Warte stattdessen auf editor marker file.
-		await new Promise((r) => setTimeout(r, 2000));
+		await new Promise((r) => setTimeout(r, 500));
 		t.press("\u001b[A");
-		await new Promise((r) => setTimeout(r, 500));
+		await new Promise((r) => setTimeout(r, 200));
 		t.press("q");
-		await new Promise((r) => setTimeout(r, 500));
+		await new Promise((r) => setTimeout(r, 200));
 		t.press("q");
-		await new Promise((r) => setTimeout(r, 1000));
+		await new Promise((r) => setTimeout(r, 300));
 	} finally {
 		await t.close();
 	}

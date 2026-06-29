@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { ContentStore } from "../core/content-store.ts";
 import { FileSystem } from "../file-system/operations.ts";
 import type { Decision, Document, Task } from "../types/index.ts";
-import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
+import { createUniqueTestDir, retry, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
 
@@ -281,8 +281,13 @@ describe("ContentStore - comprehensive coverage", () => {
 			const events: string[] = [];
 			freshStore.subscribe((event) => events.push(event.type));
 			// Wait for the async init triggered by subscribe
-			await new Promise((r) => setTimeout(r, 200));
-			expect(events).toContain("ready");
+			await retry(
+				async () => {
+					if (!events.includes("ready")) throw new Error("Not yet initialized");
+				},
+				10,
+				50,
+			);
 			freshStore.dispose();
 		});
 	});
@@ -339,10 +344,16 @@ describe("ContentStore - comprehensive coverage", () => {
 				labels: [],
 				dependencies: [],
 			});
-			// Wait briefly for watcher to process
-			await new Promise((r) => setTimeout(r, 200));
-			const tasks = wstore.getTasks();
-			expect(tasks.some((t) => t.id === "TASK-WATCH-1")).toBe(true);
+			// Wait for watcher to process
+			await retry(
+				async () => {
+					const t = wstore.getTasks();
+					if (!t.some((t) => t.id === "TASK-WATCH-1")) throw new Error("Watcher not yet picked up task");
+				},
+				10,
+				50,
+			);
+			expect(wstore.getTasks().some((t) => t.id === "TASK-WATCH-1")).toBe(true);
 			wstore.dispose();
 			await safeCleanup(watchDir);
 		});
@@ -364,9 +375,15 @@ describe("ContentStore - comprehensive coverage", () => {
 				consequences: "Cq",
 				rawContent: "## Context\nC\n\n## Decision\nD\n\n## Consequences\nCq",
 			});
-			await new Promise((r) => setTimeout(r, 200));
-			const decisions = wstore.getDecisions();
-			expect(decisions.some((d) => d.id === "decision-w-1")).toBe(true);
+			await retry(
+				async () => {
+					const decisions = wstore.getDecisions();
+					if (!decisions.some((d) => d.id === "decision-w-1")) throw new Error("Decision not yet picked up by watcher");
+				},
+				10,
+				50,
+			);
+			expect(wstore.getDecisions().some((d) => d.id === "decision-w-1")).toBe(true);
 			wstore.dispose();
 			await safeCleanup(watchDir);
 		});
@@ -385,9 +402,15 @@ describe("ContentStore - comprehensive coverage", () => {
 				createdDate: "2025-01-01",
 				rawContent: "# Watch",
 			});
-			await new Promise((r) => setTimeout(r, 200));
-			const docs = wstore.getDocuments();
-			expect(docs.some((d) => d.id === "doc-w-1")).toBe(true);
+			await retry(
+				async () => {
+					const docs = wstore.getDocuments();
+					if (!docs.some((d) => d.id === "doc-w-1")) throw new Error("Document not yet picked up by watcher");
+				},
+				10,
+				50,
+			);
+			expect(wstore.getDocuments().some((d) => d.id === "doc-w-1")).toBe(true);
 			wstore.dispose();
 			await safeCleanup(watchDir);
 		});

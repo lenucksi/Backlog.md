@@ -160,7 +160,7 @@ const canRunShell =
 			expect(t.screen.getText()).toContain("Sequence 1");
 			expect(t.screen.getText()).toContain("TASK-A");
 			t.press("q");
-			await new Promise((r) => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 30));
 		});
 	});
 });
