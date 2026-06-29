@@ -92,6 +92,21 @@ export function getStatusStyle(status: string, options?: StatusStyleOptions): St
 		}
 	}
 
+	// 6. Built-in defaults for standard Backlog.md statuses (when no config available)
+	const defaultStatuses: Record<string, StatusStyle> = {
+		"to do": { icon: "○", color: "white" },
+		draft: { icon: "○", color: "white" },
+		"in progress": { icon: "◒", color: "yellow" },
+		"in bearbeitung": { icon: "◒", color: "yellow" },
+		review: { icon: "◒", color: "yellow" },
+		done: { icon: "✔", color: "green" },
+		completed: { icon: "✔", color: "green" },
+		fertig: { icon: "✔", color: "green" },
+		blocked: { icon: "●", color: "red" },
+	};
+	const defaultMatch = defaultStatuses[lower];
+	if (defaultMatch) return defaultMatch;
+
 	return { icon: "○", color: "white" };
 }
 
