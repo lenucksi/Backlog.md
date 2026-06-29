@@ -1,0 +1,19 @@
+src/server/handlers/milestones.ts
+  s_9488a2cb641123::t_5d27389b19575c 150-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "749d5a6147fc2fefe599dddee3a01fd5fa6c171a",
+  "prompts": {},
+  "sessions": {
+    "s_9488a2cb641123": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eaeacefbffeJXReCKTR2SFAAP",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
