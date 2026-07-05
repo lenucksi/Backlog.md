@@ -260,6 +260,7 @@ describe("CLI Integration - board", () => {
 				false,
 			);
 
+			// CLI-CONTRACT: tests board CLI output format, not business logic
 			const resultDefault = await $`bun ${["src/cli.ts", "board"]}`.cwd(TEST_DIR).quiet().nothrow();
 			const resultView = await $`bun ${["src/cli.ts", "board", "view"]}`.cwd(TEST_DIR).quiet().nothrow();
 

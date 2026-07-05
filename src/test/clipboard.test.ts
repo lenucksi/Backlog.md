@@ -66,11 +66,6 @@ describe("copyToClipboard", () => {
 		}
 	});
 
-	it("runs on linux platform and returns boolean result", async () => {
-		const result = await copyToClipboard("hello");
-		expect(typeof result).toBe("boolean");
-	});
-
 	it("copies text successfully on linux when clipboard tool is available", async () => {
 		const result = await copyToClipboard("hello clipboard");
 		expect(typeof result).toBe("boolean");

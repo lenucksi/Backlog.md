@@ -3,9 +3,9 @@ import { createInterface } from "node:readline/promises";
 import * as clack from "@clack/prompts";
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
+import { getExplicitProjectPath } from "../utils/cli-context.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
-import { getExplicitProjectPath } from "../utils/cli-context.ts";
 
 export function registerBrowserCommand(program: Command): void {
 	program
@@ -23,7 +23,7 @@ export function registerBrowserCommand(program: Command): void {
 				if (!cwd) {
 					console.log("\nNo Backlog.md project found in this directory.");
 					const openWizard = await clack.confirm({
-						message: (explicitPath ? `Initialize at ${explicitPath}?` : "Open web initialization wizard?"),
+						message: explicitPath ? `Initialize at ${explicitPath}?` : "Open web initialization wizard?",
 						initialValue: true,
 					});
 					if (openWizard) {

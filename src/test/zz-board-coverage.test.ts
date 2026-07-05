@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
@@ -198,56 +198,60 @@ describe("shouldRebuildColumns", () => {
 // renderBoardTui — non-TTY paths
 // ============================================================================
 
+async function withIsTTY(value: boolean, fn: () => Promise<void>): Promise<void> {
+	const orig = process.stdout.isTTY;
+	Object.defineProperty(process.stdout, "isTTY", { value, configurable: true });
+	try {
+		await fn();
+	} finally {
+		Object.defineProperty(process.stdout, "isTTY", { value: orig, configurable: true });
+	}
+}
+
 describe("renderBoardTui non-TTY", () => {
-	const origTTY: boolean | undefined = process.stdout.isTTY;
+	it("logs kanban board when stdout is not a TTY", () =>
+		withIsTTY(false, async () => {
+			const { renderBoardTui } = await import("../ui/board.ts");
+			const tasks = [makeTask({ id: "T-1", title: "My task", status: "To Do" })];
+			const lines: string[] = [];
+			const origLog = console.log;
+			console.log = (...args: unknown[]) => lines.push(args.join(" "));
 
-	afterAll(() => {
-		process.stdout.isTTY = origTTY;
-	});
+			await renderBoardTui(tasks, ["To Do"], "horizontal", 30);
 
-	it("logs kanban board when stdout is not a TTY", async () => {
-		process.stdout.isTTY = false;
-		const { renderBoardTui } = await import("../ui/board.ts");
-		const tasks = [makeTask({ id: "T-1", title: "My task", status: "To Do" })];
-		const lines: string[] = [];
-		const origLog = console.log;
-		console.log = (...args: unknown[]) => lines.push(args.join(" "));
+			console.log = origLog;
+			expect(lines.length).toBeGreaterThan(0);
+		}));
 
-		await renderBoardTui(tasks, ["To Do"], "horizontal", 30);
+	it("logs milestone board when milestone mode and not TTY", () =>
+		withIsTTY(false, async () => {
+			const { renderBoardTui } = await import("../ui/board.ts");
+			const tasks = [
+				makeTask({
+					id: "T-1",
+					title: "Task",
+					milestone: "m-1",
+				}),
+			];
+			const lines: string[] = [];
+			const origLog = console.log;
+			console.log = (...args: unknown[]) => lines.push(args.join(" "));
 
-		console.log = origLog;
-		expect(lines.length).toBeGreaterThan(0);
-	});
+			await renderBoardTui(tasks, ["To Do"], "horizontal", 30, {
+				milestoneMode: true,
+				milestoneEntities: [
+					{
+						id: "m-1",
+						title: "Sprint 1",
+						description: "",
+						rawContent: "",
+					},
+				],
+			});
 
-	it("logs milestone board when milestone mode and not TTY", async () => {
-		process.stdout.isTTY = false;
-		const { renderBoardTui } = await import("../ui/board.ts");
-		const tasks = [
-			makeTask({
-				id: "T-1",
-				title: "Task",
-				milestone: "m-1",
-			}),
-		];
-		const lines: string[] = [];
-		const origLog = console.log;
-		console.log = (...args: unknown[]) => lines.push(args.join(" "));
-
-		await renderBoardTui(tasks, ["To Do"], "horizontal", 30, {
-			milestoneMode: true,
-			milestoneEntities: [
-				{
-					id: "m-1",
-					title: "Sprint 1",
-					description: "",
-					rawContent: "",
-				},
-			],
-		});
-
-		console.log = origLog;
-		expect(lines.length).toBeGreaterThan(0);
-	});
+			console.log = origLog;
+			expect(lines.length).toBeGreaterThan(0);
+		}));
 });
 
 // ============================================================================

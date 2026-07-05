@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
@@ -267,35 +267,39 @@ describe("buildTaskViewerMilestoneFilterModel", () => {
 // ---------------------------------------------------------------------------
 // viewTaskEnhanced — non-TTY path
 // ---------------------------------------------------------------------------
+async function withIsTTY(value: boolean, fn: () => Promise<void>): Promise<void> {
+	const orig = process.stdout.isTTY;
+	Object.defineProperty(process.stdout, "isTTY", { value, configurable: true });
+	try {
+		await fn();
+	} finally {
+		Object.defineProperty(process.stdout, "isTTY", { value: orig, configurable: true });
+	}
+}
+
 describe("viewTaskEnhanced non-TTY", () => {
-	const origTTY: boolean | undefined = process.stdout.isTTY;
+	it("outputs task plain text when stdout is not a TTY", () =>
+		withIsTTY(false, async () => {
+			const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
 
-	afterAll(() => {
-		process.stdout.isTTY = origTTY;
-	});
+			const lines: string[] = [];
+			const origLog = console.log;
+			console.log = (...args: unknown[]) => lines.push(args.join(" "));
 
-	it("outputs task plain text when stdout is not a TTY", async () => {
-		process.stdout.isTTY = false;
-		const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
+			await viewTaskEnhanced({
+				id: "TEST-1",
+				title: "Test title",
+				status: "In Progress",
+				assignee: [],
+				createdDate: "2024-06-01",
+				labels: [],
+				dependencies: [],
+			});
 
-		const lines: string[] = [];
-		const origLog = console.log;
-		console.log = (...args: unknown[]) => lines.push(args.join(" "));
-
-		await viewTaskEnhanced({
-			id: "TEST-1",
-			title: "Test title",
-			status: "In Progress",
-			assignee: [],
-			createdDate: "2024-06-01",
-			labels: [],
-			dependencies: [],
-		});
-
-		console.log = origLog;
-		expect(lines.length).toBeGreaterThan(0);
-		expect(lines.some((l) => l.includes("TEST-1"))).toBe(true);
-	});
+			console.log = origLog;
+			expect(lines.length).toBeGreaterThan(0);
+			expect(lines.some((l) => l.includes("TEST-1"))).toBe(true);
+		}));
 });
 
 // ---------------------------------------------------------------------------

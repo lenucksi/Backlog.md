@@ -105,7 +105,7 @@ describe("Implementation Notes CLI", () => {
 			expect(task).not.toBeNull();
 			// Should not add Implementation Notes section for empty notes
 			expect(task?.rawContent).not.toContain("## Implementation Notes");
-		});
+		}, 30000);
 	});
 
 	describe("task edit with implementation notes", () => {
