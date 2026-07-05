@@ -1,0 +1,33 @@
+src/server/router.ts
+  s_95f2ef1b71386e::t_99564ebc056540 146-157
+  s_95f2ef1b71386e::t_a2d5906d6f49ec 789-793
+  s_95f2ef1b71386e::t_97357390f50261 604,621,654,671-672
+  s_95f2ef1b71386e::t_0d9fe971a582d1 4-5
+  s_95f2ef1b71386e::t_bc791290d583e2 6,98-102
+  s_95f2ef1b71386e::t_dd37af980fb890 92-96,103
+  s_95f2ef1b71386e::t_58861422fc2901 605
+  s_95f2ef1b71386e::t_f0971f5e50a75a 622
+  s_95f2ef1b71386e::t_d938b6dfa8f021 655
+src/server/index.ts
+  s_95f2ef1b71386e::t_634b3a3fb86114 220-221
+  s_95f2ef1b71386e::t_6cdfddc2081805 231,234-235,237-239
+  s_95f2ef1b71386e::t_0ba3b4cec0578c 200-205,242
+  s_95f2ef1b71386e::t_84ff68682e0c84 228-229,232
+  s_95f2ef1b71386e::t_f3f7f87e59cb3d 222-225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "0caec47b625c151b50171e1f83172390eb5543fa",
+  "prompts": {},
+  "sessions": {
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
