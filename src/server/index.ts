@@ -9,8 +9,6 @@ import { AppError } from "../utils/app-error.ts";
 import { openUrlInBrowser } from "../utils/browser-opener.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
-// @ts-expect-error
-import favicon from "../web/favicon.png" with { type: "file" };
 import { createBacklinkHandlers } from "./handlers/backlinks.ts";
 import { createConfigHandlers } from "./handlers/config.ts";
 import { createDecisionHandlers } from "./handlers/decisions.ts";
@@ -191,8 +189,6 @@ export class BacklogServer {
 				});
 			};
 
-			const app = buildElysiaApp(handlers, spaHandler);
-
 			const getContentType = (path: string): string => {
 				if (path.endsWith(".css")) return "text/css";
 				if (path.endsWith(".js")) return "application/javascript";
@@ -200,6 +196,12 @@ export class BacklogServer {
 				if (path.endsWith(".svg")) return "image/svg+xml";
 				return "application/octet-stream";
 			};
+
+			const app = buildElysiaApp(handlers, spaHandler, {
+				resolveHtml: () => this.resolveHtml(),
+				resolveAsset: (path: string) => this.resolveAsset(path),
+				getContentType,
+			});
 
 			this.server = Bun.serve({
 				port: finalPort,
@@ -215,38 +217,29 @@ export class BacklogServer {
 
 					const url = new URL(req.url);
 					const pathname = url.pathname;
-
-					if (pathname === "/") {
-						const htmlFile = await this.resolveHtml();
-						return new Response(htmlFile, {
-							headers: { "Content-Type": "text/html" },
-						});
-					}
-
-					if (pathname.startsWith("/favicon")) {
-						const faviconFile = Bun.file(favicon);
-						return new Response(faviconFile, {
-							headers: { "Content-Type": "image/png" },
-						});
-					}
-
-					if (pathname.startsWith("/web/") || pathname.startsWith("/assets/") || pathname.endsWith(".js")) {
-						const webPath = pathname.replace(/^\//, "");
-						const asset = await this.resolveAsset(webPath);
-						if (asset) {
+					if (pathname.startsWith("/web/") || pathname.endsWith(".js")) {
+						const asset = await this.resolveAsset(pathname.replace(/^\//, ""));
+						if (asset)
 							return new Response(asset, {
-								headers: { "Content-Type": getContentType(webPath) },
+								headers: { "Content-Type": getContentType(pathname) },
 							});
+					}
+
+					if (pathname.startsWith("/assets/")) {
+						const asset = await this.resolveAsset(pathname.replace(/^\//, ""));
+						if (asset) {
+							const resp = new Response(asset, {
+								headers: { "Content-Type": getContentType(pathname) },
+							});
+							applyNoStoreHeaders(resp.headers);
+							return resp;
 						}
+						const resp = await handlers.system.handleAssetRequest(req);
+						applyNoStoreHeaders(resp.headers);
+						return resp;
 					}
 
-					const res = await app.fetch(req);
-
-					if (req.method === "GET" || req.method === "HEAD") {
-						applyNoStoreHeaders(res.headers);
-					}
-
-					return res;
+					return app.fetch(req);
 				},
 				websocket: {
 					open: (ws: ServerWebSocket) => {

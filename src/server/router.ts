@@ -1,7 +1,9 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia, t } from "elysia";
-
+// @ts-expect-error
+import favicon from "../web/favicon.png" with { type: "file" };
+import { applyNoStoreHeaders } from "./middleware.ts";
 import { CleanupPreviewQuery, FileContentQuery, IdParam, SearchQuery, TaskListFilterQuery } from "./schemas";
 
 export type RouteHandlers = {
@@ -87,14 +89,18 @@ export type RouteHandlers = {
 	};
 };
 
-export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promise<Response>) {
-	const { tasks, documents, decisions, drafts, milestones, config, system, files, backlinks } = handlers;
+export interface AssetHelpers {
+	resolveHtml: () => Promise<BunFile>;
+	resolveAsset: (path: string) => Promise<BunFile | null>;
+	getContentType: (path: string) => string;
+}
 
-	const enrichRequest = <T extends Record<string, string>>(req: Request, params: T): Request & { params: T } => {
-		const r = req as Request & { params: T };
-		r.params = params;
-		return r;
-	};
+export function buildElysiaApp(
+	handlers: RouteHandlers,
+	spaHandler: () => Promise<Response>,
+	assetHelpers?: AssetHelpers,
+) {
+	const { tasks, documents, decisions, drafts, milestones, config, system, files, backlinks } = handlers;
 
 	return (
 		new Elysia()
@@ -137,6 +143,18 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 					},
 				}),
 			)
+			// --- Asset Routes (previously in Bun.serve.fetch) ---
+			.get("/", async () => {
+				const html = await (assetHelpers?.resolveHtml?.() ?? spaHandler());
+				return new Response(html, {
+					headers: { "Content-Type": "text/html" },
+				});
+			})
+			.get("/favicon*", () => {
+				return new Response(Bun.file(favicon), {
+					headers: { "Content-Type": "image/png" },
+				});
+			})
 			// --- Tasks ---
 			.get("/api/tasks", ({ request }) => tasks.handleListTasks(request), {
 				query: TaskListFilterQuery,
@@ -583,8 +601,8 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 			})
 			.put(
 				"/api/config/labels/:name",
-				({ request, params }) => {
-					return config.handleRenameLabel(enrichRequest(request, params));
+				({ request, params: { name } }) => {
+					return config.handleRenameLabel({ ...request, params: { name } } as Request & { params: { name: string } });
 				},
 				{
 					params: t.Object({
@@ -600,8 +618,8 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 			)
 			.delete(
 				"/api/config/labels/:name",
-				({ request, params }) => {
-					return config.handleRemoveLabel(enrichRequest(request, params));
+				({ request, params: { name } }) => {
+					return config.handleRemoveLabel({ ...request, params: { name } } as Request & { params: { name: string } });
 				},
 				{
 					params: t.Object({
@@ -633,8 +651,8 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 			})
 			.put(
 				"/api/config/authors/:name",
-				({ request, params }) => {
-					return config.handleRenameAuthor(enrichRequest(request, params));
+				({ request, params: { name } }) => {
+					return config.handleRenameAuthor({ ...request, params: { name } } as Request & { params: { name: string } });
 				},
 				{
 					params: t.Object({
@@ -650,8 +668,8 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 			)
 			.delete(
 				"/api/config/authors/:name",
-				({ request, params }) => {
-					return config.handleRemoveAuthor(enrichRequest(request, params));
+				({ request, params: { name } }) => {
+					return config.handleRemoveAuthor({ ...request, params: { name } } as Request & { params: { name: string } });
 				},
 				{
 					params: t.Object({
@@ -704,13 +722,6 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 					description: "Initializes a new Backlog.md project. Creates backlog.config.yml and optional MCP setup.",
 					tags: ["System"],
 					responses: { 200: { description: "Object with success, projectName, and mcpResults" } },
-				},
-			})
-			.get("/assets/*", ({ request }) => system.handleAssetRequest(request), {
-				detail: {
-					summary: "Serve static assets",
-					description: "Serves static files (CSS, JS, fonts, images) from the assets/ directory",
-					tags: ["System"],
 				},
 			})
 			// --- Search ---
@@ -774,6 +785,11 @@ export function buildElysiaApp(handlers: RouteHandlers, spaHandler: () => Promis
 						200: { description: "Array of Backlink objects" },
 					},
 				},
+			})
+			.onAfterHandle(({ response }) => {
+				if (response) {
+					applyNoStoreHeaders(response.headers);
+				}
 			})
 			// --- SPA fallback ---
 			.get("/tasks", spaHandler)
