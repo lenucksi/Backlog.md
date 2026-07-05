@@ -59,6 +59,146 @@ When a modality is intentionally excluded, document the N/A status with justific
 
 When reviewing changed files, use the `.claude/skills/modality-parity-check.md` skill to flag cross-modality gaps.
 
+## Parallel Test Conventions — ZERO TOLERANCE
+
+This project runs `bun test --parallel`. Tests share NO process state.
+Violating these rules causes flaky failures that surface only under parallel
+load. The following are HARD RULES, not guidelines.
+
+### 1. UNIQUE `tmp/` PER TEST — NEVER share directories
+
+```typescript
+// ✅ CORRECT
+let TEST_DIR: string;
+beforeEach(() => { TEST_DIR = createUniqueTestDir("my-test"); });
+afterEach(() => safeCleanup(TEST_DIR));
+
+// ❌ WRONG — cross-test file collision under parallel
+const TEST_DIR = "/tmp/shared";
+```
+
+### 2. `process.*` — LOCAL RESTORE IN EVERY `it()`, never in `afterAll`
+
+`Object.defineProperty(process.stdout, "isTTY", ...)` or mocking
+`process.platform` is global state. **Always restore inside the same `it()`**
+using `try/finally`. NEVER in `afterAll` or `describe`-scope.
+
+```typescript
+// ✅ CORRECT — restore inside the same it()
+it("handles non-TTY", async () => {
+	const orig = process.stdout.isTTY;
+	Object.defineProperty(process.stdout, "isTTY", { value: false, configurable: true });
+	try { /* test body */ }
+	finally { Object.defineProperty(process.stdout, "isTTY", { value: orig, configurable: true }); }
+});
+
+// ❌ WRONG — describe-scope afterAll races with parallel workers
+const orig = process.stdout.isTTY;
+afterAll(() => { process.stdout.isTTY = orig; });
+```
+
+### 3. MODULE-LEVEL CACHING IS FORBIDDEN — `import()` is shared
+
+Bun caches `import()` across workers in `--parallel`. If you cache state at
+module level, all workers see the same stale value.
+
+```typescript
+// ✅ CORRECT — live check inside each it()
+const itIfTty = (name: string, fn: () => void) =>
+	process.stdout.isTTY ? it(name, fn) : it.skip(name, fn);
+
+// ❌ WRONG — cached at import time, stale under parallel
+const itIfTty = process.stdout.isTTY ? it : it.skip;
+```
+
+Same rule applies to `initHelpers()`, helper registrations, or any
+module-level variable that is mutated after creation.
+
+### 4. NO `top-level await` IN EXPORTED MODULES
+
+Top-level `await` blocks the module graph. Under `--parallel`, every file
+importing this module crashes with `ReferenceError: Cannot access X before
+initialization`.
+
+```typescript
+// ✅ CORRECT — synchronous getter
+const APP_VERSION = getVersionSync();
+
+// ❌ WRONG — blocks parallel imports of this module
+const APP_VERSION = await getVersion();
+```
+
+### 5. SUBPROCESS ($\`...\`) IS FOR CLI-CONTRACT TESTS ONLY
+
+`bun $\`bun src/cli.ts …\`` is ~500ms+ per call. It spawns a full CLI process.
+Prefer Core API for business logic.
+
+```typescript
+// ✅ CORRECT — in-process, ~50ms
+const core = new Core(TEST_DIR);
+await core.createTask(task);
+
+// ✅ CORRECT — CLI contract test, annotated
+// CLI-CONTRACT: tests help text output format
+const result = await $`bun src/cli.ts task create ...`.cwd(TEST_DIR).nothrow();
+
+// ❌ WRONG — business logic via subprocess
+const result = await $`bun src/cli.ts task create "My task"`.cwd(TEST_DIR).nothrow();
+```
+
+### 6. MEGA-TESTS WITH 5+ SUBPROCESS CALLS — SET EXPLICIT TIMEOUT
+
+CI runs with `--timeout=10000`. A test doing 5+ CLI subprocess calls under
+parallel load regularly exceeds this.
+
+```typescript
+it("handles all scenarios", async () => {
+	// 5 subprocess calls + assertions
+}, 30000);  // ✅ explicit timeout
+```
+
+### 7. SERVER/PTY/WATCHER — CLEANUP IN `afterEach`, NOT IN `afterAll`
+
+A lingering server blocks the next test's port or lock file.
+
+```typescript
+afterEach(async () => {
+	if (server) { await server.stop(); server = null; }
+	if (watcher) { watcher.close(); watcher = null; }
+	await safeCleanup(TEST_DIR);
+});
+```
+
+### 8. VERIFICATION WORKFLOW — use `test:fails` as accelerator
+
+After every change:
+
+```bash
+bun run test:fails    # --parallel --only-failures — catches race conditions
+bun run check .       # Biome format + lint
+```
+
+`test:fails` is the **only** reliable way to catch parallel race conditions
+because it reproduces the exact `--parallel` worker scheduling. Serial test
+runs mask these bugs.
+
+### 9. PRE-EXISTING FAILURE CHECK
+
+If a test fails after your change and you suspect the cause is pre-existing:
+
+```bash
+git stash && bun test src/test/die-datei.test.ts && git stash pop
+```
+
+If it fails on both — pre-existing. If only on your change — your bug.
+
+### REPEAL CLAUSE
+
+Any of these rules may only be suspended with a written `// PARALLEL-SAFE:
+<reason>` annotation on the same line as the violation. The reason must be
+demonstrably true (e.g., `// PARALLEL-SAFE: this module has no imports and
+is loaded once per worker`). Unsafe comments get reverted.
+
 ## Task Standards
 
 ### Milestones
