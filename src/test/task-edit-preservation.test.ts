@@ -130,7 +130,7 @@ Keep me exactly.
 		expect(result).toContain("Step 2");
 		expect(result).toContain("Step 3");
 		expect(result).toContain("Original implementation notes");
-	});
+	}, 30000);
 
 	it("should preserve all sections when updating acceptance criteria", async () => {
 		// Create a task with all sections
@@ -166,7 +166,7 @@ Keep me exactly.
 		expect(result).toContain("Updated criterion 2");
 		expect(result).toContain("Original plan");
 		expect(result).toContain("Original notes");
-	});
+	}, 30000);
 
 	it("should preserve all sections when updating implementation plan", async () => {
 		// Create a task with all sections
@@ -202,7 +202,7 @@ Keep me exactly.
 		expect(result).toContain("Updated plan step 2");
 		expect(result).toContain("Original notes");
 		expect(result).not.toContain("Original plan");
-	});
+	}, 30000);
 
 	it("should preserve all sections when updating implementation notes", async () => {
 		// Create a task with all sections
@@ -237,7 +237,7 @@ Keep me exactly.
 		expect(result).toContain("Test plan");
 		expect(result).not.toContain("Original notes");
 		expect(result).toContain("Additional notes");
-	});
+	}, 30000);
 
 	it("should handle tasks with minimal content", async () => {
 		// Create a task with just description

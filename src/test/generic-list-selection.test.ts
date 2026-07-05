@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
-const itIfTty = process.stdout.isTTY ? it : it.skip;
+function itIfTty(name: string, fn: () => void) {
+	if (process.stdout.isTTY) {
+		return it(name, fn);
+	}
+	return it.skip(name, fn);
+}
 
 import type { ListInterface, ScreenInterface } from "neo-neo-bblessed";
 import { GenericList } from "../ui/components/generic-list.ts";

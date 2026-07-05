@@ -13,6 +13,16 @@ function resetMockState(): void {
 	_allKeyHandlers.length = 0;
 }
 
+async function withMockIsTTY(value: boolean, fn: () => Promise<void>): Promise<void> {
+	const orig = process.stdout.isTTY;
+	Object.defineProperty(process.stdout, "isTTY", { value, configurable: true });
+	try {
+		await fn();
+	} finally {
+		Object.defineProperty(process.stdout, "isTTY", { value: orig, configurable: true });
+	}
+}
+
 function createMockWidget(extra: Record<string, unknown> = {}) {
 	const kh: Array<{
 		keys: string[];
@@ -564,167 +574,167 @@ describe("generic-list", () => {
 		list.destroy();
 	});
 
-	it("handles empty items list", async () => {
-		process.stdout.isTTY = true;
-		const { GenericList } = await import("../ui/components/generic-list.ts");
+	it("handles empty items list", async () =>
+		withMockIsTTY(true, async () => {
+			const { GenericList } = await import("../ui/components/generic-list.ts");
 
-		const list = new GenericList({
-			items: [],
-			onSelect: () => {},
-			showHelp: false,
-		});
+			const list = new GenericList({
+				items: [],
+				onSelect: () => {},
+				showHelp: false,
+			});
 
-		expect(list.getSelected()).toBeNull();
-		expect(list.getSelectedIndex()).toBe(0);
+			expect(list.getSelected()).toBeNull();
+			expect(list.getSelectedIndex()).toBe(0);
 
-		list.setSelectedIndex(5); // should clamp safely
-		expect(list.getSelected()).toBeNull();
+			list.setSelectedIndex(5); // should clamp safely
+			expect(list.getSelected()).toBeNull();
 
-		list.destroy();
-	});
+			list.destroy();
+		}));
 
-	it("handles non-TTY mode for single select", async () => {
-		process.stdout.isTTY = false;
-		const { GenericList } = await import("../ui/components/generic-list.ts");
+	it("handles non-TTY mode for single select", async () =>
+		withMockIsTTY(false, async () => {
+			const { GenericList } = await import("../ui/components/generic-list.ts");
 
-		const items = [{ id: "ITEM-1", title: "First" }];
-		const selections: Array<unknown> = [];
+			const items = [{ id: "ITEM-1", title: "First" }];
+			const selections: Array<unknown> = [];
 
-		const list = new GenericList({
-			items,
-			onSelect: (selected) => selections.push(selected),
-		});
+			const list = new GenericList({
+				items,
+				onSelect: (selected) => selections.push(selected),
+			});
 
-		expect(selections.length).toBeGreaterThan(0);
+			expect(selections.length).toBeGreaterThan(0);
 
-		list.destroy();
-	});
+			list.destroy();
+		}));
 
-	it("handles non-TTY mode for multi select", async () => {
-		process.stdout.isTTY = false;
-		const { GenericList } = await import("../ui/components/generic-list.ts");
+	it("handles non-TTY mode for multi select", async () =>
+		withMockIsTTY(false, async () => {
+			const { GenericList } = await import("../ui/components/generic-list.ts");
 
-		const items = [{ id: "ITEM-1" }, { id: "ITEM-2" }];
-		const selections: Array<unknown> = [];
+			const items = [{ id: "ITEM-1" }, { id: "ITEM-2" }];
+			const selections: Array<unknown> = [];
 
-		const list = new GenericList({
-			items,
-			multiSelect: true,
-			onSelect: (selected) => selections.push(selected),
-		});
+			const list = new GenericList({
+				items,
+				multiSelect: true,
+				onSelect: (selected) => selections.push(selected),
+			});
 
-		expect(selections.length).toBeGreaterThan(0);
+			expect(selections.length).toBeGreaterThan(0);
 
-		list.destroy();
-	});
+			list.destroy();
+		}));
 
-	it("multiSelect toggle and confirm", async () => {
-		process.stdout.isTTY = true;
-		const { GenericList } = await import("../ui/components/generic-list.ts");
+	it("multiSelect toggle and confirm", async () =>
+		withMockIsTTY(true, async () => {
+			const { GenericList } = await import("../ui/components/generic-list.ts");
 
-		const items = [
-			{ id: "A", title: "Alpha" },
-			{ id: "B", title: "Beta" },
-		];
+			const items = [
+				{ id: "A", title: "Alpha" },
+				{ id: "B", title: "Beta" },
+			];
 
-		const selections: Array<unknown> = [];
-		const list = new GenericList({
-			items,
-			multiSelect: true,
-			showHelp: false,
-			onSelect: (selected) => selections.push(selected),
-		});
+			const selections: Array<unknown> = [];
+			const list = new GenericList({
+				items,
+				multiSelect: true,
+				showHelp: false,
+				onSelect: (selected) => selections.push(selected),
+			});
 
-		expect(list.getListBox()).toBeDefined();
-		list.destroy();
-	});
+			expect(list.getListBox()).toBeDefined();
+			list.destroy();
+		}));
 
-	it("keyboard navigation handlers are registered", async () => {
-		process.stdout.isTTY = true;
-		const { GenericList } = await import("../ui/components/generic-list.ts");
+	it("keyboard navigation handlers are registered", async () =>
+		withMockIsTTY(true, async () => {
+			const { GenericList } = await import("../ui/components/generic-list.ts");
 
-		const items = [
-			{ id: "A", title: "Alpha" },
-			{ id: "B", title: "Beta" },
-		];
+			const items = [
+				{ id: "A", title: "Alpha" },
+				{ id: "B", title: "Beta" },
+			];
 
-		const list = new GenericList({
-			items,
-			showHelp: true,
-			searchable: true,
-		});
+			const list = new GenericList({
+				items,
+				showHelp: true,
+				searchable: true,
+			});
 
-		// Verify key handlers are registered
-		const upHandler = _allKeyHandlers.find((h) => h.keys.includes("up"));
-		const downHandler = _allKeyHandlers.find((h) => h.keys.includes("down"));
-		const enterHandler = _allKeyHandlers.find((h) => h.keys.includes("enter"));
-		const escapeHandler = _allKeyHandlers.find((h) => h.keys.includes("escape"));
+			// Verify key handlers are registered
+			const upHandler = _allKeyHandlers.find((h) => h.keys.includes("up"));
+			const downHandler = _allKeyHandlers.find((h) => h.keys.includes("down"));
+			const enterHandler = _allKeyHandlers.find((h) => h.keys.includes("enter"));
+			const escapeHandler = _allKeyHandlers.find((h) => h.keys.includes("escape"));
 
-		expect(upHandler).toBeDefined();
-		expect(downHandler).toBeDefined();
-		expect(enterHandler).toBeDefined();
-		expect(escapeHandler).toBeDefined();
+			expect(upHandler).toBeDefined();
+			expect(downHandler).toBeDefined();
+			expect(enterHandler).toBeDefined();
+			expect(escapeHandler).toBeDefined();
 
-		list.destroy();
-	});
+			list.destroy();
+		}));
 
-	it("factory function createGenericList works", async () => {
-		process.stdout.isTTY = true;
-		const { createGenericList } = await import("../ui/components/generic-list.ts");
+	it("factory function createGenericList works", async () =>
+		withMockIsTTY(true, async () => {
+			const { createGenericList } = await import("../ui/components/generic-list.ts");
 
-		const list = createGenericList({
-			items: [
-				{ id: "X", title: "First" },
-				{ id: "Y", title: "Second" },
-			],
-			showHelp: false,
-		});
+			const list = createGenericList({
+				items: [
+					{ id: "X", title: "First" },
+					{ id: "Y", title: "Second" },
+				],
+				showHelp: false,
+			});
 
-		expect(list).toBeDefined();
-		expect(list.getSelected()).toEqual({ id: "X", title: "First" });
-		expect(list.getSelectedIndex()).toBe(0);
+			expect(list).toBeDefined();
+			expect(list.getSelected()).toEqual({ id: "X", title: "First" });
+			expect(list.getSelectedIndex()).toBe(0);
 
-		list.destroy();
-	});
+			list.destroy();
+		}));
 
-	it("default item renderer works for items without title", async () => {
-		process.stdout.isTTY = true;
-		const { createGenericList } = await import("../ui/components/generic-list.ts");
+	it("default item renderer works for items without title", async () =>
+		withMockIsTTY(true, async () => {
+			const { createGenericList } = await import("../ui/components/generic-list.ts");
 
-		const list = createGenericList({
-			items: [{ id: "ONLY-ID" } as any],
-			showHelp: false,
-		});
+			const list = createGenericList({
+				items: [{ id: "ONLY-ID" } as any],
+				showHelp: false,
+			});
 
-		expect(list.getSelected()).toEqual({ id: "ONLY-ID" });
-		list.destroy();
-	});
+			expect(list.getSelected()).toEqual({ id: "ONLY-ID" });
+			list.destroy();
+		}));
 
-	it("boundary navigation callback prevents wrapping", async () => {
-		process.stdout.isTTY = true;
-		const { GenericList } = await import("../ui/components/generic-list.ts");
+	it("boundary navigation callback prevents wrapping", async () =>
+		withMockIsTTY(true, async () => {
+			const { GenericList } = await import("../ui/components/generic-list.ts");
 
-		const items = [
-			{ id: "A", title: "Alpha" },
-			{ id: "B", title: "Beta" },
-		];
+			const items = [
+				{ id: "A", title: "Alpha" },
+				{ id: "B", title: "Beta" },
+			];
 
-		const boundaries: string[] = [];
-		const list = new GenericList({
-			items,
-			showHelp: false,
-			onBoundaryNavigation: (direction, selectedIndex, total) => {
-				boundaries.push(`${direction}:${selectedIndex}:${total}`);
-				return false;
-			},
-		});
+			const boundaries: string[] = [];
+			const list = new GenericList({
+				items,
+				showHelp: false,
+				onBoundaryNavigation: (direction, selectedIndex, total) => {
+					boundaries.push(`${direction}:${selectedIndex}:${total}`);
+					return false;
+				},
+			});
 
-		// Set to last item
-		list.setSelectedIndex(1);
-		expect((list as any).getSelected()).toEqual(items[1]);
+			// Set to last item
+			list.setSelectedIndex(1);
+			expect((list as any).getSelected()).toEqual(items[1]);
 
-		(list as any).destroy();
-	});
+			(list as any).destroy();
+		}));
 });
 
 // ============================================================================
