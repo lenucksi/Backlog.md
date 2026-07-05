@@ -1,0 +1,33 @@
+backlog/config.yml
+  s_95f2ef1b71386e::t_bca8fd664b6963 1-14
+"backlog/tasks/task-1 - Test-Task-task-1.md"
+  s_95f2ef1b71386e::t_c66f8d8ab00c5f 1-16
+"backlog/tasks/task-2 - Test-Task-task-2.md"
+  s_4459d80cdeb08d::t_a9acc7eca31d68 1-16
+"backlog/tasks/task-3 - Test-Task-task-3.md"
+  s_4459d80cdeb08d::t_f5b1dd790b18d8 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8615156a314b9ebc694b5f54b4526e38c6600520",
+  "prompts": {},
+  "sessions": {
+    "s_4459d80cdeb08d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cc4ed3daffeEMAFvCtcLc92Am",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Test User <test@example.com>"
+    },
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Test User <test@example.com>"
+    }
+  }
+}
