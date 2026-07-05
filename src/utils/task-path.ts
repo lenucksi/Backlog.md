@@ -1,5 +1,4 @@
-import { join } from "node:path";
-import { Core } from "../core/backlog.ts";
+import type { Core } from "../core/backlog.ts";
 import type { Task } from "../types/index.ts";
 import {
 	buildFilenameIdRegex,
@@ -146,7 +145,8 @@ function idsMatchLoosely(inputId: string, filename: string, prefix: string = DEF
  * For numeric-only IDs, automatically detects the prefix from existing files.
  */
 export async function getTaskPath(taskId: string, core?: Core | TaskPathContext): Promise<string | null> {
-	const coreInstance = core || new Core(process.cwd());
+	const { Core: CoreClass } = await import("../core/backlog.ts");
+	const coreInstance = core || new CoreClass(process.cwd());
 
 	// Extract prefix from the taskId
 	const detectedPrefix = extractAnyPrefix(taskId);
@@ -160,7 +160,7 @@ export async function getTaskPath(taskId: string, core?: Core | TaskPathContext)
 			);
 			const taskFile = findMatchingFile(files, taskId, detectedPrefix);
 			if (taskFile) {
-				return join(coreInstance.filesystem.tasksDir, taskFile);
+				return await joinPath(coreInstance.filesystem.tasksDir, taskFile);
 			}
 		} catch {
 			// Fall through to return null
@@ -183,7 +183,7 @@ export async function getTaskPath(taskId: string, core?: Core | TaskPathContext)
 			if (filePrefix) {
 				const fileBody = extractTaskBodyFromFilename(file, filePrefix);
 				if (fileBody && numericPartsEqual(numericPart, fileBody)) {
-					return join(coreInstance.filesystem.tasksDir, file);
+					return await joinPath(coreInstance.filesystem.tasksDir, file);
 				}
 			}
 		}
@@ -322,7 +322,7 @@ export async function getDraftPath(draftId: string, core: Core): Promise<string 
 		}
 
 		if (draftFile) {
-			return join(draftsDir, draftFile);
+			return await joinPath(draftsDir, draftFile);
 		}
 
 		return null;
@@ -336,7 +336,8 @@ export async function getDraftPath(draftId: string, core: Core): Promise<string 
  * For numeric-only IDs, automatically detects the prefix from existing files.
  */
 export async function getTaskFilename(taskId: string, core?: Core | TaskPathContext): Promise<string | null> {
-	const coreInstance = core || new Core(process.cwd());
+	const { Core: CoreClass } = await import("../core/backlog.ts");
+	const coreInstance = core || new CoreClass(process.cwd());
 
 	// Extract prefix from the taskId
 	const detectedPrefix = extractAnyPrefix(taskId);
@@ -383,4 +384,9 @@ export async function getTaskFilename(taskId: string, core?: Core | TaskPathCont
 export async function taskFileExists(taskId: string, core?: Core | TaskPathContext): Promise<boolean> {
 	const path = await getTaskPath(taskId, core);
 	return path !== null;
+}
+
+async function joinPath(...segments: string[]): Promise<string> {
+	const { join } = await import("node:path");
+	return join(...segments);
 }

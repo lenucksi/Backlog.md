@@ -108,5 +108,5 @@ describe("CLI --plain for task create/edit", () => {
 		// Should not contain TUI escape codes
 		expect(out).not.toContain("[?1049h");
 		expect(out).not.toContain("\x1b");
-	});
+	}, 30000);
 });

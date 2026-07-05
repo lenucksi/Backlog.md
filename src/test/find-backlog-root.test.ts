@@ -1,15 +1,28 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
 import { clearProjectRootCache, findBacklogRoot, getProjectRoot } from "../utils/find-backlog-root.ts";
 
+// Unique run root shared across all tests in this file.
+// Tests never walk up past this directory, so they are isolated from /tmp pollution.
+const RUN_ROOT = join(tmpdir(), `backlog-testrun-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+
+beforeAll(async () => {
+	await mkdir(RUN_ROOT, { recursive: true });
+});
+
+afterAll(async () => {
+	clearProjectRootCache();
+	await rm(RUN_ROOT, { recursive: true, force: true });
+});
+
 describe("findBacklogRoot", () => {
 	let testDir: string;
 
 	beforeEach(async () => {
-		testDir = join(tmpdir(), `backlog-root-test-${Date.now()}`);
+		testDir = join(RUN_ROOT, `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
 		await mkdir(testDir, { recursive: true });
 		clearProjectRootCache();
 	});
@@ -42,7 +55,7 @@ describe("findBacklogRoot", () => {
 	it("should NOT find root for bare backlog/ directory without config", async () => {
 		await mkdir(join(testDir, "backlog", "tasks"), { recursive: true });
 
-		const result = await findBacklogRoot(testDir);
+		const result = await findBacklogRoot(testDir, 1);
 		expect(result).toBeNull();
 	});
 
@@ -82,7 +95,7 @@ describe("findBacklogRoot", () => {
 		const emptyFolder = join(testDir, "empty");
 		await mkdir(emptyFolder, { recursive: true });
 
-		const result = await findBacklogRoot(emptyFolder);
+		const result = await findBacklogRoot(emptyFolder, 1);
 		expect(result).toBeNull();
 	});
 
@@ -121,7 +134,7 @@ describe("findBacklogRoot", () => {
 		const subfolder = join(testDir, "src");
 		await mkdir(subfolder, { recursive: true });
 
-		const result = await findBacklogRoot(subfolder);
+		const result = await findBacklogRoot(subfolder, 1);
 		expect(result).toBeNull();
 	});
 
@@ -166,7 +179,7 @@ describe("findBacklogRoot", () => {
 	it("should ignore placeholder backlog.config.yml files that do not look like Backlog config", async () => {
 		await writeFile(join(testDir, "backlog.config.yml"), 'name: "placeholder"\n');
 
-		const result = await findBacklogRoot(testDir);
+		const result = await findBacklogRoot(testDir, 1);
 		expect(result).toBeNull();
 	});
 
@@ -187,7 +200,7 @@ describe("getProjectRoot", () => {
 	let testDir: string;
 
 	beforeEach(async () => {
-		testDir = join(tmpdir(), `project-root-test-${Date.now()}`);
+		testDir = join(RUN_ROOT, `get-root-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
 		await mkdir(testDir, { recursive: true });
 		clearProjectRootCache();
 	});

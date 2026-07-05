@@ -1,5 +1,4 @@
 import type { BacklogConfig } from "../types/index.ts";
-import { isEditorAvailable } from "../utils/editor.ts";
 
 export interface ConfigSchemaEntry {
 	key: string;
@@ -140,7 +139,8 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		configKey: "defaultEditor",
 		validate: async (value) => {
 			if (typeof value !== "string" || !value.trim()) return "must be a non-empty string";
-			const available = await isEditorAvailable(value);
+			const { isEditorAvailable: checkEditor } = await import("../utils/editor.ts");
+			const available = await checkEditor(value);
 			if (!available) return `editor command not found: ${value}`;
 			return null;
 		},

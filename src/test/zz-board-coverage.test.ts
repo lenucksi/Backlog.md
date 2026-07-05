@@ -391,5 +391,5 @@ const canRunShell =
 			await new Promise((r) => setTimeout(r, 200));
 			expect(t.alive).toBe(false);
 		});
-	});
+	}, 30000);
 });

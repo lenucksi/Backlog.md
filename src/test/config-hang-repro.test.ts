@@ -1,17 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Core } from "../core/backlog.ts";
 import { FileSystem } from "../file-system/operations.ts";
 import type { BacklogConfig } from "../types/index.ts";
 
 describe("Config Loading & Migration", () => {
-	const testRoot = "/tmp/test-config-migration";
-	const backlogDir = join(testRoot, "backlog");
-	const configPath = join(backlogDir, "config.yml");
+	let testRoot: string;
+	let backlogDir: string;
+	let configPath: string;
 
 	beforeEach(async () => {
-		await rm(testRoot, { recursive: true, force: true });
+		testRoot = join(tmpdir(), `config-migration-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+		backlogDir = join(testRoot, "backlog");
+		configPath = join(backlogDir, "config.yml");
 		await mkdir(backlogDir, { recursive: true });
 	});
 

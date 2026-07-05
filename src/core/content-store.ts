@@ -190,7 +190,13 @@ export class ContentStore {
 	}
 
 	private async initializeContent(): Promise<ContentSnapshot> {
-		await this.filesystem.ensureBacklogStructure();
+		try {
+			await this.filesystem.ensureBacklogStructure();
+		} catch {
+			// Structure cannot be created (e.g. target path blocked by a file).
+			// Return empty — the init wizard will create the structure on completion.
+			return { tasks: [], documents: [], decisions: [] };
+		}
 
 		// Use custom task loader if provided (e.g., loadTasks for cross-branch support)
 		// Otherwise fall back to filesystem-only loading

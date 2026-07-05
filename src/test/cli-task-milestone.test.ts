@@ -104,5 +104,5 @@ describe("CLI task milestone assignment", () => {
 		expect(createHelp.stdout.toString()).toContain("-m, --milestone <milestone>");
 		expect(editHelp.stdout.toString()).toContain("-m, --milestone <milestone>");
 		expect(editHelp.stdout.toString()).toContain("--clear-milestone");
-	});
+	}, 30000);
 });

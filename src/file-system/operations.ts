@@ -271,6 +271,21 @@ export class FileSystem {
 
 	async ensureBacklogStructure(): Promise<void> {
 		const backlogDir = await this.getBacklogDir();
+
+		// Check if the parent path is blocked by a file
+		const backlogParent = dirname(backlogDir);
+		try {
+			const parentStat = await stat(backlogParent);
+			if (!parentStat.isDirectory()) {
+				throw new Error(
+					`Backlog path conflict: "${backlogParent}" exists and is not a directory. ` +
+						`Remove it or use a different backlog directory (e.g. ".backlog" via init wizard).`,
+				);
+			}
+		} catch (err) {
+			if (err instanceof Error && err.message.startsWith("Backlog path conflict")) throw err;
+		}
+
 		const directories = [
 			backlogDir,
 			join(backlogDir, DEFAULT_DIRECTORIES.TASKS),
@@ -286,7 +301,15 @@ export class FileSystem {
 
 		for (const dir of directories) {
 			await mkdir(dir, { recursive: true }).catch((err: NodeJS.ErrnoException) => {
-				if (err.code !== "EEXIST") throw err;
+				if (err.code === "EEXIST") return;
+				if (err.code === "ENOTDIR") {
+					throw new Error(
+						`Cannot create backlog directory at "${dir}": ` +
+							`"${backlogDir}" exists and is not a directory. ` +
+							`Remove it or use a different backlog directory (e.g. ".backlog").`,
+					);
+				}
+				throw err;
 			});
 		}
 	}

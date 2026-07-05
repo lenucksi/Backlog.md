@@ -24,13 +24,20 @@ async function fileExists(path: string): Promise<boolean> {
  * 3. Return null if no Backlog.md project found
  *
  * @param startDir - The directory to start searching from (typically process.cwd())
+ * @param maxDepth - Maximum levels to walk up (optional). 0 = only startDir, 1 = include parent, etc.
+ *                   When set, git fallback is skipped.
  * @returns The project root path, or null if no Backlog.md project found
  */
-export async function findBacklogRoot(startDir: string): Promise<string | null> {
+export async function findBacklogRoot(startDir: string, maxDepth?: number): Promise<string | null> {
 	let current = startDir;
+	let depth = 0;
 
 	// Walk up the directory tree looking for a backlog config or backlog.json
 	while (current !== dirname(current)) {
+		if (maxDepth !== undefined && depth >= maxDepth) {
+			return null;
+		}
+
 		const backlogResolution = resolveBacklogDirectory(current);
 		if (backlogResolution.configPath) {
 			return current;
@@ -43,6 +50,11 @@ export async function findBacklogRoot(startDir: string): Promise<string | null> 
 		}
 
 		current = dirname(current);
+		depth++;
+	}
+
+	if (maxDepth !== undefined) {
+		return null;
 	}
 
 	// Fallback: try git repository root
@@ -72,8 +84,16 @@ let cachedProjectRoot: string | null | undefined;
 /**
  * Gets the Backlog.md project root, with caching for performance.
  * Call clearProjectRootCache() to reset the cache if needed.
+ *
+ * @param startDir - The directory to start searching from
+ * @param maxDepth - Optional maximum walk-up depth (passed to findBacklogRoot).
+ *                   When set, bypasses the module-level cache (required for tests).
  */
-export async function getProjectRoot(startDir: string): Promise<string | null> {
+export async function getProjectRoot(startDir: string, maxDepth?: number): Promise<string | null> {
+	if (maxDepth !== undefined) {
+		return findBacklogRoot(startDir, maxDepth);
+	}
+
 	if (cachedProjectRoot !== undefined) {
 		return cachedProjectRoot;
 	}

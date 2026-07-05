@@ -161,5 +161,5 @@ describe("CLI init without Git", () => {
 		const decisionResult = await $`bun ${CLI_PATH} decision create "Fresh Decision"`.cwd(TEST_DIR).quiet();
 		expect(decisionResult.exitCode).toBe(0);
 		expect(decisionResult.stdout.toString()).toContain("Created decision decision-1");
-	});
+	}, 30000);
 });

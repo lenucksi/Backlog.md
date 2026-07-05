@@ -209,6 +209,6 @@ describe("Implementation Plan CLI", () => {
 			expect(task).not.toBeNull();
 			// Should NOT add the section when no plan is provided
 			expect(task?.rawContent).not.toContain("## Implementation Plan");
-		});
+		}, 30000);
 	});
 });

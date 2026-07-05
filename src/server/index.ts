@@ -26,6 +26,19 @@ import type { ServerHandlerContext } from "./types.ts";
 
 export { findNextAvailablePort, isPortAvailable, markHtmlBundleNoStore };
 
+let _embeddedAssets: Record<string, string> | null | undefined;
+
+async function getEmbeddedAssets(): Promise<Record<string, string> | null> {
+	if (_embeddedAssets !== undefined) return _embeddedAssets;
+	try {
+		const mod = await import("./embedded-assets.ts");
+		_embeddedAssets = mod.embeddedAssets;
+	} catch {
+		_embeddedAssets = null;
+	}
+	return _embeddedAssets;
+}
+
 export class BacklogServer {
 	private core: Core;
 	private server: Server<unknown> | null = null;
@@ -182,7 +195,6 @@ export class BacklogServer {
 
 			const getContentType = (path: string): string => {
 				if (path.endsWith(".css")) return "text/css";
-				if (path.endsWith(".tsx") || path.endsWith(".ts")) return "application/typescript";
 				if (path.endsWith(".js")) return "application/javascript";
 				if (path.endsWith(".png")) return "image/png";
 				if (path.endsWith(".svg")) return "image/svg+xml";
@@ -218,13 +230,7 @@ export class BacklogServer {
 						});
 					}
 
-					if (
-						pathname.startsWith("/web/") ||
-						pathname.startsWith("/styles/") ||
-						pathname.startsWith("/assets/") ||
-						pathname.endsWith(".tsx") ||
-						pathname.endsWith(".js")
-					) {
+					if (pathname.startsWith("/web/") || pathname.startsWith("/assets/") || pathname.endsWith(".js")) {
 						const webPath = pathname.replace(/^\//, "");
 						const asset = await this.resolveAsset(webPath);
 						if (asset) {
@@ -343,6 +349,10 @@ export class BacklogServer {
 	}
 
 	private async resolveHtml(): Promise<BunFile> {
+		const embedded = await getEmbeddedAssets();
+		const embeddedPath = embedded?.["/index.html"];
+		if (embeddedPath) return Bun.file(embeddedPath);
+
 		const binDir = this.binaryDir;
 		const cwd = process.cwd();
 
@@ -358,6 +368,10 @@ export class BacklogServer {
 	}
 
 	private async resolveAsset(webPath: string): Promise<BunFile | null> {
+		const embedded = await getEmbeddedAssets();
+		const assetPath = embedded?.[`/${webPath}`];
+		if (assetPath) return Bun.file(assetPath);
+
 		const binDir = this.binaryDir;
 		const cwd = process.cwd();
 

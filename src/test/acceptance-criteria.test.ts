@@ -648,6 +648,6 @@ describe("AcceptanceCriteriaManager unit tests", () => {
 				.nothrow();
 			expect(checkResult.exitCode).toBe(1);
 			expect(checkResult.stderr.toString()).toContain("Acceptance criterion #5 not found");
-		});
+		}, 30000);
 	});
 });

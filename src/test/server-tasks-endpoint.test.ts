@@ -18,6 +18,14 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 describe("BacklogServer task endpoints", () => {
+	afterEach(async () => {
+		if (server) {
+			await server.stop().catch(() => {});
+			server = null;
+		}
+		await safeCleanup(TEST_DIR);
+	});
+
 	beforeEach(async () => {
 		TEST_DIR = createUniqueTestDir("server-tasks");
 		const core = new Core(TEST_DIR);

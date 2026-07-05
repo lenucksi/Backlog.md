@@ -35,6 +35,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # generated Tailwind CSS (rebuilt by build:css before every build/cli run)
 web/styles/style.css
 
+# generated embedded assets manifest (rebuilt by scripts/generate-embedded-assets.ts before every build)
+src/server/embedded-assets.ts
+
 # IntelliJ based IDEs
 .idea
 

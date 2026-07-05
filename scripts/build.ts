@@ -1,4 +1,5 @@
 import { $ } from "bun";
+import { generateEmbeddedAssets } from "./generate-embedded-assets.ts";
 
 const targets: Record<string, Record<string, string>> = {
 	linux: { x64: "bun-linux-x64-baseline", arm64: "bun-linux-arm64" },
@@ -15,10 +16,13 @@ if (!target) {
 	process.exit(1);
 }
 
-await $`bun run build:guard`;
-await $`bun run build:css`;
+await Promise.all([
+	$`bun run guard:build`,
+	$`bun run build:css`,
+]);
 
-const ver = Bun.spawnSync(["jq", "-r", ".version", "package.json"]).stdout.toString().trim();
+const pkg = await Bun.file("package.json").json();
+const ver = pkg.version as string;
 const ext = plat === "win32" ? ".exe" : "";
 const outfile = "dist/backlog" + ext;
 
@@ -64,6 +68,7 @@ const bundledHtml = html
 	.replace('src="./main.tsx"', 'src="./web/main.js"')
 	.replace('href="./styles/style.css"', 'href="./web/main.css"');
 await Bun.write("dist/index.html", bundledHtml);
+generateEmbeddedAssets();
 
 const result = Bun.spawnSync(["bun", "build", "src/cli.ts",
 	"--compile", "--minify",
