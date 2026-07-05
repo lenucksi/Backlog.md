@@ -125,9 +125,7 @@ const selectMultiSelectOption = async (container: HTMLElement, menuId: string, o
 	const menu = container.querySelector(`#${menuId}`);
 	expect(menu).toBeTruthy();
 
-	const option = Array.from(menu!.querySelectorAll("button")).find(
-		(b) => b.textContent?.trim() === optionText,
-	);
+	const option = Array.from(menu!.querySelectorAll("button")).find((b) => b.textContent?.trim() === optionText);
 	expect(option).toBeTruthy();
 	await clickElement(option as HTMLButtonElement);
 };
@@ -160,13 +158,17 @@ const expectBoardFiltersInHeader = (container: HTMLElement) => {
 	const boardFilters = toolbar?.querySelector("[aria-label='Board filters']");
 	expect(boardFilters).toBeTruthy();
 
-	const assigneeBtn = container.querySelector("button[aria-controls='board-assignee-filter-menu']") as HTMLButtonElement | null;
+	const assigneeBtn = container.querySelector(
+		"button[aria-controls='board-assignee-filter-menu']",
+	) as HTMLButtonElement | null;
 	expect(assigneeBtn).toBeTruthy();
 	expect(toolbar?.contains(assigneeBtn)).toBe(true);
 	expect(assigneeBtn?.className).toContain("min-w-[180px]");
 	expect(assigneeBtn?.className).toContain("rounded-lg");
 
-	const priorityBtn = container.querySelector("button[aria-controls='board-priority-filter-menu']") as HTMLButtonElement | null;
+	const priorityBtn = container.querySelector(
+		"button[aria-controls='board-priority-filter-menu']",
+	) as HTMLButtonElement | null;
 	expect(priorityBtn).toBeTruthy();
 	expect(toolbar?.contains(priorityBtn)).toBe(true);
 	expect(priorityBtn?.className).toContain("min-w-[180px]");
@@ -248,9 +250,13 @@ describe("Web board filters", () => {
 	it("reads filters from URL params and clears them", async () => {
 		const container = renderBoardPage("http://localhost/board?assignee=alice&label=bug&priority=high");
 
-		expect(container.querySelector("button[aria-controls='board-assignee-filter-menu']")?.textContent).toContain("alice");
+		expect(container.querySelector("button[aria-controls='board-assignee-filter-menu']")?.textContent).toContain(
+			"alice",
+		);
 		expect(getBoardLabelsButton(container).textContent).toContain("bug");
-		expect(container.querySelector("button[aria-controls='board-priority-filter-menu']")?.textContent).toContain("high");
+		expect(container.querySelector("button[aria-controls='board-priority-filter-menu']")?.textContent).toContain(
+			"high",
+		);
 		expectVisibleTasks(container, ["Fix login bug"]);
 
 		const clearButton = Array.from(container.querySelectorAll("button")).find((button) =>

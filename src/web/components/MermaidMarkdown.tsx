@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
 import MDEditor from "@uiw/react-md-editor";
+import { useEffect, useRef } from "react";
 import { renderMermaidIn } from "../utils/mermaid";
 
 interface Props {
@@ -28,28 +28,34 @@ function entityLinkReplacer(match: string): string {
 
 function autoLinkEntities(source: string): string {
 	const CODE_SPAN_REGEX = /(```[\s\S]*?```|`[^`]*`)/g;
-	return source.split(CODE_SPAN_REGEX).map((part, i) => {
-		if (i % 2 === 1) {
-			return part;
-		}
-		return part.replace(ENTITY_LINK_REGEX, entityLinkReplacer);
-	}).join('');
+	return source
+		.split(CODE_SPAN_REGEX)
+		.map((part, i) => {
+			if (i % 2 === 1) {
+				return part;
+			}
+			return part.replace(ENTITY_LINK_REGEX, entityLinkReplacer);
+		})
+		.join("");
 }
 
 function sanitizeMarkdownSource(source: string): string {
 	const CODE_SPAN_REGEX = /(```[\s\S]*?```|`[^`]*`)/g;
-	return source.split(CODE_SPAN_REGEX).map((part, i) => {
-		if (i % 2 === 1) {
-			return part;
-		}
-		return part.replace(/<(?=[A-Za-z])/g, (match, offset, fullText) => {
-			const remaining = fullText.slice(offset);
-			if (URI_AUTOLINK_PREFIX_REGEX.test(remaining) || EMAIL_AUTOLINK_PREFIX_REGEX.test(remaining)) {
-				return match;
+	return source
+		.split(CODE_SPAN_REGEX)
+		.map((part, i) => {
+			if (i % 2 === 1) {
+				return part;
 			}
-			return "&lt;";
-		});
-	}).join('');
+			return part.replace(/<(?=[A-Za-z])/g, (match, offset, fullText) => {
+				const remaining = fullText.slice(offset);
+				if (URI_AUTOLINK_PREFIX_REGEX.test(remaining) || EMAIL_AUTOLINK_PREFIX_REGEX.test(remaining)) {
+					return match;
+				}
+				return "&lt;";
+			});
+		})
+		.join("");
 }
 
 function slugify(text: string): string {

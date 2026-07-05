@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { apiClient } from "../lib/api";
 import Modal from "./Modal";
 
@@ -46,14 +46,10 @@ export default function FilePreviewModal({ path, onClose }: Props) {
 					<div className="text-sm text-gray-500 dark:text-gray-400">Loading...</div>
 				</div>
 			)}
-			{error && (
-				<div className="text-sm text-red-600 dark:text-red-400 py-4">{error}</div>
-			)}
+			{error && <div className="text-sm text-red-600 dark:text-red-400 py-4">{error}</div>}
 			{content !== null && (
 				<pre className="overflow-auto max-h-[70vh] rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4">
-					<code
-						className={`text-sm font-mono leading-relaxed${language ? ` language-${language}` : ""}`}
-					>
+					<code className={`text-sm font-mono leading-relaxed${language ? ` language-${language}` : ""}`}>
 						{content}
 					</code>
 				</pre>

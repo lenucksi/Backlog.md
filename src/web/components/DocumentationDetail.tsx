@@ -1,13 +1,13 @@
-import {useState, useEffect, memo, useCallback} from 'react';
-import {useParams, useNavigate, useSearchParams, Link} from 'react-router-dom';
-import {apiClient} from '../lib/api';
-import PasteAwareMDEditor from './PasteAwareMDEditor';
-import MermaidMarkdown from './MermaidMarkdown';
-import {type Document} from '../../types';
-import ErrorBoundary from '../components/ErrorBoundary';
-import {SuccessToast} from './SuccessToast';
-import { useTheme } from '../contexts/ThemeContext';
-import { sanitizeUrlTitle } from '../utils/urlHelpers';
+import { memo, useCallback, useEffect, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import type { Document } from "../../types";
+import ErrorBoundary from "../components/ErrorBoundary";
+import { useTheme } from "../contexts/ThemeContext";
+import { apiClient } from "../lib/api";
+import { sanitizeUrlTitle } from "../utils/urlHelpers";
+import MermaidMarkdown from "./MermaidMarkdown";
+import PasteAwareMDEditor from "./PasteAwareMDEditor";
+import { SuccessToast } from "./SuccessToast";
 
 function optionalUpdateValue<T>(changed: boolean, value: T): T | undefined {
 	return changed ? value : undefined;
@@ -17,458 +17,494 @@ function optionalUpdateValue<T>(changed: boolean, value: T): T | undefined {
 const MarkdownEditor = memo(function MarkdownEditor({
 	value,
 	onChange,
-	isEditing
+	isEditing,
 }: {
-    value: string;
-    onChange?: (val: string | undefined) => void;
-    isEditing: boolean;
-    isReadonly?: boolean;
+	value: string;
+	onChange?: (val: string | undefined) => void;
+	isEditing: boolean;
+	isReadonly?: boolean;
 }) {
-    const { theme } = useTheme();
-    if (!isEditing) {
-        // Preview mode - just show the rendered markdown without editor UI
-        return (
-            <div
-                className="prose prose-sm !max-w-none w-full p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-                data-color-mode={theme}>
-                <MermaidMarkdown source={value} />
-            </div>
-        );
-    }
+	const { theme } = useTheme();
+	if (!isEditing) {
+		// Preview mode - just show the rendered markdown without editor UI
+		return (
+			<div
+				className="prose prose-sm !max-w-none w-full p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+				data-color-mode={theme}
+			>
+				<MermaidMarkdown source={value} />
+			</div>
+		);
+	}
 
-    // Edit mode - show full editor that fills the available space
-    return (
-        <div className="h-full w-full flex flex-col">
-            <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                <PasteAwareMDEditor
-                    value={value}
-                    onChange={onChange}
-                    preview="edit"
-                    height="100%"
-                    hideToolbar={false}
-                    data-color-mode={theme}
-                    textareaProps={{
-                        placeholder: 'Write your documentation here...',
-                        style: {
-                            fontSize: '14px',
-                            resize: 'none'
-                        }
-                    }}
-                />
-            </div>
-        </div>
-    );
+	// Edit mode - show full editor that fills the available space
+	return (
+		<div className="h-full w-full flex flex-col">
+			<div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+				<PasteAwareMDEditor
+					value={value}
+					onChange={onChange}
+					preview="edit"
+					height="100%"
+					hideToolbar={false}
+					data-color-mode={theme}
+					textareaProps={{
+						placeholder: "Write your documentation here...",
+						style: {
+							fontSize: "14px",
+							resize: "none",
+						},
+					}}
+				/>
+			</div>
+		</div>
+	);
 });
 
 // Utility function to add doc prefix for API calls
 const addDocPrefix = (id: string): string => {
-    return id.startsWith('doc-') ? id : `doc-${id}`;
+	return id.startsWith("doc-") ? id : `doc-${id}`;
 };
 
 const getDocumentDirectory = (path?: string): string => {
-    if (!path) return '';
-    return path.split(/[\\/]+/).slice(0, -1).join('/');
+	if (!path) return "";
+	return path
+		.split(/[\\/]+/)
+		.slice(0, -1)
+		.join("/");
 };
 
 interface DocumentationDetailProps {
-    docs: Document[];
-    onRefreshData: () => Promise<void>;
+	docs: Document[];
+	onRefreshData: () => Promise<void>;
 }
 
-export default function DocumentationDetail({docs, onRefreshData}: DocumentationDetailProps) {
-    const {id, title} = useParams<{ id: string; title: string }>();
-    const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [document, setDocument] = useState<Document | null>(null);
-    const [content, setContent] = useState<string>('');
-    const [originalContent, setOriginalContent] = useState<string>('');
-    const [docTitle, setDocTitle] = useState<string>('');
-    const [originalDocTitle, setOriginalDocTitle] = useState<string>('');
-    const [docPath, setDocPath] = useState<string>('');
-    const [originalDocPath, setOriginalDocPath] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [, setError] = useState<Error | null>(null);
-    const [saveError, setSaveError] = useState<Error | null>(null);
-    const [isNewDocument, setIsNewDocument] = useState(false);
-    const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+export default function DocumentationDetail({ docs, onRefreshData }: DocumentationDetailProps) {
+	const { id, title } = useParams<{ id: string; title: string }>();
+	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [document, setDocument] = useState<Document | null>(null);
+	const [content, setContent] = useState<string>("");
+	const [originalContent, setOriginalContent] = useState<string>("");
+	const [docTitle, setDocTitle] = useState<string>("");
+	const [originalDocTitle, setOriginalDocTitle] = useState<string>("");
+	const [docPath, setDocPath] = useState<string>("");
+	const [originalDocPath, setOriginalDocPath] = useState<string>("");
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSaving, setIsSaving] = useState(false);
+	const [isEditing, setIsEditing] = useState(false);
+	const [, setError] = useState<Error | null>(null);
+	const [saveError, setSaveError] = useState<Error | null>(null);
+	const [isNewDocument, setIsNewDocument] = useState(false);
+	const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 	const [confirmAction, setConfirmAction] = useState<"archive" | "delete" | null>(null);
-	const [backlinks, setBacklinks] = useState<Array<{ type: "task" | "document" | "decision"; id: string; title: string; snippet: string }> | null>(null);
+	const [backlinks, setBacklinks] = useState<Array<{
+		type: "task" | "document" | "decision";
+		id: string;
+		title: string;
+		snippet: string;
+	}> | null>(null);
 
 	useEffect(() => {
 		if (id && id !== "new") {
 			const prefixedId = id.startsWith("doc-") ? id : `doc-${id}`;
-			apiClient.fetchBacklinks(prefixedId).then(setBacklinks).catch(() => setBacklinks([]));
+			apiClient
+				.fetchBacklinks(prefixedId)
+				.then(setBacklinks)
+				.catch(() => setBacklinks([]));
 		}
 	}, [id]);
 
 	useEffect(() => {
-        if (id === 'new') {
-            // Handle new document creation
-            setIsNewDocument(true);
-            setIsEditing(true);
-            setIsLoading(false);
-            setDocTitle('');
-            setOriginalDocTitle('');
-            setDocPath('');
-            setOriginalDocPath('');
-            setContent('');
-            setOriginalContent('');
-        } else if (id) {
-            setIsNewDocument(false);
-            setIsEditing(false); // Ensure we start in preview mode for existing documents
-            loadDocContent();
-        }
-    }, [id, docs]);
+		if (id === "new") {
+			// Handle new document creation
+			setIsNewDocument(true);
+			setIsEditing(true);
+			setIsLoading(false);
+			setDocTitle("");
+			setOriginalDocTitle("");
+			setDocPath("");
+			setOriginalDocPath("");
+			setContent("");
+			setOriginalContent("");
+		} else if (id) {
+			setIsNewDocument(false);
+			setIsEditing(false); // Ensure we start in preview mode for existing documents
+			loadDocContent();
+		}
+	}, [id, docs]);
 
-    // Check for edit query parameter to start in edit mode
-    useEffect(() => {
-        if (searchParams.get('edit') === 'true') {
-            setIsEditing(true);
-            // Remove the edit parameter from URL
-            setSearchParams(params => {
-                params.delete('edit');
-                return params;
-            });
-        }
-    }, [searchParams, setSearchParams]);
+	// Check for edit query parameter to start in edit mode
+	useEffect(() => {
+		if (searchParams.get("edit") === "true") {
+			setIsEditing(true);
+			// Remove the edit parameter from URL
+			setSearchParams((params) => {
+				params.delete("edit");
+				return params;
+			});
+		}
+	}, [searchParams, setSearchParams]);
 
-    const loadDocContent = useCallback(async () => {
-        if (!id) return;
+	const loadDocContent = useCallback(async () => {
+		if (!id) return;
 
-        try {
-            setIsLoading(true);
-            setError(null);
-            // Find document from props
-            const prefixedId = addDocPrefix(id);
-            const doc = docs.find(d => d.id === prefixedId);
+		try {
+			setIsLoading(true);
+			setError(null);
+			// Find document from props
+			const prefixedId = addDocPrefix(id);
+			const doc = docs.find((d) => d.id === prefixedId);
 
-            // Always try to fetch the document from API, whether we found it in docs or not
-            // This ensures deep linking works even before the parent component loads the docs array
-            try {
-                const fullDoc = await apiClient.fetchDoc(prefixedId);
-                setContent(fullDoc.rawContent || '');
-                setOriginalContent(fullDoc.rawContent || '');
-                setDocTitle(fullDoc.title || '');
-                setOriginalDocTitle(fullDoc.title || '');
-                setDocPath(getDocumentDirectory(fullDoc.path));
-                setOriginalDocPath(getDocumentDirectory(fullDoc.path));
-                // Update document state with full data
-                setDocument(fullDoc);
-            } catch (fetchError) {
-                // If fetch fails and we don't have the doc in props, show error
-                if (!doc) {
-                    setError(new Error(`Document with ID "${prefixedId}" not found`));
-                    console.error('Failed to load document:', fetchError);
-                } else {
-                    // We have basic info from props even if fetch failed
-                    setDocument(doc);
-                    setDocTitle(doc.title || '');
-                    setOriginalDocTitle(doc.title || '');
-                    setDocPath(getDocumentDirectory(doc.path));
-                    setOriginalDocPath(getDocumentDirectory(doc.path));
-                }
-            }
-        } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to load document');
-            setError(error);
-            console.error('Failed to load document:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [id, docs]);
+			// Always try to fetch the document from API, whether we found it in docs or not
+			// This ensures deep linking works even before the parent component loads the docs array
+			try {
+				const fullDoc = await apiClient.fetchDoc(prefixedId);
+				setContent(fullDoc.rawContent || "");
+				setOriginalContent(fullDoc.rawContent || "");
+				setDocTitle(fullDoc.title || "");
+				setOriginalDocTitle(fullDoc.title || "");
+				setDocPath(getDocumentDirectory(fullDoc.path));
+				setOriginalDocPath(getDocumentDirectory(fullDoc.path));
+				// Update document state with full data
+				setDocument(fullDoc);
+			} catch (fetchError) {
+				// If fetch fails and we don't have the doc in props, show error
+				if (!doc) {
+					setError(new Error(`Document with ID "${prefixedId}" not found`));
+					console.error("Failed to load document:", fetchError);
+				} else {
+					// We have basic info from props even if fetch failed
+					setDocument(doc);
+					setDocTitle(doc.title || "");
+					setOriginalDocTitle(doc.title || "");
+					setDocPath(getDocumentDirectory(doc.path));
+					setOriginalDocPath(getDocumentDirectory(doc.path));
+				}
+			}
+		} catch (err) {
+			const error = err instanceof Error ? err : new Error("Failed to load document");
+			setError(error);
+			console.error("Failed to load document:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [id, docs]);
 
-    const handleSave = useCallback(async () => {
-        if (!docTitle.trim()) {
-            setSaveError(new Error('Document title is required'));
-            return;
-        }
+	const handleSave = useCallback(async () => {
+		if (!docTitle.trim()) {
+			setSaveError(new Error("Document title is required"));
+			return;
+		}
 
-        try {
-            setIsSaving(true);
-            setSaveError(null);
-            const normalizedTitle = docTitle.trim();
-            const normalizedPath = docPath.trim();
+		try {
+			setIsSaving(true);
+			setSaveError(null);
+			const normalizedTitle = docTitle.trim();
+			const normalizedPath = docPath.trim();
 
-            if (isNewDocument) {
-                // Create new document
-                const result = await apiClient.createDoc(normalizedTitle, content, normalizedPath);
-                // Refresh data and navigate to the new document
-                await onRefreshData();
-                // Show success toast
-                setShowSaveSuccess(true);
-                setTimeout(() => setShowSaveSuccess(false), 4000);
-                // Exit edit mode and navigate to the new document
-                setIsEditing(false);
-                setIsNewDocument(false);
-                setDocTitle(normalizedTitle);
-                setOriginalDocTitle(normalizedTitle);
-                setDocPath(getDocumentDirectory(result.path) || normalizedPath);
-                setOriginalDocPath(getDocumentDirectory(result.path) || normalizedPath);
-                // Use the returned document ID for navigation
-                const documentId = result.id.replace('doc-', ''); // Remove prefix for URL
-                navigate(`/documentation/${documentId}/${sanitizeUrlTitle(normalizedTitle)}`);
-            } else {
-                // Update existing document
-                if (!id) return;
+			if (isNewDocument) {
+				// Create new document
+				const result = await apiClient.createDoc(normalizedTitle, content, normalizedPath);
+				// Refresh data and navigate to the new document
+				await onRefreshData();
+				// Show success toast
+				setShowSaveSuccess(true);
+				setTimeout(() => setShowSaveSuccess(false), 4000);
+				// Exit edit mode and navigate to the new document
+				setIsEditing(false);
+				setIsNewDocument(false);
+				setDocTitle(normalizedTitle);
+				setOriginalDocTitle(normalizedTitle);
+				setDocPath(getDocumentDirectory(result.path) || normalizedPath);
+				setOriginalDocPath(getDocumentDirectory(result.path) || normalizedPath);
+				// Use the returned document ID for navigation
+				const documentId = result.id.replace("doc-", ""); // Remove prefix for URL
+				navigate(`/documentation/${documentId}/${sanitizeUrlTitle(normalizedTitle)}`);
+			} else {
+				// Update existing document
+				if (!id) return;
 
-                // Check if title has changed
-                const titleChanged = normalizedTitle !== originalDocTitle;
-                const pathChanged = normalizedPath !== originalDocPath;
+				// Check if title has changed
+				const titleChanged = normalizedTitle !== originalDocTitle;
+				const pathChanged = normalizedPath !== originalDocPath;
 
-                const updatedDocument = await apiClient.updateDoc(
-                    addDocPrefix(id),
-                    content,
-                    optionalUpdateValue(titleChanged, normalizedTitle),
-                    optionalUpdateValue(pathChanged, normalizedPath)
-                );
+				const updatedDocument = await apiClient.updateDoc(
+					addDocPrefix(id),
+					content,
+					optionalUpdateValue(titleChanged, normalizedTitle),
+					optionalUpdateValue(pathChanged, normalizedPath),
+				);
 
-                // Update original title to the new value
-                if (titleChanged) {
-                    setDocTitle(normalizedTitle);
-                    setOriginalDocTitle(normalizedTitle);
-                }
-                if (pathChanged) {
-                    const updatedPath = getDocumentDirectory(updatedDocument.path) || normalizedPath;
-                    setDocPath(updatedPath);
-                    setOriginalDocPath(updatedPath);
-                }
+				// Update original title to the new value
+				if (titleChanged) {
+					setDocTitle(normalizedTitle);
+					setOriginalDocTitle(normalizedTitle);
+				}
+				if (pathChanged) {
+					const updatedPath = getDocumentDirectory(updatedDocument.path) || normalizedPath;
+					setDocPath(updatedPath);
+					setOriginalDocPath(updatedPath);
+				}
 
-                // Refresh data from parent
-                await onRefreshData();
-                // Show success toast
-                setShowSaveSuccess(true);
-                setTimeout(() => setShowSaveSuccess(false), 4000);
-                // Exit edit mode and navigate to document detail page (this will load in preview mode)
-                setIsEditing(false);
-                navigate(`/documentation/${id}/${sanitizeUrlTitle(normalizedTitle)}`);
-            }
-        } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to save document');
-            setSaveError(error);
-            console.error('Failed to save document:', error);
-        } finally {
-            setIsSaving(false);
-        }
-    }, [id, docTitle, docPath, originalDocPath, content, isNewDocument, onRefreshData, navigate, loadDocContent]);
+				// Refresh data from parent
+				await onRefreshData();
+				// Show success toast
+				setShowSaveSuccess(true);
+				setTimeout(() => setShowSaveSuccess(false), 4000);
+				// Exit edit mode and navigate to document detail page (this will load in preview mode)
+				setIsEditing(false);
+				navigate(`/documentation/${id}/${sanitizeUrlTitle(normalizedTitle)}`);
+			}
+		} catch (err) {
+			const error = err instanceof Error ? err : new Error("Failed to save document");
+			setSaveError(error);
+			console.error("Failed to save document:", error);
+		} finally {
+			setIsSaving(false);
+		}
+	}, [id, docTitle, docPath, originalDocPath, content, isNewDocument, onRefreshData, navigate, loadDocContent]);
 
-    const handleEdit = () => {
-        setIsEditing(true);
-    };
+	const handleEdit = () => {
+		setIsEditing(true);
+	};
 
-    const handleCancelEdit = () => {
-        if (isNewDocument) {
-            // Navigate back for new documents
-            navigate('/documentation');
-        } else {
-            // Revert changes for existing documents
-            setContent(originalContent);
-            setDocTitle(originalDocTitle);
-            setDocPath(originalDocPath);
-            setIsEditing(false);
-        }
-    };
+	const handleCancelEdit = () => {
+		if (isNewDocument) {
+			// Navigate back for new documents
+			navigate("/documentation");
+		} else {
+			// Revert changes for existing documents
+			setContent(originalContent);
+			setDocTitle(originalDocTitle);
+			setDocPath(originalDocPath);
+			setIsEditing(false);
+		}
+	};
 
-    const handleArchive = useCallback(async () => {
-        if (!id) return;
-        try {
-            await apiClient.archiveDoc(addDocPrefix(id));
-            await onRefreshData();
-            navigate('/documentation');
-        } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to archive document');
-            setError(error);
-            console.error('Failed to archive document:', error);
-        }
-        setConfirmAction(null);
-    }, [id, onRefreshData, navigate]);
+	const handleArchive = useCallback(async () => {
+		if (!id) return;
+		try {
+			await apiClient.archiveDoc(addDocPrefix(id));
+			await onRefreshData();
+			navigate("/documentation");
+		} catch (err) {
+			const error = err instanceof Error ? err : new Error("Failed to archive document");
+			setError(error);
+			console.error("Failed to archive document:", error);
+		}
+		setConfirmAction(null);
+	}, [id, onRefreshData, navigate]);
 
-    const handleDelete = useCallback(async () => {
-        if (!id) return;
-        try {
-            await apiClient.deleteDoc(addDocPrefix(id));
-            await onRefreshData();
-            navigate('/documentation');
-        } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to delete document');
-            setError(error);
-            console.error('Failed to delete document:', error);
-        }
-        setConfirmAction(null);
-    }, [id, onRefreshData, navigate]);
+	const handleDelete = useCallback(async () => {
+		if (!id) return;
+		try {
+			await apiClient.deleteDoc(addDocPrefix(id));
+			await onRefreshData();
+			navigate("/documentation");
+		} catch (err) {
+			const error = err instanceof Error ? err : new Error("Failed to delete document");
+			setError(error);
+			console.error("Failed to delete document:", error);
+		}
+		setConfirmAction(null);
+	}, [id, onRefreshData, navigate]);
 
-    const hasChanges = content !== originalContent || docTitle !== originalDocTitle || docPath !== originalDocPath;
+	const hasChanges = content !== originalContent || docTitle !== originalDocTitle || docPath !== originalDocPath;
 
-    if (!id) {
-        return (
-            <div className="flex-1 flex items-center justify-center p-8">
-                <div className="text-center">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
-                         viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No document selected</h3>
-                    <p className="mt-1 text-sm text-gray-500">Select a document from the sidebar to view its
-                        content.</p>
-                </div>
-            </div>
-        );
-    }
+	if (!id) {
+		return (
+			<div className="flex-1 flex items-center justify-center p-8">
+				<div className="text-center">
+					<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
+					<h3 className="mt-2 text-sm font-medium text-gray-900">No document selected</h3>
+					<p className="mt-1 text-sm text-gray-500">Select a document from the sidebar to view its content.</p>
+				</div>
+			</div>
+		);
+	}
 
-    if (isLoading) {
-        return (
-            <div className="flex-1 flex items-center justify-center">
-                <div className="text-gray-500">Loading...</div>
-            </div>
-        );
-    }
+	if (isLoading) {
+		return (
+			<div className="flex-1 flex items-center justify-center">
+				<div className="text-gray-500">Loading...</div>
+			</div>
+		);
+	}
 
-    return (
-        <ErrorBoundary>
-            <div className="h-full bg-white dark:bg-gray-900 flex flex-col transition-colors duration-200">
-                {/* Header Section - Confluence/Linear Style */}
-                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                    <div className="max-w-4xl mx-auto px-8 py-6">
-                        <div className="flex items-start justify-between mb-6">
-                            <div className="flex-1">
-                                {isEditing ? (
-                                    <div className="space-y-3 mb-2">
-                                        <input
-                                            type="text"
-                                            value={docTitle}
-                                            onChange={(e) => setDocTitle(e.target.value)}
-                                            className="text-3xl font-bold text-gray-900 dark:text-gray-100 w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors duration-200"
-                                            placeholder="Document title"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={docPath}
-                                            onChange={(e) => setDocPath(e.target.value)}
-                                            className="w-full max-w-md bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors duration-200"
-                                            placeholder="guides/setup"
-                                        />
-                                    </div>
-                                ) : (
-                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
-                                        {docTitle || document?.title || (title ? decodeURIComponent(title) : `Document ${id}`)}
-                                    </h1>
-                                )}
-                                <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
-                                    <div className="flex items-center space-x-2">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z"/>
-                                        </svg>
-                                        <span>ID: {document?.id || `doc-${id}`}</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                                        </svg>
-                                        <span>Documentation</span>
-                                    </div>
-                                    {document?.path && (
-                                        <div className="flex items-center space-x-2">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                      d="M3 7h5l2 2h11v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
-                                            </svg>
-                                            <span>{document.path}</span>
-                                        </div>
-                                    )}
-                                    {document?.createdDate && (
-                                        <div className="flex items-center space-x-2">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor"
-                                                 viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            </svg>
-                                            <span>Created: {document.createdDate}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-3 ml-6">
-                                {!isEditing ? (
-                                    <>
-                                        {!isNewDocument && (
-                                            <>
-                                                <button
-                                                    onClick={() => setConfirmAction("archive")}
-                                                    className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-                                                >
-                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                                                    </svg>
-                                                    Archive
-                                                </button>
-                                                <button
-                                                    onClick={() => setConfirmAction("delete")}
-                                                    className="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-                                                >
-                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                    Delete
-                                                </button>
-                                            </>
-                                        )}
-                                        <button
-                                            onClick={handleEdit}
-                                            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-                                        >
-                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                 viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                            </svg>
-                                            Edit
-                                        </button>
-                                    </>
-                                ) : (
-                                    <div className="flex items-center space-x-2">
-	                                        <button
-	                                            onClick={handleCancelEdit}
-	                                            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-	                                        >
-	                                            Cancel
-	                                        </button>
-                                        <button
-                                            onClick={handleSave}
-                                            disabled={!hasChanges || isSaving}
-	                                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
-	                                                hasChanges && !isSaving
-	                                                    ? 'bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700 focus:ring-blue-500 dark:focus:ring-blue-400'
-	                                                    : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-	                                            }`}
-	                                        >
-                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                 viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                      d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                            {isSaving ? 'Saving...' : 'Save'}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+	return (
+		<ErrorBoundary>
+			<div className="h-full bg-white dark:bg-gray-900 flex flex-col transition-colors duration-200">
+				{/* Header Section - Confluence/Linear Style */}
+				<div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+					<div className="max-w-4xl mx-auto px-8 py-6">
+						<div className="flex items-start justify-between mb-6">
+							<div className="flex-1">
+								{isEditing ? (
+									<div className="space-y-3 mb-2">
+										<input
+											type="text"
+											value={docTitle}
+											onChange={(e) => setDocTitle(e.target.value)}
+											className="text-3xl font-bold text-gray-900 dark:text-gray-100 w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors duration-200"
+											placeholder="Document title"
+										/>
+										<input
+											type="text"
+											value={docPath}
+											onChange={(e) => setDocPath(e.target.value)}
+											className="w-full max-w-md bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors duration-200"
+											placeholder="guides/setup"
+										/>
+									</div>
+								) : (
+									<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+										{docTitle || document?.title || (title ? decodeURIComponent(title) : `Document ${id}`)}
+									</h1>
+								)}
+								<div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
+									<div className="flex items-center gap-2">
+										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z"
+											/>
+										</svg>
+										<span>ID: {document?.id || `doc-${id}`}</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+											/>
+										</svg>
+										<span>Documentation</span>
+									</div>
+									{document?.path && (
+										<div className="flex items-center gap-2">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={2}
+													d="M3 7h5l2 2h11v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+												/>
+											</svg>
+											<span>{document.path}</span>
+										</div>
+									)}
+									{document?.createdDate && (
+										<div className="flex items-center gap-2">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={2}
+													d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+												/>
+											</svg>
+											<span>Created: {document.createdDate}</span>
+										</div>
+									)}
+								</div>
+							</div>
+							<div className="flex items-center gap-3 ml-6">
+								{!isEditing ? (
+									<>
+										{!isNewDocument && (
+											<>
+												<button
+													onClick={() => setConfirmAction("archive")}
+													className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+												>
+													<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															strokeWidth={2}
+															d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+														/>
+													</svg>
+													Archive
+												</button>
+												<button
+													onClick={() => setConfirmAction("delete")}
+													className="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+												>
+													<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															strokeWidth={2}
+															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+														/>
+													</svg>
+													Delete
+												</button>
+											</>
+										)}
+										<button
+											onClick={handleEdit}
+											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+										>
+											<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={2}
+													d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+												/>
+											</svg>
+											Edit
+										</button>
+									</>
+								) : (
+									<div className="flex items-center gap-2">
+										<button
+											onClick={handleCancelEdit}
+											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+										>
+											Cancel
+										</button>
+										<button
+											onClick={handleSave}
+											disabled={!hasChanges || isSaving}
+											className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
+												hasChanges && !isSaving
+													? "bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700 focus:ring-blue-500 dark:focus:ring-blue-400"
+													: "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+											}`}
+										>
+											<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+											</svg>
+											{isSaving ? "Saving..." : "Save"}
+										</button>
+									</div>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
 
-                {/* Content Section */}
-                <div className="flex-1 bg-gray-50 dark:bg-gray-800 transition-colors duration-200 flex flex-col">
-                    <div className="flex-1 p-8 flex flex-col min-h-0">
-                        <MarkdownEditor
-                            value={content}
-                            onChange={(val) => setContent(val || '')}
-                            isEditing={isEditing}
-                        />
-                    </div>
-                </div>
+				{/* Content Section */}
+				<div className="flex-1 bg-gray-50 dark:bg-gray-800 transition-colors duration-200 flex flex-col">
+					<div className="flex-1 p-8 flex flex-col min-h-0">
+						<MarkdownEditor value={content} onChange={(val) => setContent(val || "")} isEditing={isEditing} />
+					</div>
+				</div>
 
 				{/* Referenced By Section */}
 				{!isEditing && backlinks && backlinks.length > 0 && (
@@ -494,89 +530,115 @@ export default function DocumentationDetail({docs, onRefreshData}: Documentation
 
 				{/* Save Error Alert */}
 				{saveError && (
-                    <div className="border-t border-red-200 bg-red-50 px-8 py-3">
-                        <div className="flex items-center space-x-3">
-                            <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                            </svg>
-                            <span className="text-sm text-red-700">Failed to save: {saveError.message}</span>
-                            <button
-                                onClick={() => setSaveError(null)}
-                                className="ml-auto text-red-700 hover:text-red-900"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                          d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
+					<div className="border-t border-red-200 bg-red-50 px-8 py-3">
+						<div className="flex items-center gap-3">
+							<svg className="size-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+								/>
+							</svg>
+							<span className="text-sm text-red-700">Failed to save: {saveError.message}</span>
+							<button onClick={() => setSaveError(null)} className="ml-auto text-red-700 hover:text-red-900">
+								<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+								</svg>
+							</button>
+						</div>
+					</div>
+				)}
+			</div>
 
-            {/* Archive/Delete Confirmation Modal */}
-            {confirmAction && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-                        <div className="flex items-start space-x-4">
-                            <div className={`p-2 rounded-full ${confirmAction === "delete" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-100 dark:bg-blue-900/30"}`}>
-                                {confirmAction === "delete" ? (
-                                    <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                                    </svg>
-                                ) : (
-                                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                                    </svg>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {confirmAction === "delete" ? "Delete Document" : "Archive Document"}
-                                </h3>
-                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                    {confirmAction === "delete"
-                                        ? `Are you sure you want to permanently delete "${docTitle || document?.title || id}"? This action cannot be undone.`
-                                        : `Archive "${docTitle || document?.title || id}"? It will be moved to the archive directory.`}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="mt-6 flex justify-end space-x-3">
-                            <button
-                                onClick={() => setConfirmAction(null)}
-                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmAction === "delete" ? handleDelete : handleArchive}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
-                                    confirmAction === "delete"
-                                        ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
-                                        : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-                                }`}
-                            >
-                                {confirmAction === "delete" ? "Delete" : "Archive"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+			{/* Archive/Delete Confirmation Modal */}
+			{confirmAction && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+					<div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+						<div className="flex items-start gap-4">
+							<div
+								className={`p-2 rounded-circle ${confirmAction === "delete" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-100 dark:bg-blue-900/30"}`}
+							>
+								{confirmAction === "delete" ? (
+									<svg
+										className="size-6 text-red-600 dark:text-red-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+										/>
+									</svg>
+								) : (
+									<svg
+										className="size-6 text-blue-600 dark:text-blue-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+										/>
+									</svg>
+								)}
+							</div>
+							<div className="flex-1">
+								<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+									{confirmAction === "delete" ? "Delete Document" : "Archive Document"}
+								</h3>
+								<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+									{confirmAction === "delete"
+										? `Are you sure you want to permanently delete "${docTitle || document?.title || id}"? This action cannot be undone.`
+										: `Archive "${docTitle || document?.title || id}"? It will be moved to the archive directory.`}
+								</p>
+							</div>
+						</div>
+						<div className="mt-6 flex justify-end gap-3">
+							<button
+								onClick={() => setConfirmAction(null)}
+								className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+							>
+								Cancel
+							</button>
+							<button
+								onClick={confirmAction === "delete" ? handleDelete : handleArchive}
+								className={`px-4 py-2 rounded-lg text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
+									confirmAction === "delete"
+										? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
+										: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+								}`}
+							>
+								{confirmAction === "delete" ? "Delete" : "Archive"}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
-            {/* Save Success Toast */}
-            {showSaveSuccess && (
-                <SuccessToast
-                    message={`Document "${docTitle}" saved successfully!`}
-                    onDismiss={() => setShowSaveSuccess(false)}
-                    icon={
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    }
-                />
-            )}
-        </ErrorBoundary>
-    );
+			{/* Save Success Toast */}
+			{showSaveSuccess && (
+				<SuccessToast
+					message={`Document "${docTitle}" saved successfully!`}
+					onDismiss={() => setShowSaveSuccess(false)}
+					icon={
+						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+					}
+				/>
+			)}
+		</ErrorBoundary>
+	);
 }

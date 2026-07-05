@@ -8,7 +8,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["src/**/*.ts", "scripts/**/*.cjs", "*.json", "**/*.json", "!**/.claude", "!worktrees"]
+		"includes": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.cjs", "*.json", "**/*.json", "!**/.claude", "!worktrees"]
 	},
 	"formatter": {
 		"enabled": true,

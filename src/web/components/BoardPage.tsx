@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import Board from './Board';
-import { type Milestone, type Task } from '../../types';
-import { type LaneMode } from '../lib/lanes';
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import type { Milestone, Task } from "../../types";
+import type { LaneMode } from "../lib/lanes";
+import Board from "./Board";
 
 interface BoardPageProps {
 	onEditTask: (task: Task) => void;
@@ -16,10 +16,10 @@ interface BoardPageProps {
 	availableLabels: string[];
 	milestoneEntities: Milestone[];
 	archivedMilestones: Milestone[];
-  isLoading: boolean;
-  labelColors?: Record<string, string>;
-  authorColors?: Record<string, string>;
-  autoCollapseMilestones?: boolean;
+	isLoading: boolean;
+	labelColors?: Record<string, string>;
+	authorColors?: Record<string, string>;
+	autoCollapseMilestones?: boolean;
 }
 
 export default function BoardPage({
@@ -34,43 +34,46 @@ export default function BoardPage({
 	availableLabels,
 	milestoneEntities,
 	archivedMilestones,
-  isLoading,
-  labelColors,
-  authorColors,
-  autoCollapseMilestones,
+	isLoading,
+	labelColors,
+	authorColors,
+	autoCollapseMilestones,
 }: BoardPageProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
-	const [laneMode, setLaneMode] = useState<LaneMode>('none');
+	const [laneMode, setLaneMode] = useState<LaneMode>("none");
 	const [milestoneFilter, setMilestoneFilter] = useState<string | null>(null);
-	const laneStorageKey = 'backlog.board.lane';
+	const laneStorageKey = "backlog.board.lane";
 
 	useEffect(() => {
-		const storedLane = typeof window !== 'undefined' ? window.localStorage.getItem(laneStorageKey) : null;
-		const paramLane = searchParams.get('lane');
-		const paramMilestone = searchParams.get('milestone');
+		const storedLane = typeof window !== "undefined" ? window.localStorage.getItem(laneStorageKey) : null;
+		const paramLane = searchParams.get("lane");
+		const paramMilestone = searchParams.get("milestone");
 		const parseLane = (value: string | null): LaneMode | null => {
-			if (value === 'milestone') return 'milestone';
-			if (value === 'none') return 'none';
+			if (value === "milestone") return "milestone";
+			if (value === "none") return "none";
 			return null;
 		};
-		const nextLane = parseLane(paramLane) ?? parseLane(storedLane) ?? 'none';
+		const nextLane = parseLane(paramLane) ?? parseLane(storedLane) ?? "none";
 		setLaneMode((current) => (current === nextLane ? current : nextLane));
 		setMilestoneFilter(paramMilestone);
-		if (typeof window !== 'undefined') {
+		if (typeof window !== "undefined") {
 			window.localStorage.setItem(laneStorageKey, nextLane);
 		}
 	}, [searchParams]);
 
 	useEffect(() => {
-		const highlight = searchParams.get('highlight');
+		const highlight = searchParams.get("highlight");
 		if (highlight) {
 			setHighlightTaskId(highlight);
 			// Clear the highlight parameter after setting it
-			setSearchParams(params => {
-				params.delete('highlight');
-				return params;
-			}, { replace: true });
+			setSearchParams(
+				(params) => {
+					params.delete("highlight");
+					return params;
+				},
+				{ replace: true },
+			);
 		}
 	}, [searchParams, setSearchParams]);
 
@@ -83,59 +86,67 @@ export default function BoardPage({
 	const handleLaneChange = (mode: LaneMode) => {
 		setLaneMode(mode);
 		setMilestoneFilter(null); // Clear milestone filter when switching lane modes
-		if (typeof window !== 'undefined') {
+		if (typeof window !== "undefined") {
 			window.localStorage.setItem(laneStorageKey, mode);
 		}
-		setSearchParams(params => {
-			if (mode === 'none') {
-				params.delete('lane');
-			} else {
-				params.set('lane', mode);
-			}
-			params.delete('milestone'); // Clear milestone param when switching
-			return params;
-		}, { replace: true });
+		setSearchParams(
+			(params) => {
+				if (mode === "none") {
+					params.delete("lane");
+				} else {
+					params.set("lane", mode);
+				}
+				params.delete("milestone"); // Clear milestone param when switching
+				return params;
+			},
+			{ replace: true },
+		);
 	};
 
 	const handleFiltersChange = (filters: { assignee: string; labels: string[]; priority: string[]; query: string }) => {
-		setSearchParams(params => {
-			if (filters.assignee) {
-				params.set('assignee', filters.assignee);
-			} else {
-				params.delete('assignee');
-			}
-			params.delete('label');
-			params.delete('labels');
-			for (const label of filters.labels) {
-				const normalized = label.trim();
-				if (normalized) {
-					params.append('label', normalized);
+		setSearchParams(
+			(params) => {
+				if (filters.assignee) {
+					params.set("assignee", filters.assignee);
+				} else {
+					params.delete("assignee");
 				}
-			}
-			params.delete('priority');
-			for (const p of filters.priority) {
-				params.append('priority', p);
-			}
-			if (filters.query) {
-				params.set('q', filters.query);
-			} else {
-				params.delete('q');
-			}
-			return params;
-		}, { replace: true });
+				params.delete("label");
+				params.delete("labels");
+				for (const label of filters.labels) {
+					const normalized = label.trim();
+					if (normalized) {
+						params.append("label", normalized);
+					}
+				}
+				params.delete("priority");
+				for (const p of filters.priority) {
+					params.append("priority", p);
+				}
+				if (filters.query) {
+					params.set("q", filters.query);
+				} else {
+					params.delete("q");
+				}
+				return params;
+			},
+			{ replace: true },
+		);
 	};
 
-	const filterAssignee = searchParams.get('assignee') ?? '';
+	const filterAssignee = searchParams.get("assignee") ?? "";
 	const filterLabels = [
-		...searchParams.getAll('label'),
-		...searchParams.getAll('labels').flatMap((value) => value.split(',')),
-	].map((label) => label.trim()).filter((label) => label.length > 0);
-	const filterPriority = searchParams.getAll('priority');
-	const filterQuery = searchParams.get('q') ?? '';
+		...searchParams.getAll("label"),
+		...searchParams.getAll("labels").flatMap((value) => value.split(",")),
+	]
+		.map((label) => label.trim())
+		.filter((label) => label.length > 0);
+	const filterPriority = searchParams.getAll("priority");
+	const filterQuery = searchParams.get("q") ?? "";
 
 	return (
 		<div className="container mx-auto px-4 py-8 transition-colors duration-200">
-        <Board
+			<Board
 				onEditTask={handleEditTask}
 				onNewTask={onNewTask}
 				highlightTaskId={highlightTaskId}

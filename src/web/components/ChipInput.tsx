@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, type KeyboardEvent } from "react";
+import React, { type KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface ChipInputProps {
 	value: string[];
@@ -31,10 +31,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 	const inputId = `chip-input-${name}`;
 
 	const filteredSuggestions = (suggestions ?? []).filter(
-		(s) =>
-			s.toLowerCase().includes(inputValue.toLowerCase()) &&
-			!value.includes(s) &&
-			inputValue.length > 0,
+		(s) => s.toLowerCase().includes(inputValue.toLowerCase()) && !value.includes(s) && inputValue.length > 0,
 	);
 
 	const addChip = (text: string) => {
@@ -58,17 +55,13 @@ const ChipInput: React.FC<ChipInputProps> = ({
 			if (e.key === "ArrowDown") {
 				e.preventDefault();
 				e.stopPropagation();
-				setSelectedSuggestion((prev) =>
-					prev < filteredSuggestions.length - 1 ? prev + 1 : 0,
-				);
+				setSelectedSuggestion((prev) => (prev < filteredSuggestions.length - 1 ? prev + 1 : 0));
 				return;
 			}
 			if (e.key === "ArrowUp") {
 				e.preventDefault();
 				e.stopPropagation();
-				setSelectedSuggestion((prev) =>
-					prev > 0 ? prev - 1 : filteredSuggestions.length - 1,
-				);
+				setSelectedSuggestion((prev) => (prev > 0 ? prev - 1 : filteredSuggestions.length - 1));
 				return;
 			}
 			if (e.key === "Enter" && selectedSuggestion >= 0) {
@@ -158,13 +151,11 @@ const ChipInput: React.FC<ChipInputProps> = ({
 						>
 							{colorMap?.[item] && (
 								<span
-									className="inline-block w-2 h-2 rounded-full shrink-0"
+									className="inline-block size-2 rounded-circle shrink-0"
 									style={{ backgroundColor: colorMap[item] }}
 								/>
 							)}
-							<span className="truncate max-w-[16rem] sm:max-w-[20rem] md:max-w-[24rem]">
-								{item}
-							</span>
+							<span className="truncate max-w-[16rem] sm:max-w-[20rem] md:max-w-[24rem]">{item}</span>
 							{!disabled && (
 								<button
 									type="button"
@@ -172,11 +163,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 									className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded-sm p-0.5 transition-colors duration-200"
 									aria-label={`Remove ${item}`}
 								>
-									<svg
-										className="w-3 h-3"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-									>
+									<svg className="size-3" fill="currentColor" viewBox="0 0 20 20">
 										<path
 											fillRule="evenodd"
 											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -226,7 +213,7 @@ const ChipInput: React.FC<ChipInputProps> = ({
 						>
 							{colorMap?.[suggestion] && (
 								<span
-									className="inline-block w-2 h-2 rounded-full shrink-0"
+									className="inline-block size-2 rounded-circle shrink-0"
 									style={{ backgroundColor: colorMap[suggestion] }}
 								/>
 							)}

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { getSchemaDefaults } from "../../utils/config-schema.ts";
 import { apiClient } from "../lib/api";
 
@@ -164,7 +165,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 		try {
 			const normalizedBacklogDirectory =
 				backlogDirectorySource === "custom"
-					? normalizeRelativeBacklogDirectory(backlogDirectory) ?? backlogDirectory
+					? (normalizeRelativeBacklogDirectory(backlogDirectory) ?? backlogDirectory)
 					: backlogDirectory;
 			await apiClient.initializeProject({
 				projectName: projectName.trim(),
@@ -211,15 +212,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 	};
 
 	const toggleMcpClient = (client: McpClient) => {
-		setSelectedMcpClients((prev) =>
-			prev.includes(client) ? prev.filter((c) => c !== client) : [...prev, client],
-		);
+		setSelectedMcpClients((prev) => (prev.includes(client) ? prev.filter((c) => c !== client) : [...prev, client]));
 	};
 
 	const toggleAgentFile = (file: AgentFile) => {
-		setSelectedAgentFiles((prev) =>
-			prev.includes(file) ? prev.filter((f) => f !== file) : [...prev, file],
-		);
+		setSelectedAgentFiles((prev) => (prev.includes(file) ? prev.filter((f) => f !== file) : [...prev, file]));
 	};
 
 	const renderStepIndicator = () => {
@@ -239,7 +236,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				{steps.map((step, index) => (
 					<div key={step} className="flex items-center">
 						<div
-							className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+							className={`size-8 rounded-circle flex items-center justify-center text-sm font-medium ${
 								index <= currentIndex
 									? "bg-blue-500 dark:bg-blue-600 text-white"
 									: "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
@@ -250,9 +247,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						{index < steps.length - 1 && (
 							<div
 								className={`w-12 h-1 mx-1 ${
-									index < currentIndex
-										? "bg-blue-500 dark:bg-blue-600"
-										: "bg-gray-200 dark:bg-gray-700"
+									index < currentIndex ? "bg-blue-500 dark:bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
 								}`}
 							/>
 						)}
@@ -302,12 +297,10 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						className="mt-1 mr-3"
 					/>
 					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">
-							MCP Connector (Recommended)
-						</div>
+						<div className="font-medium text-gray-900 dark:text-gray-100">MCP Connector (Recommended)</div>
 						<div className="text-sm text-gray-500 dark:text-gray-400">
-							For Claude Code, Codex, Gemini CLI, Kiro, Cursor, etc. Agents learn the Backlog.md workflow through
-							MCP tools, resources, and prompts.
+							For Claude Code, Codex, Gemini CLI, Kiro, Cursor, etc. Agents learn the Backlog.md workflow through MCP
+							tools, resources, and prompts.
 						</div>
 					</div>
 				</label>
@@ -328,12 +321,10 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						className="mt-1 mr-3"
 					/>
 					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">
-							CLI Commands (Broader Compatibility)
-						</div>
+						<div className="font-medium text-gray-900 dark:text-gray-100">CLI Commands (Broader Compatibility)</div>
 						<div className="text-sm text-gray-500 dark:text-gray-400">
-							Agents will use Backlog.md by invoking CLI commands directly. Creates instruction files for
-							various AI tools.
+							Agents will use Backlog.md by invoking CLI commands directly. Creates instruction files for various AI
+							tools.
 						</div>
 					</div>
 				</label>
@@ -462,9 +453,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						className="mt-1 mr-3"
 					/>
 					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">
-							Install Claude Code Backlog.md Agent
-						</div>
+						<div className="font-medium text-gray-900 dark:text-gray-100">Install Claude Code Backlog.md Agent</div>
 						<div className="text-sm text-gray-500 dark:text-gray-400">
 							Adds configuration under .claude/agents/ for enhanced Claude Code integration
 						</div>
@@ -481,7 +470,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 			<div className="mb-6">
 				<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Backlog Folder</h3>
 				<div className="space-y-3">
-					{([
+					{[
 						{
 							id: "backlog" as BacklogDirectoryChoice,
 							label: "backlog/",
@@ -497,7 +486,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 							label: "Custom project-relative path",
 							description: `Use ${rootConfigPath ?? "backlog.config.yml"} as the project-root pointer file`,
 						},
-					]).map((option) => (
+					].map((option) => (
 						<label
 							key={option.id}
 							className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -548,9 +537,9 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				)}
 				{backlogDirectorySource !== "custom" && (
 					<div className="mt-4">
-						<label className="block text-sm text-gray-700 dark:text-gray-300 mb-3">Config Location</label>
+						<div className="block text-sm text-gray-700 dark:text-gray-300 mb-3 font-medium">Config Location</div>
 						<div className="space-y-3">
-							{([
+							{[
 								{
 									id: "folder" as ConfigLocationChoice,
 									label: `${backlogDirectory}/config.yml`,
@@ -561,7 +550,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 									label: "backlog.config.yml",
 									description: "Store config in the project root and point to the backlog folder there",
 								},
-							]).map((option) => (
+							].map((option) => (
 								<label
 									key={option.id}
 									className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -632,9 +621,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 										<input
 											type="checkbox"
 											checked={advancedConfig.remoteOperations}
-											onChange={(e) =>
-												setAdvancedConfig((prev) => ({ ...prev, remoteOperations: e.target.checked }))
-											}
+											onChange={(e) => setAdvancedConfig((prev) => ({ ...prev, remoteOperations: e.target.checked }))}
 											className="mr-3"
 										/>
 										<div>
@@ -646,9 +633,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 									</label>
 
 									<div className="ml-6">
-										<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
-											Active branch days
-										</label>
+										<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Active branch days</label>
 										<input
 											type="number"
 											value={advancedConfig.activeBranchDays}
@@ -676,9 +661,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 								<input
 									type="checkbox"
 									checked={advancedConfig.autoCommit}
-									onChange={(e) =>
-										setAdvancedConfig((prev) => ({ ...prev, autoCommit: e.target.checked }))
-									}
+									onChange={(e) => setAdvancedConfig((prev) => ({ ...prev, autoCommit: e.target.checked }))}
 									className="mr-3"
 								/>
 								<div>
@@ -693,9 +676,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 								<input
 									type="checkbox"
 									checked={advancedConfig.bypassGitHooks}
-									onChange={(e) =>
-										setAdvancedConfig((prev) => ({ ...prev, bypassGitHooks: e.target.checked }))
-									}
+									onChange={(e) => setAdvancedConfig((prev) => ({ ...prev, bypassGitHooks: e.target.checked }))}
 									className="mr-3"
 								/>
 								<div>
@@ -725,16 +706,12 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 							/>
 							<div>
 								<span className="text-gray-900 dark:text-gray-100">Zero-padded IDs</span>
-								<p className="text-xs text-gray-500 dark:text-gray-400">
-									Example: task-001 instead of task-1
-								</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">Example: task-001 instead of task-1</p>
 							</div>
 						</label>
 						{advancedConfig.zeroPaddedIds !== null && (
 							<div className="ml-6 mt-2">
-								<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
-									Number of digits
-								</label>
+								<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Number of digits</label>
 								<input
 									type="number"
 									value={advancedConfig.zeroPaddedIds}
@@ -753,9 +730,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 
 						{/* Task Prefix */}
 						<div className="mt-4">
-							<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
-								Task prefix
-							</label>
+							<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Task prefix</label>
 							<input
 								type="text"
 								value={advancedConfig.taskPrefix}
@@ -780,15 +755,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						<input
 							type="text"
 							value={advancedConfig.defaultEditor}
-							onChange={(e) =>
-								setAdvancedConfig((prev) => ({ ...prev, defaultEditor: e.target.value }))
-							}
+							onChange={(e) => setAdvancedConfig((prev) => ({ ...prev, defaultEditor: e.target.value }))}
 							placeholder="e.g., code --wait, vim, nano"
 							className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
 						/>
-						<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-							Leave blank to use system default
-						</p>
+						<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank to use system default</p>
 					</div>
 
 					{/* Web UI Settings */}
@@ -796,9 +767,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Web UI</h3>
 						<div className="space-y-3">
 							<div>
-								<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
-									Default port
-								</label>
+								<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Default port</label>
 								<input
 									type="number"
 									value={advancedConfig.defaultPort}
@@ -818,9 +787,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 								<input
 									type="checkbox"
 									checked={advancedConfig.autoOpenBrowser}
-									onChange={(e) =>
-										setAdvancedConfig((prev) => ({ ...prev, autoOpenBrowser: e.target.checked }))
-									}
+									onChange={(e) => setAdvancedConfig((prev) => ({ ...prev, autoOpenBrowser: e.target.checked }))}
 									className="mr-3"
 								/>
 								<span className="text-gray-900 dark:text-gray-100">Auto-open browser</span>
@@ -845,11 +812,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				<div className="flex justify-between">
 					<span className="text-gray-600 dark:text-gray-400">Integration Mode:</span>
 					<span className="font-medium text-gray-900 dark:text-gray-100">
-						{integrationMode === "mcp"
-							? "MCP Connector"
-							: integrationMode === "cli"
-								? "CLI Commands"
-								: "None"}
+						{integrationMode === "mcp" ? "MCP Connector" : integrationMode === "cli" ? "CLI Commands" : "None"}
 					</span>
 				</div>
 				<div className="flex justify-between">
@@ -865,17 +828,13 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				{integrationMode === "mcp" && selectedMcpClients.length > 0 && (
 					<div className="flex justify-between">
 						<span className="text-gray-600 dark:text-gray-400">MCP Clients:</span>
-						<span className="font-medium text-gray-900 dark:text-gray-100">
-							{selectedMcpClients.join(", ")}
-						</span>
+						<span className="font-medium text-gray-900 dark:text-gray-100">{selectedMcpClients.join(", ")}</span>
 					</div>
 				)}
 				{integrationMode === "cli" && selectedAgentFiles.length > 0 && (
 					<div className="flex justify-between">
 						<span className="text-gray-600 dark:text-gray-400">Agent Files:</span>
-						<span className="font-medium text-gray-900 dark:text-gray-100">
-							{selectedAgentFiles.length} files
-						</span>
+						<span className="font-medium text-gray-900 dark:text-gray-100">{selectedAgentFiles.length} files</span>
 					</div>
 				)}
 				{integrationMode === "cli" && installClaudeAgent && (
@@ -948,13 +907,16 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200 p-4" onKeyDown={handleKeyDown}>
+		<div
+			className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200 p-4"
+			onKeyDown={handleKeyDown}
+		>
 			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-2xl w-full">
 				{/* Header */}
 				<div className="text-center mb-6">
-					<div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-3">
+					<div className="inline-flex items-center justify-center size-12 bg-blue-100 dark:bg-blue-900/30 rounded-circle mb-3">
 						<svg
-							className="w-6 h-6 text-blue-600 dark:text-blue-400"
+							className="size-6 text-blue-600 dark:text-blue-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -985,25 +947,25 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 
 				{/* Navigation Buttons */}
 				<div className="flex justify-between">
-						<button
-							type="button"
-							onClick={handleBack}
-							disabled={currentStep === "projectName" || isInitializing}
-							className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200"
-						>
-							Back
-						</button>
+					<button
+						type="button"
+						onClick={handleBack}
+						disabled={currentStep === "projectName" || isInitializing}
+						className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200"
+					>
+						Back
+					</button>
 
 					{currentStep === "summary" ? (
-							<button
-								type="button"
-								onClick={handleInitialize}
-								disabled={isInitializing}
-								className="px-6 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200 font-medium"
-							>
-								{isInitializing ? (
-									<span className="flex items-center">
-										<svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+						<button
+							type="button"
+							onClick={handleInitialize}
+							disabled={isInitializing}
+							className="px-6 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200 font-medium"
+						>
+							{isInitializing ? (
+								<span className="flex items-center">
+									<svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
 										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 										<path
 											className="opacity-75"
@@ -1018,14 +980,14 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 							)}
 						</button>
 					) : (
-							<button
-								type="button"
-								onClick={handleNext}
-								disabled={!canProceed()}
-								className="px-6 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200 font-medium"
-							>
-								Next
-							</button>
+						<button
+							type="button"
+							onClick={handleNext}
+							disabled={!canProceed()}
+							className="px-6 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200 font-medium"
+						>
+							Next
+						</button>
 					)}
 				</div>
 			</div>

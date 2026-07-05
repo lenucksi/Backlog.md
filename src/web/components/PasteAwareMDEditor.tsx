@@ -1,11 +1,7 @@
-import { useEffect, useRef } from "react";
-import MDEditor from "@uiw/react-md-editor";
 import type { MDEditorProps } from "@uiw/react-md-editor";
-import {
-	hasHtmlInClipboard,
-	extractHtmlFromClipboard,
-	htmlToMarkdown,
-} from "../utils/paste-as-markdown";
+import MDEditor from "@uiw/react-md-editor";
+import { useEffect, useRef } from "react";
+import { extractHtmlFromClipboard, hasHtmlInClipboard, htmlToMarkdown } from "../utils/paste-as-markdown";
 
 export default function PasteAwareMDEditor(props: MDEditorProps) {
 	const containerRef = useRef<HTMLDivElement>(null);

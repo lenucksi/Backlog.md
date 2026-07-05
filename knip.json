@@ -7,11 +7,9 @@
 		"yaml",
 		"tailwindcss",
 		"@tailwindcss/cli",
-		"@types/react-router-dom",
 		"@types/shell-quote",
 		"@uiw/react-markdown-preview",
-		"@uiw/react-md-editor",
-		"react-tooltip"
+		"@uiw/react-md-editor"
 	],
 	"ignoreBinaries": [
 		"backlog",

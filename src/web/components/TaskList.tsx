@@ -1,22 +1,17 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { apiClient } from "../lib/api";
-import type {
-	BulkOperationResult,
-	Milestone,
-	SearchPriorityFilter,
-	Task,
-	TaskSearchResult,
-} from "../../types";
+import type { BulkOperationResult, Milestone, SearchPriorityFilter, Task, TaskSearchResult } from "../../types";
+import { getContrastTextColor } from "../../utils/color";
 import { collectAvailableLabels } from "../../utils/label-filter.ts";
 import { taskIdsEqual } from "../../utils/task-path.ts";
 import { isTerminalStatus } from "../../utils/terminal-status.ts";
-import { getContrastTextColor } from "../../utils/color";
-import { collectArchivedMilestoneKeys, getMilestoneLabel, milestoneKey } from "../utils/milestones";
+import { apiClient } from "../lib/api";
 import { formatStoredUtcDateForCompactDisplay, parseStoredUtcDate } from "../utils/date-display";
+import { collectArchivedMilestoneKeys, getMilestoneLabel, milestoneKey } from "../utils/milestones";
 import CleanupModal from "./CleanupModal";
-import LabelFilterDropdown, { MultiSelectDropdown } from "./LabelFilterDropdown";
 import FilterChips from "./FilterChips";
+import LabelFilterDropdown, { MultiSelectDropdown } from "./LabelFilterDropdown";
 import { SuccessToast } from "./SuccessToast";
 
 interface TaskListProps {
@@ -28,18 +23,27 @@ interface TaskListProps {
 	availableMilestones: string[];
 	milestoneEntities: Milestone[];
 	archivedMilestones: Milestone[];
-  onRefreshData?: () => Promise<void>;
-  labelColors?: Record<string, string>;
-  authorColors?: Record<string, string>;
-  newStatuses?: string[];
-  runningStatuses?: string[];
-  terminalStatuses?: string[];
-  blockedStatuses?: string[];
+	onRefreshData?: () => Promise<void>;
+	labelColors?: Record<string, string>;
+	authorColors?: Record<string, string>;
+	newStatuses?: string[];
+	runningStatuses?: string[];
+	terminalStatuses?: string[];
+	blockedStatuses?: string[];
 }
 
 const PRIORITY_OPTIONS: SearchPriorityFilter[] = ["high", "medium", "low"];
 
-type TaskSortColumn = "id" | "title" | "status" | "priority" | "ordinal" | "milestone" | "created" | "due" | "completed";
+type TaskSortColumn =
+	| "id"
+	| "title"
+	| "status"
+	| "priority"
+	| "ordinal"
+	| "milestone"
+	| "created"
+	| "due"
+	| "completed";
 type SortDirection = "asc" | "desc";
 
 const PRIORITY_RANK: Record<string, number> = {
@@ -93,13 +97,13 @@ const TaskList: React.FC<TaskListProps> = ({
 	availableMilestones,
 	milestoneEntities,
 	archivedMilestones,
-  onRefreshData,
-  labelColors,
-  authorColors,
-  newStatuses,
-  runningStatuses,
-  terminalStatuses,
-  blockedStatuses,
+	onRefreshData,
+	labelColors,
+	authorColors,
+	newStatuses,
+	runningStatuses,
+	terminalStatuses,
+	blockedStatuses,
 }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [statusFilter, setStatusFilter] = useState<string[]>(() => {
@@ -202,7 +206,7 @@ const TaskList: React.FC<TaskListProps> = ({
 			if (!title) continue;
 			const titleKey = title.toLowerCase();
 			activeTitleCounts.set(titleKey, (activeTitleCounts.get(titleKey) ?? 0) + 1);
-		};
+		}
 		const activeTitleKeys = new Set(activeTitleCounts.keys());
 		for (const milestone of milestoneEntities ?? []) {
 			const id = milestone.id.trim();
@@ -244,7 +248,8 @@ const TaskList: React.FC<TaskListProps> = ({
 		return aliasMap;
 	}, [milestoneEntities, archivedMilestones]);
 	const archivedMilestoneKeys = useMemo(
-		() => new Set(collectArchivedMilestoneKeys(archivedMilestones, milestoneEntities).map((value) => milestoneKey(value))),
+		() =>
+			new Set(collectArchivedMilestoneKeys(archivedMilestones, milestoneEntities).map((value) => milestoneKey(value))),
 		[archivedMilestones, milestoneEntities],
 	);
 	const canonicalizeMilestone = (value?: string | null): string => {
@@ -258,20 +263,21 @@ const TaskList: React.FC<TaskListProps> = ({
 		const idMatch = normalized.match(/^m-(\d+)$/i);
 		if (idMatch?.[1]) {
 			const numericAlias = String(Number.parseInt(idMatch[1], 10));
-			return milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized;
+			return (
+				milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized
+			);
 		}
 		if (/^\d+$/.test(normalized)) {
 			const numericAlias = String(Number.parseInt(normalized, 10));
-			return milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized;
+			return (
+				milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized
+			);
 		}
 		return normalized;
 	};
 
 	const sortedBaseTasks = useMemo(() => sortTasksByIdDescending(tasks), [tasks]);
-	const mergedAvailableLabels = useMemo(
-		() => collectAvailableLabels(tasks, availableLabels),
-		[tasks, availableLabels],
-	);
+	const mergedAvailableLabels = useMemo(() => collectAvailableLabels(tasks, availableLabels), [tasks, availableLabels]);
 	const milestoneOptions = useMemo(() => {
 		const uniqueMilestones = Array.from(new Set([...availableMilestones.map((m) => m.trim()).filter(Boolean)]));
 		return uniqueMilestones;
@@ -295,7 +301,12 @@ const TaskList: React.FC<TaskListProps> = ({
 	}, [tasks]);
 
 	const hasActiveFilters = Boolean(
-		statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0 || milestoneFilter.length > 0 || filterAssignee || filterQuery.trim() !== "",
+		statusFilter.length > 0 ||
+			priorityFilter.length > 0 ||
+			labelFilter.length > 0 ||
+			milestoneFilter.length > 0 ||
+			filterAssignee ||
+			filterQuery.trim() !== "",
 	);
 	const totalTasks = sortedBaseTasks.length;
 
@@ -351,7 +362,11 @@ const TaskList: React.FC<TaskListProps> = ({
 		};
 
 		const shouldUseApi =
-			statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0 || Boolean(filterAssignee) || filterQuery.trim() !== "";
+			statusFilter.length > 0 ||
+			priorityFilter.length > 0 ||
+			labelFilter.length > 0 ||
+			Boolean(filterAssignee) ||
+			filterQuery.trim() !== "";
 
 		if (!hasActiveFilters) {
 			return;
@@ -465,9 +480,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		}
 	};
 
-	const handleBulkAction = async (
-		action: () => Promise<BulkOperationResult>,
-	) => {
+	const handleBulkAction = async (action: () => Promise<BulkOperationResult>) => {
 		const result = await action();
 		if (result.failed.length > 0) {
 			console.error("Bulk action failed for:", result.failed);
@@ -479,7 +492,8 @@ const TaskList: React.FC<TaskListProps> = ({
 	};
 
 	const handleBulkArchive = () => {
-		if (!window.confirm(`Archive ${selectedTaskIds.size} selected task(s)? This action moves tasks to archive.`)) return;
+		if (!window.confirm(`Archive ${selectedTaskIds.size} selected task(s)? This action moves tasks to archive.`))
+			return;
 		handleBulkAction(() => apiClient.bulkArchive([...selectedTaskIds]));
 	};
 
@@ -496,7 +510,15 @@ const TaskList: React.FC<TaskListProps> = ({
 	};
 
 	const handleBulkLabels = (labels: string) => {
-		handleBulkAction(() => apiClient.bulkUpdateLabels([...selectedTaskIds], labels.split(",").map((l) => l.trim()).filter(Boolean)));
+		handleBulkAction(() =>
+			apiClient.bulkUpdateLabels(
+				[...selectedTaskIds],
+				labels
+					.split(",")
+					.map((l) => l.trim())
+					.filter(Boolean),
+			),
+		);
 	};
 
 	const handleBulkMilestone = (milestone: string) => {
@@ -509,7 +531,7 @@ const TaskList: React.FC<TaskListProps> = ({
 
 	const handleCleanupSuccess = async (movedCount: number) => {
 		setShowCleanupModal(false);
-		setCleanupSuccessMessage(`Successfully moved ${movedCount} task${movedCount !== 1 ? 's' : ''} to completed folder`);
+		setCleanupSuccessMessage(`Successfully moved ${movedCount} task${movedCount !== 1 ? "s" : ""} to completed folder`);
 
 		// Refresh the data - existing effects will handle re-filtering automatically
 		if (onRefreshData) {
@@ -536,12 +558,9 @@ const TaskList: React.FC<TaskListProps> = ({
 		if (availableStatuses.length) {
 			const first = availableStatuses[0]?.toLowerCase();
 			const last = availableStatuses[availableStatuses.length - 1]?.toLowerCase();
-			if (lower === first)
-				return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
-			if (lower === last)
-				return "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200";
-			if (availableStatuses.length >= 3)
-				return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200";
+			if (lower === first) return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+			if (lower === last) return "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200";
+			if (availableStatuses.length >= 3) return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200";
 		}
 		return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
 	};
@@ -777,12 +796,12 @@ const TaskList: React.FC<TaskListProps> = ({
 		<div className="container mx-auto px-4 py-8 transition-colors duration-200">
 			<div className="flex flex-col gap-4 mb-6">
 				<div className="flex items-center justify-between gap-3">
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-white">All Tasks</h1>
-						<button
-							className="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-							onClick={onNewTask}
-						>
-							+ New Task
+					<h1 className="text-2xl font-bold text-gray-900 dark:text-white">All Tasks</h1>
+					<button
+						className="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+						onClick={onNewTask}
+					>
+						+ New Task
 					</button>
 				</div>
 
@@ -791,7 +810,10 @@ const TaskList: React.FC<TaskListProps> = ({
 						<MultiSelectDropdown
 							options={availableStatuses}
 							selected={statusFilter}
-							onChange={(next) => { setStatusFilter(next); syncUrl(next, priorityFilter, labelFilter, milestoneFilter); }}
+							onChange={(next) => {
+								setStatusFilter(next);
+								syncUrl(next, priorityFilter, labelFilter, milestoneFilter);
+							}}
 							menuId="task-list-status-filter-menu"
 							className="min-w-[160px]"
 							title="Status"
@@ -800,7 +822,10 @@ const TaskList: React.FC<TaskListProps> = ({
 						<MultiSelectDropdown
 							options={[...PRIORITY_OPTIONS]}
 							selected={priorityFilter}
-							onChange={(next) => { setPriorityFilter(next as SearchPriorityFilter[]); syncUrl(statusFilter, next as SearchPriorityFilter[], labelFilter, milestoneFilter); }}
+							onChange={(next) => {
+								setPriorityFilter(next as SearchPriorityFilter[]);
+								syncUrl(statusFilter, next as SearchPriorityFilter[], labelFilter, milestoneFilter);
+							}}
 							menuId="task-list-priority-filter-menu"
 							className="min-w-[160px]"
 							title="Priority"
@@ -809,7 +834,10 @@ const TaskList: React.FC<TaskListProps> = ({
 						<MultiSelectDropdown
 							options={["__none", ...milestoneOptions]}
 							selected={milestoneFilter}
-							onChange={(next) => { setMilestoneFilter(next); syncUrl(statusFilter, priorityFilter, labelFilter, next); }}
+							onChange={(next) => {
+								setMilestoneFilter(next);
+								syncUrl(statusFilter, priorityFilter, labelFilter, next);
+							}}
 							menuId="task-list-milestone-filter-menu"
 							className="min-w-[160px]"
 							title="Milestone"
@@ -819,7 +847,9 @@ const TaskList: React.FC<TaskListProps> = ({
 						<LabelFilterDropdown
 							availableLabels={uniqueAssignees}
 							selectedLabels={filterAssignee ? [filterAssignee] : []}
-							onChange={(labels) => { setFilterAssignee(labels[0] ?? ""); }}
+							onChange={(labels) => {
+								setFilterAssignee(labels[0] ?? "");
+							}}
 							menuId="task-list-assignee-filter-menu"
 							className="min-w-[180px]"
 							labelColors={authorColors}
@@ -834,13 +864,22 @@ const TaskList: React.FC<TaskListProps> = ({
 							menuId="task-list-labels-menu"
 							labelColors={labelColors}
 						/>
-
 					</div>
 
 					<div className="flex items-center gap-3 flex-shrink-0">
 						<div className="relative">
-							<svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+							<svg
+								className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 pointer-events-none"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+								/>
 							</svg>
 							<input
 								type="text"
@@ -860,7 +899,7 @@ const TaskList: React.FC<TaskListProps> = ({
 										setFilterQuery("");
 										syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter, "");
 									}}
-									className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+									className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
 									aria-label="Clear search"
 								>
 									<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -871,28 +910,39 @@ const TaskList: React.FC<TaskListProps> = ({
 						</div>
 
 						{isFilteringTerminalStatus && currentCount > 0 && (
-								<button
-									type="button"
-									onClick={() => setShowCleanupModal(true)}
-									className="py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2 whitespace-nowrap"
-									title="Clean up old completed tasks"
+							<button
+								type="button"
+								onClick={() => setShowCleanupModal(true)}
+								className="py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2 whitespace-nowrap"
+								title="Clean up old completed tasks"
+							>
+								<svg
+									className="size-4"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-									</svg>
-									Clean Up
-								</button>
-							)}
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+									/>
+								</svg>
+								Clean Up
+							</button>
+						)}
 
-							<div className="relative">
-								<button
-									type="button"
-									onClick={hasActiveFilters ? handleClearFilters : undefined}
-									className="py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg whitespace-nowrap transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-									style={{ visibility: hasActiveFilters ? "visible" : "hidden" }}
-									aria-hidden={!hasActiveFilters}
-								>
-									Clear filters
+						<div className="relative">
+							<button
+								type="button"
+								onClick={hasActiveFilters ? handleClearFilters : undefined}
+								className="py-2 px-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg whitespace-nowrap transition-colors duration-200 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+								style={{ visibility: hasActiveFilters ? "visible" : "hidden" }}
+								aria-hidden={!hasActiveFilters}
+							>
+								Clear filters
 							</button>
 						</div>
 
@@ -906,7 +956,16 @@ const TaskList: React.FC<TaskListProps> = ({
 					<FilterChips
 						chips={[
 							...(filterQuery.trim()
-								? [{ key: "search", label: `Search: ${filterQuery.trim()}`, onRemove: () => { setFilterQuery(""); syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter); } }]
+								? [
+										{
+											key: "search",
+											label: `Search: ${filterQuery.trim()}`,
+											onRemove: () => {
+												setFilterQuery("");
+												syncUrl(statusFilter, priorityFilter, labelFilter, milestoneFilter);
+											},
+										},
+									]
 								: []),
 							...statusFilter.map((s) => ({
 								key: `status-${s}`,
@@ -936,11 +995,15 @@ const TaskList: React.FC<TaskListProps> = ({
 								},
 							})),
 							...(filterAssignee
-								? [{
-									key: "assignee",
-									label: `Assignee: ${filterAssignee}`,
-									onRemove: () => { setFilterAssignee(""); },
-								}]
+								? [
+										{
+											key: "assignee",
+											label: `Assignee: ${filterAssignee}`,
+											onRemove: () => {
+												setFilterAssignee("");
+											},
+										},
+									]
 								: []),
 							...labelFilter.map((l) => ({
 								key: `label-${l}`,
@@ -978,44 +1041,88 @@ const TaskList: React.FC<TaskListProps> = ({
 					<select
 						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
 						value=""
-						onChange={(e) => { if (e.target.value) { handleBulkStatus(e.target.value); e.target.value = ""; } }}
+						onChange={(e) => {
+							if (e.target.value) {
+								handleBulkStatus(e.target.value);
+								e.target.value = "";
+							}
+						}}
 					>
 						<option value="">Set Status</option>
-						{availableStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+						{availableStatuses.map((s) => (
+							<option key={s} value={s}>
+								{s}
+							</option>
+						))}
 					</select>
 					<select
 						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
 						value=""
-						onChange={(e) => { if (e.target.value) { handleBulkPriority(e.target.value); e.target.value = ""; } }}
+						onChange={(e) => {
+							if (e.target.value) {
+								handleBulkPriority(e.target.value);
+								e.target.value = "";
+							}
+						}}
 					>
 						<option value="">Set Priority</option>
-						{PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+						{PRIORITY_OPTIONS.map((p) => (
+							<option key={p} value={p}>
+								{p}
+							</option>
+						))}
 					</select>
 					<select
 						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
 						value=""
-						onChange={(e) => { if (e.target.value) { handleBulkMilestone(e.target.value); e.target.value = ""; } }}
+						onChange={(e) => {
+							if (e.target.value) {
+								handleBulkMilestone(e.target.value);
+								e.target.value = "";
+							}
+						}}
 					>
 						<option value="">Set Milestone</option>
 						<option value="">(none)</option>
-						{milestoneOptions.map((m) => <option key={m} value={m}>{milestoneLabelMap[m] ?? m}</option>)}
+						{milestoneOptions.map((m) => (
+							<option key={m} value={m}>
+								{milestoneLabelMap[m] ?? m}
+							</option>
+						))}
 					</select>
 					<input
 						type="date"
 						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 w-36"
 						title="Set Due Date (bulk)"
-						onChange={(e) => { if (e.target.value) { handleBulkDueDate(e.target.value); e.target.value = ""; } }}
+						onChange={(e) => {
+							if (e.target.value) {
+								handleBulkDueDate(e.target.value);
+								e.target.value = "";
+							}
+						}}
 					/>
 					<select
 						className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
 						value=""
-						onChange={(e) => { if (e.target.value) { handleBulkAssignee(e.target.value); e.target.value = ""; } }}
+						onChange={(e) => {
+							if (e.target.value) {
+								handleBulkAssignee(e.target.value);
+								e.target.value = "";
+							}
+						}}
 					>
 						<option value="">Set Assignee</option>
-						{uniqueAssignees.length > 0
-							? uniqueAssignees.map((a) => <option key={a} value={a}>{a}</option>)
-							: <option value="" disabled>No assignees</option>
-						}
+						{uniqueAssignees.length > 0 ? (
+							uniqueAssignees.map((a) => (
+								<option key={a} value={a}>
+									{a}
+								</option>
+							))
+						) : (
+							<option value="" disabled>
+								No assignees
+							</option>
+						)}
 					</select>
 					<div className="relative inline-block">
 						<input
@@ -1043,8 +1150,18 @@ const TaskList: React.FC<TaskListProps> = ({
 
 			{currentCount === 0 ? (
 				<div className="text-center py-12">
-					<svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+					<svg
+						className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+						/>
 					</svg>
 					<h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
 						{hasActiveFilters ? "No tasks match the current filters" : "No tasks"}
@@ -1069,7 +1186,9 @@ const TaskList: React.FC<TaskListProps> = ({
 												className="rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-400 cursor-pointer"
 												checked={hierarchicalTasks.length > 0 && selectedTaskIds.size === hierarchicalTasks.length}
 												ref={(el) => {
-													if (el) el.indeterminate = selectedTaskIds.size > 0 && selectedTaskIds.size < hierarchicalTasks.length;
+													if (el)
+														el.indeterminate =
+															selectedTaskIds.size > 0 && selectedTaskIds.size < hierarchicalTasks.length;
 												}}
 												onChange={handleSelectAll}
 											/>
@@ -1083,8 +1202,8 @@ const TaskList: React.FC<TaskListProps> = ({
 										<th className="px-3 py-2">Assignee</th>
 										{renderSortableHeader("Milestone", "milestone")}
 										{renderSortableHeader("Created", "created")}
-									{renderSortableHeader("Due", "due")}
-									{renderSortableHeader("Completed", "completed")}
+										{renderSortableHeader("Due", "due")}
+										{renderSortableHeader("Completed", "completed")}
 									</tr>
 								</thead>
 							</table>
@@ -1126,29 +1245,37 @@ const TaskList: React.FC<TaskListProps> = ({
 												{task.id}
 											</td>
 											<td className="px-3 py-2.5">
-													<div className="flex items-center gap-2 min-w-0" style={depth > 0 ? { paddingLeft: "1.5rem" } : undefined}>
-														{depth > 0 && (
-															<svg className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l-5-5-5 5" />
-															</svg>
-														)}
-														<div className="flex flex-col min-w-0">
-															{depth > 0 && task.parentTaskTitle && (
-																<span className="text-[10px] text-gray-400 dark:text-gray-500 truncate mb-0.5">
-																	↳ {task.parentTaskTitle}
-																</span>
-															)}
-															<span
-																className={`block truncate text-sm ${
-																	isFromOtherBranch
-																		? "text-gray-600 dark:text-gray-300"
-																		: "text-gray-900 dark:text-gray-100"
-																}`}
-																title={task.title}
-															>
-																{task.title}
+												<div
+													className="flex items-center gap-2 min-w-0"
+													style={depth > 0 ? { paddingLeft: "1.5rem" } : undefined}
+												>
+													{depth > 0 && (
+														<svg
+															className="size-3 flex-shrink-0 text-gray-400 dark:text-gray-500"
+															fill="none"
+															stroke="currentColor"
+															viewBox="0 0 24 24"
+														>
+															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l-5-5-5 5" />
+														</svg>
+													)}
+													<div className="flex flex-col min-w-0">
+														{depth > 0 && task.parentTaskTitle && (
+															<span className="text-[10px] text-gray-400 dark:text-gray-500 truncate mb-0.5">
+																↳ {task.parentTaskTitle}
 															</span>
-														</div>
+														)}
+														<span
+															className={`block truncate text-sm ${
+																isFromOtherBranch
+																	? "text-gray-600 dark:text-gray-300"
+																	: "text-gray-900 dark:text-gray-100"
+															}`}
+															title={task.title}
+														>
+															{task.title}
+														</span>
+													</div>
 													{isFromOtherBranch && task.branch && (
 														<span
 															className="inline-flex shrink-0 items-center rounded-circle bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
@@ -1160,7 +1287,9 @@ const TaskList: React.FC<TaskListProps> = ({
 												</div>
 											</td>
 											<td className="px-3 py-2.5">
-												<span className={`inline-flex rounded-circle px-2 py-0.5 text-[11px] font-medium ${getStatusColor(task.status)}`}>
+												<span
+													className={`inline-flex rounded-circle px-2 py-0.5 text-[11px] font-medium ${getStatusColor(task.status)}`}
+												>
 													{task.status}
 												</span>
 											</td>
@@ -1176,7 +1305,11 @@ const TaskList: React.FC<TaskListProps> = ({
 												)}
 											</td>
 											<td className="px-3 py-2.5 text-xs font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
-												{task.ordinal !== undefined ? task.ordinal : <span className="text-gray-300 dark:text-gray-600">—</span>}
+												{task.ordinal !== undefined ? (
+													task.ordinal
+												) : (
+													<span className="text-gray-300 dark:text-gray-600">—</span>
+												)}
 											</td>
 											<td className="px-3 py-2.5">
 												{visibleLabels.length > 0 ? (
@@ -1189,7 +1322,15 @@ const TaskList: React.FC<TaskListProps> = ({
 																	className={`inline-flex max-w-[7rem] truncate rounded-circle px-2 py-0.5 text-[11px] ${
 																		bgColor ? "" : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
 																	}`}
-																	style={bgColor ? { backgroundColor: bgColor, filter: "saturate(0.55) brightness(1.35)", color: getContrastTextColor(bgColor) } : undefined}
+																	style={
+																		bgColor
+																			? {
+																					backgroundColor: bgColor,
+																					filter: "saturate(0.55) brightness(1.35)",
+																					color: getContrastTextColor(bgColor),
+																				}
+																			: undefined
+																	}
 																	title={label}
 																>
 																	{label}
@@ -1206,22 +1347,30 @@ const TaskList: React.FC<TaskListProps> = ({
 											</td>
 											<td className="px-3 py-2.5">
 												{visibleAssignees.length > 0 ? (
-                  <div className="flex items-center gap-1.5">
-                    {visibleAssignees.map((assignee) => {
-                      const color = authorColors?.[assignee.replace('@', '')];
-                      return (
-                        <span
-                          key={assignee}
-                          title={assignee}
-                          className={`inline-flex h-6 w-6 items-center justify-center rounded-circle text-[10px] font-semibold ${
-                            color ? '' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
-                          }`}
-                          style={color ? { backgroundColor: color, filter: "saturate(0.55) brightness(1.35)", color: getContrastTextColor(color) } : undefined}
-                        >
-                          {getAssigneeInitials(assignee)}
-                        </span>
-                      );
-                    })}
+													<div className="flex items-center gap-1.5">
+														{visibleAssignees.map((assignee) => {
+															const color = authorColors?.[assignee.replace("@", "")];
+															return (
+																<span
+																	key={assignee}
+																	title={assignee}
+																	className={`inline-flex h-6 w-6 items-center justify-center rounded-circle text-[10px] font-semibold ${
+																		color ? "" : "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200"
+																	}`}
+																	style={
+																		color
+																			? {
+																					backgroundColor: color,
+																					filter: "saturate(0.55) brightness(1.35)",
+																					color: getContrastTextColor(color),
+																				}
+																			: undefined
+																	}
+																>
+																	{getAssigneeInitials(assignee)}
+																</span>
+															);
+														})}
 														{assigneeOverflow > 0 && (
 															<span className="text-[11px] text-gray-500 dark:text-gray-400">+{assigneeOverflow}</span>
 														)}
@@ -1230,7 +1379,10 @@ const TaskList: React.FC<TaskListProps> = ({
 													<span className="text-xs text-gray-300 dark:text-gray-600">—</span>
 												)}
 											</td>
-											<td className="px-3 py-2.5 text-xs text-gray-600 dark:text-gray-300 truncate" title={milestoneLabel}>
+											<td
+												className="px-3 py-2.5 text-xs text-gray-600 dark:text-gray-300 truncate"
+												title={milestoneLabel}
+											>
 												{milestoneLabel}
 											</td>
 											<td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
@@ -1238,7 +1390,13 @@ const TaskList: React.FC<TaskListProps> = ({
 											</td>
 											<td className="px-3 py-2.5 text-xs whitespace-nowrap">
 												{task.dueDate ? (
-													<span className={(parseStoredUtcDate(task.dueDate)?.getTime() ?? 0) < Date.now() ? "text-red-600 dark:text-red-400 font-medium" : "text-gray-500 dark:text-gray-400"}>
+													<span
+														className={
+															(parseStoredUtcDate(task.dueDate)?.getTime() ?? 0) < Date.now()
+																? "text-red-600 dark:text-red-400 font-medium"
+																: "text-gray-500 dark:text-gray-400"
+														}
+													>
 														{formatStoredUtcDateForCompactDisplay(task.dueDate)}
 													</span>
 												) : (
@@ -1276,8 +1434,13 @@ const TaskList: React.FC<TaskListProps> = ({
 					message={cleanupSuccessMessage}
 					onDismiss={() => setCleanupSuccessMessage(null)}
 					icon={
-						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
 						</svg>
 					}
 				/>

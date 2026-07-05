@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface CollapsibleGroupProps {
@@ -44,49 +44,28 @@ function CollapsibleGroup({
 	return (
 		<div className="px-4 py-4">
 			<div className="flex items-center justify-between mb-4">
-				<div className="flex items-center space-x-3">
+				<div className="flex items-center gap-3">
 					<button
 						onClick={() => setIsCollapsed(!isCollapsed)}
 						className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors duration-200"
-						title={
-							isCollapsed
-								? `Expand ${title.toLowerCase()}`
-								: `Collapse ${title.toLowerCase()}`
-						}
+						title={isCollapsed ? `Expand ${title.toLowerCase()}` : `Collapse ${title.toLowerCase()}`}
 					>
 						{isCollapsed ? (
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M9 5l7 7-7 7"
-								/>
+							<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
 							</svg>
 						) : (
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M19 9l-7 7-7-7"
-								/>
+							<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 							</svg>
 						)}
 					</button>
 					<span className="text-gray-500 dark:text-gray-400">{icon}</span>
 					{to ? (
-						<Link to={to} className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 whitespace-nowrap hover:underline transition-colors">
+						<Link
+							to={to}
+							className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 whitespace-nowrap hover:underline transition-colors"
+						>
 							{title} ({count}) →
 						</Link>
 					) : (
@@ -95,7 +74,7 @@ function CollapsibleGroup({
 						</span>
 					)}
 				</div>
-				<div className="flex items-center space-x-1">
+				<div className="flex items-center gap-1">
 					{headerRightContent}
 					{onCreate && (
 						<button
@@ -103,18 +82,8 @@ function CollapsibleGroup({
 							className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
 							title={`Create new ${title.toLowerCase()}`}
 						>
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-								/>
+							<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
 								<circle cx="12" cy="12" r="10" />
 							</svg>
 						</button>
@@ -124,9 +93,7 @@ function CollapsibleGroup({
 			{!isCollapsed && (
 				<div className="space-y-1">
 					{count === 0 ? (
-						<p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-							No {title.toLowerCase()}
-						</p>
+						<p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No {title.toLowerCase()}</p>
 					) : (
 						children
 					)}

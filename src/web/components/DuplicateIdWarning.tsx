@@ -7,7 +7,10 @@ export default function DuplicateIdWarning() {
 	const [dismissed, setDismissed] = useState(false);
 
 	useEffect(() => {
-		apiClient.fetchDuplicates().then(setDuplicates).catch(() => {});
+		apiClient
+			.fetchDuplicates()
+			.then(setDuplicates)
+			.catch(() => {});
 	}, []);
 
 	if (duplicates.length === 0 || dismissed) return null;
@@ -16,11 +19,11 @@ export default function DuplicateIdWarning() {
 		<div className="fixed top-0 left-0 right-0 bg-amber-500 dark:bg-amber-600 text-white px-4 py-3 text-sm shadow-lg z-50 animate-slide-in-down transition-colors duration-200">
 			<div className="flex items-center justify-between max-w-7xl mx-auto">
 				<div className="flex items-center gap-3">
-					<div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+					<div className="size-2 bg-white rounded-circle animate-pulse" />
 					<span className="font-semibold">Duplicate IDs detected:</span>
 					<span>
-						{duplicates.map((g) => g.id).join(", ")} —{" "}
-						{duplicates.reduce((acc, g) => acc + g.tasks.length, 0)} tasks affected.
+						{duplicates.map((g) => g.id).join(", ")} — {duplicates.reduce((acc, g) => acc + g.tasks.length, 0)} tasks
+						affected.
 					</span>
 				</div>
 				<button
