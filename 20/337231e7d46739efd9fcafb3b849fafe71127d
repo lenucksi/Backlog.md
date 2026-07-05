@@ -1,0 +1,19 @@
+src/commands/statistics.ts
+  s_42ea44e1e284ea::t_ce9126204573a9 61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "20337231e7d46739efd9fcafb3b849fafe71127d",
+  "prompts": {},
+  "sessions": {
+    "s_42ea44e1e284ea": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ce279a94ffegs9ITNFcdR2O0M",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
