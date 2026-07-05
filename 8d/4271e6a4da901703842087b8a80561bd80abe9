@@ -1,0 +1,75 @@
+src/server/index.ts
+  s_95f2ef1b71386e::t_b92c19d9d1a424 29-41
+  s_95f2ef1b71386e::t_85a91d76e42a53 371-374
+  s_95f2ef1b71386e::t_94eabfe5031fce 233
+  s_95f2ef1b71386e::t_9175882bc0f08e 352-355
+package.json
+  s_95f2ef1b71386e::t_609915873e0cb2 40
+  s_95f2ef1b71386e::t_f930dfbc604754 77
+src/test/config-hang-repro.test.ts
+  s_95f2ef1b71386e::t_558a399d6655db 3,10-12,15-17
+src/test/cli-plain-create-edit.test.ts
+  s_95f2ef1b71386e::t_55578bf4331ae8 111
+src/test/implementation-plan.test.ts
+  s_95f2ef1b71386e::t_802330e8695605 212
+src/core/content-store.ts
+  s_95f2ef1b71386e::t_25e547f8877b35 193-199
+src/test/cli-task-milestone.test.ts
+  s_95f2ef1b71386e::t_37aa537216a1eb 107
+src/test/mcp-stdio-exit.test.ts
+  s_95f2ef1b71386e::t_09b5b6abfb4ec8 186
+scripts/build.ts
+  s_95f2ef1b71386e::t_b671575a46d47f 71
+  s_95f2ef1b71386e::t_805563e38e4cae 19-21,24-25
+  s_95f2ef1b71386e::t_d2fa238487c4ee 2
+  s_95f2ef1b71386e::t_d13434e620e14c 22
+src/file-system/operations.ts
+  s_95f2ef1b71386e::t_072dc2d6ad3e01 274-281,283-288,304-307,310-312
+  s_95f2ef1b71386e::t_1c819e745be1d2 282,308-309
+.gitignore
+  s_95f2ef1b71386e::t_7f6ef654cceba8 38-40
+src/test/cli-init-no-git.test.ts
+  s_95f2ef1b71386e::t_dea286e7596519 164
+scripts/generate-embedded-assets.ts
+  s_95f2ef1b71386e::t_60d50d363b9e7b 1-2,6-11,13-17,27-29,31,45
+  s_95f2ef1b71386e::t_74cbd90b66e5ab 3-5,12,18-26,30,32-44,46-50
+src/test/acceptance-criteria.test.ts
+  s_95f2ef1b71386e::t_6dac62b06b5846 651
+scripts/dev.ts
+  s_95f2ef1b71386e::t_b2dafe166fe1cb 1-40
+src/test/zz-board-coverage.test.ts
+  s_95f2ef1b71386e::t_d6a2c7291680e2 394
+src/utils/find-backlog-root.ts
+  s_95f2ef1b71386e::t_4cddba0dde3120 87-90,92-96
+  s_95f2ef1b71386e::t_8faedbf93d973d 27-28,31,33,37-40,53-57
+src/utils/task-path.ts
+  s_95f2ef1b71386e::t_f99132026f9f77 148-149,339-340
+  s_95f2ef1b71386e::t_ce7aa9428a44c1 163,186,325
+  s_95f2ef1b71386e::t_427b7d76604ef7 388-392
+  s_95f2ef1b71386e::t_b85e2fec6075fc 1
+src/utils/config-schema.ts
+  s_95f2ef1b71386e::t_de9bd87d914fdb 142-143
+src/test/server-tasks-endpoint.test.ts
+  s_95f2ef1b71386e::t_3bde02d4721953 21-28
+src/test/find-backlog-root.test.ts
+  s_95f2ef1b71386e::t_9bc70baa7cedc1 12-14,16-19
+  s_95f2ef1b71386e::t_491055d761ad20 58,182
+  s_95f2ef1b71386e::t_46fd9abbbb7af9 203
+  s_95f2ef1b71386e::t_9c4e102860f938 1,8-11,15,20,25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8d4271e6a4da901703842087b8a80561bd80abe9",
+  "prompts": {},
+  "sessions": {
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
