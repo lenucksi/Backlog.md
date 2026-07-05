@@ -1,0 +1,19 @@
+AGENTS.md
+  s_098eeddaa21350::t_f77b5ad3312ed6 62-201
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8fb9eae695bbe4e021ed3db80d0f951d2759b690",
+  "prompts": {},
+  "sessions": {
+    "s_098eeddaa21350": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ec774859ffenjf3Mjv5kbU93b",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
