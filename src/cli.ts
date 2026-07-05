@@ -24,7 +24,7 @@ import { registerSequenceCommand } from "./commands/sequence.ts";
 import { registerStatsCommand } from "./commands/statistics.ts";
 import { registerTaskCommand } from "./commands/task.ts";
 import { Core } from "./core/backlog.ts";
-import { getExplicitProjectPath, setExplicitProjectPath } from "./utils/cli-context.ts";
+import { setExplicitProjectPath } from "./utils/cli-context.ts";
 import { findBacklogRoot } from "./utils/find-backlog-root.ts";
 import { resolveRuntimeCwd } from "./utils/runtime-cwd.ts";
 import { getVersion } from "./utils/version.ts";
@@ -46,129 +46,23 @@ if (process.env.BUN_OPTIONS) {
 // Get version from package.json
 const version = await getVersion();
 
-// Frühzeitige argv-Parsing für --path und --cwd (vor Commander-Init nötig)
-// Commander registriert diese Optionen ebenfalls. Die Duplizierung ist bewusst:
-// Splash-Screen (Zeile 124) und Config-Migration (Zeile 165) laufen BEVOR
-// program.parseAsync() aufgerufen wird. Sobald diese Pre-Init-Logik entfällt,
-// können diese Funktionen entfernt werden.
-function getPathOverrideFromArgv(argv = process.argv): string | undefined {
-	const args = argv.slice(2);
-	for (let i = 0; i < args.length; i++) {
-		const arg = args[i];
-		if (!arg || arg.startsWith("-") === false) {
-			continue;
-		}
-		if (arg === "--path") {
-			const next = args[i + 1]?.trim();
-			if (next && !next.startsWith("-")) {
-				return next || undefined;
-			}
-		}
-		if (arg?.startsWith("--path=")) {
-			const value = arg.slice("--path=".length).trim();
-			return value || undefined;
-		}
-	}
-	return undefined;
-}
-
-function getMcpStartCwdOverrideFromArgv(argv = process.argv): string | undefined {
-	const args = argv.slice(2);
-	const mcpIndex = args.indexOf("mcp");
-	if (mcpIndex < 0 || args[mcpIndex + 1] !== "start") {
-		return undefined;
+// Config migration hook - runs via Commander before each command action.
+// This replaces the old top-level migration block that ran before program.parseAsync().
+// Skipped for the init command (project doesn't exist yet) and for the
+// program's own default action (splash screen).
+async function runConfigMigration(thisCommand: Command, actionCommand: Command): Promise<void> {
+	if (thisCommand === actionCommand || actionCommand.name() === "init") {
+		return;
 	}
 
-	for (let i = mcpIndex + 2; i < args.length; i++) {
-		const arg = args[i];
-		if (!arg) {
-			continue;
-		}
-		if (arg === "--cwd") {
-			const next = args[i + 1]?.trim();
-			return next || undefined;
-		}
-		if (arg?.startsWith("--cwd=")) {
-			const value = arg.slice("--cwd=".length).trim();
-			return value || undefined;
-		}
-	}
-
-	return undefined;
-}
-
-// Parse --path from argv early for use in splash screen and config migration
-const explicitPath = getPathOverrideFromArgv();
-if (explicitPath) {
-	setExplicitProjectPath(explicitPath);
-}
-
-// Bare-run splash screen handling (before Commander parses commands)
-try {
-	let rawArgs = process.argv.slice(2);
-	if (rawArgs.length > 0) {
-		const first = rawArgs[0];
-		if (
-			typeof first === "string" &&
-			/node_modules[\\/]+backlog\.md-(darwin|linux|windows)-[^\\/]+[\\/]+backlog(\.exe)?$/.test(first)
-		) {
-			rawArgs = rawArgs.slice(1);
-		}
-	}
-	const wantsHelp = rawArgs.includes("-h") || rawArgs.includes("--help");
-	const wantsVersion = rawArgs.includes("-v") || rawArgs.includes("--version");
-	const onlyPlain = rawArgs.length === 1 && rawArgs[0] === "--plain";
-	const isBare = rawArgs.length === 0 || onlyPlain;
-	if (isBare && !wantsHelp && !wantsVersion) {
-		const isTTY = !!process.stdout.isTTY;
-		const forcePlain = rawArgs.includes("--plain");
-		const noColor = !!process.env.NO_COLOR || !isTTY;
-
-		let initialized = false;
-		try {
-			const rootPath = getExplicitProjectPath();
-			const projectRoot = rootPath ?? (await findBacklogRoot((await resolveRuntimeCwd()).cwd));
-			if (projectRoot) {
-				const core = new Core(projectRoot);
-				const cfg = await core.filesystem.loadConfig();
-				initialized = !!cfg;
-			}
-		} catch {
-			initialized = false;
-		}
-
-		const { printSplash } = await import("./ui/splash.ts");
-		const termWidth = Math.max(0, Number(process.stdout.columns || 0));
-		const autoPlain = !isTTY || (termWidth > 0 && termWidth < 60);
-		await printSplash({
-			version,
-			initialized,
-			plain: forcePlain || autoPlain,
-			color: !noColor,
-		});
-		process.exit(0);
-	}
-} catch {
-	// Fall through to normal CLI parsing on any splash error
-}
-
-// Global config migration - run before any command processing
-const shouldRunMigration =
-	!process.argv.includes("init") &&
-	!process.argv.includes("--help") &&
-	!process.argv.includes("-h") &&
-	!process.argv.includes("--version") &&
-	!process.argv.includes("-v") &&
-	process.argv.length > 2;
-
-if (shouldRunMigration) {
 	try {
-		const rootPath = getExplicitProjectPath();
+		const rootPath = thisCommand.opts().path;
 		let projectRoot: string | null;
 		if (rootPath) {
+			setExplicitProjectPath(rootPath);
 			projectRoot = rootPath;
 		} else {
-			const runtimeCwd = await resolveRuntimeCwd({ cwd: getMcpStartCwdOverrideFromArgv() });
+			const runtimeCwd = await resolveRuntimeCwd();
 			projectRoot = await findBacklogRoot(runtimeCwd.cwd);
 		}
 		if (projectRoot) {
@@ -189,7 +83,38 @@ program
 	.description("Backlog.md - Project management CLI")
 	.version(version, "-v, --version", "display version number")
 	.option("--path <path>", "Path to the Backlog.md project root (overrides auto-detection)")
-	.option("--cwd <path>", "Working directory for MCP start command");
+	.option("--plain", "Force plain text output (no color, no fancy formatting)")
+	.hook("preAction", runConfigMigration)
+	.action(async () => {
+		const opts = program.opts();
+		const isTTY = !!process.stdout.isTTY;
+		const forcePlain = !!opts.plain;
+		const noColor = !!process.env.NO_COLOR || !isTTY;
+
+		let initialized = false;
+		try {
+			const rootPath = opts.path;
+			const projectRoot = rootPath ?? (await findBacklogRoot((await resolveRuntimeCwd()).cwd));
+			if (projectRoot) {
+				const core = new Core(projectRoot);
+				const cfg = await core.filesystem.loadConfig();
+				initialized = !!cfg;
+			}
+		} catch {
+			initialized = false;
+		}
+
+		const { printSplash } = await import("./ui/splash.ts");
+		const termWidth = Math.max(0, Number(process.stdout.columns || 0));
+		const autoPlain = !isTTY || (termWidth > 0 && termWidth < 60);
+		await printSplash({
+			version,
+			initialized,
+			plain: forcePlain || autoPlain,
+			color: !noColor,
+		});
+		process.exit(0);
+	});
 
 // Register all command groups
 registerInitCommand(program);
