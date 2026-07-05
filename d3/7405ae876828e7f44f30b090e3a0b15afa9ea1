@@ -1,0 +1,45 @@
+package.json
+  s_098eeddaa21350::t_cc73799d78e1ab 60-61
+src/test/cli-board.test.ts
+  s_098eeddaa21350::t_9b0817b0ff77ff 263
+src/test/zz-task-viewer-coverage.test.ts
+  s_098eeddaa21350::t_5e55c5a740321b 270,274
+  s_098eeddaa21350::t_db8120898f7272 281-297,299-302
+  s_098eeddaa21350::t_0dc55e145dd138 1
+  s_098eeddaa21350::t_594b045456d9be 271-273,275-278,280
+src/commands/browser.ts
+  s_2b9625fb73f18e::t_1cac0db17267b6 6,26
+src/test/implementation-notes.test.ts
+  s_098eeddaa21350::t_9deca6cc21d2eb 108
+src/test/zz-board-coverage.test.ts
+  s_098eeddaa21350::t_96988845a67782 201,205
+  s_098eeddaa21350::t_2bc5168bc63b12 1
+  s_098eeddaa21350::t_12d402c616a452 202-204,206-209,211
+  s_098eeddaa21350::t_db8120898f7272 212-254
+src/web/styles/style.css
+  s_098eeddaa21350::t_e40b07f7f15d0d 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d37405ae876828e7f44f30b090e3a0b15afa9ea1",
+  "prompts": {},
+  "sessions": {
+    "s_098eeddaa21350": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ec774859ffenjf3Mjv5kbU93b",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_2b9625fb73f18e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eb95c9e7ffeQBfGWzKoXxKEFv",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
