@@ -58,7 +58,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 	await core.ensureConfigLoaded();
 
 	const { tasks, drafts, statuses, terminalStatuses, blockedStatuses } = await core.loadAllTasksForStatistics();
-	const archivedTasks = await core.fs.listArchivedTasks();
+	const archivedTasks = await core.filesystem.listArchivedTasks();
 
 	const archivedIds = new Set(archivedTasks.map((t) => t.id));
 	const activeTasks = tasks.filter((t) => !archivedIds.has(t.id));
