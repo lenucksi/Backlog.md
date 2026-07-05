@@ -1,0 +1,124 @@
+src/server/handlers/tasks.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 120,283,332,372,387,423,437
+src/test/web-task-details-modal-documentation.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 6
+src/web/contexts/HealthCheckContext.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-3,16,22
+src/commands/overview.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 69
+src/web/hooks/useHealthCheck.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 19-22,33
+src/agent-instructions.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 170-173
+  s_95f2ef1b71386e::t_5c5806c4f87d53 234
+src/server/index.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 388
+src/test/web-task-details-modal-final-summary.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 6
+src/core/content-store.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 355-358
+  s_95f2ef1b71386e::t_5c5806c4f87d53 59,238,246,255,267,384,971
+src/commands/init.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 1030
+src/server/handlers/decisions.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 20,37,49,64,81
+src/git/operations.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 632-635
+src/server/handlers/config.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 18,45,62,96,196,222,239,273,355,381
+src/core/task-loader.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 226-229,374-377,437-440
+  s_95f2ef1b71386e::t_5c5806c4f87d53 527,696
+src/core/backlog.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 1059-1062,1980-1983
+src/test/task-loader-edge-cases.test.ts
+  s_95f2ef1b71386e::t_9e973ea8d0c026 334
+src/file-system/operations.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 381-384,537-540,587-590,627-630
+  s_95f2ef1b71386e::t_5c5806c4f87d53 378
+src/server/handlers/drafts.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 10,23
+src/web/App.tsx
+  s_95f2ef1b71386e::t_802d67086e825b 772-783,792
+  s_95f2ef1b71386e::t_cbe0c8f571554a 18,748-755,784-791
+  s_95f2ef1b71386e::t_63c50688e98700 739-747,756
+  s_95f2ef1b71386e::t_d46585271aa199 619-637,643-661,667-685,691-709,715-733
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-17,19-32,35-143,147-162,166-618,638-642,662-666,686-690,710-714,734-738,757-771,793-837
+src/server/utils.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 82
+src/commands/statistics.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 107
+src/test/ChipInput.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 12,30,50
+src/web/contexts/ThemeContext.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-2,4,16,28-29,34-35,38,45-46,48,52,56,59
+src/utils/id-generators.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 46,119
+src/utils/clipboard.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 48
+src/test/mermaid-markdown.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 7
+src/server/handlers/documents.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 29,42,74,120,133,146,159
+src/cli.ts
+  s_4459d80cdeb08d::t_aa3d7f1a7a9df4 26
+  s_4459d80cdeb08d::t_4a691627a7293b 143
+src/web/main.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-5,7,9-15
+src/commands/agents.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 74
+src/server/handlers/backlinks.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 12
+src/commands/config.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 277,327,397
+src/test/web-milestones-page-search.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 202-204,242-244,322-324
+src/server/handlers/system.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 15,45,63,128,140,184
+src/test/TaskCard.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 18,25,31,38,45,52,61,68,80,86,108,117,126,135,144,153,162,171,178,184,197
+src/test/web-task-list-labels-menu.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 106
+src/commands/decision.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 44
+src/test/parallel-loading.test.ts
+  s_95f2ef1b71386e::t_07d68aea394834 144
+src/web/styles/style.css
+  s_95f2ef1b71386e::t_cbe0c8f571554a 2
+src/commands/mcp.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 75
+src/ui/board.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 1475
+src/mcp/errors/mcp-errors.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 11
+src/core/cross-branch-tasks.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 235-238
+src/server/handlers/milestones.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 37,47,57,70,123,208
+src/commands/browser.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fa2c4df2ce9e73bb75e5882522b8f7a87365c075",
+  "prompts": {},
+  "sessions": {
+    "s_4459d80cdeb08d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cc4ed3daffeEMAFvCtcLc92Am",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
