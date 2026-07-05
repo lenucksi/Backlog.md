@@ -1,0 +1,159 @@
+src/test/web-milestones-page-search.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 202-204,242-244,322-324
+src/server/handlers/milestones.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 37,47,57,70,123,208
+src/core/content-store.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 355-358
+  s_95f2ef1b71386e::t_5c5806c4f87d53 59,238,246,255,267,384,971
+src/utils/clipboard.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 48
+src/test/web-task-details-modal-final-summary.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 6
+src/commands/mcp.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 75
+src/ui/board.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 1475
+src/test/web-task-details-modal-documentation.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 6
+src/agent-instructions.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 170-173
+  s_95f2ef1b71386e::t_5c5806c4f87d53 234
+src/server/handlers/system.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 15,45,63,128,140,184
+src/server/handlers/drafts.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 10,23
+src/utils/id-generators.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 46,119
+src/commands/config.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 277,327,397
+src/commands/init.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 1030
+src/commands/browser.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 93
+src/web/contexts/HealthCheckContext.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-3,16,22
+src/cli.ts
+  s_4459d80cdeb08d::t_4a691627a7293b 143
+  s_4459d80cdeb08d::t_aa3d7f1a7a9df4 26
+src/server/handlers/tasks.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 120,283,332,372,387,423,437
+src/web/styles/style.css
+  s_95f2ef1b71386e::t_cbe0c8f571554a 2
+src/test/mermaid-markdown.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 7
+src/server/handlers/config.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 18,45,62,96,196,222,239,273,355,381
+src/test/TaskCard.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 18,25,31,38,45,52,61,68,80,86,108,117,126,135,144,153,162,171,178,184,197
+src/tui2/app.tsx
+  s_4459d80cdeb08d::t_c7f6867d8d324c 1-13,16-33,35-40
+  s_4459d80cdeb08d::t_e8fb7f385956b2 14
+  s_4459d80cdeb08d::t_5b3d603a37a33f 34
+  s_4459d80cdeb08d::t_8216fb279f42c2 15
+src/commands/overview.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 69
+src/mcp/errors/mcp-errors.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 11
+src/test/parallel-loading.test.ts
+  s_95f2ef1b71386e::t_07d68aea394834 144
+src/commands/agents.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 74
+src/test/tui2-poc.test.ts
+  s_4459d80cdeb08d::t_3a1ee0c1e26922 1,3-4,6-9,11-19,22-25,27,60-65,94-95,136-137,151-152,193-194,207-208,221-222,235-236
+  s_4459d80cdeb08d::t_ad2bae8c161734 79
+  s_4459d80cdeb08d::t_96d33e88014237 129,131,133-135,143,145,148-150,158,160,176-180,186,188,190-192,200,202,204-206,214,216,218-220,228,232-234
+  s_4459d80cdeb08d::t_13f4576d32490e 2,97-100,111-114,125-128,139-142,154-157,168-171,182-185,196-199,210-213,224-227
+  s_4459d80cdeb08d::t_c6a886d771ed04 28-54
+  s_4459d80cdeb08d::t_17bbe82a00f45c 109,123
+  s_4459d80cdeb08d::t_6f27cd81f70782 5,10,20-21,26,55-59,66-78,80-93,96,101-108,110,115-122,124,130,132,138,144,146-147,153,159,161-167,172-175,181,187,189,195,201,203,209,215,217,223,229-231
+src/core/backlog.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 1059-1062,1980-1983
+src/web/App.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-17,19-32,35-143,147-162,166-618,638-642,662-666,686-690,710-714,734-738,757-771,793-837
+  s_95f2ef1b71386e::t_d46585271aa199 619-637,643-661,667-685,691-709,715-733
+  s_95f2ef1b71386e::t_63c50688e98700 739-747,756
+  s_95f2ef1b71386e::t_802d67086e825b 772-783,792
+  s_95f2ef1b71386e::t_cbe0c8f571554a 18,748-755,784-791
+src/server/utils.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 82
+src/web/hooks/useHealthCheck.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 19-22,33
+src/core/cross-branch-tasks.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 235-238
+src/core/task-loader.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 527,696
+  s_95f2ef1b71386e::t_cbe0c8f571554a 226-229,374-377,437-440
+src/file-system/operations.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 381-384,537-540,587-590,627-630
+  s_95f2ef1b71386e::t_5c5806c4f87d53 378
+src/server/index.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 388
+src/tui2/components/task-list.tsx
+  s_4459d80cdeb08d::t_4dc42d5cf9cb3d 76-86
+  s_4459d80cdeb08d::t_3ab03be6aa41df 95
+  s_4459d80cdeb08d::t_2692048e0c13cd 57-62
+  s_95f2ef1b71386e::t_cb0526802e56b2 4
+  s_4459d80cdeb08d::t_977f69b46d324b 34-40,42-43,45-48
+  s_4459d80cdeb08d::t_aed0d6186af73f 103-104
+  s_4459d80cdeb08d::t_22a1dd7cb276c4 3
+  s_4459d80cdeb08d::t_deec16b160c4c4 102
+  s_4459d80cdeb08d::t_aec6713b846b64 41,44
+  s_4459d80cdeb08d::t_5b3d603a37a33f 107
+  s_4459d80cdeb08d::t_56b10971d82e5c 96-101,105
+  s_4459d80cdeb08d::t_616ff6f1d058c4 72
+  s_4459d80cdeb08d::t_87e3a5bb7ffa5c 1,5-33,49-56,63-71,73-75,87-94,106,108-122
+  s_4459d80cdeb08d::t_957e1e91cddfb7 2
+src/tui2/components/task-detail.tsx
+  s_4459d80cdeb08d::t_ddc166030f0aa7 1-95
+src/server/handlers/documents.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 29,42,74,120,133,146,159
+src/commands/decision.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 44
+src/web/main.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-5,7,9-15
+src/commands/tui2.ts
+  s_4459d80cdeb08d::t_f822b342e0e059 1,11-13
+  s_4459d80cdeb08d::t_9e593ac19fb14a 14
+  s_4459d80cdeb08d::t_63a0ed71fd1b90 2
+  s_4459d80cdeb08d::t_bed2cb43f72930 3-10,15-17
+src/test/web-task-list-labels-menu.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 106
+src/test/ChipInput.test.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 12,30,50
+src/git/operations.ts
+  s_95f2ef1b71386e::t_cbe0c8f571554a 632-635
+src/test/task-loader-edge-cases.test.ts
+  s_95f2ef1b71386e::t_9e973ea8d0c026 334
+src/commands/statistics.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 107
+src/server/handlers/decisions.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 20,37,49,64,81
+src/web/contexts/ThemeContext.tsx
+  s_95f2ef1b71386e::t_ea30878ce64fb2 1-2,4,16,28-29,34-35,38,45-46,48,52,56,59
+src/server/handlers/backlinks.ts
+  s_95f2ef1b71386e::t_5c5806c4f87d53 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1aa5294a36798e9c9d26187a9c4dfd0f4ce4bda0",
+  "prompts": {},
+  "sessions": {
+    "s_4459d80cdeb08d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cc4ed3daffeEMAFvCtcLc92Am",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
