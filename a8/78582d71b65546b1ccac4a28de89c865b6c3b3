@@ -1,0 +1,28 @@
+src/test/zz-ui-components-coverage.test.ts
+  s_bed525466a5d4c::t_f2d06e30a92c2f 577-579,581-585,587-588,590-591,593-598,600-608,610-611,613-615,617-737
+  s_bed525466a5d4c::t_2e032aa3d72ba8 17-19,21-25
+  s_bed525466a5d4c::t_d3cdee79872da2 16,20
+src/test/find-task-in-branches.test.ts
+  s_bed525466a5d4c::t_5f9f3bbeb39502 1,7-36,38-44,46-47,49-52,58,64,70,87-97,99-102,108,114
+  s_bed525466a5d4c::t_f2d06e30a92c2f 45
+src/test/generic-list-selection.test.ts
+  s_bed525466a5d4c::t_de65c67e970f1d 3-8
+src/test/task-edit-preservation.test.ts
+  s_bed525466a5d4c::t_8e3e9f7ae3add8 133,169,205,240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a878582d71b65546b1ccac4a28de89c865b6c3b3",
+  "prompts": {},
+  "sessions": {
+    "s_bed525466a5d4c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0ce1bd14dffef6J75ZuqeN0m4G",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
