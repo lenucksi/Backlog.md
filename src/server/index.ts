@@ -385,7 +385,7 @@ export class BacklogServer {
 		if (error instanceof AppError) {
 			return error.formatForServer();
 		}
-		console.error("Server Error:", error);
+		console.error("Server Error:", error instanceof Error ? error.message : String(error));
 		return new Response("Internal Server Error", { status: 500 });
 	}
 }

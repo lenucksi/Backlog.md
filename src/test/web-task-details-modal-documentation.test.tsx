@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { JSDOM } from "jsdom";
 import { renderToString } from "react-dom/server";
 import type { Task } from "../types/index.ts";
-import { ThemeProvider } from "../web/contexts/ThemeContext";
 import { TaskDetailsModal } from "../web/components/TaskDetailsModal";
+import { ThemeProvider } from "../web/contexts/ThemeContext";
 
 const setupDom = () => {
 	const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://localhost" });

@@ -7,7 +7,7 @@ export function createDraftHandlers(ctx: ServerHandlerContext) {
 			const drafts = await ctx.core.filesystem.listDrafts();
 			return Response.json(drafts);
 		} catch (error) {
-			console.error("Error listing drafts:", error);
+			console.error("Error listing drafts:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -20,7 +20,7 @@ export function createDraftHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json({ success: true });
 		} catch (error) {
-			console.error("Error promoting draft:", error);
+			console.error("Error promoting draft:", error instanceof Error ? error.message : String(error));
 			if (isCreateLockError(error)) {
 				return Response.json({ error: error.message }, { status: 409 });
 			}

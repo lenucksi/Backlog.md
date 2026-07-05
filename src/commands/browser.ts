@@ -90,7 +90,7 @@ export function registerBrowserCommand(program: Command): void {
 				process.once("SIGTERM", () => void shutdown("SIGTERM"));
 				process.once("SIGQUIT", () => void shutdown("SIGQUIT"));
 			} catch (err) {
-				console.error("Failed to start browser interface", err);
+				console.error("Failed to start browser interface", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});

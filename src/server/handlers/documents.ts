@@ -26,7 +26,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			}));
 			return Response.json(docFiles);
 		} catch (error) {
-			console.error("Error listing documents:", error);
+			console.error("Error listing documents:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -39,7 +39,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json(doc);
 		} catch (error) {
-			console.error("Error loading document:", error);
+			console.error("Error loading document:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Document not found" }, { status: 404 });
 		}
 	}
@@ -71,7 +71,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			if (error instanceof Error && isDocumentValidationError(error)) {
 				return Response.json({ error: error.message }, { status: 400 });
 			}
-			console.error("Error creating document:", error);
+			console.error("Error creating document:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to create document" }, { status: 500 });
 		}
 	}
@@ -117,7 +117,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			const docs = await ctx.core.filesystem.listArchivedDocuments();
 			return Response.json(docs);
 		} catch (error) {
-			console.error("Error listing archived documents:", error);
+			console.error("Error listing archived documents:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -130,7 +130,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json({ success: true });
 		} catch (error) {
-			console.error("Error restoring document:", error);
+			console.error("Error restoring document:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to restore document" }, { status: 500 });
 		}
 	}
@@ -143,7 +143,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json({ success: true });
 		} catch (error) {
-			console.error("Error archiving document:", error);
+			console.error("Error archiving document:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to archive document" }, { status: 500 });
 		}
 	}
@@ -156,7 +156,7 @@ export function createDocumentHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json({ success: true });
 		} catch (error) {
-			console.error("Error deleting document:", error);
+			console.error("Error deleting document:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to delete document" }, { status: 500 });
 		}
 	}

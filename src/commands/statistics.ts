@@ -104,7 +104,7 @@ export function registerStatsCommand(program: Command): void {
 			try {
 				await handleStatsCommand(options);
 			} catch (err) {
-				console.error("Failed to display statistics", err);
+				console.error("Failed to display statistics", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});

@@ -9,7 +9,7 @@ export function createBacklinkHandlers(ctx: ServerHandlerContext) {
 			const results = await ctx.core.findBacklinks(entityId);
 			return Response.json(results);
 		} catch (error) {
-			console.error("Error finding backlinks:", error);
+			console.error("Error finding backlinks:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to find backlinks" }, { status: 500 });
 		}
 	}

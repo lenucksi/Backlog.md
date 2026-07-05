@@ -223,7 +223,10 @@ async function hydrateTasks(
 					result.push(task);
 				}
 			} catch (error) {
-				console.error(`Failed to hydrate task ${w.id} from ${w.ref}:${w.path}`, error);
+				console.error(
+					`Failed to hydrate task ${w.id} from ${w.ref}:${w.path}`,
+					error instanceof Error ? error.message : String(error),
+				);
 			}
 		}
 	}
@@ -368,7 +371,10 @@ export async function findTaskInRemoteBranches(
 		return task;
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(`Failed to find task ${taskId} in remote branches:`, error);
+			console.error(
+				`Failed to find task ${taskId} in remote branches:`,
+				error instanceof Error ? error.message : String(error),
+			);
 		}
 		return null;
 	}
@@ -428,7 +434,10 @@ export async function findTaskInLocalBranches(
 		return task;
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(`Failed to find task ${taskId} in local branches:`, error);
+			console.error(
+				`Failed to find task ${taskId} in local branches:`,
+				error instanceof Error ? error.message : String(error),
+			);
 		}
 		return null;
 	}
@@ -515,7 +524,7 @@ export async function loadRemoteTasks(
 		return hydratedTasks;
 	} catch (error) {
 		// If fetch fails, we can still work with local tasks
-		console.error("Failed to fetch remote tasks:", error);
+		console.error("Failed to fetch remote tasks:", error instanceof Error ? error.message : String(error));
 		return [];
 	}
 }
@@ -684,7 +693,7 @@ export async function loadLocalBranchTasks(
 		return hydratedTasks;
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error("Failed to load local branch tasks:", error);
+			console.error("Failed to load local branch tasks:", error instanceof Error ? error.message : String(error));
 		}
 		return [];
 	}

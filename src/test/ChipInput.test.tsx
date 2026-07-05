@@ -9,9 +9,7 @@ describe("ChipInput", () => {
 	});
 
 	it("displays chips for given value", () => {
-		const html = renderToString(
-			<ChipInput name="test" label="" value={["bug", "feature"]} onChange={() => {}} />,
-		);
+		const html = renderToString(<ChipInput name="test" label="" value={["bug", "feature"]} onChange={() => {}} />);
 		expect(html).toContain("bug");
 		expect(html).toContain("feature");
 	});
@@ -29,9 +27,7 @@ describe("ChipInput", () => {
 	});
 
 	it("renders remove buttons for each chip", () => {
-		const html = renderToString(
-			<ChipInput name="test" label="" value={["bug"]} onChange={() => {}} />,
-		);
+		const html = renderToString(<ChipInput name="test" label="" value={["bug"]} onChange={() => {}} />);
 		expect(html).toContain('aria-label="Remove bug"');
 	});
 
@@ -51,9 +47,7 @@ describe("ChipInput", () => {
 	});
 
 	it("applies disabled class when disabled", () => {
-		const html = renderToString(
-			<ChipInput name="test" label="" value={["bug"]} disabled onChange={() => {}} />,
-		);
+		const html = renderToString(<ChipInput name="test" label="" value={["bug"]} disabled onChange={() => {}} />);
 		expect(html).toContain("cursor-not-allowed");
 	});
 

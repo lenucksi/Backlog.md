@@ -1056,7 +1056,10 @@ export class Core {
 			// Config loading failed, git operations will work with null config
 			this._config = null;
 			if (process.env.DEBUG) {
-				console.warn("Failed to load config for git operations:", error);
+				console.warn(
+					"Failed to load config for git operations:",
+					error instanceof Error ? error.message : String(error),
+				);
 			}
 		}
 	}
@@ -1974,7 +1977,10 @@ export class Core {
 				console.log(`Status change callback output for ${task.id}: ${result.output}`);
 			}
 		} catch (error) {
-			console.error(`Failed to execute status change callback for ${task.id}:`, error);
+			console.error(
+				`Failed to execute status change callback for ${task.id}:`,
+				error instanceof Error ? error.message : String(error),
+			);
 		}
 	}
 

@@ -17,7 +17,7 @@ export function createDecisionHandlers(ctx: ServerHandlerContext) {
 			}));
 			return Response.json(decisionFiles);
 		} catch (error) {
-			console.error("Error listing decisions:", error);
+			console.error("Error listing decisions:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -34,7 +34,7 @@ export function createDecisionHandlers(ctx: ServerHandlerContext) {
 
 			return Response.json(decision);
 		} catch (error) {
-			console.error("Error loading decision:", error);
+			console.error("Error loading decision:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Decision not found" }, { status: 404 });
 		}
 	}
@@ -46,7 +46,7 @@ export function createDecisionHandlers(ctx: ServerHandlerContext) {
 			const decision = await ctx.core.createDecisionWithTitle(title);
 			return Response.json(decision, { status: 201 });
 		} catch (error) {
-			console.error("Error creating decision:", error);
+			console.error("Error creating decision:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to create decision" }, { status: 500 });
 		}
 	}
@@ -61,7 +61,7 @@ export function createDecisionHandlers(ctx: ServerHandlerContext) {
 			if (error instanceof Error && error.message.includes("not found")) {
 				return Response.json({ error: "Decision not found" }, { status: 404 });
 			}
-			console.error("Error updating decision:", error);
+			console.error("Error updating decision:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to update decision" }, { status: 500 });
 		}
 	}
@@ -78,7 +78,7 @@ export function createDecisionHandlers(ctx: ServerHandlerContext) {
 			if (error instanceof Error && error.message.includes("already superseded")) {
 				return Response.json({ error: error.message }, { status: 409 });
 			}
-			console.error("Error resolving decision:", error);
+			console.error("Error resolving decision:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to resolve decision" }, { status: 500 });
 		}
 	}

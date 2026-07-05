@@ -15,7 +15,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json(config);
 		} catch (error) {
-			console.error("Error loading config:", error);
+			console.error("Error loading config:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to load configuration" }, { status: 500 });
 		}
 	}
@@ -42,7 +42,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 
 			return Response.json(updatedConfig);
 		} catch (error) {
-			console.error("Error updating config:", error);
+			console.error("Error updating config:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to update configuration" }, { status: 500 });
 		}
 	}
@@ -59,7 +59,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error listing labels:", error);
+			console.error("Error listing labels:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to list labels" }, { status: 500 });
 		}
 	}
@@ -93,7 +93,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error adding label:", error);
+			console.error("Error adding label:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to add label" }, { status: 500 });
 		}
 	}
@@ -193,7 +193,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error renaming label:", error);
+			console.error("Error renaming label:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to rename label" }, { status: 500 });
 		}
 	}
@@ -219,7 +219,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error removing label:", error);
+			console.error("Error removing label:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to remove label" }, { status: 500 });
 		}
 	}
@@ -236,7 +236,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error listing authors:", error);
+			console.error("Error listing authors:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to list authors" }, { status: 500 });
 		}
 	}
@@ -270,7 +270,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error adding author:", error);
+			console.error("Error adding author:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to add author" }, { status: 500 });
 		}
 	}
@@ -352,7 +352,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error renaming author:", error);
+			console.error("Error renaming author:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to rename author" }, { status: 500 });
 		}
 	}
@@ -378,7 +378,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(resolved);
 		} catch (error) {
-			console.error("Error removing author:", error);
+			console.error("Error removing author:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to remove author" }, { status: 500 });
 		}
 	}

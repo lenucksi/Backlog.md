@@ -1472,7 +1472,7 @@ export async function renderBoardTui(
 			} catch (error) {
 				// On error, cancel the move and restore original position
 				if (process.env.DEBUG) {
-					console.error("Move failed:", error);
+					console.error("Move failed:", error instanceof Error ? error.message : String(error));
 				}
 				moveOp = null;
 				renderView();

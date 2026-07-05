@@ -8,7 +8,7 @@ export function handleBacklogToolError(error: unknown): CallToolResult {
 		return error.formatForMCP();
 	}
 
-	console.error("Unexpected MCP error:", error);
+	console.error("Unexpected MCP error:", error instanceof Error ? error.message : String(error));
 
 	return {
 		content: [

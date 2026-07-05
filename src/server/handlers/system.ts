@@ -12,7 +12,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 			const version = await getVersion();
 			return Response.json({ version });
 		} catch (error) {
-			console.error("Error getting version:", error);
+			console.error("Error getting version:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to get version" }, { status: 500 });
 		}
 	}
@@ -42,7 +42,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 
 			return Response.json(response);
 		} catch (error) {
-			console.error("Error getting statistics:", error);
+			console.error("Error getting statistics:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to get statistics" }, { status: 500 });
 		}
 	}
@@ -60,7 +60,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 				rootConfigPath: backlogResolution.rootConfigPath,
 			});
 		} catch (error) {
-			console.error("Error getting status:", error);
+			console.error("Error getting status:", error instanceof Error ? error.message : String(error));
 			return Response.json({
 				initialized: false,
 				projectPath: ctx.core.filesystem.rootDir,
@@ -125,7 +125,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 				mcpResults: result.mcpResults,
 			});
 		} catch (error) {
-			console.error("Error initializing project:", error);
+			console.error("Error initializing project:", error instanceof Error ? error.message : String(error));
 			const message = error instanceof Error ? error.message : "Failed to initialize project";
 			return Response.json({ error: message }, { status: 500 });
 		}
@@ -137,7 +137,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 			const duplicates = scanForDuplicateIds(tasks);
 			return Response.json(duplicates);
 		} catch (error) {
-			console.error("Error getting duplicates:", error);
+			console.error("Error getting duplicates:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to get duplicates" }, { status: 500 });
 		}
 	}
@@ -181,7 +181,7 @@ export function createSystemHandlers(ctx: ServerHandlerContext) {
 			const mime = mimeMap[ext] ?? "application/octet-stream";
 			return new Response(file, { headers: { "Content-Type": mime } });
 		} catch (error) {
-			console.error("Error serving asset:", error);
+			console.error("Error serving asset:", error instanceof Error ? error.message : String(error));
 			return new Response("Internal Server Error", { status: 500 });
 		}
 	}

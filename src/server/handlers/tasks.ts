@@ -117,7 +117,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 			});
 			return Response.json(results);
 		} catch (error) {
-			console.error("Error performing search:", error);
+			console.error("Error performing search:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Search failed" }, { status: 500 });
 		}
 	}
@@ -280,7 +280,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 			const isValidationError = message.includes("not found") || message.includes("Missing required");
 			const status = isCrossBranchError || isValidationError ? 400 : 500;
 			if (status === 500) {
-				console.error("Error reordering task:", error);
+				console.error("Error reordering task:", error instanceof Error ? error.message : String(error));
 			}
 			return Response.json({ error: message }, { status });
 		}
@@ -329,7 +329,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 				tasks: preview,
 			});
 		} catch (error) {
-			console.error("Error getting cleanup preview:", error);
+			console.error("Error getting cleanup preview:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to get cleanup preview" }, { status: 500 });
 		}
 	}
@@ -369,7 +369,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 						failedTasks.push(task.id);
 					}
 				} catch (error) {
-					console.error(`Failed to complete task ${task.id}:`, error);
+					console.error(`Failed to complete task ${task.id}:`, error instanceof Error ? error.message : String(error));
 					failedTasks.push(task.id);
 				}
 			}
@@ -384,7 +384,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 				message: `Moved ${successCount} of ${tasksToCleanup.length} tasks to completed folder`,
 			});
 		} catch (error) {
-			console.error("Error executing cleanup:", error);
+			console.error("Error executing cleanup:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to execute cleanup" }, { status: 500 });
 		}
 	}
@@ -420,7 +420,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 			const tasks = await ctx.core.filesystem.listCompletedTasks();
 			return Response.json(tasks);
 		} catch (error) {
-			console.error("Error listing completed tasks:", error);
+			console.error("Error listing completed tasks:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -434,7 +434,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 			ctx.broadcastTasksUpdated();
 			return Response.json({ success: true });
 		} catch (error) {
-			console.error("Error reopening task:", error);
+			console.error("Error reopening task:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to reopen task" }, { status: 500 });
 		}
 	}

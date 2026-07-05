@@ -43,7 +43,7 @@ export async function generateNextDocId(core: Core): Promise<string> {
 	} catch (error) {
 		// Suppress errors for offline mode or other git issues
 		if (process.env.DEBUG) {
-			console.error("Could not fetch remote document IDs:", error);
+			console.error("Could not fetch remote document IDs:", error instanceof Error ? error.message : String(error));
 		}
 	}
 
@@ -116,7 +116,7 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 	} catch (error) {
 		// Suppress errors for offline mode or other git issues
 		if (process.env.DEBUG) {
-			console.error("Could not fetch remote decision IDs:", error);
+			console.error("Could not fetch remote decision IDs:", error instanceof Error ? error.message : String(error));
 		}
 	}
 

@@ -629,7 +629,10 @@ export class GitOperations {
 			}
 		} catch (error) {
 			// If the command fails, return empty map
-			console.error(`Failed to get branch last modified map for ${ref}:${dir}`, error);
+			console.error(
+				`Failed to get branch last modified map for ${ref}:${dir}`,
+				error instanceof Error ? error.message : String(error),
+			);
 		}
 
 		return out;

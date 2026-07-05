@@ -4,8 +4,7 @@ import MermaidMarkdown from "../web/components/MermaidMarkdown.tsx";
 
 describe("MermaidMarkdown", () => {
 	it("renders angle-bracket type strings without throwing", () => {
-		const source =
-			"Implemented contracts: getDishesByMenu(String menuId) -> Result<List<MenuItem>>";
+		const source = "Implemented contracts: getDishesByMenu(String menuId) -> Result<List<MenuItem>>";
 
 		expect(() => renderToString(<MermaidMarkdown source={source} />)).not.toThrow();
 

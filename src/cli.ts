@@ -23,6 +23,7 @@ import { registerSearchCommand } from "./commands/search.ts";
 import { registerSequenceCommand } from "./commands/sequence.ts";
 import { registerStatsCommand } from "./commands/statistics.ts";
 import { registerTaskCommand } from "./commands/task.ts";
+import { registerTui2Command } from "./commands/tui2.ts";
 import { Core } from "./core/backlog.ts";
 import { setExplicitProjectPath } from "./utils/cli-context.ts";
 import { findBacklogRoot } from "./utils/find-backlog-root.ts";
@@ -139,6 +140,7 @@ registerCompletionCommand(program);
 registerMcpCommand(program);
 registerMigrateCommand(program);
 registerInstructionsCommand(program);
+registerTui2Command(program);
 
 program.addHelpText(
 	"afterAll",

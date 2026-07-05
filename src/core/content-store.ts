@@ -56,7 +56,7 @@ export class ContentStore {
 	private attachWatcherErrorHandler(watcher: FSWatcher, context: string): void {
 		watcher.on("error", (error) => {
 			if (process.env.DEBUG) {
-				console.warn(`Watcher error (${context})`, error);
+				console.warn(`Watcher error (${context})`, error instanceof Error ? error.message : String(error));
 			}
 		});
 	}
@@ -235,7 +235,7 @@ export class ContentStore {
 			this.watchers.push(this.createTaskWatcher());
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize task watcher", error);
+				console.error("Failed to initialize task watcher", error instanceof Error ? error.message : String(error));
 			}
 		}
 
@@ -243,7 +243,7 @@ export class ContentStore {
 			this.watchers.push(this.createDecisionWatcher());
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize decision watcher", error);
+				console.error("Failed to initialize decision watcher", error instanceof Error ? error.message : String(error));
 			}
 		}
 
@@ -252,7 +252,7 @@ export class ContentStore {
 			this.watchers.push(docWatcher);
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize document watcher", error);
+				console.error("Failed to initialize document watcher", error instanceof Error ? error.message : String(error));
 			}
 		}
 
@@ -264,7 +264,7 @@ export class ContentStore {
 			}
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize config watcher", error);
+				console.error("Failed to initialize config watcher", error instanceof Error ? error.message : String(error));
 			}
 		}
 	}
@@ -352,7 +352,10 @@ export class ContentStore {
 			}
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to setup config watcher after init", error);
+				console.error(
+					"Failed to setup config watcher after init",
+					error instanceof Error ? error.message : String(error),
+				);
 			}
 		}
 	}
@@ -378,7 +381,7 @@ export class ContentStore {
 			};
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to watch config file", error);
+				console.error("Failed to watch config file", error instanceof Error ? error.message : String(error));
 			}
 			return null;
 		}
@@ -965,7 +968,7 @@ export class ContentStore {
 			.then(() => fn())
 			.catch((error) => {
 				if (process.env.DEBUG) {
-					console.error("ContentStore update failed", error);
+					console.error("ContentStore update failed", error instanceof Error ? error.message : String(error));
 				}
 			});
 	}

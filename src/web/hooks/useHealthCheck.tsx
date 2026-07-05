@@ -16,7 +16,10 @@ export function useHealthCheck() {
 		}
 
 		// Check if already connected or connecting
-		if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
+		if (
+			wsRef.current &&
+			(wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)
+		) {
 			return;
 		}
 
@@ -27,7 +30,7 @@ export function useHealthCheck() {
 		}
 
 		try {
-			const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+			const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 			const wsUrl = `${protocol}//${window.location.host}`;
 
 			const ws = new WebSocket(wsUrl);
@@ -51,7 +54,6 @@ export function useHealthCheck() {
 				setIsOnline(false);
 				setWasDisconnected(true);
 			};
-
 		} catch (error) {
 			console.error("[WebSocket Client] Failed to create WebSocket:", error);
 			setIsOnline(false);

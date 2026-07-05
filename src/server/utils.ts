@@ -79,7 +79,7 @@ export function handleDocumentUpdateError(error: unknown): Response {
 			return Response.json({ error: error.message }, { status: 400 });
 		}
 	}
-	console.error("Error updating document:", error);
+	console.error("Error updating document:", error instanceof Error ? error.message : String(error));
 	return Response.json({ error: "Failed to update document" }, { status: 500 });
 }
 

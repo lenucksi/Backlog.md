@@ -331,7 +331,7 @@ describe("loadRemoteTasks - edge cases", () => {
 
 		const tasks = await loadRemoteTasks(errorMock);
 		expect(tasks).toEqual([]);
-		expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", expect.any(Error));
+		expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", "Fetch error");
 	});
 
 	it("reports when no recent remote branches are found", async () => {

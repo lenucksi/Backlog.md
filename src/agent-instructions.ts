@@ -167,7 +167,10 @@ export async function addAgentInstructions(
 				if (!existing.endsWith("\n")) existing += "\n";
 				finalContent = existing + wrapWithMarkers(content, name);
 			} catch (error) {
-				console.error(`Error reading existing file ${filePath}:`, error);
+				console.error(
+					`Error reading existing file ${filePath}:`,
+					error instanceof Error ? error.message : String(error),
+				);
 				// If we can't read it, just use the new content with markers
 				finalContent = wrapWithMarkers(content, name);
 			}
@@ -228,7 +231,7 @@ export async function ensureMcpGuidelines(
 			}
 			existing = mcpStripped.content;
 		} catch (error) {
-			console.error(`Error reading existing file ${filePath}:`, error);
+			console.error(`Error reading existing file ${filePath}:`, error instanceof Error ? error.message : String(error));
 			existing = "";
 		}
 	}

@@ -375,10 +375,13 @@ export class FileSystem {
 
 		const code = (error as NodeJS.ErrnoException | undefined)?.code;
 		if (code === "ELOCKED") {
-			return createLockError(CREATE_LOCK_ERROR_MESSAGE, error);
+			return createLockError(CREATE_LOCK_ERROR_MESSAGE, error instanceof Error ? error.message : String(error));
 		}
 		if (code === "ECOMPROMISED") {
-			return createLockError("Task creation lock was interrupted. Please try again.", error);
+			return createLockError(
+				"Task creation lock was interrupted. Please try again.",
+				error instanceof Error ? error.message : String(error),
+			);
 		}
 		return error instanceof Error ? error : new Error(String(error));
 	}
@@ -531,7 +534,10 @@ export class FileSystem {
 				tasks.push({ ...task, filePath: filepath });
 			} catch (error) {
 				if (process.env.DEBUG) {
-					console.error(`Failed to parse task file ${filepath}`, error);
+					console.error(
+						`Failed to parse task file ${filepath}`,
+						error instanceof Error ? error.message : String(error),
+					);
 				}
 			}
 		}
@@ -578,7 +584,10 @@ export class FileSystem {
 				tasks.push({ ...task, filePath: filepath });
 			} catch (error) {
 				if (process.env.DEBUG) {
-					console.error(`Failed to parse completed task file ${filepath}`, error);
+					console.error(
+						`Failed to parse completed task file ${filepath}`,
+						error instanceof Error ? error.message : String(error),
+					);
 				}
 			}
 		}
@@ -615,7 +624,10 @@ export class FileSystem {
 				tasks.push({ ...task, filePath: filepath });
 			} catch (error) {
 				if (process.env.DEBUG) {
-					console.error(`Failed to parse archived task file ${filepath}`, error);
+					console.error(
+						`Failed to parse archived task file ${filepath}`,
+						error instanceof Error ? error.message : String(error),
+					);
 				}
 			}
 		}

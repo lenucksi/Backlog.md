@@ -274,7 +274,7 @@ export function registerConfigCommand(program: Command): void {
 				}
 				console.log("\nUse `backlog config list` to review all configuration values.");
 			} catch (err) {
-				console.error("Failed to update configuration", err);
+				console.error("Failed to update configuration", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});
@@ -324,7 +324,7 @@ export function registerConfigCommand(program: Command): void {
 					console.log(formatValueShort(entry, value));
 				}
 			} catch (err) {
-				console.error("Failed to get config value", err);
+				console.error("Failed to get config value", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});
@@ -394,7 +394,7 @@ export function registerConfigCommand(program: Command): void {
 					}
 				}
 			} catch (err) {
-				console.error("Failed to list config values", err);
+				console.error("Failed to list config values", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});

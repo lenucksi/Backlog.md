@@ -1027,7 +1027,7 @@ async function handleInitCommand(projectName: string | undefined, options: InitC
 			// Ignore failures in final advisory warning
 		}
 	} catch (err) {
-		console.error("Failed to initialize project", err);
+		console.error("Failed to initialize project", err instanceof Error ? err.message : String(err));
 		process.exitCode = 1;
 	}
 }

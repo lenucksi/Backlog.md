@@ -141,7 +141,7 @@ describe("Parallel remote task loading", () => {
 
 		// Verify error was logged
 		expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-		expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", expect.any(Error));
+		expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", "Network error");
 	});
 
 	it("should resolve task conflicts correctly", async () => {

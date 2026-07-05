@@ -232,7 +232,10 @@ export async function getLatestTaskStatesForIds(
 
 		onProgress?.(`Checked ${taskIds.length} tasks`);
 	} catch (error) {
-		console.error("Failed to get task directory locations for IDs:", error);
+		console.error(
+			"Failed to get task directory locations for IDs:",
+			error instanceof Error ? error.message : String(error),
+		);
 	}
 
 	return taskDirectories;

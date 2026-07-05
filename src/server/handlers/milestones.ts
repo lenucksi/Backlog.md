@@ -34,7 +34,7 @@ function milestoneMutationErrorResponse(error: unknown, context: string): Respon
 		return error.formatForServer();
 	}
 	const message = error instanceof Error ? error.message : context;
-	console.error(context, error);
+	console.error(context, error instanceof Error ? error.message : String(error));
 	return Response.json({ error: message, code: "INTERNAL_ERROR" }, { status: 500 });
 }
 
@@ -44,7 +44,7 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 			const milestones = await ctx.core.filesystem.listMilestones();
 			return Response.json(milestones);
 		} catch (error) {
-			console.error("Error listing milestones:", error);
+			console.error("Error listing milestones:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -54,7 +54,7 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 			const milestones = await ctx.core.filesystem.listArchivedMilestones();
 			return Response.json(milestones);
 		} catch (error) {
-			console.error("Error listing archived milestones:", error);
+			console.error("Error listing archived milestones:", error instanceof Error ? error.message : String(error));
 			return Response.json([]);
 		}
 	}
@@ -67,7 +67,7 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 			}
 			return Response.json(milestone);
 		} catch (error) {
-			console.error("Error loading milestone:", error);
+			console.error("Error loading milestone:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Milestone not found" }, { status: 404 });
 		}
 	}
@@ -120,7 +120,7 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 			const milestone = await ctx.core.filesystem.createMilestone(title, body.description);
 			return Response.json(milestone, { status: 201 });
 		} catch (error) {
-			console.error("Error creating milestone:", error);
+			console.error("Error creating milestone:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to create milestone" }, { status: 500 });
 		}
 	}
@@ -205,7 +205,7 @@ export function createMilestoneHandlers(ctx: ServerHandlerContext) {
 			return Response.json({ success: true, milestone: result.milestone ?? null });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Failed to archive milestone";
-			console.error("Error archiving milestone:", error);
+			console.error("Error archiving milestone:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: message }, { status: 500 });
 		}
 	}

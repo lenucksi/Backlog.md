@@ -41,7 +41,7 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 		}
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error("Could not fetch remote decision IDs:", error);
+			console.error("Could not fetch remote decision IDs:", error instanceof Error ? error.message : String(error));
 		}
 	}
 

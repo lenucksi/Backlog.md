@@ -71,7 +71,7 @@ export function registerAgentsCommand(program: Command): void {
 					console.log("No files selected for update.");
 				}
 			} catch (err) {
-				console.error("Failed to update agent instructions", err);
+				console.error("Failed to update agent instructions", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});

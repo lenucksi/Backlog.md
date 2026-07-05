@@ -199,9 +199,9 @@ describe("Web milestones page search", () => {
 		expect(initialText).toContain("Release 2");
 
 		// Enable "Show empty" so milestone sections remain visible when filtered
-		const showEmptyCheckbox = container.querySelector<HTMLInputElement>(
-			'label:has(> input[type="checkbox"])',
-		)?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+		const showEmptyCheckbox = container
+			.querySelector<HTMLInputElement>('label:has(> input[type="checkbox"])')
+			?.querySelector('input[type="checkbox"]') as HTMLInputElement;
 		if (showEmptyCheckbox) {
 			act(() => {
 				showEmptyCheckbox.click();
@@ -239,9 +239,9 @@ describe("Web milestones page search", () => {
 
 	it("no-match search keeps milestone and unassigned sections visible", () => {
 		const container = renderPage();
-		const showEmptyCheckbox = container.querySelector<HTMLInputElement>(
-			'label:has(> input[type="checkbox"])',
-		)?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+		const showEmptyCheckbox = container
+			.querySelector<HTMLInputElement>('label:has(> input[type="checkbox"])')
+			?.querySelector('input[type="checkbox"]') as HTMLInputElement;
 		if (showEmptyCheckbox) {
 			act(() => {
 				showEmptyCheckbox.click();
@@ -319,10 +319,9 @@ describe("Web milestones page search", () => {
 	});
 
 	it("submits milestone removal with reassign options through the API", async () => {
-		let removeArgs: [
-			string,
-			{ taskHandling?: "clear" | "keep" | "reassign"; reassignTo?: string } | undefined,
-		] | undefined;
+		let removeArgs:
+			| [string, { taskHandling?: "clear" | "keep" | "reassign"; reassignTo?: string } | undefined]
+			| undefined;
 		let refreshCount = 0;
 		apiClient.removeMilestone = async (id, options) => {
 			removeArgs = [id, options];

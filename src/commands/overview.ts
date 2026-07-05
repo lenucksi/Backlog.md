@@ -66,7 +66,7 @@ export function registerOverviewCommand(program: Command): void {
 
 				await runOverviewCommand(core);
 			} catch (err) {
-				console.error("Failed to display project overview", err);
+				console.error("Failed to display project overview", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
 			}
 		});

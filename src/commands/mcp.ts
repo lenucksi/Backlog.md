@@ -72,7 +72,7 @@ function registerStartCommand(mcpCmd: Command): void {
 						await server.stop();
 						process.exit(0);
 					} catch (error) {
-						console.error("Error during MCP server shutdown:", error);
+						console.error("Error during MCP server shutdown:", error instanceof Error ? error.message : String(error));
 						process.exit(1);
 					}
 				};
