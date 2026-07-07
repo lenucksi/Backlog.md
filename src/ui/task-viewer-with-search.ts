@@ -4,12 +4,7 @@ import { stdout as output } from "node:process";
 import type { BoxInterface, LineInterface, ScreenInterface, ScrollableTextInterface } from "neo-neo-bblessed";
 import { box, line, scrollabletext, textbox } from "neo-neo-bblessed";
 import { Core } from "../core/backlog.ts";
-import {
-	buildAcceptanceCriteriaItems,
-	buildDefinitionOfDoneItems,
-	formatDateForDisplay,
-	formatTaskPlainText,
-} from "../formatters/task-plain-text.ts";
+import { formatTaskPlainText } from "../formatters/task-plain-text.ts";
 import type { LabelConfig, Milestone, Task, TaskSearchResult } from "../types/index.ts";
 import { copyToClipboard } from "../utils/clipboard.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
@@ -17,8 +12,6 @@ import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/m
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { applyTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { attachSubtaskSummaries } from "../utils/task-subtasks.ts";
-import { formatChecklistItem } from "./checklist.ts";
-import { transformCodePaths } from "./code-path.ts";
 import { openConfirmPopup } from "./components/confirm-popup.ts";
 import {
 	createFilterHeader,
@@ -30,7 +23,6 @@ import { openMultiSelectFilterPopup, openSingleSelectFilterPopup } from "./compo
 import { createGenericList, type GenericList } from "./components/generic-list.ts";
 import { openHelpPopup } from "./components/help-popup.ts";
 import { formatFooterContent } from "./footer-content.ts";
-import { formatHeading } from "./heading.ts";
 import { createLoadingScreen } from "./loading.ts";
 import {
 	formatStatusWithIcon,
@@ -38,43 +30,14 @@ import {
 	type StatusStyleOptions,
 	statusOptionsFromConfig,
 } from "./status-icon.ts";
+import {
+	computeHeaderLineCount,
+	createMilestoneLabelResolver,
+	generateDetailContent,
+	getPriorityDisplay,
+} from "./task-detail-content.ts";
+import { createTaskPopup as createTaskPopupImpl } from "./task-popup.ts";
 import { createScreen } from "./tui.ts";
-
-function getPriorityDisplay(priority?: "high" | "medium" | "low"): string {
-	switch (priority) {
-		case "high":
-			return " {red-fg}●{/}";
-		case "medium":
-			return " {yellow-fg}●{/}";
-		case "low":
-			return " {green-fg}●{/}";
-		default:
-			return "";
-	}
-}
-
-function createMilestoneLabelResolver(milestones: Milestone[]): (milestone: string) => string {
-	const milestoneLabelsByKey = new Map<string, string>();
-	for (const milestone of milestones) {
-		const normalizedId = milestone.id.trim();
-		const normalizedTitle = milestone.title.trim();
-		if (!normalizedId || !normalizedTitle) continue;
-		milestoneLabelsByKey.set(normalizedId.toLowerCase(), normalizedTitle);
-		const idMatch = normalizedId.match(/^m-(\d+)$/i);
-		if (idMatch?.[1]) {
-			const numericAlias = String(Number.parseInt(idMatch[1], 10));
-			milestoneLabelsByKey.set(`m-${numericAlias}`, normalizedTitle);
-			milestoneLabelsByKey.set(numericAlias, normalizedTitle);
-		}
-		milestoneLabelsByKey.set(normalizedTitle.toLowerCase(), normalizedTitle);
-	}
-
-	return (milestone: string) => {
-		const normalized = milestone.trim();
-		if (!normalized) return milestone;
-		return milestoneLabelsByKey.get(normalized.toLowerCase()) ?? milestone;
-	};
-}
 
 export function buildTaskViewerMilestoneFilterModel(activeMilestones: Milestone[]): {
 	availableMilestoneTitles: string[];
@@ -976,18 +939,20 @@ export async function viewTaskEnhanced(
 
 		screen.title = `Task ${currentSelectedTask.id} - ${currentSelectedTask.title}`;
 
-		const detailContent = generateDetailContent(currentSelectedTask, resolveMilestoneLabel, statusStyleOptions);
+		const isPastDueDate = currentSelectedTask.dueDate ? new Date(currentSelectedTask.dueDate) < new Date() : undefined;
+
+		const detailContent = generateDetailContent(currentSelectedTask, {
+			statusStyleOptions,
+			resolveMilestoneLabel,
+			availableLabels,
+			isPastDueDate,
+		});
 
 		// Calculate header height based on content and available width
 		const detailPaneWidth = typeof detailPane.width === "number" ? detailPane.width : 60;
-		const availableWidth = detailPaneWidth - 6; // 2 for border, 2 for box padding, 2 for header padding
+		const availableWidth = detailPaneWidth - 6;
 
-		let headerLineCount = 0;
-		for (const detailLine of detailContent.headerContent) {
-			const plainText = detailLine.replace(/\{[^}]+\}/g, "");
-			const lineCount = Math.max(1, Math.ceil(plainText.length / availableWidth));
-			headerLineCount += lineCount;
-		}
+		const headerLineCount = computeHeaderLineCount(detailContent.headerContent, availableWidth);
 
 		headerDetailBox = box({
 			parent: detailPane,
@@ -1563,184 +1528,6 @@ export async function viewTaskEnhanced(
 	});
 }
 
-function generateDetailContent(
-	task: Task,
-	resolveMilestoneLabel?: (milestone: string) => string,
-	statusStyleOptions?: StatusStyleOptions,
-): { headerContent: string[]; bodyContent: string[] } {
-	const headerContent = [
-		` {${getStatusColor(task.status, statusStyleOptions)}-fg}${formatStatusWithIcon(task.status, statusStyleOptions)}{/} {bold}{blue-fg}${task.id}{/blue-fg}{/bold} - ${task.title}`,
-	];
-
-	// Add cross-branch indicator if task is from another branch
-	const isCrossBranch = Boolean((task as Task & { branch?: string }).branch);
-	if (isCrossBranch) {
-		const branchName = (task as Task & { branch?: string }).branch;
-		headerContent.push(
-			` {yellow-fg}⚠ Read-only:{/} This task exists in branch {green-fg}${branchName}{/}. Switch to that branch to edit it.`,
-		);
-	}
-
-	const bodyContent: string[] = [];
-	bodyContent.push(formatHeading("Details", 2));
-
-	const metadata: string[] = [];
-	metadata.push(`{bold}Created:{/bold} ${formatDateForDisplay(task.createdDate)}`);
-	if (task.updatedDate && task.updatedDate !== task.createdDate) {
-		metadata.push(`{bold}Updated:{/bold} ${formatDateForDisplay(task.updatedDate)}`);
-	}
-	if (task.dueDate) {
-		const isPast = new Date(task.dueDate) < new Date();
-		const colorTag = isPast ? "{red-fg}" : "";
-		metadata.push(`{bold}Due:{/bold} ${colorTag}${formatDateForDisplay(task.dueDate)}{/}`);
-	}
-	if (task.deferDate) {
-		metadata.push(`{bold}Defer:{/bold} ${formatDateForDisplay(task.deferDate)}`);
-	}
-	if (task.completedDate) {
-		metadata.push(`{bold}Completed:{/bold} ${formatDateForDisplay(task.completedDate)}`);
-	}
-	if (task.archivedDate) {
-		metadata.push(`{bold}Archived:{/bold} ${formatDateForDisplay(task.archivedDate)}`);
-	}
-	if (task.priority) {
-		const priorityDisplay = getPriorityDisplay(task.priority);
-		const priorityText = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
-		metadata.push(`{bold}Priority:{/bold} ${priorityText}${priorityDisplay}`);
-	}
-	if (task.assignee?.length) {
-		const assigneeList = task.assignee.map((a) => (a.startsWith("@") ? a : `@${a}`)).join(", ");
-		metadata.push(`{bold}Assignee:{/bold} {cyan-fg}${assigneeList}{/}`);
-	}
-	if (task.labels?.length) {
-		metadata.push(`{bold}Labels:{/bold} ${task.labels.map((l) => `{yellow-fg}[${l}]{/}`).join(" ")}`);
-	}
-	if (task.reporter) {
-		const reporterText = task.reporter.startsWith("@") ? task.reporter : `@${task.reporter}`;
-		metadata.push(`{bold}Reporter:{/bold} {cyan-fg}${reporterText}{/}`);
-	}
-	if (task.milestone) {
-		const milestoneLabel = resolveMilestoneLabel ? resolveMilestoneLabel(task.milestone) : task.milestone;
-		metadata.push(`{bold}Milestone:{/bold} {magenta-fg}${milestoneLabel}{/}`);
-	}
-	if (task.parentTaskId) {
-		const parentLabel = task.parentTaskTitle ? `${task.parentTaskId} - ${task.parentTaskTitle}` : task.parentTaskId;
-		metadata.push(`{bold}Parent:{/bold} {blue-fg}${parentLabel}{/}`);
-	}
-	if (task.subtasks?.length) {
-		metadata.push(`{bold}Subtasks:{/bold} ${task.subtasks.length} task${task.subtasks.length > 1 ? "s" : ""}`);
-	}
-	if (task.dependencies?.length) {
-		metadata.push(`{bold}Dependencies:{/bold} ${task.dependencies.join(", ")}`);
-	}
-	if (task.modifiedFiles?.length) {
-		metadata.push(`{bold}Modified files:{/bold} ${task.modifiedFiles.join(", ")}`);
-	}
-
-	bodyContent.push(metadata.join("\n"));
-	bodyContent.push("");
-
-	bodyContent.push(formatHeading("Description", 2));
-	const descriptionText = task.description?.trim();
-	const descriptionContent = descriptionText
-		? transformCodePaths(descriptionText)
-		: "{gray-fg}No description provided{/}";
-	bodyContent.push(descriptionContent);
-	bodyContent.push("");
-
-	if (task.references?.length) {
-		bodyContent.push(formatHeading("References", 2));
-		const formattedRefs = task.references.map((ref) => {
-			// Color URLs differently from file paths
-			if (ref.startsWith("http://") || ref.startsWith("https://")) {
-				return `  {cyan-fg}${ref}{/}`;
-			}
-			return `  {yellow-fg}${ref}{/}`;
-		});
-		bodyContent.push(formattedRefs.join("\n"));
-		bodyContent.push("");
-	}
-
-	if (task.documentation?.length) {
-		bodyContent.push(formatHeading("Documentation", 2));
-		const formattedDocs = task.documentation.map((doc) => {
-			if (doc.startsWith("http://") || doc.startsWith("https://")) {
-				return `  {cyan-fg}${doc}{/}`;
-			}
-			return `  {yellow-fg}${doc}{/}`;
-		});
-		bodyContent.push(formattedDocs.join("\n"));
-		bodyContent.push("");
-	}
-
-	bodyContent.push(formatHeading("Acceptance Criteria", 2));
-	const checklistItems = buildAcceptanceCriteriaItems(task);
-	if (checklistItems.length > 0) {
-		const formattedCriteria = checklistItems.map((item) =>
-			formatChecklistItem(
-				{
-					text: transformCodePaths(item.text),
-					checked: item.checked,
-				},
-				{
-					padding: " ",
-					checkedSymbol: "{green-fg}✓{/}",
-					uncheckedSymbol: "{gray-fg}○{/}",
-				},
-			),
-		);
-		bodyContent.push(formattedCriteria.join("\n"));
-	} else {
-		bodyContent.push("{gray-fg}No acceptance criteria defined{/}");
-	}
-	bodyContent.push("");
-
-	bodyContent.push(formatHeading("Definition of Done", 2));
-	const definitionItems = buildDefinitionOfDoneItems(task);
-	if (definitionItems.length > 0) {
-		const formattedDefinition = definitionItems.map((item) =>
-			formatChecklistItem(
-				{
-					text: transformCodePaths(item.text),
-					checked: item.checked,
-				},
-				{
-					padding: " ",
-					checkedSymbol: "{green-fg}✓{/}",
-					uncheckedSymbol: "{gray-fg}○{/}",
-				},
-			),
-		);
-		bodyContent.push(formattedDefinition.join("\n"));
-	} else {
-		bodyContent.push("{gray-fg}No Definition of Done items defined{/}");
-	}
-	bodyContent.push("");
-
-	const implementationPlan = task.implementationPlan?.trim();
-	if (implementationPlan) {
-		bodyContent.push(formatHeading("Implementation Plan", 2));
-		bodyContent.push(transformCodePaths(implementationPlan));
-		bodyContent.push("");
-	}
-
-	const implementationNotes = task.implementationNotes?.trim();
-	if (implementationNotes) {
-		bodyContent.push(formatHeading("Implementation Notes", 2));
-		bodyContent.push(transformCodePaths(implementationNotes));
-		bodyContent.push("");
-	}
-
-	const finalSummary = task.finalSummary?.trim();
-	if (finalSummary) {
-		bodyContent.push(formatHeading("Final Summary", 2));
-		bodyContent.push(transformCodePaths(finalSummary));
-		bodyContent.push("");
-	}
-
-	return { headerContent, bodyContent };
-}
-
 export async function createTaskPopup(
 	screen: ScreenInterface,
 	task: Task,
@@ -1753,131 +1540,11 @@ export async function createTaskPopup(
 	close: () => void;
 } | null> {
 	if (output.isTTY === false) return null;
-
-	const popup = box({
-		parent: screen,
-		top: "center",
-		left: "center",
-		width: "85%",
-		height: "80%",
-		border: "line",
-		style: {
-			border: { fg: "gray" },
-		},
-		keys: true,
-		tags: true,
-		autoPadding: true,
+	return createTaskPopupImpl({
+		screen,
+		task,
+		resolveMilestoneLabel: resolveMilestoneLabel ?? ((m: string) => m),
+		statusStyleOptions: statusStyleOptions ?? {},
+		availableLabels: [],
 	});
-
-	const background = box({
-		parent: screen,
-		top: Number(popup.top ?? 0) - 1,
-		left: Number(popup.left ?? 0) - 2,
-		width: Number(popup.width ?? 0) + 4,
-		height: Number(popup.height ?? 0) + 2,
-		style: {
-			bg: "black",
-		},
-	});
-
-	popup.setFront?.();
-
-	const { headerContent, bodyContent } = generateDetailContent(task, resolveMilestoneLabel, statusStyleOptions);
-
-	// Calculate header height based on content and available width
-	const popupWidth = typeof popup.width === "number" ? popup.width : 80;
-	const availableWidth = popupWidth - 6;
-
-	let headerLineCount = 0;
-	for (const headerLine of headerContent) {
-		const plainText = headerLine.replace(/\{[^}]+\}/g, "");
-		const lineCount = Math.max(1, Math.ceil(plainText.length / availableWidth));
-		headerLineCount += lineCount;
-	}
-
-	box({
-		parent: popup,
-		top: 0,
-		left: 1,
-		right: 1,
-		height: headerLineCount,
-		tags: true,
-		wrap: true,
-		scrollable: false,
-		padding: { left: 1, right: 1 },
-		content: headerContent.join("\n"),
-	});
-
-	line({
-		parent: popup,
-		top: headerLineCount,
-		left: 1,
-		right: 1,
-		orientation: "horizontal",
-		style: { fg: "gray" },
-	});
-
-	box({
-		parent: popup,
-		content: " Esc ",
-		top: -1,
-		right: 1,
-		width: 5,
-		height: 1,
-		style: { fg: "white", bg: "blue" },
-	});
-
-	const contentArea = scrollabletext({
-		parent: popup,
-		top: headerLineCount + 1,
-		left: 1,
-		right: 1,
-		bottom: 1,
-		keys: true,
-		vi: true,
-		mouse: true,
-		tags: true,
-		wrap: true,
-		padding: { left: 1, right: 1, top: 0, bottom: 0 },
-		content: bodyContent.join("\n"),
-	});
-
-	const closePopup = () => {
-		popup.destroy();
-		background.destroy();
-		screen.render();
-	};
-
-	popup.key(["escape", "q", "C-c"], () => {
-		closePopup();
-		return false;
-	});
-
-	contentArea.on("focus", () => {
-		const popupStyle = popup.style as { border?: { fg?: string } };
-		popupStyle.border = { ...(popupStyle.border ?? {}), fg: "yellow" };
-		screen.render();
-	});
-
-	contentArea.on("blur", () => {
-		const popupStyle = popup.style as { border?: { fg?: string } };
-		popupStyle.border = { ...(popupStyle.border ?? {}), fg: "gray" };
-		screen.render();
-	});
-
-	contentArea.key(["escape"], () => {
-		closePopup();
-		return false;
-	});
-
-	setImmediate(() => {
-		contentArea.focus();
-	});
-
-	return {
-		background,
-		popup,
-		contentArea,
-		close: closePopup,
-	};
 }
