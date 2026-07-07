@@ -1,3 +1,4 @@
+import { EXIT } from "../utils/exit-codes.ts";
 /**
  * MCP Command Group - Model Context Protocol CLI commands.
  *
@@ -70,10 +71,10 @@ function registerStartCommand(mcpCmd: Command): void {
 
 					try {
 						await server.stop();
-						process.exit(0);
+						process.exit(EXIT.SUCCESS);
 					} catch (error) {
 						console.error("Error during MCP server shutdown:", error instanceof Error ? error.message : String(error));
-						process.exit(1);
+						process.exit(EXIT.ERROR);
 					}
 				};
 
@@ -105,7 +106,7 @@ function registerStartCommand(mcpCmd: Command): void {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				console.error(`Failed to start MCP server: ${message}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 		});
 }

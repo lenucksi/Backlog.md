@@ -5,6 +5,7 @@ import type { AgentInstructionFile } from "../index.ts";
 import { addAgentInstructions } from "../index.ts";
 import { AppError } from "../utils/app-error.ts";
 import { getExplicitProjectPath } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
 import type { RuntimeCwdResolution } from "../utils/runtime-cwd.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
@@ -31,7 +32,7 @@ export function registerAgentsCommand(program: Command): void {
 				} catch (error) {
 					const message = AppError.formatCLIError(error);
 					console.error(message);
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 				const startDir = explicitPath || runtimeCwd.cwd;
 				const cwd = (await findBacklogRoot(startDir)) ?? startDir;
@@ -40,7 +41,7 @@ export function registerAgentsCommand(program: Command): void {
 				const config = await core.filesystem.loadConfig();
 				if (!config) {
 					console.error("No backlog project found. Initialize one first with: backlog init");
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 
 				const selected = await clack.multiselect({

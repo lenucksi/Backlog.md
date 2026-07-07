@@ -5,6 +5,7 @@ import {
 	CLI_TASK_EXECUTION_GUIDE,
 	CLI_TASK_FINALIZATION_GUIDE,
 } from "../guidelines/cli/index.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 type GuideKey = "overview" | "task-creation" | "task-execution" | "task-finalization";
 
@@ -50,7 +51,7 @@ export function registerInstructionsCommand(program: Command): void {
 			if (!content) {
 				console.error(`Unknown guide: ${guide}`);
 				console.error(`Available guides: ${GUIDE_KEYS.join(", ")}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			console.log(content);
 		});

@@ -3,6 +3,7 @@ import * as clack from "@clack/prompts";
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 export function registerMigrateCommand(program: Command): void {
 	const migrateCommand = program.command("migrate").description("migrate backlog directory structure");
@@ -19,7 +20,7 @@ export function registerMigrateCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			core.gitOps.setConfig(config);
 

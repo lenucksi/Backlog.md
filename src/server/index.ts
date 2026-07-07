@@ -1,13 +1,13 @@
 import { realpathSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { BunFile, Server, ServerWebSocket } from "bun";
-
 import { Core } from "../core/backlog.ts";
 import type { ContentStore } from "../core/content-store.ts";
 import type { SearchService } from "../core/search-service.ts";
 import { AppError } from "../utils/app-error.ts";
 import { openUrlInBrowser } from "../utils/browser-opener.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
 import { createBacklinkHandlers } from "./handlers/backlinks.ts";
 import { createConfigHandlers } from "./handlers/config.ts";
@@ -272,11 +272,11 @@ export class BacklogServer {
 			const errorMessage = (error as Error)?.message;
 			if (errorCode === "EADDRINUSE" || errorMessage?.includes("address already in use")) {
 				console.error(`\n❌ Error: Port ${finalPort} is already in use. Use --port to specify a different port.\n`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 
 			console.error("❌ Failed to start server:", errorMessage || error);
-			process.exit(1);
+			process.exit(EXIT.ERROR);
 		}
 	}
 

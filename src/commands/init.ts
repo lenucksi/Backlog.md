@@ -16,6 +16,7 @@ import type { AgentSelectionValue } from "../utils/agent-selection.ts";
 import { processAgentSelection } from "../utils/agent-selection.ts";
 import { AppError } from "../utils/app-error.ts";
 import { normalizeProjectBacklogDirectory } from "../utils/backlog-directory.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 import { runAdvancedConfigWizard } from "./advanced-config-wizard.ts";
 
@@ -186,11 +187,11 @@ async function resolveBacklogLocation(
 		console.error(
 			"Invalid --backlog-dir value. Use 'backlog', '.backlog', or a project-relative path inside the project.",
 		);
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 	if (normalizedConfigLocation && normalizedConfigLocation !== "folder" && normalizedConfigLocation !== "root") {
 		console.error("Invalid --config-location value. Use 'folder' or 'root'.");
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	if (isNonInteractive) {
@@ -213,7 +214,7 @@ async function resolveBacklogLocation(
 			(backlogDirectorySource === "custom" ? "root" : defaultConfigLocation);
 		if (backlogDirectorySource === "custom" && configLocation !== "root") {
 			console.error("Custom backlog directories require --config-location root.");
-			process.exit(1);
+			process.exit(EXIT.ERROR);
 		}
 		return { backlogDirectory, backlogDirectorySource, configLocation };
 	}
@@ -304,7 +305,7 @@ async function resolveIntegrationModeState(
 	const integrationOption = options.integrationMode ? normalizeIntegrationOption(options.integrationMode) : undefined;
 	if (options.integrationMode && !integrationOption) {
 		console.error(`Invalid integration mode: ${options.integrationMode}. Valid options are: mcp, cli, none`);
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	let integrationMode: IntegrationMode | null = integrationOption ?? (isNonInteractive ? "mcp" : null);
@@ -320,12 +321,12 @@ async function resolveIntegrationModeState(
 
 	if (integrationMode === "mcp" && (options.agentInstructions || options.installClaudeAgent)) {
 		console.error("The MCP connector option cannot be combined with --agent-instructions or --install-claude-agent.");
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	if (integrationMode === "none" && (options.agentInstructions || options.installClaudeAgent)) {
 		console.error("Skipping AI integration cannot be combined with --agent-instructions or --install-claude-agent.");
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	let integrationTipShown = false;
@@ -386,7 +387,7 @@ async function resolveIntegrationModeState(
 					if (!mappedFile) {
 						console.error(`Invalid agent instruction: ${instruction}`);
 						console.error("Valid options are: cursor, claude, agents, gemini, copilot, none");
-						process.exit(1);
+						process.exit(EXIT.ERROR);
 					}
 					mappedFiles.push(mappedFile);
 				}
@@ -397,7 +398,7 @@ async function resolveIntegrationModeState(
 
 				if (needsRetry) {
 					console.error("Please select at least one agent instruction file before continuing.");
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 				agentFiles = files;
 				agentInstructionsSkipped = skipped;
@@ -776,13 +777,13 @@ async function handleInitCommand(projectName: string | undefined, options: InitC
 				console.error(
 					"The backlog directory is fixed after initialization. Re-run init without --backlog-dir for this project.",
 				);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			if (options.configLocation) {
 				console.error(
 					"The config location is fixed after initialization. Re-run init without --config-location for this project.",
 				);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 		}
 
@@ -863,7 +864,7 @@ async function handleInitCommand(projectName: string | undefined, options: InitC
 		}
 		if (taskPrefix && !/^[a-zA-Z]+$/.test(taskPrefix)) {
 			console.error("Task prefix must contain only letters (a-z, A-Z).");
-			process.exit(1);
+			process.exit(EXIT.ERROR);
 		}
 
 		const defaultAdvancedConfig = getDefaultAdvancedConfig(existingConfig);

@@ -17,7 +17,7 @@ export function registerDocCommand(program: Command): void {
 
 	docCmd
 		.command("create <title>")
-		.option("-p, --path <path>")
+		.option("-p, --path <path>", "document path (e.g. architecture/guide)")
 		.option("-t, --type <type>", `document type (${DOCUMENT_TYPE_VALUES.join(", ")})`)
 		.option("-l, --labels <labels>", "set labels (comma-separated)")
 		.action(async (title: string, options) => {

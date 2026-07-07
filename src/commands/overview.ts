@@ -5,6 +5,7 @@ import { createLoadingScreen } from "../ui/loading.ts";
 import { renderOverviewTui } from "../ui/overview-tui.ts";
 import { statusOptionsFromConfig } from "../ui/status-icon.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 export function formatTime(ms: number): string {
 	if (ms < 1000) return `${Math.round(ms)}ms`;
@@ -61,7 +62,7 @@ export function registerOverviewCommand(program: Command): void {
 
 				if (!config) {
 					console.error("No backlog project found. Initialize one first with: backlog init");
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 
 				await runOverviewCommand(core);

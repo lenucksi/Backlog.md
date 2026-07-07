@@ -1,6 +1,7 @@
 import * as clack from "@clack/prompts";
 import type { BacklogConfig } from "../types/index.ts";
 import { isEditorAvailable, resolveEditor } from "../utils/editor.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 interface PromptChoice {
 	title: string;
@@ -46,7 +47,7 @@ type DefinitionOfDoneAction = "add" | "remove" | "reorder" | "clear" | "done";
 
 function handlePromptCancel(message: string) {
 	clack.cancel(message);
-	process.exit(1);
+	process.exit(EXIT.ERROR);
 }
 
 function withHint(message: string, hint?: string): string {

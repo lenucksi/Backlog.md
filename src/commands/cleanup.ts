@@ -4,6 +4,7 @@ import type { Command } from "commander";
 import { DEFAULT_STATUSES } from "../constants/index.ts";
 import { Core } from "../core/backlog.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 
 export function registerCleanupCommand(program: Command): void {
@@ -17,7 +18,7 @@ export function registerCleanupCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			core.gitOps.setConfig(config);
 

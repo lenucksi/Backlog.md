@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { colorizeLabel } from "../utils/ansi.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 async function ensureLabelsMigrated(core: Core): Promise<void> {
 	const config = await core.filesystem.loadConfig();
@@ -68,7 +69,7 @@ export function registerLabelCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const labels = config.labels ?? [];
 			if (options.json) {
@@ -99,14 +100,14 @@ export function registerLabelCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(1);
+			if (!reloaded) process.exit(EXIT.ERROR);
 			if ((reloaded.labels ?? []).some((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase())) {
 				console.error(`Label already exists: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const newLabel = options.color ? { name, color: options.color } : name;
 			reloaded.labels = [...(reloaded.labels ?? []), newLabel].sort((a, b) =>
@@ -125,17 +126,17 @@ export function registerLabelCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(1);
+			if (!reloaded) process.exit(EXIT.ERROR);
 			const labelIndex = (reloaded.labels ?? []).findIndex(
 				(l) => (typeof l === "string" ? l : l.name) === oldName.toLowerCase(),
 			);
 			if (labelIndex === -1) {
 				console.error(`Label not found: ${oldName}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			if (
 				(reloaded.labels ?? []).some(
@@ -143,7 +144,7 @@ export function registerLabelCommand(program: Command): void {
 				)
 			) {
 				console.error(`Target label already exists: ${newName}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const oldLabel = reloaded.labels[labelIndex];
 			if (oldLabel) {
@@ -214,15 +215,15 @@ export function registerLabelCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(1);
+			if (!reloaded) process.exit(EXIT.ERROR);
 			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Label not found: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			reloaded.labels = reloaded.labels.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(reloaded);
@@ -238,15 +239,15 @@ export function registerLabelCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(1);
+			if (!reloaded) process.exit(EXIT.ERROR);
 			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Label not found: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const existing = reloaded.labels[idx];
 			if (!existing) return;
@@ -268,15 +269,15 @@ export function registerLabelCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(1);
+			if (!reloaded) process.exit(EXIT.ERROR);
 			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Label not found: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const existing = reloaded.labels[idx];
 			if (!existing) return;

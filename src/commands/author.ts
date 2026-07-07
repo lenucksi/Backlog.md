@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { colorizeLabel } from "../utils/ansi.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 function ensureAuthors(config: {
 	authors?: Array<string | { name: string; color?: string }>;
@@ -23,7 +24,7 @@ export function registerAuthorCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const authors = config.authors ?? [];
 			if (options.json) {
@@ -54,12 +55,12 @@ export function registerAuthorCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const authors = ensureAuthors(config);
 			if (authors.some((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase())) {
 				console.error(`Author already exists: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const newAuthor = options.color ? { name, color: options.color } : name;
 			config.authors = [...authors, newAuthor].sort((a, b) =>
@@ -78,13 +79,13 @@ export function registerAuthorCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const authors = ensureAuthors(config);
 			const authorIndex = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === oldName.toLowerCase());
 			if (authorIndex === -1) {
 				console.error(`Author not found: ${oldName}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			if (
 				authors.some(
@@ -92,7 +93,7 @@ export function registerAuthorCommand(program: Command): void {
 				)
 			) {
 				console.error(`Target author already exists: ${newName}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			authors[authorIndex] = newName;
 			config.authors = authors.sort((a, b) =>
@@ -130,13 +131,13 @@ export function registerAuthorCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const authors = ensureAuthors(config);
 			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Author not found: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			config.authors = authors.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(config);
@@ -152,13 +153,13 @@ export function registerAuthorCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const authors = ensureAuthors(config);
 			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Author not found: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const existing = authors[idx];
 			if (!existing) return;
@@ -181,13 +182,13 @@ export function registerAuthorCommand(program: Command): void {
 			const config = await core.filesystem.loadConfig();
 			if (!config) {
 				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const authors = ensureAuthors(config);
 			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Author not found: ${name}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			const existing = authors[idx];
 			if (!existing) return;

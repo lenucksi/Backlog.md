@@ -6,6 +6,7 @@ import { Core } from "../core/backlog.ts";
 import type { Decision } from "../types/index.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { openInEditor } from "../utils/editor.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 export async function generateNextDecisionId(core: Core): Promise<string> {
 	const config = await core.filesystem.loadConfig();
@@ -79,7 +80,7 @@ export function registerDecisionCommand(program: Command): void {
 
 	decisionCmd
 		.command("create <title>")
-		.option("-s, --status <status>")
+		.option("-s, --status <status>", "set decision status")
 		.option("-l, --labels <labels>", "set labels (comma-separated)")
 		.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
@@ -159,7 +160,7 @@ export function registerDecisionCommand(program: Command): void {
 			const decision = await loadDecision(core, id);
 			if (!decision) {
 				console.error(`Decision not found: ${id}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 
 			if (options.json) {
@@ -205,11 +206,11 @@ export function registerDecisionCommand(program: Command): void {
 			const decision = await loadDecision(core, id);
 			if (!decision) {
 				console.error(`Decision not found: ${id}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			if (decision.status === "superseded") {
 				console.error(`Decision ${id} is already superseded.`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 
 			await core.resolveDecision(decision.id);
@@ -227,11 +228,11 @@ export function registerDecisionCommand(program: Command): void {
 			const oldDecision = await loadDecision(core, id);
 			if (!oldDecision) {
 				console.error(`Decision not found: ${id}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 			if (oldDecision.status === "superseded") {
 				console.error(`Decision ${id} is already superseded.`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 
 			const newId = await generateNextDecisionId(core);
@@ -265,7 +266,7 @@ export function registerDecisionCommand(program: Command): void {
 			const editorOk = await openInEditor(tmpFile, config);
 			if (!editorOk) {
 				console.error("Editor failed or was cancelled.");
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 
 			const { readFileSync } = await import("node:fs");

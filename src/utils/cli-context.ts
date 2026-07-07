@@ -1,4 +1,5 @@
 import { AppError } from "./app-error.ts";
+import { EXIT } from "./exit-codes.ts";
 import { findBacklogRoot } from "./find-backlog-root.ts";
 import type { RuntimeCwdResolution } from "./runtime-cwd.ts";
 import { resolveRuntimeCwd } from "./runtime-cwd.ts";
@@ -48,11 +49,11 @@ export async function requireProjectRoot(): Promise<string> {
 			const s = await stat(_explicitProjectPath);
 			if (!s.isDirectory()) {
 				console.error(`error: --path '${_explicitProjectPath}' is not a directory`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 		} catch {
 			console.error(`error: --path '${_explicitProjectPath}' does not exist`);
-			process.exit(1);
+			process.exit(EXIT.ERROR);
 		}
 		return _explicitProjectPath;
 	}
@@ -63,13 +64,13 @@ export async function requireProjectRoot(): Promise<string> {
 	} catch (error) {
 		const message = AppError.formatCLIError(error);
 		console.error(message);
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	const root = await findBacklogRoot(runtimeCwd.cwd);
 	if (!root) {
 		console.error("No Backlog.md project found. Run `backlog init` to initialize.");
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 	return root;
 }

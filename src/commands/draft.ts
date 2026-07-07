@@ -70,9 +70,9 @@ function registerDraftCreateCommand(draftCmd: Command): void {
 		.command("create <title>")
 		.option("-d, --description <text>", "task description (multi-line: include real newlines inside the quoted string)")
 		.option("--desc <text>", "alias for --description")
-		.option("-a, --assignee <assignee>")
-		.option("-s, --status <status>")
-		.option("-l, --labels <labels>")
+		.option("-a, --assignee <assignee>", "set draft assignee (comma-separated)")
+		.option("-s, --status <status>", "set draft status")
+		.option("-l, --labels <labels>", "set draft labels (comma-separated)")
 		.action(async (title: string, options) => {
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);

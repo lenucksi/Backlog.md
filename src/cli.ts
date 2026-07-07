@@ -26,9 +26,14 @@ import { registerTaskCommand } from "./commands/task.ts";
 import { registerTui2Command } from "./commands/tui2.ts";
 import { Core } from "./core/backlog.ts";
 import { setExplicitProjectPath } from "./utils/cli-context.ts";
+import { EXIT } from "./utils/exit-codes.ts";
 import { findBacklogRoot } from "./utils/find-backlog-root.ts";
 import { resolveRuntimeCwd } from "./utils/runtime-cwd.ts";
 import { getVersion } from "./utils/version.ts";
+
+process.on("SIGINT", () => {
+	process.exit(EXIT.SIGINT);
+});
 
 // Windows color fix
 if (process.platform === "win32") {
@@ -114,7 +119,7 @@ program
 			plain: forcePlain || autoPlain,
 			color: !noColor,
 		});
-		process.exit(0);
+		process.exit(EXIT.SUCCESS);
 	});
 
 // Register all command groups

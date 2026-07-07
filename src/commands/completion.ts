@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { getCompletions } from "../completions/helper.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -490,17 +491,17 @@ export function registerCompletionCommand(program: Command): void {
 			try {
 				const pointNum = Number.parseInt(point, 10);
 				if (Number.isNaN(pointNum)) {
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 
 				const completions = await getCompletions(program, line, pointNum);
 				for (const completion of completions) {
 					console.log(completion);
 				}
-				process.exit(0);
+				process.exit(EXIT.SUCCESS);
 			} catch (_error) {
 				// Silent failure - completion should never break the shell
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 		});
 
@@ -518,7 +519,7 @@ export function registerCompletionCommand(program: Command): void {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				console.error(`❌ ${message}`);
-				process.exit(1);
+				process.exit(EXIT.ERROR);
 			}
 		});
 }

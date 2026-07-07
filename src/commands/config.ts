@@ -4,6 +4,7 @@ import { installClaudeAgent } from "../index.ts";
 import { AppError } from "../utils/app-error.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { CONFIG_SCHEMA_ENTRIES, CONFIG_SCHEMA_MAP, type ConfigSchemaEntry } from "../utils/config-schema.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 import type { CompletionInstallResult } from "./completion.ts";
 import { installCompletion } from "./completion.ts";
 import { configureAdvancedSettings } from "./configure-advanced-settings.ts";
@@ -203,7 +204,7 @@ async function loadConfigWithCheck(cwd: string): Promise<Core> {
 	const config = await core.filesystem.loadConfig();
 	if (!config) {
 		console.error("No backlog project found. Initialize one first with: backlog init");
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 	return core;
 }
@@ -313,7 +314,7 @@ export function registerConfigCommand(program: Command): void {
 					} else {
 						console.error(`Unknown config key: ${key}`);
 					}
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 
 				const value = getConfigValue(config as unknown as Record<string, unknown>, entry);
@@ -412,32 +413,32 @@ async function handleConfigSetCommand(key: string, value: string) {
 			console.error(`Unknown config key: ${key}`);
 			console.error(`Available keys: ${CONFIG_SCHEMA_ENTRIES.map((e) => e.key).join(", ")}`);
 		}
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	if (entry.readOnly) {
 		console.error(`Config key '${key}' is read-only.`);
 		console.error(entry.description);
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	if (entry.rejectMessage) {
 		console.error(entry.rejectMessage);
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	// Coerce and validate
 	const coerced = coerceValue(entry, value);
 	if (!coerced.ok) {
 		console.error(`Invalid value for '${key}': ${coerced.error}`);
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 
 	if (entry.validate) {
 		const validationError = await entry.validate(coerced.value);
 		if (validationError) {
 			console.error(`Invalid value for '${key}': ${validationError}`);
-			process.exit(1);
+			process.exit(EXIT.ERROR);
 		}
 	}
 
@@ -446,7 +447,7 @@ async function handleConfigSetCommand(key: string, value: string) {
 	const config = await core.filesystem.loadConfig();
 	if (!config) {
 		console.error("No backlog project found. Initialize one first with: backlog init");
-		process.exit(1);
+		process.exit(EXIT.ERROR);
 	}
 	const configRecord = config as unknown as Record<string, unknown>;
 

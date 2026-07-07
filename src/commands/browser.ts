@@ -4,6 +4,7 @@ import * as clack from "@clack/prompts";
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { getExplicitProjectPath } from "../utils/cli-context.ts";
+import { EXIT } from "../utils/exit-codes.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 
@@ -30,7 +31,7 @@ export function registerBrowserCommand(program: Command): void {
 						cwd = startDir;
 					} else {
 						console.log("Run `backlog init` to initialize.");
-						process.exit(0);
+						process.exit(EXIT.SUCCESS);
 					}
 				}
 				const { BacklogServer, findNextAvailablePort, isPortAvailable } = await import("../server/index.ts");
@@ -43,7 +44,7 @@ export function registerBrowserCommand(program: Command): void {
 				let port = Number.parseInt(options.port || defaultPort.toString(), 10);
 				if (Number.isNaN(port) || port < 1 || port > 65535) {
 					console.error("Invalid port number. Must be between 1 and 65535.");
-					process.exit(1);
+					process.exit(EXIT.ERROR);
 				}
 
 				if (!(await isPortAvailable(port))) {
@@ -65,7 +66,7 @@ export function registerBrowserCommand(program: Command): void {
 							port = nextPort;
 						} else {
 							console.log("Aborted.");
-							process.exit(0);
+							process.exit(EXIT.SUCCESS);
 						}
 					}
 				}
@@ -82,7 +83,7 @@ export function registerBrowserCommand(program: Command): void {
 						const timeout = new Promise<void>((resolve) => setTimeout(resolve, 1500));
 						await Promise.race([stopPromise, timeout]);
 					} finally {
-						process.exit(0);
+						process.exit(EXIT.SUCCESS);
 					}
 				};
 
