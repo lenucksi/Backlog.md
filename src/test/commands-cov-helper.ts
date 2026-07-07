@@ -28,22 +28,35 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 	const originalLog = console.log;
 	const originalError = console.error;
 	const originalWarn = console.warn;
+	const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+	const originalStderrWrite = process.stderr.write.bind(process.stderr);
 
 	process.argv = ["bun", "src/cli.ts", ...args];
 	process.exitCode = 0;
 	console.log = (...msgs: unknown[]) => stdout.push(msgs.map(String).join(" "));
 	console.error = (...msgs: unknown[]) => stderr.push(msgs.map(String).join(" "));
 	console.warn = (...msgs: unknown[]) => stderr.push(msgs.map(String).join(" "));
+	process.stdout.write = (chunk: string | Uint8Array) => {
+		stdout.push(String(chunk));
+		return true;
+	};
+	process.stderr.write = (chunk: string | Uint8Array) => {
+		stderr.push(String(chunk));
+		return true;
+	};
 	process.exit = ((code?: number) => {
 		exitCode = code ?? 0;
 		throw new CliExitError(code);
 	}) as (code?: number) => never;
 
 	try {
-		const [initMod, taskMod, configMod] = await Promise.all([
+		const [initMod, taskMod, configMod, draftMod, docMod, decisionMod] = await Promise.all([
 			import("../commands/init.ts"),
 			import("../commands/task.ts"),
 			import("../commands/config.ts"),
+			import("../commands/draft.ts"),
+			import("../commands/doc.ts"),
+			import("../commands/decision.ts"),
 		]);
 		const program = new Command();
 		program.exitOverride();
@@ -55,6 +68,9 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		initMod.registerInitCommand(program);
 		taskMod.registerTaskCommand(program);
 		configMod.registerConfigCommand(program);
+		draftMod.registerDraftCommand(program);
+		docMod.registerDocCommand(program);
+		decisionMod.registerDecisionCommand(program);
 
 		await program.parseAsync(process.argv);
 		if (process.exitCode) {
@@ -77,6 +93,8 @@ export async function runBacklogCli(args: string[], cwd: string): Promise<CliRes
 		console.log = originalLog;
 		console.error = originalError;
 		console.warn = originalWarn;
+		process.stdout.write = originalStdoutWrite;
+		process.stderr.write = originalStderrWrite;
 		delete process.env[BACKLOG_CWD_ENV];
 	}
 

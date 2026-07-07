@@ -7,8 +7,6 @@ import { initializeProject } from "../core/init.ts";
 import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, safeCleanup } from "./test-utils.ts";
 
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
-
 let TEST_DIR: string;
 
 async function pathExists(path: string): Promise<boolean> {
@@ -44,9 +42,10 @@ describe("CLI init without Git", () => {
 	});
 
 	test("initializes a filesystem-only project without creating a Git repository", async () => {
-		const result = await $`bun ${CLI_PATH} init "Filesystem Project" --no-git --defaults --integration-mode none`
-			.cwd(TEST_DIR)
-			.quiet();
+		const result = await runBacklogCli(
+			["init", "Filesystem Project", "--no-git", "--defaults", "--integration-mode", "none"],
+			TEST_DIR,
+		);
 
 		expect(result.exitCode).toBe(0);
 		expect(await pathExists(join(TEST_DIR, ".git"))).toBe(false);
@@ -99,21 +98,21 @@ describe("CLI init without Git", () => {
 		expect(taskResult.exitCode).toBe(0);
 		expect(taskResult.stdout).toContain("Task TASK-1 - No Git Task");
 
-		const draftResult = await $`bun ${CLI_PATH} draft create "No Git Draft"`.cwd(TEST_DIR).quiet();
+		const draftResult = await runBacklogCli(["draft", "create", "No Git Draft"], TEST_DIR);
 		expect(draftResult.exitCode).toBe(0);
-		expect(draftResult.stdout.toString()).toContain("Created draft DRAFT-1");
+		expect(draftResult.stdout).toContain("Created draft DRAFT-1");
 
-		const docResult = await $`bun ${CLI_PATH} doc create "No Git Doc"`.cwd(TEST_DIR).quiet();
+		const docResult = await runBacklogCli(["doc", "create", "No Git Doc"], TEST_DIR);
 		expect(docResult.exitCode).toBe(0);
-		expect(docResult.stdout.toString()).toContain("Created document doc-1");
+		expect(docResult.stdout).toContain("Created document doc-1");
 
-		const decisionResult = await $`bun ${CLI_PATH} decision create "No Git Decision"`.cwd(TEST_DIR).quiet();
+		const decisionResult = await runBacklogCli(["decision", "create", "No Git Decision"], TEST_DIR);
 		expect(decisionResult.exitCode).toBe(0);
-		expect(decisionResult.stdout.toString()).toContain("Created decision decision-1");
+		expect(decisionResult.stdout).toContain("Created decision decision-1");
 
-		const promotedResult = await $`bun ${CLI_PATH} draft promote draft-1`.cwd(TEST_DIR).quiet();
+		const promotedResult = await runBacklogCli(["draft", "promote", "draft-1"], TEST_DIR);
 		expect(promotedResult.exitCode).toBe(0);
-		expect(promotedResult.stdout.toString()).toContain("Promoted draft draft-1");
+		expect(promotedResult.stdout).toContain("Promoted draft draft-1");
 
 		const milestone = await core.filesystem.createMilestone("No Git Milestone");
 		const archiveMilestoneResult = await core.archiveMilestone(milestone.id, true);
@@ -154,12 +153,12 @@ describe("CLI init without Git", () => {
 		expect(await core.gitOps.listAllBranches()).toEqual([]);
 		expect(await core.gitOps.listRecentBranches(30)).toEqual([]);
 
-		const docResult = await $`bun ${CLI_PATH} doc create "Fresh Doc"`.cwd(TEST_DIR).quiet();
+		const docResult = await runBacklogCli(["doc", "create", "Fresh Doc"], TEST_DIR);
 		expect(docResult.exitCode).toBe(0);
-		expect(docResult.stdout.toString()).toContain("Created document doc-1");
+		expect(docResult.stdout).toContain("Created document doc-1");
 
-		const decisionResult = await $`bun ${CLI_PATH} decision create "Fresh Decision"`.cwd(TEST_DIR).quiet();
+		const decisionResult = await runBacklogCli(["decision", "create", "Fresh Decision"], TEST_DIR);
 		expect(decisionResult.exitCode).toBe(0);
-		expect(decisionResult.stdout.toString()).toContain("Created decision decision-1");
+		expect(decisionResult.stdout).toContain("Created decision decision-1");
 	}, 30000);
 });
