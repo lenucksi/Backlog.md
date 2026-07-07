@@ -1,0 +1,88 @@
+src/test/commands-cov-helper.ts
+  s_369ef0bf818e03::t_b250983d7895fe 88
+  s_369ef0bf818e03::t_9e44009d74b663 65,72-73,89
+  s_369ef0bf818e03::t_5310686644f164 2,4,12-15,24,39-40,47-50,117-118,120
+  s_369ef0bf818e03::t_e90544239c801f 102-104
+src/test/implementation-notes.test.ts
+  s_369ef0bf818e03::t_81f20d3353599e 35-38,49-52,61-62,70-72,87-88,98-100,108,114
+  s_369ef0bf818e03::t_6176cebce97978 325-328
+  s_369ef0bf818e03::t_1f1e7a1ebc2a1f 63-69,89-97
+  s_369ef0bf818e03::t_ababe08b2f33ff 7
+src/test/implementation-plan.test.ts
+  s_369ef0bf818e03::t_8beea27c764b5a 195
+  s_369ef0bf818e03::t_71a22e2dfe6104 5
+  s_369ef0bf818e03::t_2a559ab7e85acf 34-37,48-51,146-149,170-173
+src/test/cli-docs.test.ts
+  s_369ef0bf818e03::t_00674a9158c537 89-103,164-166,168-169,171-174
+  s_369ef0bf818e03::t_0640690cef0a72 6
+  s_369ef0bf818e03::t_125b9cef0f5c6f 54,56-57,66,68,88,104-105,107-108,135,160,162,176
+src/test/append-implementation-notes.test.ts
+  s_369ef0bf818e03::t_0e505a017beac0 139
+  s_369ef0bf818e03::t_0aceb3666c9874 6
+  s_369ef0bf818e03::t_a509c0049e3cf5 51-54,57,85,115
+src/test/cli-init.test.ts
+  s_369ef0bf818e03::t_87054ce616df71 6
+  s_369ef0bf818e03::t_caa458832c9442 129,156,179
+  s_369ef0bf818e03::t_a5ab2a7ee78f5c 134-135,141-150,157-160,170-173,180-181,191-195,203-208,217-221,229-234,242-247,252,260-267
+src/test/cli-parent-filter.test.ts
+  s_369ef0bf818e03::t_67d6b25adbe0ae 120,122-123,127,129-130,134,136-138
+  s_369ef0bf818e03::t_dc6d7b70570f28 5
+src/test/cli-auto-plain-non-tty.test.ts
+  s_369ef0bf818e03::t_195d8d5dcf5b75 6
+  s_369ef0bf818e03::t_b6e812f1d43739 47,50,57,60,68,71,78,80
+src/test/cli-agents.test.ts
+  s_369ef0bf818e03::t_ce2fccce028522 97
+  s_369ef0bf818e03::t_bd8c26dd99602f 6
+src/test/implementation-notes-append.test.ts
+  s_369ef0bf818e03::t_3fa26bb3123df7 7
+  s_369ef0bf818e03::t_603361652c59e4 90-93,101,104-107
+  s_369ef0bf818e03::t_ca6cba3af2c0e8 115
+  s_369ef0bf818e03::t_5c6088517080ad 43,66
+src/test/cli-plain-output.test.ts
+  s_369ef0bf818e03::t_7297d29b5ece62 5
+  s_369ef0bf818e03::t_3e5d2139546986 99,102-107,110-112,114-119,128,131-140,144,147-149,153,156-165,174,177-186
+src/test/cli-task-wizard.test.ts
+  s_369ef0bf818e03::t_a9e85a5f20a44c 32,34,38,40,44-45,47
+  s_369ef0bf818e03::t_e95368ccc5b047 5
+src/test/cli-plain-create-edit.test.ts
+  s_369ef0bf818e03::t_1787c1f03523ae 35,37,52,54,56,58,60-63,65,69-72,74,78,80,82,94
+  s_369ef0bf818e03::t_1ba16ec3ed8d66 5
+src/test/cli-board.test.ts
+  s_369ef0bf818e03::t_c836bff3133839 8
+  s_369ef0bf818e03::t_9f547314f56c4c 263-265
+src/test/cli-tasks.test.ts
+  s_369ef0bf818e03::t_d86525f6b8d00e 228,312-313
+  s_369ef0bf818e03::t_5d08bde167f037 7,227,267-268
+src/test/atomic-task-create.test.ts
+  s_369ef0bf818e03::t_11395b24f001d2 249
+src/test/draft-create-consistency.test.ts
+  s_369ef0bf818e03::t_1767bfcb330d21 58-59
+  s_369ef0bf818e03::t_d53f481e943c21 6,38-39,41-44
+src/test/acceptance-criteria.test.ts
+  s_369ef0bf818e03::t_1f6eece7b30a16 544-545,559-560,581-582,622-623,645-646
+  s_369ef0bf818e03::t_8d0cc0610ecb49 251,261-264
+  s_369ef0bf818e03::t_38afd90047d98b 303-306,319,326,330-333,345,356,358,367-370,377,382-384,388-390,394,396,400,402,406,408,434
+  s_369ef0bf818e03::t_78417264295a50 548,564,569,586,591,596,627,632,650
+  s_369ef0bf818e03::t_32fcc18bae9822 34,45-48,60-63,74-77,88-89,99-101
+  s_369ef0bf818e03::t_faa65f8be7a16f 546,561,583,624,647
+  s_369ef0bf818e03::t_0bf06d073f5ef7 90-98,585,587-588,605-619,649,651-652
+  s_369ef0bf818e03::t_ddfb380fda276c 538-541,549-551,555-558,562-563,570-573,577-580,584,589-590,597-600,604,620-621,625-626,633-637,641-642,654-655
+  s_369ef0bf818e03::t_f82c0bd780272d 134-137,167,198,214-217,220,233-236
+  s_369ef0bf818e03::t_6f4aa94d4c8c92 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "298e956b300e6bb904fccac35ab29e35a486b44d",
+  "prompts": {},
+  "sessions": {
+    "s_369ef0bf818e03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0c3670fb0ffek6xXfKe7FQNNEK",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
