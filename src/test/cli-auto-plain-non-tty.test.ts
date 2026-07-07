@@ -1,12 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import type { Task } from "../types";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
-
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 let TEST_DIR: string;
 let core: Core;
@@ -46,20 +44,20 @@ describe("CLI auto-plain behavior in non-TTY runs", () => {
 	});
 
 	test("task list falls back to plain output without --plain", async () => {
-		const result = await $`bun ${CLI_PATH} task list`.cwd(TEST_DIR).quiet();
+		const result = await runBacklogCli(["task", "list"], TEST_DIR, { tty: false });
 		expect(result.exitCode).toBe(0);
 
-		const out = result.stdout.toString();
+		const out = result.stdout;
 		expect(out).toContain("To Do:");
 		expect(out.toLowerCase()).toContain("task-1 - first task");
 		expect(out).not.toContain("\x1b");
 	});
 
 	test("task view falls back to plain output without --plain", async () => {
-		const result = await $`bun ${CLI_PATH} task view 1`.cwd(TEST_DIR).quiet();
+		const result = await runBacklogCli(["task", "view", "1"], TEST_DIR, { tty: false });
 		expect(result.exitCode).toBe(0);
 
-		const out = result.stdout.toString();
+		const out = result.stdout;
 		expect(out).toContain("Task TASK-1 - First Task");
 		expect(out).toContain("Description:");
 		expect(out).toContain("Seed task description");
@@ -67,18 +65,18 @@ describe("CLI auto-plain behavior in non-TTY runs", () => {
 	});
 
 	test("task create preserves legacy concise output without --plain", async () => {
-		const result = await $`bun ${CLI_PATH} task create "Second Task"`.cwd(TEST_DIR).quiet();
+		const result = await runBacklogCli(["task", "create", "Second Task"], TEST_DIR, { tty: false });
 		expect(result.exitCode).toBe(0);
 
-		const out = result.stdout.toString();
+		const out = result.stdout;
 		expect(out).toContain("Created task TASK-2");
 		expect(out).toContain("File: ");
 		expect(out).not.toContain("Task TASK-2 - Second Task");
 	});
 
 	test("task edit preserves legacy concise output without --plain", async () => {
-		const result = await $`bun ${CLI_PATH} task edit 1 -s "In Progress"`.cwd(TEST_DIR).quiet();
+		const result = await runBacklogCli(["task", "edit", "1", "-s", "In Progress"], TEST_DIR, { tty: false });
 		expect(result.exitCode).toBe(0);
-		expect(result.stdout.toString()).toContain("Updated task TASK-1");
+		expect(result.stdout).toContain("Updated task TASK-1");
 	});
 });

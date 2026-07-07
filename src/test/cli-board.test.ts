@@ -5,10 +5,10 @@ import { $ } from "bun";
 import { Core } from "../index.ts";
 import { parseTask } from "../markdown/parser.ts";
 import type { Task } from "../types/index.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const _CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("CLI Integration - board", () => {
 	beforeEach(async () => {
@@ -260,9 +260,9 @@ describe("CLI Integration - board", () => {
 				false,
 			);
 
-			// CLI-CONTRACT: tests board CLI output format, not business logic
-			const resultDefault = await $`bun ${["src/cli.ts", "board"]}`.cwd(TEST_DIR).quiet().nothrow();
-			const resultView = await $`bun ${["src/cli.ts", "board", "view"]}`.cwd(TEST_DIR).quiet().nothrow();
+			// CLI-CONTRACT: tests board CLI output format, not business logic; stays as subprocess due to TUI rendering path
+			const resultDefault = await $`bun src/cli.ts board`.cwd(TEST_DIR).quiet().nothrow();
+			const resultView = await $`bun src/cli.ts board view`.cwd(TEST_DIR).quiet().nothrow();
 
 			expect(resultDefault.stdout.toString()).toBe(resultView.stdout.toString());
 		});

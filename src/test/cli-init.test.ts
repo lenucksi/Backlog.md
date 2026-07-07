@@ -3,10 +3,10 @@ import { mkdir, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { $ } from "bun";
 import { addAgentInstructions, Core, isGitRepository } from "../index.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("CLI Integration - init command", () => {
 	beforeEach(async () => {
@@ -126,37 +126,38 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify --agent-instructions none skips instruction files
 		it("should allow skipping agent instructions with 'none' selection", async () => {
 			await setupGit();
-			const output = await $`bun ${CLI_PATH} init TestProj --defaults --agent-instructions none`.cwd(TEST_DIR).text();
+			const result = await runBacklogCli(["init", "TestProj", "--defaults", "--agent-instructions", "none"], TEST_DIR);
 			const agentsFile = await Bun.file(join(TEST_DIR, "AGENTS.md")).exists();
 			const claudeFile = await Bun.file(join(TEST_DIR, "CLAUDE.md")).exists();
 			expect(agentsFile).toBe(false);
 			expect(claudeFile).toBe(false);
-			expect(output).toContain("AI Integration: CLI commands (legacy)");
-			expect(output).toContain("Skipping agent instruction files per selection.");
+			expect(result.stdout).toContain("AI Integration: CLI commands (legacy)");
+			expect(result.stdout).toContain("Skipping agent instruction files per selection.");
 		});
 
 		// CLI-CONTRACT: verify printed summary format
 		it("should print minimal summary when advanced settings are skipped", async () => {
 			await setupGit();
-			const output = await $`bun ${CLI_PATH} init SummaryProj --defaults --agent-instructions none`
-				.cwd(TEST_DIR)
-				.text();
-			expect(output).toContain("Initialization Summary");
-			expect(output).toContain("Project Name: SummaryProj");
-			expect(output).toContain("AI Integration: CLI commands (legacy)");
-			expect(output).toContain("Advanced settings: unchanged");
-			expect(output).not.toContain("Remote operations:");
-			expect(output).not.toContain("Zero-padded IDs:");
+			const result = await runBacklogCli(
+				["init", "SummaryProj", "--defaults", "--agent-instructions", "none"],
+				TEST_DIR,
+			);
+			expect(result.stdout).toContain("Initialization Summary");
+			expect(result.stdout).toContain("Project Name: SummaryProj");
+			expect(result.stdout).toContain("AI Integration: CLI commands (legacy)");
+			expect(result.stdout).toContain("Advanced settings: unchanged");
+			expect(result.stdout).not.toContain("Remote operations:");
+			expect(result.stdout).not.toContain("Zero-padded IDs:");
 		});
 
 		// CLI-CONTRACT: verify --integration-mode mcp output format
 		it("should support MCP integration mode via flag", async () => {
 			await setupGit();
-			const output = await $`bun ${CLI_PATH} init McpProj --defaults --integration-mode mcp`.cwd(TEST_DIR).text();
-			expect(output).toContain("AI Integration: MCP connector");
-			expect(output).toContain("Agent instruction files: guidance is provided through the MCP connector.");
-			expect(output).toContain("MCP server name: backlog");
-			expect(output).toContain("MCP client setup: skipped (non-interactive)");
+			const result = await runBacklogCli(["init", "McpProj", "--defaults", "--integration-mode", "mcp"], TEST_DIR);
+			expect(result.stdout).toContain("AI Integration: MCP connector");
+			expect(result.stdout).toContain("Agent instruction files: guidance is provided through the MCP connector.");
+			expect(result.stdout).toContain("MCP server name: backlog");
+			expect(result.stdout).toContain("MCP client setup: skipped (non-interactive)");
 			const agentsFile = await Bun.file(join(TEST_DIR, "AGENTS.md")).exists();
 			const claudeFile = await Bun.file(join(TEST_DIR, "CLAUDE.md")).exists();
 			expect(agentsFile).toBe(false);
@@ -166,18 +167,18 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify default integration mode output
 		it("should default to MCP integration when no mode is specified", async () => {
 			await setupGit();
-			const output = await $`bun ${CLI_PATH} init DefaultMcpProj --defaults`.cwd(TEST_DIR).text();
-			expect(output).toContain("AI Integration: MCP connector");
-			expect(output).toContain("MCP server name: backlog");
-			expect(output).toContain("MCP client setup: skipped (non-interactive)");
+			const result = await runBacklogCli(["init", "DefaultMcpProj", "--defaults"], TEST_DIR);
+			expect(result.stdout).toContain("AI Integration: MCP connector");
+			expect(result.stdout).toContain("MCP server name: backlog");
+			expect(result.stdout).toContain("MCP client setup: skipped (non-interactive)");
 		});
 
 		// CLI-CONTRACT: verify --integration-mode none output
 		it("should allow skipping AI integration via flag", async () => {
 			await setupGit();
-			const output = await $`bun ${CLI_PATH} init SkipProj --defaults --integration-mode none`.cwd(TEST_DIR).text();
-			expect(output).not.toContain("AI Integration:");
-			expect(output).toContain("AI integration: skipped");
+			const result = await runBacklogCli(["init", "SkipProj", "--defaults", "--integration-mode", "none"], TEST_DIR);
+			expect(result.stdout).not.toContain("AI Integration:");
+			expect(result.stdout).toContain("AI integration: skipped");
 			const agentsFile = await Bun.file(join(TEST_DIR, "AGENTS.md")).exists();
 			const claudeFile = await Bun.file(join(TEST_DIR, "CLAUDE.md")).exists();
 			expect(agentsFile).toBe(false);
@@ -187,10 +188,11 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify --backlog-dir hidden directory behavior
 		it("should support non-interactive .backlog selection via --backlog-dir", async () => {
 			await setupGit();
-			const output = await $`bun ${CLI_PATH} init HiddenProj --defaults --integration-mode none --backlog-dir .backlog`
-				.cwd(TEST_DIR)
-				.text();
-			expect(output).toContain("Backlog directory: .backlog");
+			const result = await runBacklogCli(
+				["init", "HiddenProj", "--defaults", "--integration-mode", "none", "--backlog-dir", ".backlog"],
+				TEST_DIR,
+			);
+			expect(result.stdout).toContain("Backlog directory: .backlog");
 			expect(await Bun.file(join(TEST_DIR, ".backlog", "config.yml")).exists()).toBe(true);
 			expect(await Bun.file(join(TEST_DIR, "backlog", "config.yml")).exists()).toBe(false);
 		});
@@ -198,12 +200,12 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify custom backlog directory with config file
 		it("should store custom non-interactive backlog dir in root backlog.config.yml", async () => {
 			await setupGit();
-			const output =
-				await $`bun ${CLI_PATH} init CustomProj --defaults --integration-mode none --backlog-dir planning/backlog-data`
-					.cwd(TEST_DIR)
-					.text();
-			expect(output).toContain("Backlog directory: planning/backlog-data");
-			expect(output).toContain("Config location: backlog.config.yml");
+			const result = await runBacklogCli(
+				["init", "CustomProj", "--defaults", "--integration-mode", "none", "--backlog-dir", "planning/backlog-data"],
+				TEST_DIR,
+			);
+			expect(result.stdout).toContain("Backlog directory: planning/backlog-data");
+			expect(result.stdout).toContain("Config location: backlog.config.yml");
 			expect(await Bun.file(join(TEST_DIR, "backlog.config.yml")).exists()).toBe(true);
 			const rootConfig = await Bun.file(join(TEST_DIR, "backlog.config.yml")).text();
 			expect(rootConfig).toContain("backlog_directory: planning/backlog-data");
@@ -212,11 +214,11 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify error output for invalid --backlog-dir
 		it("should reject invalid --backlog-dir values", async () => {
 			await setupGit();
-			const result =
-				await $`bun ${CLI_PATH} init InvalidDirProj --defaults --integration-mode none --backlog-dir ../outside`
-					.cwd(TEST_DIR)
-					.nothrow();
-			const output = result.stdout.toString() + result.stderr.toString();
+			const result = await runBacklogCli(
+				["init", "InvalidDirProj", "--defaults", "--integration-mode", "none", "--backlog-dir", "../outside"],
+				TEST_DIR,
+			);
+			const output = result.stdout + result.stderr;
 			expect(result.exitCode).toBe(1);
 			expect(output).toContain("Invalid --backlog-dir value");
 		});
@@ -224,11 +226,12 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify error on --backlog-dir re-init
 		it("should reject --backlog-dir during re-initialization", async () => {
 			await setupGit();
-			await $`bun ${CLI_PATH} init ReinitProj --defaults --integration-mode none`.cwd(TEST_DIR).quiet();
-			const result = await $`bun ${CLI_PATH} init ReinitProj --defaults --integration-mode none --backlog-dir .backlog`
-				.cwd(TEST_DIR)
-				.nothrow();
-			const output = result.stdout.toString() + result.stderr.toString();
+			await runBacklogCli(["init", "ReinitProj", "--defaults", "--integration-mode", "none"], TEST_DIR);
+			const result = await runBacklogCli(
+				["init", "ReinitProj", "--defaults", "--integration-mode", "none", "--backlog-dir", ".backlog"],
+				TEST_DIR,
+			);
+			const output = result.stdout + result.stderr;
 			expect(result.exitCode).toBe(1);
 			expect(output).toContain("fixed after initialization");
 		});
@@ -236,24 +239,17 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify error output for conflicting flags
 		it("should reject MCP integration when agent instruction flags are provided", async () => {
 			await setupGit();
-			let failed = false;
-			let combinedOutput = "";
-			try {
-				await $`bun ${CLI_PATH} init ConflictProj --defaults --integration-mode mcp --agent-instructions claude`
-					.cwd(TEST_DIR)
-					.text();
-			} catch (err) {
-				failed = true;
-				const e = err as { stdout?: unknown; stderr?: unknown };
-				combinedOutput = String(e.stdout ?? "") + String(e.stderr ?? "");
-			}
-			expect(failed).toBe(true);
-			expect(combinedOutput).toContain("cannot be combined");
+			const result = await runBacklogCli(
+				["init", "ConflictProj", "--defaults", "--integration-mode", "mcp", "--agent-instructions", "claude"],
+				TEST_DIR,
+			);
+			expect(result.exitCode).not.toBe(0);
+			expect(result.stderr + result.stdout).toContain("cannot be combined");
 		});
 
 		it("should ignore 'none' when other agent instructions are provided", async () => {
 			await setupGit();
-			await $`bun ${CLI_PATH} init TestProj --defaults --agent-instructions agents,none`.cwd(TEST_DIR).quiet();
+			await runBacklogCli(["init", "TestProj", "--defaults", "--agent-instructions", "agents,none"], TEST_DIR);
 			const agentsFile = await Bun.file(join(TEST_DIR, "AGENTS.md")).exists();
 			expect(agentsFile).toBe(true);
 		});
@@ -261,17 +257,14 @@ describe("CLI Integration - init command", () => {
 		// CLI-CONTRACT: verify error output for invalid agent instruction value
 		it("should error on invalid agent instruction value", async () => {
 			await setupGit();
-			let failed = false;
-			try {
-				await $`bun ${CLI_PATH} init InvalidProj --defaults --agent-instructions notreal`.cwd(TEST_DIR).quiet();
-			} catch (e) {
-				failed = true;
-				const err = e as { stdout?: unknown; stderr?: unknown };
-				const out = String(err.stdout ?? "") + String(err.stderr ?? "");
-				expect(out).toContain("Invalid agent instruction: notreal");
-				expect(out).toContain("Valid options are: cursor, claude, agents, gemini, copilot, none");
-			}
-			expect(failed).toBe(true);
+			const result = await runBacklogCli(
+				["init", "InvalidProj", "--defaults", "--agent-instructions", "notreal"],
+				TEST_DIR,
+			);
+			expect(result.exitCode).not.toBe(0);
+			const out = result.stdout + result.stderr;
+			expect(out).toContain("Invalid agent instruction: notreal");
+			expect(out).toContain("Valid options are: cursor, claude, agents, gemini, copilot, none");
 		});
 	});
 

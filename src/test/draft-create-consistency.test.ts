@@ -3,10 +3,10 @@ import { mkdir, readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../index.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("Draft creation consistency", () => {
 	beforeEach(async () => {
@@ -35,13 +35,13 @@ describe("Draft creation consistency", () => {
 	});
 
 	it("keeps IDs and filenames consistent between draft create and task create --draft", async () => {
-		const first = await $`bun ${CLI_PATH} draft create "Hallo"`.cwd(TEST_DIR).quiet();
-		const second = await $`bun ${CLI_PATH} task create --draft "Goodbye"`.cwd(TEST_DIR).quiet();
+		const first = await runBacklogCli(["draft", "create", "Hallo"], TEST_DIR);
+		const second = await runBacklogCli(["task", "create", "--draft", "Goodbye"], TEST_DIR);
 
-		expect(first.stdout.toString()).toContain("Created draft DRAFT-1");
-		expect(second.stdout.toString()).toContain("Created draft DRAFT-2");
-		expect(second.stdout.toString()).toContain("draft-2 - Goodbye.md");
-		expect(second.stdout.toString()).not.toContain("draft-task-");
+		expect(first.stdout).toContain("Created draft DRAFT-1");
+		expect(second.stdout).toContain("Created draft DRAFT-2");
+		expect(second.stdout).toContain("draft-2 - Goodbye.md");
+		expect(second.stdout).not.toContain("draft-task-");
 
 		const draftFiles = await readdir(join(TEST_DIR, "backlog", "drafts"));
 		expect(draftFiles).toContain("draft-1 - Hallo.md");
@@ -55,8 +55,8 @@ describe("Draft creation consistency", () => {
 	});
 
 	it("uses DRAFT IDs in plain output for task create --draft", async () => {
-		const result = await $`bun ${CLI_PATH} task create --draft "Plain sample" --plain`.cwd(TEST_DIR).quiet();
-		const output = result.stdout.toString();
+		const result = await runBacklogCli(["task", "create", "--draft", "Plain sample", "--plain"], TEST_DIR);
+		const output = result.stdout;
 
 		expect(output).toContain("draft-1 - Plain-sample.md");
 		expect(output).toContain("Task DRAFT-1 - Plain sample");

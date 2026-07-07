@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../index.ts";
 import { extractStructuredSection } from "../markdown/structured-sections.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { listTasksPlatformAware, viewTaskPlatformAware } from "./test-helpers.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("CLI Integration - tasks", () => {
 	beforeEach(async () => {
@@ -224,8 +224,8 @@ describe("CLI Integration - tasks", () => {
 			);
 
 			// CLI-CONTRACT: verify --plain --status output format
-			const result = await $`bun ${CLI_PATH} task list --plain --status Done`.cwd(TEST_DIR).quiet();
-			const out = result.stdout.toString();
+			const result = await runBacklogCli(["task", "list", "--plain", "--status", "Done"], TEST_DIR);
+			const out = result.stdout;
 			expect(out).toContain("Done:");
 			expect(out).toContain("TASK-2 - Second Task");
 			expect(out).not.toContain("TASK-1");
@@ -264,8 +264,8 @@ describe("CLI Integration - tasks", () => {
 			// CLI-CONTRACT: verify case-insensitive status filtering
 			const testCases = ["done", "DONE", "DoNe"];
 			for (const status of testCases) {
-				const result = await $`bun ${CLI_PATH} task list --plain --status ${status}`.cwd(TEST_DIR).quiet();
-				const out = result.stdout.toString();
+				const result = await runBacklogCli(["task", "list", "--plain", "--status", status], TEST_DIR);
+				const out = result.stdout;
 				expect(out).toContain("Done:");
 				expect(out).toContain("TASK-2 - Second Task");
 				expect(out).not.toContain("TASK-1");
@@ -309,8 +309,8 @@ describe("CLI Integration - tasks", () => {
 			);
 
 			// CLI-CONTRACT: verify --assignee filter output
-			const result = await $`bun ${CLI_PATH} task list --plain --assignee alice`.cwd(TEST_DIR).quiet();
-			const out = result.stdout.toString();
+			const result = await runBacklogCli(["task", "list", "--plain", "--assignee", "alice"], TEST_DIR);
+			const out = result.stdout;
 			expect(out).toContain("TASK-1 - Assigned Task");
 			expect(out).not.toContain("TASK-2 - Unassigned Task");
 		});

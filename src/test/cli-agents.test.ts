@@ -3,6 +3,7 @@ import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../index.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
@@ -93,7 +94,7 @@ describe("CLI agents command", () => {
 		await $`git config user.name "Test User"`.cwd(nonBacklogDir).quiet();
 		await $`git config user.email test@example.com`.cwd(nonBacklogDir).quiet();
 
-		const result = await $`bun ${cliPath} agents --update-instructions`.cwd(nonBacklogDir).nothrow().quiet();
+		const result = await runBacklogCli(["agents", "--update-instructions"], nonBacklogDir);
 
 		expect(result.exitCode).toBe(1);
 

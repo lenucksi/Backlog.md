@@ -1,15 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../index.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
 
 describe("CLI --plain for task create/edit", () => {
-	const cliPath = join(process.cwd(), "src", "cli.ts");
-
 	beforeEach(async () => {
 		TEST_DIR = createUniqueTestDir("test-plain-create-edit");
 		try {
@@ -34,16 +32,10 @@ describe("CLI --plain for task create/edit", () => {
 	});
 
 	it("prints plain details after task create --plain", async () => {
-		const result = await $`bun ${cliPath} task create "Example" --desc "Hello" --plain`.cwd(TEST_DIR).quiet();
+		const result = await runBacklogCli(["task", "create", "Example", "--desc", "Hello", "--plain"], TEST_DIR);
 
-		if (result.exitCode !== 0) {
-			console.error("STDOUT:", result.stdout.toString());
-			console.error("STDERR:", result.stderr.toString());
-		}
-
-		const out = result.stdout.toString();
+		const out = result.stdout;
 		expect(result.exitCode).toBe(0);
-		// Begins with File: line and contains key sections
 		expect(out).toContain("File: ");
 		expect(out).toContain("Task TASK-1 - Example");
 		expect(out).toContain("Status:");
@@ -52,51 +44,43 @@ describe("CLI --plain for task create/edit", () => {
 		expect(out).toContain("Hello");
 		expect(out).toContain("Acceptance Criteria:");
 		expect(out).toContain("Definition of Done:");
-		// Should not contain TUI escape codes
 		expect(out).not.toContain("[?1049h");
 		expect(out).not.toContain("\x1b");
 	});
 
 	it("assigns default tail ordinals and preserves explicit ordinals on CLI create", async () => {
-		const first = await $`bun ${cliPath} task create "First ordinal CLI task" --plain`.cwd(TEST_DIR).quiet();
+		const first = await runBacklogCli(["task", "create", "First ordinal CLI task", "--plain"], TEST_DIR);
 		expect(first.exitCode).toBe(0);
-		expect(first.stdout.toString()).toContain("Ordinal: 1000");
+		expect(first.stdout).toContain("Ordinal: 1000");
 
-		const second = await $`bun ${cliPath} task create "Second ordinal CLI task" --plain`.cwd(TEST_DIR).quiet();
+		const second = await runBacklogCli(["task", "create", "Second ordinal CLI task", "--plain"], TEST_DIR);
 		expect(second.exitCode).toBe(0);
-		expect(second.stdout.toString()).toContain("Ordinal: 2000");
+		expect(second.stdout).toContain("Ordinal: 2000");
 
-		const explicit = await $`bun ${cliPath} task create "Explicit ordinal CLI task" --ordinal 7500 --plain`
-			.cwd(TEST_DIR)
-			.quiet();
+		const explicit = await runBacklogCli(
+			["task", "create", "Explicit ordinal CLI task", "--ordinal", "7500", "--plain"],
+			TEST_DIR,
+		);
 		expect(explicit.exitCode).toBe(0);
-		expect(explicit.stdout.toString()).toContain("Ordinal: 7500");
+		expect(explicit.stdout).toContain("Ordinal: 7500");
 	});
 
 	it("rejects non-finite ordinals on CLI create", async () => {
-		const result = await $`bun ${cliPath} task create "Invalid ordinal CLI task" --ordinal Infinity`
-			.cwd(TEST_DIR)
-			.quiet()
-			.nothrow();
-
+		const result = await runBacklogCli(
+			["task", "create", "Invalid ordinal CLI task", "--ordinal", "Infinity"],
+			TEST_DIR,
+		);
 		expect(result.exitCode).toBe(1);
-		expect(result.stderr.toString()).toContain("Invalid ordinal: Infinity. Must be a non-negative number.");
+		expect(result.stderr).toContain("Invalid ordinal: Infinity. Must be a non-negative number.");
 	});
 
 	it("prints plain details after task edit --plain", async () => {
-		// Create base task first (without plain)
-		await $`bun ${cliPath} task create "Edit Me" --desc "First"`.cwd(TEST_DIR).quiet();
+		await runBacklogCli(["task", "create", "Edit Me", "--desc", "First"], TEST_DIR);
 
-		const result = await $`bun ${cliPath} task edit 1 -s "In Progress" --plain`.cwd(TEST_DIR).quiet();
+		const result = await runBacklogCli(["task", "edit", "1", "-s", "In Progress", "--plain"], TEST_DIR);
 
-		if (result.exitCode !== 0) {
-			console.error("STDOUT:", result.stdout.toString());
-			console.error("STDERR:", result.stderr.toString());
-		}
-
-		const out = result.stdout.toString();
+		const out = result.stdout;
 		expect(result.exitCode).toBe(0);
-		// Begins with File: line and contains updated details
 		expect(out).toContain("File: ");
 		expect(out).toContain("Task TASK-1 - Edit Me");
 		expect(out).toContain("Status: ◒ In Progress");
@@ -105,8 +89,7 @@ describe("CLI --plain for task create/edit", () => {
 		expect(out).toContain("Description:");
 		expect(out).toContain("Acceptance Criteria:");
 		expect(out).toContain("Definition of Done:");
-		// Should not contain TUI escape codes
 		expect(out).not.toContain("[?1049h");
 		expect(out).not.toContain("\x1b");
-	}, 30000);
+	});
 });

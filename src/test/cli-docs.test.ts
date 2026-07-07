@@ -1,13 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../index.ts";
 import type { Decision, Document } from "../types/index.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("CLI Integration - docs and decisions", () => {
 	beforeEach(async () => {
@@ -52,11 +51,10 @@ describe("CLI Integration - docs and decisions", () => {
 
 		// CLI-CONTRACT: verify doc create output format with path
 		it("should create documents in a subpath and print the persisted path", async () => {
-			const result = await $`bun ${CLI_PATH} doc create "Setup Guide" -p guides/setup`.cwd(TEST_DIR).quiet();
+			const result = await runBacklogCli(["doc", "create", "Setup Guide", "-p", "guides/setup"], TEST_DIR);
 			expect(result.exitCode).toBe(0);
-			const stdout = result.stdout.toString();
-			expect(stdout).toContain("Created document doc-1");
-			expect(stdout).toContain("Path: backlog/docs/guides/setup/doc-1 - Setup-Guide.md");
+			expect(result.stdout).toContain("Created document doc-1");
+			expect(result.stdout).toContain("Path: backlog/docs/guides/setup/doc-1 - Setup-Guide.md");
 
 			const core = new Core(TEST_DIR);
 			const docs = await core.filesystem.listDocuments();
@@ -65,9 +63,9 @@ describe("CLI Integration - docs and decisions", () => {
 
 		// CLI-CONTRACT: verify error output for unsafe path
 		it("should reject unsafe document paths", async () => {
-			const result = await $`bun ${CLI_PATH} doc create "Unsafe" -p ../outside`.cwd(TEST_DIR).quiet().nothrow();
+			const result = await runBacklogCli(["doc", "create", "Unsafe", "-p", "../outside"], TEST_DIR);
 			expect(result.exitCode).not.toBe(0);
-			expect(result.stderr.toString()).toContain("Document path cannot include traversal segments.");
+			expect(result.stderr).toContain("Document path cannot include traversal segments.");
 		});
 
 		// CLI-CONTRACT: verify doc update output format
@@ -87,13 +85,27 @@ describe("CLI Integration - docs and decisions", () => {
 			);
 
 			const updatedContent = "# Updated\n\nRun install steps.";
-			const result =
-				await $`bun ${CLI_PATH} doc update doc-1 --title "Install Runbook" --content ${updatedContent} -t specification --tags ops,runbook -p runbooks`
-					.cwd(TEST_DIR)
-					.quiet();
+			const result = await runBacklogCli(
+				[
+					"doc",
+					"update",
+					"doc-1",
+					"--title",
+					"Install Runbook",
+					"--content",
+					updatedContent,
+					"-t",
+					"specification",
+					"--tags",
+					"ops,runbook",
+					"-p",
+					"runbooks",
+				],
+				TEST_DIR,
+			);
 			expect(result.exitCode).toBe(0);
-			expect(result.stdout.toString()).toContain("Updated document doc-1");
-			expect(result.stdout.toString()).toContain("Path: backlog/docs/runbooks/doc-1 - Install-Runbook.md");
+			expect(result.stdout).toContain("Updated document doc-1");
+			expect(result.stdout).toContain("Path: backlog/docs/runbooks/doc-1 - Install-Runbook.md");
 
 			const docs = await core.filesystem.listDocuments();
 			const updated = docs.find((doc) => doc.id === "doc-1");
@@ -120,7 +132,7 @@ describe("CLI Integration - docs and decisions", () => {
 				"guides",
 			);
 
-			await $`bun ${CLI_PATH} doc update doc-1 --title "Setup Handbook"`.cwd(TEST_DIR).quiet();
+			await runBacklogCli(["doc", "update", "doc-1", "--title", "Setup Handbook"], TEST_DIR);
 
 			const docs = await core.filesystem.listDocuments();
 			const updated = docs.find((doc) => doc.id === "doc-1");
@@ -145,25 +157,23 @@ describe("CLI Integration - docs and decisions", () => {
 				false,
 			);
 
-			const missing = await $`bun ${CLI_PATH} doc update doc-404 --content "Nope"`.cwd(TEST_DIR).quiet().nothrow();
+			const missing = await runBacklogCli(["doc", "update", "doc-404", "--content", "Nope"], TEST_DIR);
 			expect(missing.exitCode).not.toBe(0);
-			expect(missing.stderr.toString()).toContain("Document not found: doc-404");
+			expect(missing.stderr).toContain("Document not found: doc-404");
 
-			const invalidType = await $`bun ${CLI_PATH} doc update doc-1 --content "Nope" -t invalid`
-				.cwd(TEST_DIR)
-				.quiet()
-				.nothrow();
-			expect(invalidType.exitCode).not.toBe(0);
-			expect(invalidType.stderr.toString()).toContain(
-				"Document type must be one of: readme, guide, specification, other.",
+			const invalidType = await runBacklogCli(
+				["doc", "update", "doc-1", "--content", "Nope", "-t", "invalid"],
+				TEST_DIR,
 			);
+			expect(invalidType.exitCode).not.toBe(0);
+			expect(invalidType.stderr).toContain("Document type must be one of: readme, guide, specification, other.");
 
-			const unsafePath = await $`bun ${CLI_PATH} doc update doc-1 --content "Nope" -p ../outside`
-				.cwd(TEST_DIR)
-				.quiet()
-				.nothrow();
+			const unsafePath = await runBacklogCli(
+				["doc", "update", "doc-1", "--content", "Nope", "-p", "../outside"],
+				TEST_DIR,
+			);
 			expect(unsafePath.exitCode).not.toBe(0);
-			expect(unsafePath.stderr.toString()).toContain("Document path cannot include traversal segments.");
+			expect(unsafePath.stderr).toContain("Document path cannot include traversal segments.");
 		});
 
 		it("should create and list decisions", async () => {

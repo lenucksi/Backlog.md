@@ -1,12 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
+import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
-const CLI_PATH = join(process.cwd(), "src", "cli.ts");
 
 describe("CLI task wizard integration compatibility", () => {
 	beforeEach(async () => {
@@ -30,21 +29,21 @@ describe("CLI task wizard integration compatibility", () => {
 	});
 
 	it("preserves non-interactive missing title error for task create", async () => {
-		const result = await $`bun ${CLI_PATH} task create`.cwd(TEST_DIR).quiet().nothrow();
+		const result = await runBacklogCli(["task", "create"], TEST_DIR);
 		expect(result.exitCode).not.toBe(0);
-		expect(result.stderr.toString()).toContain("error: missing required argument 'title'");
+		expect(result.stderr).toContain("error: missing required argument 'title'");
 	});
 
 	it("preserves non-interactive missing taskId error for task edit", async () => {
-		const result = await $`bun ${CLI_PATH} task edit`.cwd(TEST_DIR).quiet().nothrow();
+		const result = await runBacklogCli(["task", "edit"], TEST_DIR);
 		expect(result.exitCode).not.toBe(0);
-		expect(result.stderr.toString()).toContain("error: missing required argument 'taskId'");
+		expect(result.stderr).toContain("error: missing required argument 'taskId'");
 	});
 
 	it("keeps legacy non-interactive edit behavior when taskId is provided", async () => {
-		await $`bun ${CLI_PATH} task create "Edit target" --desc "Before edit"`.cwd(TEST_DIR).quiet();
-		const result = await $`bun ${CLI_PATH} task edit 1`.cwd(TEST_DIR).quiet().nothrow();
+		await runBacklogCli(["task", "create", "Edit target", "--desc", "Before edit"], TEST_DIR);
+		const result = await runBacklogCli(["task", "edit", "1"], TEST_DIR);
 		expect(result.exitCode).toBe(0);
-		expect(result.stdout.toString()).toContain("Updated task");
+		expect(result.stdout).toContain("Updated task");
 	});
 });
