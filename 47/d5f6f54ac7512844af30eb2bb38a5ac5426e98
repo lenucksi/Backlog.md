@@ -1,0 +1,25 @@
+src/test/cli-init-no-git.test.ts
+  s_369ef0bf818e03::t_3584d17ec50595 45-48
+  s_369ef0bf818e03::t_fe6d3b35042b5f 101,103,105,107,109,111,113,115
+  s_369ef0bf818e03::t_ceda00917f7046 156,158,160,162
+src/test/commands-cov-helper.ts
+  s_369ef0bf818e03::t_4a0a3b72bdbf28 31-32,39-46
+  s_369ef0bf818e03::t_0a3fd7b9d769e5 53,57-59,71-73
+  s_369ef0bf818e03::t_8c6a31f4101015 96-97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "47d5f6f54ac7512844af30eb2bb38a5ac5426e98",
+  "prompts": {},
+  "sessions": {
+    "s_369ef0bf818e03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0c3670fb0ffek6xXfKe7FQNNEK",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
