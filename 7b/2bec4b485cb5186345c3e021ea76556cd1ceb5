@@ -1,0 +1,85 @@
+src/commands/draft.ts
+  s_95f2ef1b71386e::t_bb53c7b18eca94 73-75
+src/utils/exit-codes.ts
+  s_95f2ef1b71386e::t_24fca3996ca65b 1-5
+src/commands/label.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 5
+  s_95f2ef1b71386e::t_76ff5b3f708942 72,103,107,110,129,133,139,147,218,222,226,242,246,250,272,276,280
+src/utils/cli-context.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 2
+  s_95f2ef1b71386e::t_76ff5b3f708942 52,56,67,73
+src/commands/init.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 19
+  s_95f2ef1b71386e::t_76ff5b3f708942 190,194,217,308,324,329,390,401,780,786,867
+src/cli.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 29
+  s_95f2ef1b71386e::t_76ff5b3f708942 122
+  s_95f2ef1b71386e::t_9b8e6137db09f4 34-36
+  s_369ef0bf818e03::t_bfa6954bb0a59e 37
+src/commands/author.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 5
+  s_95f2ef1b71386e::t_76ff5b3f708942 27,58,63,82,88,96,134,140,156,162,185,191
+src/commands/browser.ts
+  s_95f2ef1b71386e::t_76ff5b3f708942 34,47,69,86
+  s_95f2ef1b71386e::t_8990bee9eaff26 7
+src/commands/agents.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 8
+  s_95f2ef1b71386e::t_76ff5b3f708942 35,44
+src/commands/migrate.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 6
+  s_95f2ef1b71386e::t_76ff5b3f708942 23
+src/commands/doc.ts
+  s_95f2ef1b71386e::t_8c974ae83bcf52 20
+src/commands/cleanup.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 7
+  s_95f2ef1b71386e::t_76ff5b3f708942 21
+src/commands/config.ts
+  s_95f2ef1b71386e::t_76ff5b3f708942 207,317,416,422,427,434,441,450
+  s_95f2ef1b71386e::t_8990bee9eaff26 7
+src/commands/mcp.ts
+  s_95f2ef1b71386e::t_82f6ecd21e0fe2 1
+  s_95f2ef1b71386e::t_76ff5b3f708942 74,77,109
+src/commands/advanced-config-wizard.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 4
+  s_95f2ef1b71386e::t_76ff5b3f708942 50
+src/commands/instructions.ts
+  s_95f2ef1b71386e::t_76ff5b3f708942 54
+  s_95f2ef1b71386e::t_8990bee9eaff26 8
+src/commands/overview.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 8
+  s_95f2ef1b71386e::t_76ff5b3f708942 65
+src/server/index.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 10
+  s_95f2ef1b71386e::t_76ff5b3f708942 275,279
+src/commands/decision.ts
+  s_95f2ef1b71386e::t_313d2b50970e7f 83
+  s_95f2ef1b71386e::t_76ff5b3f708942 163,209,213,231,235,269
+  s_95f2ef1b71386e::t_8990bee9eaff26 9
+src/commands/completion.ts
+  s_95f2ef1b71386e::t_8990bee9eaff26 9
+  s_95f2ef1b71386e::t_76ff5b3f708942 494,501,504,522
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7b2bec4b485cb5186345c3e021ea76556cd1ceb5",
+  "prompts": {},
+  "sessions": {
+    "s_369ef0bf818e03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0c3670fb0ffek6xXfKe7FQNNEK",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
