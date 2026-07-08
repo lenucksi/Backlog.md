@@ -37,6 +37,7 @@ import {
 	getPriorityDisplay,
 } from "./task-detail-content.ts";
 import { createTaskPopup as createTaskPopupImpl } from "./task-popup.ts";
+import { LAYOUT } from "./task-viewer-layout.ts";
 import { createScreen } from "./tui.ts";
 
 export function buildTaskViewerMilestoneFilterModel(activeMilestones: Milestone[]): {
@@ -432,9 +433,9 @@ export async function viewTaskEnhanced(
 		parent: container,
 		top: getHeaderHeight(),
 		left: 0,
-		width: "40%",
+		width: LAYOUT.LIST_PANE_WIDTH,
 		height: `100%-${getHeaderHeight() + 1}`,
-		border: { type: "line" },
+		border: { type: LAYOUT.PANE_BORDER_TYPE },
 		style: { border: { fg: "gray" } },
 		label: `\u00A0Tasks (${filteredTasks.length})\u00A0`,
 	});
@@ -443,10 +444,10 @@ export async function viewTaskEnhanced(
 	const detailPane = box({
 		parent: container,
 		top: getHeaderHeight(),
-		left: "40%",
+		left: LAYOUT.LIST_PANE_WIDTH,
 		right: 0,
 		height: `100%-${getHeaderHeight() + 1}`,
-		border: { type: "line" },
+		border: { type: LAYOUT.PANE_BORDER_TYPE },
 		style: { border: { fg: "gray" } },
 		label: "\u00A0Details\u00A0",
 	});
@@ -684,10 +685,10 @@ export async function viewTaskEnhanced(
 		}
 		listEmptyStateBox = box({
 			parent: taskListPane,
-			top: 1,
-			left: 1,
-			width: "100%-4",
-			height: "100%-3",
+			top: LAYOUT.EMPTY_STATE_PADDING.top,
+			left: LAYOUT.EMPTY_STATE_PADDING.left,
+			width: LAYOUT.LIST_ITEM_WIDTH,
+			height: LAYOUT.LIST_ITEM_HEIGHT,
 			content: message,
 			tags: true,
 			style: { fg: "gray" },
@@ -736,10 +737,10 @@ export async function viewTaskEnhanced(
 			items: filteredTasks,
 			selectedIndex: initialIndex,
 			border: false,
-			top: 1,
-			left: 1,
-			width: "100%-4",
-			height: "100%-3",
+			top: LAYOUT.EMPTY_STATE_PADDING.top,
+			left: LAYOUT.EMPTY_STATE_PADDING.left,
+			width: LAYOUT.LIST_ITEM_WIDTH,
+			height: LAYOUT.LIST_ITEM_HEIGHT,
 			itemRenderer: (task: Task) => {
 				const checkbox = selectedTaskIds.has(task.id) ? "{green-fg}[✓]{/}" : "{gray-fg}[ ]{/}";
 				const statusIcon = formatStatusWithIcon(task.status, statusStyleOptions);
@@ -911,7 +912,7 @@ export async function viewTaskEnhanced(
 				tags: true,
 				wrap: true,
 				scrollable: false,
-				padding: { left: 1, right: 1 },
+				padding: LAYOUT.DETAIL_CONTENT_PADDING,
 				content: "{bold}No tasks to display{/bold}",
 			});
 
@@ -928,7 +929,7 @@ export async function viewTaskEnhanced(
 				mouse: true,
 				tags: true,
 				wrap: true,
-				padding: { left: 1, right: 1, top: 0, bottom: 0 },
+				padding: { ...LAYOUT.DETAIL_CONTENT_PADDING, top: 0, bottom: 0 },
 				content: noResultsMessage,
 			});
 
@@ -963,7 +964,7 @@ export async function viewTaskEnhanced(
 			tags: true,
 			wrap: true,
 			scrollable: false,
-			padding: { left: 1, right: 1 },
+			padding: LAYOUT.DETAIL_CONTENT_PADDING,
 			content: detailContent.headerContent.join("\n"),
 		});
 
@@ -987,7 +988,7 @@ export async function viewTaskEnhanced(
 			mouse: true,
 			tags: true,
 			wrap: true,
-			padding: { left: 1, right: 1, top: 0, bottom: 0 },
+			padding: { ...LAYOUT.DETAIL_CONTENT_PADDING, top: 0, bottom: 0 },
 			content: detailContent.bodyContent.join("\n"),
 		});
 
@@ -1328,6 +1329,18 @@ export async function viewTaskEnhanced(
 	});
 
 	// Keyboard shortcuts
+
+	function canHandleKey(): boolean {
+		return !modalOpen && !filterPopupOpen && currentFocus !== "filters";
+	}
+
+	function cleanupViewer(): void {
+		searchService?.dispose();
+		contentStore?.dispose();
+		filterHeader.destroy();
+		if (ownedScreen) screen.destroy();
+	}
+
 	screen.key(["/"], () => {
 		if (modalOpen) return;
 		pendingSearchWrap = null;
@@ -1341,7 +1354,7 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["y", "Y"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		const task = getCurrentShortcutTask();
 		if (!task) return;
 		const success = await copyToClipboard(task.id);
@@ -1353,14 +1366,14 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["c", "C"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		const task = getCurrentShortcutTask();
 		if (!task) return;
 		await applyTaskLifecycleShortcut(task, "complete");
 	});
 
 	screen.key(["a", "A"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size > 0) {
 			await executeBulkAction("archive");
 			return;
@@ -1371,7 +1384,7 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["s", "S"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size === 0) {
 			void openFilterPicker("status");
 			return;
@@ -1380,7 +1393,7 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["p", "P"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size === 0) {
 			void openFilterPicker("priority");
 			return;
@@ -1389,7 +1402,7 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["i", "I"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size === 0) {
 			void openFilterPicker("milestone");
 			return;
@@ -1398,7 +1411,7 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["l", "L"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size === 0) {
 			void openFilterPicker("labels");
 			return;
@@ -1407,7 +1420,7 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["e", "E", "S-e"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size > 0) {
 			await executeBulkUpdate("assignee");
 			return;
@@ -1416,14 +1429,14 @@ export async function viewTaskEnhanced(
 	});
 
 	screen.key(["u", "U"], async () => {
-		if (modalOpen || filterPopupOpen || currentFocus === "filters") return;
+		if (!canHandleKey()) return;
 		if (selectedTaskIds.size > 0) {
 			await executeBulkUpdate("dueDate");
 		}
 	});
 
 	screen.key(["?"], async () => {
-		if (modalOpen || filterPopupOpen) return;
+		if (!canHandleKey()) return;
 		await runWithModalGuard(() => openHelpPopup(screen, "task-list"));
 	});
 
@@ -1450,10 +1463,7 @@ export async function viewTaskEnhanced(
 			screen.render();
 		} else {
 			// If already in task list with no selection, quit
-			searchService?.dispose();
-			contentStore?.dispose();
-			filterHeader.destroy();
-			if (ownedScreen) screen.destroy();
+			cleanupViewer();
 			process.exit(0);
 		}
 	});
@@ -1461,16 +1471,9 @@ export async function viewTaskEnhanced(
 	// Tab key handling for view switching - only when in task list
 	if (options.onTabPress) {
 		screen.key(["tab"], async () => {
-			// Keep tab as filter-navigation while filters are focused.
-			if (modalOpen || filterPopupOpen || currentFocus === "filters") {
-				return;
-			}
+			if (!canHandleKey()) return;
 			if (currentFocus === "list" || currentFocus === "detail") {
-				// Cleanup before switching
-				searchService?.dispose();
-				contentStore?.dispose();
-				filterHeader.destroy();
-				if (ownedScreen) screen.destroy();
+				cleanupViewer();
 				await options.onTabPress?.();
 			}
 		});
@@ -1478,13 +1481,8 @@ export async function viewTaskEnhanced(
 
 	// Quit handlers
 	screen.key(["q", "C-c"], () => {
-		if (modalOpen || filterPopupOpen) {
-			return;
-		}
-		searchService?.dispose();
-		contentStore?.dispose();
-		filterHeader.destroy();
-		if (ownedScreen) screen.destroy();
+		if (!canHandleKey()) return;
+		cleanupViewer();
 		process.exit(0);
 	});
 

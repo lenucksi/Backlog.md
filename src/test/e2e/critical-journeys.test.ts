@@ -25,7 +25,8 @@ test.describe("Critical user journeys", () => {
 		await expect(page.locator('[draggable="true"]').first()).toBeVisible({ timeout: 5000 });
 
 		// Filter by assignee "bob"
-		await page.getByRole("combobox", { name: "Filter board by assignee" }).selectOption("bob");
+		await page.getByRole("button", { name: /^Assignee / }).click();
+		await page.locator("#board-assignee-filter-menu").getByRole("button", { name: "bob", exact: true }).click();
 
 		// Only bob's tasks should be visible
 		await expect(page.getByText("Set up CI pipeline")).toBeVisible();
@@ -47,7 +48,8 @@ test.describe("Critical user journeys", () => {
 		await expect(page.locator('[draggable="true"]').first()).toBeVisible({ timeout: 5000 });
 
 		// Filter by priority "high"
-		await page.getByRole("combobox", { name: "Filter board by priority" }).selectOption("high");
+		await page.getByRole("button", { name: /^Priority / }).click();
+		await page.locator("#board-priority-filter-menu").getByRole("button", { name: "high", exact: true }).click();
 
 		// High priority tasks should be visible
 		await expect(page.getByText("Implement login page")).toBeVisible();
