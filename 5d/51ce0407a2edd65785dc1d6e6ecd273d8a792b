@@ -1,0 +1,40 @@
+src/ui/task-viewer-with-search.ts
+  s_348c29be23230e::t_cfe75cba1d8989 1484-1485
+  s_348c29be23230e::t_4cef909a0d7b62 1466
+  s_348c29be23230e::t_67cb0b67c855e1 1332-1343
+  s_348c29be23230e::t_d0c047b3299792 1474,1476
+  s_348c29be23230e::t_d701582fbb593b 688-691
+  s_348c29be23230e::t_69806b74fd0189 932,991
+  s_348c29be23230e::t_3cbabcde2d34b8 915,967
+  s_348c29be23230e::t_da721919014843 1357,1369,1376,1387,1396,1405,1414,1423,1432
+  s_348c29be23230e::t_d4d4cb6aeb7e1c 447,450
+  s_348c29be23230e::t_92bee9c187e20f 40
+  s_348c29be23230e::t_353640b172f90b 436,438
+  s_348c29be23230e::t_34f4f6a0503d6d 740-743
+  s_348c29be23230e::t_a5d7271f2a21dd 1439
+src/ui/task-viewer-layout.ts
+  s_348c29be23230e::t_4adad69c183059 1-10
+src/ui/task-viewer-state.ts
+  s_348c29be23230e::t_8d9880a3d25bc2 1-54
+src/test/e2e/critical-journeys.test.ts
+  s_348c29be23230e::t_61bff8244c33d8 28-29
+  s_348c29be23230e::t_74c9be2963a475 51-52
+package.json
+  s_348c29be23230e::t_e0dfb8bdccee95 63-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "5d51ce0407a2edd65785dc1d6e6ecd273d8a792b",
+  "prompts": {},
+  "sessions": {
+    "s_348c29be23230e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bde55088ffehHMI3gXDsUooE0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
