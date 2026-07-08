@@ -24,11 +24,8 @@ import { openCreateMilestoneScreen } from "./create-milestone.ts";
 import { openCreateTaskPopup } from "./create-task.ts";
 import { formatFooterContent } from "./footer-content.ts";
 import { getStatusIcon, type StatusStyleOptions } from "./status-icon.ts";
-import {
-	createTaskPopup,
-	resolveSearchExitTargetIndex,
-	shouldMoveFromListBoundaryToSearch,
-} from "./task-viewer-with-search.ts";
+import { resolveSearchExitTargetIndex, shouldMoveFromListBoundaryToSearch } from "./task-viewer-state.ts";
+import { createTaskPopup } from "./task-viewer-with-search.ts";
 import { createScreen } from "./tui.ts";
 import { stripBlessedFgTags } from "./utils/strip-tags.ts";
 

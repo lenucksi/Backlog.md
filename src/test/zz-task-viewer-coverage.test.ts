@@ -5,13 +5,13 @@ import { $ } from "bun";
 import { Core } from "../core/backlog.ts";
 import type { Milestone } from "../types/index.ts";
 import {
-	buildTaskViewerMilestoneFilterModel,
 	resolveFilterExitPane,
 	resolveSearchExitTargetIndex,
 	resolveTaskListSelection,
 	shouldMoveFromDetailBoundaryToSearch,
 	shouldMoveFromListBoundaryToSearch,
-} from "../ui/task-viewer-with-search.ts";
+} from "../ui/task-viewer-state.ts";
+import { buildTaskViewerMilestoneFilterModel } from "../ui/task-viewer-with-search.ts";
 import { term } from "./termless-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 

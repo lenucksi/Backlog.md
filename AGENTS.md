@@ -268,6 +268,24 @@ is loaded once per worker`). Unsafe comments get reverted.
 The pre-commit hook automatically runs `biome check --write` on staged files to ensure code quality. If linting errors
 are found, the commit will be blocked until fixed.
 
+### Biome — NEVER `--unsafe` without explicit review
+
+`bun run check . --write --unsafe` applies **unsafe fixes** that change runtime behavior:
+- `useExhaustiveDependencies` rewrites React `useEffect`/`useMemo` dep arrays
+- `useOptionalChain` changes `a && a.b()` to `a?.b()` (can silently silence null errors)
+
+**Always scope to your files** and never use `--unsafe` on the full project:
+```bash
+bun run check src/ui/task-*.ts --write                     # ✅ safe
+bun run check src/ui/task-*.ts src/ui/task-viewer-state.ts --write  # ✅ safe
+bun run check . --write --unsafe                           # ❌ DANGER — rewrites React deps
+```
+
+If you accidentally run `--unsafe` project-wide, restore affected files with:
+```bash
+git diff --name-only src/test/ src/web/ | xargs git restore
+```
+
 ### Swagger/OpenAPI Documentation
 
 All Swagger documentation (`summary`, `description`, `responses.*.description`, schema field `description`) MUST be written in **English only**. This is the standard language for REST API documentation and ensures consistency for external consumers.

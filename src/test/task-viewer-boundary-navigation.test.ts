@@ -6,7 +6,7 @@ import {
 	resolveTaskListSelection,
 	shouldMoveFromDetailBoundaryToSearch,
 	shouldMoveFromListBoundaryToSearch,
-} from "../ui/task-viewer-with-search.ts";
+} from "../ui/task-viewer-state.ts";
 
 describe("task viewer boundary navigation", () => {
 	it("moves from first list row to search on up", () => {
