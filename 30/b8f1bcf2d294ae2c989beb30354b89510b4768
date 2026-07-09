@@ -1,0 +1,543 @@
+"backlog/tasks/back-0576 - Adapt-upstream-test-suite-4x-speed-up-approach-in-process-API-parallel.md"
+  s_fcab4aaacdca6c::t_429edd2e2671b6 206
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,17-52,119-126,177-205
+src/web/components/CleanupModal.tsx
+  s_fcab4aaacdca6c::t_1f0017c9d7683d 199
+  s_7935e30492a246::t_8923452efd6e61 103,105
+  s_fcab4aaacdca6c::t_d1d07e24f7d05a 110,212,221
+src/web/components/LoadingSpinner.tsx
+  s_7935e30492a246::t_b86658d461b815 44
+  s_7935e30492a246::t_f22441cae634e4 58,67,74
+"backlog/tasks/back-0599 - Refactor-src-core-backlog.ts-—-Facade-Pattern-3.135→800-Zeilen.md"
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 7,21,23,25-50,55-61,64-89
+  s_fcab4aaacdca6c::t_429edd2e2671b6 90
+src/web/components/HealthIndicator.tsx
+  s_fcab4aaacdca6c::t_1f0017c9d7683d 16
+src/web/components/MilestonesPage.tsx
+  s_7935e30492a246::t_60bdc39071c1e2 509
+  s_7935e30492a246::t_ca99c5a5575059 798
+  s_7935e30492a246::t_02a4d737c5faa4 777
+  s_95f2ef1b71386e::t_c5e0a559accbd7 580,596,605
+  s_7935e30492a246::t_3b2593ed68937d 815,821
+  s_7935e30492a246::t_ac26f4d2932944 626-628
+  s_7935e30492a246::t_457aad3945d182 694-696
+  s_7935e30492a246::t_1bf41990125bd0 877-879
+  s_7935e30492a246::t_01514e3e5df513 893-895
+  s_22ba60081568c3::t_b0e788c041324f 684
+  s_7935e30492a246::t_a276c0fa46fcb2 320
+  s_7935e30492a246::t_4e832010bc1925 510
+  s_7935e30492a246::t_913071c69ee659 910,924
+  s_7935e30492a246::t_677d014ca57e4e 614
+  s_7935e30492a246::t_ad2cfb3e16a549 8,573,906-908,920-922
+src/commands/tui2.ts
+  s_4459d80cdeb08d::t_9e593ac19fb14a 14
+  s_4459d80cdeb08d::t_f822b342e0e059 1,11-13
+  s_4459d80cdeb08d::t_bed2cb43f72930 3-10,15-17
+  s_4459d80cdeb08d::t_63a0ed71fd1b90 2
+src/web/components/DependencyInput.tsx
+  s_fcab4aaacdca6c::t_f33073e55aa964 152
+  s_fcab4aaacdca6c::t_28f486ca25788c 139
+"backlog/tasks/back-0599.07 - backlog.ts-Facade-—-Rest-auf-800-Zeilen-komprimieren.md"
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 3,7,22-41,46-51,54-99
+  s_fcab4aaacdca6c::t_429edd2e2671b6 100
+"backlog/tasks/back-0576.10 - Fix-core.fs-→-core.filesystem-Production-Bug-Test-Fails.md"
+  s_dbd2ae55eb8b12::t_897d7cbd0ccabb 2-22,25,27-29,31,34,36,38-43,46-51,54-60,62,64-127,130-139,142,144-147,150-195
+"backlog/tasks/back-0599.01 - backlog.ts-Pure-Task-Input-Resolver-auslagern.md"
+  s_fcab4aaacdca6c::t_2d3f5a05482e13 8,128,130,132,134,136-146
+  s_fcab4aaacdca6c::t_429edd2e2671b6 148
+  s_fcab4aaacdca6c::t_0c3c915669815e 4,9
+  s_558a9a2b81524b::t_9b2e6030600f07 51-57,108-127,129,131,133,135,147,151-154
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 5-6,24,26-46,60-107
+"backlog/tasks/back-0599.05 - backlog.ts-Decision-Document-Operationen-auslagern.md"
+  s_fcab4aaacdca6c::t_429edd2e2671b6 95
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 7,22-41,46-52,55-94
+src/web/components/DraftsList.tsx
+  s_7935e30492a246::t_15444c1900b309 39-51
+  s_7935e30492a246::t_ad2cfb3e16a549 95,114,152-163,209
+  s_7935e30492a246::t_7d825d2e2c8640 126
+"backlog/tasks/back-0606 - Error-Logs-sanitizen-Frontend-Error-Boundaries.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,49-65
+  s_fcab4aaacdca6c::t_429edd2e2671b6 66
+src/web/components/SuccessToast.tsx
+  s_fcab4aaacdca6c::t_3c04bc074b6ee6 16
+  s_f0d9c1e79de45e::t_5e028330b47610 2
+  s_f0d9c1e79de45e::t_cb501a63a840e2 21
+src/web/components/icons.tsx
+  s_7935e30492a246::t_9b4e5076bd9399 310-311,318-326,333-334
+  s_7935e30492a246::t_ad2cfb3e16a549 312-317,327-332
+  s_f0d9c1e79de45e::t_aae062d162385d 217-222,227-232,237-242,247-252,257-262,267-272,277-282,287-292,297-302
+  s_f0d9c1e79de45e::t_ce811e6715f01f 1-216,223-226,233-236,243-246,253-256,263-266,273-276,283-286,293-296,303-309,335
+src/web/components/MermaidMarkdown.tsx
+  s_7935e30492a246::t_f8904e3638163c 75
+  s_7935e30492a246::t_39af9af3ad7bf8 70-74,76-78,81,89
+  s_7935e30492a246::t_bfad86b1d88303 91-92,104,109-111
+  s_7935e30492a246::t_4c34de6edc0f18 10
+"backlog/tasks/back-0593.01 - BACK-593.1-Replace-jq-dependency-with-Bun.file.json-in-build.ts.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,72-78
+src/web/App.tsx
+  s_7935e30492a246::t_d000de9c881347 767
+  s_fcab4aaacdca6c::t_3856c82b04796c 826
+src/web/components/DecisionDetail.tsx
+  s_04c8bd0804c21f::t_fb9d9efcaad9e7 397,416
+  s_04c8bd0804c21f::t_d303a6d7a058d2 344,355
+  s_04c8bd0804c21f::t_9533b5d36a782f 438,457,464
+  s_04c8bd0804c21f::t_4109fa34013919 595
+  s_04c8bd0804c21f::t_9b605eaaf2071b 367,380
+  s_04c8bd0804c21f::t_19ca750c0d0d33 535,545
+  s_04c8bd0804c21f::t_6a17e06c2ade33 149-178
+  s_f0d9c1e79de45e::t_aae062d162385d 292-298,442-448,473-479
+  s_04c8bd0804c21f::t_4b541bf8b47e17 179
+  s_04c8bd0804c21f::t_58d44584dba291 569,576
+src/web/components/ChipInput.tsx
+  s_fcab4aaacdca6c::t_899eaf62864476 166
+  s_7935e30492a246::t_dd597a7cbc9457 149
+src/web/components/InitializationScreen.tsx
+  s_7935e30492a246::t_ace5ccab241be7 523,527
+  s_7935e30492a246::t_9406a8139d6002 784
+  s_7935e30492a246::t_d3b05b86c75f48 744
+  s_7935e30492a246::t_cc09a4792bfd27 641
+  s_7935e30492a246::t_4b8b8117204cc4 924
+  s_7935e30492a246::t_ad2cfb3e16a549 637-639,718-720,740-742,780-782,972-977
+  s_7935e30492a246::t_2eb16ca54b0a59 722
+  s_7935e30492a246::t_83df55195b00e4 932-934
+  s_7935e30492a246::t_27f56b01dc1407 4
+tsconfig.json
+  s_fcab4aaacdca6c::t_3c23555182617a 26
+"backlog/tasks/back-0576.02 - Migrate-CLI-task-operation-tests-to-Core-API-6-files.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,8-9,16-18,88-92,95-107,111-112
+"backlog/tasks/back-0602 - Refactor-src-ui-board.ts-—-Modulare-Aufteilung-1.735→300.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 7,24,26-34,39,46
+  s_fcab4aaacdca6c::t_d3c1ac47cb8ab5 47
+src/web/components/DuplicateIdWarning.tsx
+  s_fcab4aaacdca6c::t_1f0017c9d7683d 30
+"backlog/tasks/back-0593.08 - BACK-593.10-Merge-Bun.serve-Elysia-into-single-routing-layer.md"
+  s_98cbe6435d5f59::t_096b4965acc173 54
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 3-4,7-8,12-13,16-22,24,33,35-42,44-47,49-53,55-58,61-79,92-101,118-183
+"backlog/tasks/back-0593.09 - BACK-593.8-Add-Vite-config-overlap-validation-CI-check.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,12,71-77
+"backlog/tasks/back-0600.02 - task-viewer-src-ui-task-list-pane.ts-src-ui-task-detail-pane.ts-extrahieren.md"
+  s_369ef0bf818e03::t_905c9015e781af 94,107,111,117-118,120,129,131,135
+  s_fcab4aaacdca6c::t_8543146adebb44 31-37
+  s_369ef0bf818e03::t_f9a419d6f58926 3-6,8-9,13-16,25-30,53-93,95-106,108-110,112-116,119,121-128,130,132-134,136-139
+  s_fcab4aaacdca6c::t_429edd2e2671b6 163
+  s_348c29be23230e::t_f689ec58c2401f 38,43-50,140-162
+src/web/components/TaskCard.tsx
+  s_fcab4aaacdca6c::t_9183600d48cee5 119-125,161-167
+  s_fcab4aaacdca6c::t_7903ae347df8f5 265,269
+  s_7935e30492a246::t_ad2cfb3e16a549 151-156
+  s_7935e30492a246::t_c837eec2d756b3 140-141
+"backlog/tasks/back-0576.08 - Reduce-setTimeout-usage-enable-parallel.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,8-9,136-163
+  s_fcab4aaacdca6c::t_429edd2e2671b6 164
+biome.json
+  s_fcab4aaacdca6c::t_41aba882eb9bf2 11-21
+  s_fcab4aaacdca6c::t_504df81d30ae65 35-36
+  s_7935e30492a246::t_7ff6fa2842c1fe 71-72,74-97
+  s_7935e30492a246::t_ad2cfb3e16a549 73
+"backlog/tasks/back-0599.03 - backlog.ts-Task-Operationen-auslagern.md"
+  s_fcab4aaacdca6c::t_429edd2e2671b6 119
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 7,22-42,47-53,56-118
+"backlog/tasks/back-0602.01 - board-helpers-column-extrahieren-board.maintein.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 3,7,19,24-26,29
+  s_fcab4aaacdca6c::t_702986dc0d0c46 30
+"backlog/tasks/back-0593.02 - BACK-593.3-Use-Vite-JS-API-instead-of-Bun.spawnSync-in-build.ts.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,80-86
+"backlog/tasks/back-0599.04 - backlog.ts-Draft-Operationen-auslagern.md"
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 7,22-35,40-44,47-90
+  s_fcab4aaacdca6c::t_429edd2e2671b6 91
+src/web/components/TaskColumn.tsx
+  s_fcab4aaacdca6c::t_bd85cab9e6561e 470
+  s_7935e30492a246::t_0e8fc8e9a32df7 245
+  s_fcab4aaacdca6c::t_9183600d48cee5 359-360,475
+  s_7935e30492a246::t_0de3ca64c3117d 488
+  s_7935e30492a246::t_adf6ea81f91f89 244
+  s_fcab4aaacdca6c::t_908b4de2d92e2d 278
+"backlog/tasks/back-0604 - Refactor-Web-Komponenten-—-TaskList-1.289-TaskDetailsModal-1.277.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 7,24,26-33,38,42,46
+  s_fcab4aaacdca6c::t_c412309ef197d9 47
+src/web/components/ThemeToggle.tsx
+  s_fcab4aaacdca6c::t_ed4782072501ad 9
+  s_fcab4aaacdca6c::t_6b47afdc6bbb34 18,29
+src/tui2/components/task-list.tsx
+  s_4459d80cdeb08d::t_5b3d603a37a33f 107
+  s_4459d80cdeb08d::t_22a1dd7cb276c4 3
+  s_4459d80cdeb08d::t_2692048e0c13cd 57-62
+  s_4459d80cdeb08d::t_3ab03be6aa41df 95
+  s_95f2ef1b71386e::t_cb0526802e56b2 4
+  s_4459d80cdeb08d::t_aec6713b846b64 41,44
+  s_4459d80cdeb08d::t_957e1e91cddfb7 2
+  s_4459d80cdeb08d::t_977f69b46d324b 34-40,42-43,45-48
+  s_4459d80cdeb08d::t_616ff6f1d058c4 72
+  s_4459d80cdeb08d::t_4dc42d5cf9cb3d 76-86
+  s_4459d80cdeb08d::t_87e3a5bb7ffa5c 1,5-33,49-56,63-71,73-75,87-94,106,108-122
+  s_4459d80cdeb08d::t_56b10971d82e5c 96-101,105
+  s_4459d80cdeb08d::t_deec16b160c4c4 102
+  s_4459d80cdeb08d::t_aed0d6186af73f 103-104
+src/test/tui2-poc.test.ts
+  s_4459d80cdeb08d::t_c6a886d771ed04 28-54
+  s_4459d80cdeb08d::t_96d33e88014237 129,131,133-135,143,145,148-150,158,160,176-180,186,188,190-192,200,202,204-206,214,216,218-220,228,232-234
+  s_4459d80cdeb08d::t_6f27cd81f70782 5,10,20-21,26,55-59,66-78,80-93,96,101-108,110,115-122,124,130,132,138,144,146-147,153,159,161-167,172-175,181,187,189,195,201,203,209,215,217,223,229-231
+  s_4459d80cdeb08d::t_17bbe82a00f45c 109,123
+  s_4459d80cdeb08d::t_13f4576d32490e 2,97-100,111-114,125-128,139-142,154-157,168-171,182-185,196-199,210-213,224-227
+  s_4459d80cdeb08d::t_3a1ee0c1e26922 1,3-4,6-9,11-19,22-25,27,60-65,94-95,136-137,151-152,193-194,207-208,221-222,235-236
+  s_4459d80cdeb08d::t_ad2bae8c161734 79
+"backlog/tasks/back-0610 - Frontend-CSS-Pattern-Fixes-—-size-gap-rounded-circle-htmlFor.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,37-46
+  s_fcab4aaacdca6c::t_429edd2e2671b6 47
+"backlog/tasks/back-0609 - Design-Tokens-Migration-—-Hardcoded-Colors-durch-CSS-Variablen-ersetzen.md"
+  s_fcab4aaacdca6c::t_429edd2e2671b6 48
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 7,22,26-30,32,37-44,47
+src/web/components/TaskList.tsx
+  s_fcab4aaacdca6c::t_c88ec4e6b2680e 2,809,881,915,930,1165,1266
+  s_fcab4aaacdca6c::t_9183600d48cee5 256-285
+  s_fcab4aaacdca6c::t_c586e7b3bf2e19 1450
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 126,348,430-431,801
+  s_fcab4aaacdca6c::t_cd60bce8dc6d37 250
+"backlog/tasks/back-0600 - Refactor-src-ui-task-viewer-with-search.ts-—-Pane-Separation-1.883→600.md"
+  s_369ef0bf818e03::t_f9a419d6f58926 7,22,24,26-31,46-49,55
+backlog/config.yml
+  s_348c29be23230e::t_f689ec58c2401f 181
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 6-19,21-37,39-51,53-63,65-76,78-85,88,91-97,100-104,106,112-114,116,118,120-121,123-125,127,129-134,136-146,148-151,153-167
+"backlog/tasks/back-0605 - CLI-Harden-—-SIGINT-Exit-Codes-Help-Descriptions.md"
+  s_16583d217a3de7::t_a04d5239ab42ad 4,7-8,52-61
+  s_fcab4aaacdca6c::t_429edd2e2671b6 62
+"backlog/tasks/back-0593.10 - BACK-593.9-Embed-frontend-assets-into-compiled-binary.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 3-4,7-8,12,15-20,22,31,33,35,38-40,42-48,61-68,85-112
+"backlog/tasks/back-0617 - Task-Finalization-Gate-AC-DoD-Enforcement-für-LLM-Agenten.md"
+  s_44ef7f1f9971b1::t_fac087753f11b2 1-63
+"backlog/tasks/back-0600.03 - task-viewer-src-ui-task-popup.ts-src-ui-task-viewer-keybindings.ts-extrahieren-main-file-shrinken.md"
+  s_369ef0bf818e03::t_f9a419d6f58926 3,32-47,61,64-218
+  s_fcab4aaacdca6c::t_19114efe156c94 4,8-9,13-23
+  s_2c3244ca68f4b0::t_a59ed57818f6fe 52-57,59-60,219-236
+  s_2c3244ca68f4b0::t_b9376968584eee 58,237-261
+  s_fcab4aaacdca6c::t_429edd2e2671b6 262
+  s_2c3244ca68f4b0::t_3c4e5955707e53 5-6
+"backlog/tasks/back-0603.01 - task-command-handler-in-eigene-Dateien.md"
+  s_fcab4aaacdca6c::t_dac5f8d3224822 30
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 3,7,19,24-26,29
+src/web/components/SideNavigation.tsx
+  s_b343a77fe82182::t_cf48e01d84b397 613
+  s_f0d9c1e79de45e::t_aa7466b1ba48d9 313
+  s_f0d9c1e79de45e::t_8e1718f6db9892 39
+  s_b343a77fe82182::t_c9723ab47701c9 425
+  s_2c04847d799230::t_6925fe14f16443 269
+  s_b343a77fe82182::t_07c97e310708de 705
+  s_b343a77fe82182::t_b6d7d6d6d2ee92 309
+  s_b343a77fe82182::t_0a335c4054d495 837
+  s_f0d9c1e79de45e::t_1fb7245cc003d9 20
+  s_b343a77fe82182::t_89164fa95ea941 852
+  s_2c04847d799230::t_69bd3298a6b2d4 911-912
+  s_d020ad1dcbcedc::t_adc7f0c61869e8 913-916
+  s_2c04847d799230::t_b726f8a0e7c0f8 340
+  s_fcab4aaacdca6c::t_fa364d1050987f 284
+  s_b343a77fe82182::t_f31d8b2d050c24 321
+  s_b343a77fe82182::t_b0690965b41746 379
+"backlog/tasks/back-0576.07 - Migrate-MCP-tests-to-Core-API-12-files.md"
+  s_fcab4aaacdca6c::t_429edd2e2671b6 91
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,8-9,16-19,86-90
+"backlog/tasks/back-0576.09 - Fix-McpServer-module-level-await-blocking-parallel-imports.md"
+  s_d020ad1dcbcedc::t_a93ea5577e16ec 1-103
+src/web/components/Board.tsx
+  s_7935e30492a246::t_6326676580fa89 687
+  s_fcab4aaacdca6c::t_9183600d48cee5 625
+  s_fcab4aaacdca6c::t_cfc283553ddf6f 856
+  s_95f2ef1b71386e::t_ea30878ce64fb2 577,666
+  s_7935e30492a246::t_9b8e6b6e42cd32 682
+src/test/web-milestones-page-search.test.tsx
+  s_fcab4aaacdca6c::t_9e3fc94c0ebf80 298
+"backlog/tasks/back-0600.01 - task-viewer-src-ui-task-detail-content.ts-src-ui-task-viewer-state.ts-extrahieren.md"
+  s_369ef0bf818e03::t_905c9015e781af 141-142
+  s_369ef0bf818e03::t_f9a419d6f58926 3-6,8-9,13-23,32-42,56-127
+  s_fcab4aaacdca6c::t_429edd2e2671b6 146
+  s_369ef0bf818e03::t_d331537719dc59 47-53,128-140,145,149-151
+  s_369ef0bf818e03::t_c7abe0153e3f04 143-144
+"backlog/tasks/back-0624 - Explicit-ordinal-CLI-task.md"
+  s_95f2ef1b71386e::t_78f8c33fcd0b54 1-18
+src/web/components/LabelFilterDropdown.tsx
+  s_7935e30492a246::t_cda44524ecb61a 74
+src/tui2/app.tsx
+  s_4459d80cdeb08d::t_c7f6867d8d324c 1-13,16-33,35-40
+  s_4459d80cdeb08d::t_8216fb279f42c2 15
+  s_4459d80cdeb08d::t_e8fb7f385956b2 14
+  s_4459d80cdeb08d::t_5b3d603a37a33f 34
+src/web/components/Modal.tsx
+  s_7935e30492a246::t_ad2cfb3e16a549 67
+"backlog/tasks/back-0623 - Agents-add-board-export-step-to-agent-DoD.md"
+  s_95f2ef1b71386e::t_fe046c430bbed8 2-3,6-7,24
+src/tui2/components/task-detail.tsx
+  s_4459d80cdeb08d::t_ddc166030f0aa7 1-95
+"backlog/tasks/back-0593.05 - BACK-593.4-Parallelize-guard-build-Vite-build-in-build.ts.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,77-83
+"backlog/tasks/back-0576.05 - Migrate-business-logic-tests-to-Core-API-15-files.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,8-9,109-111,116-122
+  s_fcab4aaacdca6c::t_429edd2e2671b6 123
+src/web/components/MilestoneTaskRow.tsx
+  s_7935e30492a246::t_c494e9f01e619d 40-41
+  s_7935e30492a246::t_ad2cfb3e16a549 15-20,46-51
+"backlog/tasks/back-0594.06 - BACK-594.6-WebUI-conventions-und-Task-Standards-in-AGENTS.md.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 3,7,21,23,25,27-61,66-72,78-86
+src/web/components/AcceptanceCriteriaEditor.tsx
+  s_7935e30492a246::t_ad2cfb3e16a549 40-42
+  s_7935e30492a246::t_9d4ecab9cdd881 82,84
+src/ui/task-viewer-with-search.ts
+  s_7935e30492a246::t_576e526963cb21 99
+"backlog/tasks/back-0593.07 - BACK-593.7-Clean-up-package.json.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,74-80
+"backlog/decisions/decision-0003 - Fresh-Decision.md"
+  s_95f2ef1b71386e::t_3147123d9bc37e 1-15
+"backlog/tasks/back-0593.06 - BACK-593.2-Resolve-dual-Tailwind-CSS-compilation-path.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,100-106
+src/web/components/TaskDetailsModal.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 323,508,687,700,711,733,754,775,780-781,791
+  s_fcab4aaacdca6c::t_321c87f1fecd18 672,682,800,873,886,966
+  s_fcab4aaacdca6c::t_5c8259173e1971 1326
+  s_fcab4aaacdca6c::t_4d1304545329b0 1322,1343
+  s_95f2ef1b71386e::t_ea30878ce64fb2 624-648,651,860
+  s_fcab4aaacdca6c::t_9183600d48cee5 894-900
+  s_fcab4aaacdca6c::t_b8ee88f479d967 650
+  s_fcab4aaacdca6c::t_92ab4eadad545a 649,1251
+  s_fcab4aaacdca6c::t_01b2f05b4e288a 952-953
+  s_fcab4aaacdca6c::t_388935fea4807d 1347
+src/web/components/Settings.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 71
+  s_fcab4aaacdca6c::t_6ca3dc9c960894 68-70
+  s_7935e30492a246::t_a4aa086b63d84e 741
+  s_df0716748b9693::t_a158c7ab827e47 423,549
+  s_7935e30492a246::t_c8fa1cfaa92b64 533-534
+  s_95f2ef1b71386e::t_ea30878ce64fb2 220
+  s_6b6b7b4137c3aa::t_e18b6d8b95ff6d 590
+  s_fcab4aaacdca6c::t_df1c5267bf3139 72-73
+  s_7935e30492a246::t_0044bc1334bd1f 591-592
+  s_7935e30492a246::t_a7110ec691403d 903
+  s_7935e30492a246::t_ad2cfb3e16a549 433-439,542-548,896-899,919,927
+  s_95f2ef1b71386e::t_9dcd6ed6754860 219
+  s_7935e30492a246::t_4f671ecdcdcece 424-425
+  s_7935e30492a246::t_38bde9117e4e1f 692-693
+"backlog/tasks/back-0593.04 - BACK-593.5-Remove-concurrently-dependency-use-bun-built-in-for-dev.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,71-77
+src/web/components/ErrorBoundary.tsx
+  s_7935e30492a246::t_05b579c72d94aa 2
+  s_7935e30492a246::t_f3ef781128b5e7 19-21
+  s_7935e30492a246::t_ad2cfb3e16a549 37
+"backlog/tasks/back-0599.02 - backlog.ts-ID-Generator-auslagern.md"
+  s_fcab4aaacdca6c::t_76431ca5ff0151 4-6,8-9,16-19
+  s_558a9a2b81524b::t_9b2e6030600f07 98
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 28-36,48-97
+  s_fcab4aaacdca6c::t_2d3f5a05482e13 41-45,99-127,131-134
+  s_fcab4aaacdca6c::t_429edd2e2671b6 128
+"backlog/tasks/back-0599.06 - backlog.ts-Bulk-Operationen-auslagern.md"
+  s_558a9a2b81524b::t_f1cff64d4ce4ac 3,7,22-36,41-46,49-83
+  s_fcab4aaacdca6c::t_429edd2e2671b6 84
+"backlog/tasks/back-0608 - Code-Qualitäts-Tooling-einrichten.md"
+  s_fcab4aaacdca6c::t_429edd2e2671b6 69
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,50-68
+src/web/components/DocumentationDetail.tsx
+  s_04c8bd0804c21f::t_d711e3a4694b83 416
+  s_04c8bd0804c21f::t_dcaafdb1c05134 628
+  s_04c8bd0804c21f::t_88c40d33da34e4 435
+  s_04c8bd0804c21f::t_0a4dc114e9260e 456
+  s_04c8bd0804c21f::t_7498f2368ef168 163-192
+  s_04c8bd0804c21f::t_31c1323fbca694 403
+  s_04c8bd0804c21f::t_7ea7156a0fd275 503,510
+  s_04c8bd0804c21f::t_35841b151042fd 613
+  s_95f2ef1b71386e::t_ea30878ce64fb2 193
+  s_04c8bd0804c21f::t_0c1233ad19ab77 590
+  s_04c8bd0804c21f::t_49846885e006c9 479
+  s_04c8bd0804c21f::t_2eab5df9996f1e 652,659
+  s_04c8bd0804c21f::t_63dec51d2aaf14 380,391
+  s_04c8bd0804c21f::t_31369df25a2d4e 680
+  s_f0d9c1e79de45e::t_aae062d162385d 319-325,439-445,460-466,483-489,519-525,570-576,585-589
+src/web/components/FilterChips.tsx
+  s_fcab4aaacdca6c::t_d517088c880579 35
+"backlog/tasks/back-0593.03 - BACK-593.6-Fix-getContentType-non-standard-MIME-clean-up-asset-routing.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 4,7-8,80-86
+"backlog/tasks/back-0603 - Refactor-src-commands-task.ts-—-Handler-Splits-1.491→200.md"
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 7,25-31,36,42
+  s_fcab4aaacdca6c::t_3809a3943d1a81 43
+src/web/components/Statistics.tsx
+  s_7935e30492a246::t_2aab332f06bd6a 766-768
+  s_7935e30492a246::t_e9376ce7e92104 192-193
+  s_7935e30492a246::t_5e1f6cfb601e1c 783
+  s_7935e30492a246::t_cb7fa73cf5d1b5 369
+  s_7935e30492a246::t_178c492afea9d8 6
+  s_fcab4aaacdca6c::t_472de951071940 298
+  s_fcab4aaacdca6c::t_8a2691505791e1 416
+  s_7935e30492a246::t_3207a0feb54c28 734-735
+  s_7935e30492a246::t_ad2cfb3e16a549 198-207,304-310,557-562,576-581
+  s_fcab4aaacdca6c::t_9183600d48cee5 224-230,241-247,264-270,382-387
+  s_95f2ef1b71386e::t_c5e0a559accbd7 258,286,292
+  s_7935e30492a246::t_799c5dfc728b86 402
+src/web/components/CollapsibleGroup.tsx
+  s_fcab4aaacdca6c::t_1f0017c9d7683d 49
+  s_fcab4aaacdca6c::t_813256f69271c6 87
+  s_95f2ef1b71386e::t_c5e0a559accbd7 55,59
+  s_fcab4aaacdca6c::t_80614a1700c668 82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "30b8f1bcf2d294ae2c989beb30354b89510b4768",
+  "prompts": {},
+  "sessions": {
+    "s_04c8bd0804c21f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0b9293bccffejPdrNz5SP3P42w",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_16583d217a3de7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cdee044dffe3UT1t3JWxLj9Pn",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    },
+    "s_22ba60081568c3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0b8c7170dffe66ZilV3Yk9lvC3",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_2c04847d799230": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0b92b6354ffeKPIwhU0UCJ9Fos",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_2c3244ca68f4b0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bd816748ffe4e92RPjBKCGnga",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_348c29be23230e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bde55088ffehHMI3gXDsUooE0",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    },
+    "s_369ef0bf818e03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0c3670fb0ffek6xXfKe7FQNNEK",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": null
+    },
+    "s_4459d80cdeb08d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cc4ed3daffeEMAFvCtcLc92Am",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_44ef7f1f9971b1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0eb752860ffenX6EQcUrLY4XHA",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_558a9a2b81524b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bca4ac9fffeyMyVoI3mrW0N5I",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_6b6b7b4137c3aa": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1577e33fbffeEHcwVzWdUHc4m9",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_7935e30492a246": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0b8ca0f04ffez9fuPeu3eRYGS5",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_98cbe6435d5f59": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f2a6038fffePnYasrVsCSlfUh",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_b343a77fe82182": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0b93a2004ffeeVYIHjnnUn8C6F",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_d020ad1dcbcedc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0f031e69dffe6qyRORK371R5Kw",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_dbd2ae55eb8b12": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0d1605f11ffeU3wqmnItM0gOrL",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_df0716748b9693": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1579b0cb6ffeTjuW41bPlDYszo",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <lenucksi@users.noreply.github.com>"
+    },
+    "s_f0d9c1e79de45e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0b91145bcffeTP4SlcLO3yGMGd",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_fcab4aaacdca6c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bc5f1252ffenO70hwumqlW6TY",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    }
+  }
+}
