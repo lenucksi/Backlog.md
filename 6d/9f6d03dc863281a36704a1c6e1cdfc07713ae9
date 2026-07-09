@@ -1,0 +1,21 @@
+src/test/web-board-filters.test.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 128
+src/test/web-task-list-labels-menu.test.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6d9f6d03dc863281a36704a1c6e1cdfc07713ae9",
+  "prompts": {},
+  "sessions": {
+    "s_fcab4aaacdca6c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bc5f1252ffenO70hwumqlW6TY",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
