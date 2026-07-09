@@ -1,0 +1,24 @@
+hooks/backlog-guard/opencode-plugin.js
+  s_95f2ef1b71386e::t_2ab6563e5d3d1b 6946,6948-6967,6974-6995,7003,7008,7042,7175-7181,7191-7192,7196-7197,7199-7202,7258
+AGENTS.md
+  s_95f2ef1b71386e::t_36bdde55e21a25 225-226,228-231,233,238-254
+  s_95f2ef1b71386e::t_f064bd7dbef2c7 232,234-237,255-256
+  s_95f2ef1b71386e::t_4d1a50bc9b0a38 46
+  s_95f2ef1b71386e::t_32c4226d053a8a 49-54,56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "38a657ca20af48e9983a2875a979ca1e43e21d60",
+  "prompts": {},
+  "sessions": {
+    "s_95f2ef1b71386e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0cd9ca94fffe6gUz41m7UDcu7r",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    }
+  }
+}
