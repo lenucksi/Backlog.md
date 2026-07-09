@@ -1,0 +1,43 @@
+src/web/components/DocumentationDetail.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 135,266
+src/web/components/Board.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 284,367,446
+src/web/components/MermaidMarkdown.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 123,190
+src/web/components/InitializationScreen.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 642,720,776
+src/web/components/CleanupModal.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 205-223
+src/web/components/MilestonesPage.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 703
+src/web/components/Settings.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 48,490,639,773,824,868
+src/web/contexts/ThemeContext.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 34
+src/web/components/SideNavigation.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 284,405,428
+src/web/components/AcceptanceCriteriaEditor.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 41,46
+src/web/components/DependencyInput.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 55,57
+src/web/components/DraftsList.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 27
+src/web/components/DecisionDetail.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "410c7652a94a22e947558af2a05fa4ede16cc866",
+  "prompts": {},
+  "sessions": {
+    "s_fcab4aaacdca6c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bc5f1252ffenO70hwumqlW6TY",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
