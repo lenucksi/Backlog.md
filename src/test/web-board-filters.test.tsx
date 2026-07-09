@@ -125,7 +125,7 @@ const selectMultiSelectOption = async (container: HTMLElement, menuId: string, o
 	const menu = container.querySelector(`#${menuId}`);
 	expect(menu).toBeTruthy();
 
-	const option = Array.from(menu!.querySelectorAll("button")).find((b) => b.textContent?.trim() === optionText);
+	const option = Array.from(menu?.querySelectorAll("button")).find((b) => b.textContent?.trim() === optionText);
 	expect(option).toBeTruthy();
 	await clickElement(option as HTMLButtonElement);
 };

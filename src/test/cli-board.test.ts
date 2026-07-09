@@ -5,7 +5,6 @@ import { $ } from "bun";
 import { Core } from "../index.ts";
 import { parseTask } from "../markdown/parser.ts";
 import type { Task } from "../types/index.ts";
-import { runBacklogCli } from "./commands-cov-helper.ts";
 import { createUniqueTestDir, initializeTestProject, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
