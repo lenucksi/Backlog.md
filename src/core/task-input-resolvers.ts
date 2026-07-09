@@ -67,16 +67,6 @@ export function normalizeDocumentTypeInput(type: unknown): DocumentType | undefi
 	throw new Error(`Document type must be one of: ${DOCUMENT_TYPE_VALUES.join(", ")}.`);
 }
 
-export function getActiveAndCompletedIdsFromStateMap(latestState: Map<string, BranchTaskStateEntry>): string[] {
-	const ids: string[] = [];
-	for (const [id, entry] of latestState) {
-		if (entry.type === "task" || entry.type === "completed") {
-			ids.push(id);
-		}
-	}
-	return ids;
-}
-
 export function applyStringField(
 	value: string | undefined,
 	current: string | undefined,
