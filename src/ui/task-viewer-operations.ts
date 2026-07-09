@@ -2,12 +2,12 @@
 
 import { box, type ScreenInterface, textbox } from "neo-neo-bblessed";
 import type { Core } from "../core/backlog.ts";
+import type { Task } from "../types/index.ts";
 import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/milestone-filter.ts";
 import { createTaskSearchIndex } from "../utils/task-search.ts";
 import { openConfirmPopup } from "./components/confirm-popup.ts";
 import type { FilterControlId, FilterHeader } from "./components/filter-header.ts";
 import { openMultiSelectFilterPopup, openSingleSelectFilterPopup } from "./components/filter-popup.ts";
-import type { Task } from "../types/index.ts";
 
 export async function openFilterPicker(
 	filterId: Exclude<FilterControlId, "search">,
@@ -280,8 +280,11 @@ export async function applyTaskLifecycleShortcut(
 }
 
 export function buildEmptyFilterMessage(
-	searchQuery: string, statusFilter: string, priorityFilter: string,
-	labelFilter: string[], milestoneFilter: string,
+	searchQuery: string,
+	statusFilter: string,
+	priorityFilter: string,
+	labelFilter: string[],
+	milestoneFilter: string,
 ): { noResultsMessage: string; listPaneMessage: string } {
 	const activeFilters: string[] = [];
 	const trimmedQuery = searchQuery.trim();
@@ -300,14 +303,18 @@ export function buildEmptyFilterMessage(
 		};
 	}
 	return {
-		noResultsMessage: "{bold}No tasks available{/bold}\n{gray-fg}Create a task with {cyan-fg}backlog task create{/cyan-fg}.{/}",
+		noResultsMessage:
+			"{bold}No tasks available{/bold}\n{gray-fg}Create a task with {cyan-fg}backlog task create{/cyan-fg}.{/}",
 		listPaneMessage: "{bold}No tasks available{/bold}",
 	};
 }
 
 export async function openCurrentTaskInEditor(
-	screen: ScreenInterface, core: Core,
-	filterPopupOpen: boolean, currentFocus: string, noResultsMessage: string | null,
+	screen: ScreenInterface,
+	core: Core,
+	filterPopupOpen: boolean,
+	currentFocus: string,
+	noResultsMessage: string | null,
 	currentSelectedTask: Task,
 	showTransientHelp: (msg: string) => void,
 	enrichTask: (t: Task | null) => Task | null,
@@ -320,11 +327,14 @@ export async function openCurrentTaskInEditor(
 	taskSearchIndex: ReturnType<typeof import("../utils/task-search.ts").createTaskSearchIndex> | null;
 	currentSelectedTask: Task;
 }> {
-	if (filterPopupOpen || currentFocus === "filters" || noResultsMessage) return { allTasks, taskSearchIndex, currentSelectedTask };
+	if (filterPopupOpen || currentFocus === "filters" || noResultsMessage)
+		return { allTasks, taskSearchIndex, currentSelectedTask };
 	try {
 		const result = await core.editTaskInTui(currentSelectedTask.id, screen, currentSelectedTask);
 		if (result.reason === "read_only") {
-			showTransientHelp(` {red-fg}Task is read-only${result.task?.branch ? ` in branch ${result.task.branch}` : ""}.{/}`);
+			showTransientHelp(
+				` {red-fg}Task is read-only${result.task?.branch ? ` in branch ${result.task.branch}` : ""}.{/}`,
+			);
 			return { allTasks, taskSearchIndex, currentSelectedTask };
 		}
 		if (result.reason === "editor_failed") {
@@ -358,7 +368,9 @@ export async function openCurrentTaskInEditor(
 }
 
 export function removeTaskFromCurrentView(
-	taskId: string, currentAllTasks: Task[], _currentFilteredTasks: Task[],
+	taskId: string,
+	currentAllTasks: Task[],
+	_currentFilteredTasks: Task[],
 	tsi: ReturnType<typeof createTaskSearchIndex> | null,
 	currentSelectedTask: Task,
 	enrichTask: (t: Task | null) => Task | null,
@@ -381,5 +393,11 @@ export function removeTaskFromCurrentView(
 		newSelectedTask = enrichTask(nextTask) ?? nextTask;
 		onTaskChange?.(newSelectedTask);
 	}
-	return { allTasks: newAllTasks, filteredTasks: remaining, taskSearchIndex: newTaskSearchIndex, currentSelectedTask: newSelectedTask, nextTask };
+	return {
+		allTasks: newAllTasks,
+		filteredTasks: remaining,
+		taskSearchIndex: newTaskSearchIndex,
+		currentSelectedTask: newSelectedTask,
+		nextTask,
+	};
 }

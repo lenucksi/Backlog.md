@@ -402,7 +402,18 @@ export async function viewTaskEnhanced(
 	}
 	const refreshDetail = () => {
 		destroyDetailWidgets(detailWidgets);
-		detailWidgets = renderDetailPane(detailPane, screen, currentSelectedTask, noResultsMessage, currentFocus, statusStyleOptions, resolveMilestoneLabel, availableLabels, { title: options.title }, detailCallbacks);
+		detailWidgets = renderDetailPane(
+			detailPane,
+			screen,
+			currentSelectedTask,
+			noResultsMessage,
+			currentFocus,
+			statusStyleOptions,
+			resolveMilestoneLabel,
+			availableLabels,
+			{ title: options.title },
+			detailCallbacks,
+		);
 		screen.render();
 	};
 	function applyFilters() {
@@ -454,7 +465,11 @@ export async function viewTaskEnhanced(
 				taskList = null;
 			}
 			const { noResultsMessage: nrm, listPaneMessage } = buildEmptyFilterMessage(
-				searchQuery, statusFilter, priorityFilter, labelFilter, milestoneFilter,
+				searchQuery,
+				statusFilter,
+				priorityFilter,
+				labelFilter,
+				milestoneFilter,
 			);
 			noResultsMessage = nrm;
 			listEmptyStateBox = createEmptyStateBox(taskListPane, listPaneMessage);
@@ -515,9 +530,18 @@ export async function viewTaskEnhanced(
 	};
 	const openCurrentTaskInEditor = async () => {
 		const result = await openCurrentTaskInEditorImpl(
-			screen, core, filterPopupOpen, currentFocus, noResultsMessage,
-			currentSelectedTask, showTransientHelp, enrichTask, allTasks, taskSearchIndex,
-			applyFilters, options.onTaskChange ?? null,
+			screen,
+			core,
+			filterPopupOpen,
+			currentFocus,
+			noResultsMessage,
+			currentSelectedTask,
+			showTransientHelp,
+			enrichTask,
+			allTasks,
+			taskSearchIndex,
+			applyFilters,
+			options.onTaskChange ?? null,
 		);
 		currentSelectedTask = result.currentSelectedTask;
 		allTasks = result.allTasks;
@@ -528,8 +552,19 @@ export async function viewTaskEnhanced(
 		return resolveTaskListSelection(filteredTasks, taskList?.getSelectedIndex(), currentSelectedTask);
 	};
 	const removeTaskFromCurrentView = (taskId: string) => {
-		const r = removeTaskFromCurrentViewImpl(taskId, allTasks, filteredTasks, taskSearchIndex, currentSelectedTask, enrichTask, options.onTaskChange ?? null);
-		allTasks = r.allTasks; filteredTasks = r.filteredTasks; taskSearchIndex = r.taskSearchIndex; currentSelectedTask = r.currentSelectedTask;
+		const r = removeTaskFromCurrentViewImpl(
+			taskId,
+			allTasks,
+			filteredTasks,
+			taskSearchIndex,
+			currentSelectedTask,
+			enrichTask,
+			options.onTaskChange ?? null,
+		);
+		allTasks = r.allTasks;
+		filteredTasks = r.filteredTasks;
+		taskSearchIndex = r.taskSearchIndex;
+		currentSelectedTask = r.currentSelectedTask;
 		applyFilters();
 	};
 	const runWithModalGuard = async <T>(operation: () => Promise<T>): Promise<T> => {
@@ -593,14 +628,25 @@ export async function viewTaskEnhanced(
 			const tgt = resolveFilterExitPane(filterExitPane, Boolean(taskList), Boolean(detailWidgets.descriptionBox));
 			if (tgt === "list" && taskList) focusTaskList();
 			else if (tgt === "detail" && detailWidgets.descriptionBox) focusDetailPane();
-		} else if (currentFocus !== "list") { if (taskList) focusTaskList(); }
-		else if (selectedTaskIds.size > 0) clearSelection();
-		else { cleanupViewer(); process.exit(0); }
+		} else if (currentFocus !== "list") {
+			if (taskList) focusTaskList();
+		} else if (selectedTaskIds.size > 0) clearSelection();
+		else {
+			cleanupViewer();
+			process.exit(0);
+		}
 	};
 	const sr = () => screen.render();
-	const setC = (f: "list" | "detail" | "filters") => { currentFocus = f; };
-	const setW = (w: PendingSearchWrap) => { pendingSearchWrap = w; };
-	const fSI = () => { pendingSearchWrap = null; filterHeader.focusSearch(); };
+	const setC = (f: "list" | "detail" | "filters") => {
+		currentFocus = f;
+	};
+	const setW = (w: PendingSearchWrap) => {
+		pendingSearchWrap = w;
+	};
+	const fSI = () => {
+		pendingSearchWrap = null;
+		filterHeader.focusSearch();
+	};
 	const listCallbacks: TaskListPaneCallbacks = {
 		onSelectionChange: applySelection,
 		getSelectedTaskIds: () => selectedTaskIds,
@@ -635,7 +681,15 @@ export async function viewTaskEnhanced(
 		openCurrentTaskInEditor,
 		executeBulkAction: () => executeBulkAction("archive"),
 		executeBulkUpdate,
-		copyCurrentTaskId: async () => { const task = getCurrentShortcutTask(); if (!task) return; showTransientHelp((await copyToClipboard(task.id)) ? ` {green-fg}Copied ${task.id} to clipboard{/}` : " {red-fg}Failed to copy to clipboard{/}"); },
+		copyCurrentTaskId: async () => {
+			const task = getCurrentShortcutTask();
+			if (!task) return;
+			showTransientHelp(
+				(await copyToClipboard(task.id))
+					? ` {green-fg}Copied ${task.id} to clipboard{/}`
+					: " {red-fg}Failed to copy to clipboard{/}",
+			);
+		},
 		showHelp: async () => {
 			await runWithModalGuard(() => openHelpPopup(screen, "task-list"));
 		},
@@ -656,15 +710,39 @@ export async function viewTaskEnhanced(
 	registerViewerKeybindings(screen, kbc);
 	updateHelpBar();
 	if (filtersActive) applyFilters();
-	else taskList = renderTaskList(taskListPane, screen, filteredTasks, currentSelectedTask, selectedTaskIds, statusStyleOptions, listCallbacks);
-	detailWidgets = renderDetailPane(detailPane, screen, currentSelectedTask, noResultsMessage, currentFocus, statusStyleOptions, resolveMilestoneLabel, availableLabels, { title: options.title }, detailCallbacks);
+	else
+		taskList = renderTaskList(
+			taskListPane,
+			screen,
+			filteredTasks,
+			currentSelectedTask,
+			selectedTaskIds,
+			statusStyleOptions,
+			listCallbacks,
+		);
+	detailWidgets = renderDetailPane(
+		detailPane,
+		screen,
+		currentSelectedTask,
+		noResultsMessage,
+		currentFocus,
+		statusStyleOptions,
+		resolveMilestoneLabel,
+		availableLabels,
+		{ title: options.title },
+		detailCallbacks,
+	);
 	if (options.startWithSearchFocus) filterHeader.focusSearch();
-	else if (options.startWithDetailFocus) { if (detailWidgets.descriptionBox) focusDetailPane(); }
-	else if (taskList) focusTaskList();
+	else if (options.startWithDetailFocus) {
+		if (detailWidgets.descriptionBox) focusDetailPane();
+	} else if (taskList) focusTaskList();
 	screen.render();
 	return new Promise<void>((resolve) => {
 		screen.on("destroy", () => {
-			if (helpRestoreTimer) { clearTimeout(helpRestoreTimer); helpRestoreTimer = null; }
+			if (helpRestoreTimer) {
+				clearTimeout(helpRestoreTimer);
+				helpRestoreTimer = null;
+			}
 			searchService?.dispose();
 			contentStore?.dispose();
 			resolve();
