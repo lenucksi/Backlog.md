@@ -6943,15 +6943,56 @@ var require_public_api = __commonJS((exports) => {
   exports.stringify = stringify;
 });
 
-// node_modules/.pnpm/shell-quote@1.8.3/node_modules/shell-quote/quote.js
+// node_modules/shell-quote/quote.js
 var require_quote = __commonJS((exports, module) => {
+  var OPS = [
+    "||",
+    "&&",
+    ";;",
+    "|&",
+    "<(",
+    "<<<",
+    ">>",
+    ">&",
+    "<&",
+    "&",
+    ";",
+    "(",
+    ")",
+    "|",
+    "<",
+    ">"
+  ];
+  var LINE_TERMINATORS = /[\n\r\u2028\u2029]/;
+  var GLOB_SHELL_SPECIAL = /[\s#!"$&'():;<=>@\\^`|]/g;
   module.exports = function quote(xs) {
     return xs.map(function(s) {
       if (s === "") {
         return "''";
       }
       if (s && typeof s === "object") {
-        return s.op.replace(/(.)/g, "\\$1");
+        if ("op" in s && s.op === "glob") {
+          if (typeof s.pattern !== "string") {
+            throw new TypeError("glob token requires a string `pattern`");
+          }
+          if (LINE_TERMINATORS.test(s.pattern)) {
+            throw new TypeError("glob `pattern` must not contain line terminators");
+          }
+          return s.pattern.replace(GLOB_SHELL_SPECIAL, "\\$&");
+        }
+        if ("op" in s && typeof s.op === "string") {
+          if (OPS.indexOf(s.op) < 0) {
+            throw new TypeError("invalid `op` value: " + JSON.stringify(s.op));
+          }
+          return s.op.replace(/[\s\S]/g, "\\$&");
+        }
+        if ("comment" in s && typeof s.comment === "string") {
+          if (LINE_TERMINATORS.test(s.comment)) {
+            throw new TypeError("`comment` must not contain line terminators");
+          }
+          return "#" + s.comment;
+        }
+        throw new TypeError("unrecognized object token shape");
       }
       if (/["\s\\]/.test(s) && !/'/.test(s)) {
         return "'" + s.replace(/(['])/g, "\\$1") + "'";
@@ -6959,12 +7000,12 @@ var require_quote = __commonJS((exports, module) => {
       if (/["'\s]/.test(s)) {
         return '"' + s.replace(/(["\\$`!])/g, "\\$1") + '"';
       }
-      return String(s).replace(/([A-Za-z]:)?([#!"$&'()*,:;<=>?@[\\\]^`{|}])/g, "$1\\$2");
+      return String(s).replace(/([A-Za-z]:)?([#!"$&'()*,:;<=>?@[\\\]^`{|}~])/g, "$1\\$2");
     }).join(" ");
   };
 });
 
-// node_modules/.pnpm/shell-quote@1.8.3/node_modules/shell-quote/parse.js
+// node_modules/shell-quote/parse.js
 var require_parse = __commonJS((exports, module) => {
   var CONTROL = "(?:" + [
     "\\|\\|",
@@ -6998,7 +7039,7 @@ var require_parse = __commonJS((exports, module) => {
     var matches = [];
     var matchObj;
     while (matchObj = r.exec(s)) {
-      matches.push(matchObj);
+      matches[matches.length] = matchObj;
       if (r.lastIndex === matchObj.index) {
         r.lastIndex += 1;
       }
@@ -7131,7 +7172,13 @@ var require_parse = __commonJS((exports, module) => {
       }
       return out;
     }).reduce(function(prev, arg) {
-      return typeof arg === "undefined" ? prev : prev.concat(arg);
+      if (typeof arg === "undefined") {
+        return prev;
+      }
+      [].concat(arg).forEach(function(entry) {
+        prev[prev.length] = entry;
+      });
+      return prev;
     }, []);
   }
   module.exports = function parse(s, env, opts) {
@@ -7141,18 +7188,18 @@ var require_parse = __commonJS((exports, module) => {
     }
     return mapped.reduce(function(acc, s2) {
       if (typeof s2 === "object") {
-        return acc.concat(s2);
+        acc[acc.length] = s2;
+        return acc;
       }
       var xs = s2.split(RegExp("(" + TOKEN + ".*?" + TOKEN + ")", "g"));
       if (xs.length === 1) {
-        return acc.concat(xs[0]);
+        acc[acc.length] = xs[0];
+        return acc;
       }
-      return acc.concat(xs.filter(Boolean).map(function(x) {
-        if (startsWithToken.test(x)) {
-          return JSON.parse(x.split(TOKEN)[1]);
-        }
-        return x;
-      }));
+      xs.filter(Boolean).forEach(function(x) {
+        acc[acc.length] = startsWithToken.test(x) ? JSON.parse(x.split(TOKEN)[1]) : x;
+      });
+      return acc;
     }, []);
   };
 });
@@ -7208,7 +7255,7 @@ var $stringify = publicApi.stringify;
 var $visit = visit.visit;
 var $visitAsync = visit.visitAsync;
 
-// node_modules/.pnpm/shell-quote@1.8.3/node_modules/shell-quote/index.js
+// node_modules/shell-quote/index.js
 var $quote = require_quote();
 var $parse2 = require_parse();
 

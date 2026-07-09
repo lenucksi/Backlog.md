@@ -43,10 +43,17 @@ If you can simplify the code, do it.
 - Avoid extra layers (services, normalizers, versioning) unless there is an immediate, proven need.
 - Keep behavior consistent across similar stores (defaults, parse errors, locking). Divergence requires a clear reason.
 - Don't add new exported helpers just to compute a path; derive from existing paths or add one shared helper only when reused.
+- **Extract helpers from visible duplication immediately** — whether during extraction, a new feature, or a bug fix. Duplication buried in a single function becomes visible when modules split. If a pattern appears in 2+ locations, extract it right then, not in a follow-up task.
+
+
+## TUI State Patterns
+
+- **Set-mutation preserves closure references**: Use `.clear()` + `.add()` instead of `= new Set()`. Reassignment breaks references held by GenericList itemRenderers or other persisted callbacks.
+- **Pure functions shared by multiple panes**: Place in `task-viewer-state.ts` or a dedicated utils module. Never leave them in the main orchestrator file — that recreates the god-file problem.
+- **Callback interfaces over closure access**: Extracted panes receive state via typed callback interfaces, not by closing over the orchestrator's `let` variables. The orchestrator wires the callbacks.
 
 
 ## Cross-Modality Checklist
-
 Before considering a feature complete, verify coverage across all 5 access modalities:
 
 - **CLI**: `backlog <command>` or `backlog <command> <subcommand>` exists in `src/commands/`
@@ -215,9 +222,38 @@ is loaded once per worker`). Unsafe comments get reverted.
 
 ### Während der Bearbeitung
 
-- **Status aktuell halten**: Ticket auf `In Arbeit` sobald implementation beginnt. Erst auf `Fertig` wenn alle ACs gehakt UND DoD-Check durch ist.
+- **Status aktuell halten**: Ticket auf `In Arbeit` sobald Implementation beginnt. Erst auf `Fertig` wenn alle ACs gehakt UND DoD-Check durch ist.
+- **ACs korrekt haken**: Nur haken wenn tatsächlich erfüllt. Nicht vorher (nicht getestet), nicht nachher (vergessen). DoD ("Definition of Done") erst am Schluss durchgehen und dann abhaken.
 - **References anreichern**: `--ref`, `--doc`, `--modified-file` während der Arbeit setzen, nicht erst am Ende — damit Subagenten den Kontext sofort haben.
-- **Final Summary**: bei Task-Abschluss schreiben (was wurde gemacht, welche Dateien, welche Entscheidungen).
+- **Implementation Notes**: Gotchas, Lessons Learned, Edge Cases sofort notieren wenn sie auftauchen. Nicht aufs Ende verschieben.
+- **Final Summary**: Bei Task-Abschluss schreiben. Enthält: was wurde gemacht, welche Dateien, welche Entscheidungen, Commit-Hash.
+
+### Session-Start
+
+Vor der Implementation in dieser Reihenfolge:
+
+1. **Workflow laden**: `backlog_get_backlog_instructions(instruction: "task-execution")`
+2. **Task lesen**: `backlog_task_view(id: "BACK-NNNN")`
+3. **DoD Defaults checken**: `backlog_definition_of_done_defaults_get()`
+4. **Konventionen laden** (nur Relevantes, nicht alles):
+   - Immer lesen: §Code Standards + §Parallel Test Conventions
+   - Wenn TUI: §TUI State Patterns
+5. **Skills laden**: `skill(name: "context-hunter")` vor jeder Code-Änderung
+6. **Implementation Plan lesen**: Aus dem Task — enthält LLM-konkrete Schritte
+7. **Wiedererfrischung zwischendurch** (bei Bedarf): §Simplicity-first, §Cross-Modality Checklist
+
+### Session-Abschluss
+
+Vor Task-Finalisierung in dieser Reihenfolge:
+
+1. **Impl Notes prüfen**: Wurden Gotchas/Learned notiert? Sonst nachtragen.
+2. **ACs durchgehen**: Jede einzelne abhaken. Nur haken wenn tatsächlich erfüllt.
+3. **DoD Defaults prüfen** (von Schritt 3 gemerkt): Jede abhaken.
+4. **Cross-Modality abdecken**: `skill(name: "modality-parity-check")` wenn nicht N/A.
+5. **Final Summary schreiben**: Was, Welche Dateien, Entscheidungen, Commit-Hash.
+6. **Status auf Done**: `backlog_task_edit(id, status: "Done", finalSummary: "...")`
+
+Implementation Plan (für LLMs) und Description (für Menschen) sind getrennte Felder — nicht vermischen.
 
 ## Commands
 
