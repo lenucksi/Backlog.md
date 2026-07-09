@@ -38,12 +38,12 @@ const AcceptanceCriteriaEditor: React.FC<Props> = ({
 	// Resize when criteria change (e.g., initial load or edits)
 	useEffect(() => {
 		Object.values(itemRefs.current).forEach((el) => autoResize(el));
-	}, [criteria]);
+	}, [autoResize]);
 
 	// Resize new criterion textarea when text changes
 	useEffect(() => {
 		autoResize(newRef.current);
-	}, [newCriterion]);
+	}, [autoResize]);
 
 	const handleToggle = (index: number, checked: boolean) => {
 		if (disableToggle) return;

@@ -52,9 +52,9 @@ const DependencyInput: React.FC<DependencyInputProps> = ({
 	useEffect(() => {
 		if (textareaRef.current) {
 			textareaRef.current.style.height = "auto";
-			textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
 		}
-	}, [value]);
+	}, []);
 
 	const addDependency = (taskId: string) => {
 		if (disabled) return;

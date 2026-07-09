@@ -277,11 +277,11 @@ const Board: React.FC<BoardProps> = ({
 		tasks,
 		milestoneFilter,
 		canonicalMilestoneFilter,
-		milestoneAliasToCanonical,
 		filterAssignee,
 		normalizedFilterLabels,
 		filterPriority,
 		filterQuery,
+		canonicalizeMilestone,
 	]);
 
 	// Handle highlighting a task (opening its edit popup)
@@ -364,7 +364,7 @@ const Board: React.FC<BoardProps> = ({
 			const key = milestoneKey(canonicalizeMilestone(task.milestone));
 			return key.length > 0 && !archivedKeys.has(key);
 		});
-	}, [tasks, archivedMilestoneIds, milestoneAliasToCanonical]);
+	}, [tasks, archivedMilestoneIds, canonicalizeMilestone]);
 
 	// Use all tasks for lane grouping (for counts and visibility)
 	const tasksByLane = useMemo(
@@ -443,7 +443,7 @@ const Board: React.FC<BoardProps> = ({
 	const visibleLanes = useMemo(() => {
 		if (laneMode !== "milestone") return lanes;
 		return lanes.filter((l) => laneTaskCount(l.key) > 0);
-	}, [laneMode, lanes, laneMetadataTasksByLane]);
+	}, [laneMode, lanes, laneTaskCount]);
 
 	// Always show lane headers in milestone mode (needed for expand/collapse interaction)
 	const shouldShowLaneHeaders = useMemo(() => {

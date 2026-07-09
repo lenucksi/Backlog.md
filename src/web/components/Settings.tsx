@@ -45,7 +45,7 @@ const Settings: React.FC = () => {
 	useEffect(() => {
 		loadConfig();
 		loadStatuses();
-	}, []);
+	}, [loadStatuses, loadConfig]);
 
 	const loadConfig = async () => {
 		try {
@@ -487,7 +487,7 @@ const Settings: React.FC = () => {
 											type="button"
 											onClick={async () => {
 												const newName = prompt("Rename label to:", labelName);
-												if (newName && newName.trim() && newName.trim() !== labelName) {
+												if (newName?.trim() && newName.trim() !== labelName) {
 													try {
 														await apiClient.renameLabel(labelName, newName.trim());
 														const updated = await apiClient.fetchLabels();
@@ -636,7 +636,7 @@ const Settings: React.FC = () => {
 											type="button"
 											onClick={async () => {
 												const newName = prompt("Rename author to:", authorName);
-												if (newName && newName.trim() && newName.trim() !== authorName) {
+												if (newName?.trim() && newName.trim() !== authorName) {
 													try {
 														await apiClient.renameAuthor(authorName, newName.trim());
 														const updated = await apiClient.fetchAuthors();
@@ -770,7 +770,7 @@ const Settings: React.FC = () => {
 									min="1"
 									max="65535"
 									value={config.defaultPort || 6420}
-									onChange={(e) => handleInputChange("defaultPort", Number.parseInt(e.target.value) || 6420)}
+									onChange={(e) => handleInputChange("defaultPort", Number.parseInt(e.target.value, 10) || 6420)}
 									className={`w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200 ${
 										validationErrors.defaultPort
 											? "border-red-500 dark:border-red-400"
@@ -821,7 +821,7 @@ const Settings: React.FC = () => {
 									min="20"
 									max="200"
 									value={config.maxColumnWidth}
-									onChange={(e) => handleInputChange("maxColumnWidth", Number.parseInt(e.target.value) || 80)}
+									onChange={(e) => handleInputChange("maxColumnWidth", Number.parseInt(e.target.value, 10) || 80)}
 									className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
 								/>
 								<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -865,7 +865,7 @@ const Settings: React.FC = () => {
 									min="0"
 									max="10"
 									value={config.zeroPaddedIds || 0}
-									onChange={(e) => handleInputChange("zeroPaddedIds", Number.parseInt(e.target.value) || 0)}
+									onChange={(e) => handleInputChange("zeroPaddedIds", Number.parseInt(e.target.value, 10) || 0)}
 									className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
 								/>
 								<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">

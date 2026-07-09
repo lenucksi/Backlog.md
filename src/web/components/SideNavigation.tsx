@@ -281,7 +281,7 @@ const SideNavigation = memo(function SideNavigation({
 		const saved = localStorage.getItem("sideNavWidth");
 		if (saved) {
 			const parsed = Number.parseInt(saved, 10);
-			if (!isNaN(parsed)) return Math.min(Math.max(parsed, 240), 600);
+			if (!Number.isNaN(parsed)) return Math.min(Math.max(parsed, 240), 600);
 		}
 		return 380;
 	});
@@ -402,7 +402,7 @@ const SideNavigation = memo(function SideNavigation({
 			let cmp = 0;
 			switch (docSortField) {
 				case "id":
-					cmp = Number.parseInt(stripIdPrefix(a.id)) - Number.parseInt(stripIdPrefix(b.id));
+					cmp = Number.parseInt(stripIdPrefix(a.id), 10) - Number.parseInt(stripIdPrefix(b.id), 10);
 					break;
 				case "title":
 					cmp = a.title.localeCompare(b.title);
@@ -425,7 +425,7 @@ const SideNavigation = memo(function SideNavigation({
 				let cmp = 0;
 				switch (decisionSortField) {
 					case "id":
-						cmp = Number.parseInt(stripIdPrefix(a.id)) - Number.parseInt(stripIdPrefix(b.id));
+						cmp = Number.parseInt(stripIdPrefix(a.id), 10) - Number.parseInt(stripIdPrefix(b.id), 10);
 						break;
 					case "title":
 						cmp = a.title.localeCompare(b.title);

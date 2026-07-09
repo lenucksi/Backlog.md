@@ -120,7 +120,7 @@ export default function MermaidMarkdown({ source, onFileClick }: Props) {
 		});
 
 		return () => cancelAnimationFrame(frameId);
-	}, [safeSource]);
+	}, []);
 
 	// Intercept hash link clicks for in-document navigation and file path clicks for preview
 	useEffect(() => {
@@ -187,7 +187,7 @@ export default function MermaidMarkdown({ source, onFileClick }: Props) {
 			});
 			return () => cancelAnimationFrame(frameId);
 		}
-	}, [safeSource]);
+	}, []);
 
 	return (
 		<div ref={ref} className="wmde-markdown">

@@ -132,7 +132,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 			setIsEditing(false); // Ensure we start in preview mode for existing documents
 			loadDocContent();
 		}
-	}, [id, docs]);
+	}, [id, loadDocContent]);
 
 	// Check for edit query parameter to start in edit mode
 	useEffect(() => {
@@ -263,7 +263,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 		} finally {
 			setIsSaving(false);
 		}
-	}, [id, docTitle, docPath, originalDocPath, content, isNewDocument, onRefreshData, navigate, loadDocContent]);
+	}, [id, docTitle, docPath, originalDocPath, content, isNewDocument, onRefreshData, navigate, originalDocTitle]);
 
 	const handleEdit = () => {
 		setIsEditing(true);

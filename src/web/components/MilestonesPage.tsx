@@ -700,7 +700,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		if (!unassignedBucket || (!isSearchActive && unassignedBucket.total === 0)) return null;
 
 		const sortedActiveTasks = getSortedTasks(unassignedBucket.tasks.filter((task) => !isDoneStatus(task.status)));
-		const isExpanded = expandedBuckets["__unassigned"] ?? true;
+		const isExpanded = expandedBuckets.__unassigned ?? true;
 		const displayTasks = showAllUnassigned ? sortedActiveTasks : sortedActiveTasks.slice(0, 12);
 		const hasMore = sortedActiveTasks.length > 12;
 		const hasActiveUnassignedTasks = sortedActiveTasks.length > 0;
@@ -984,7 +984,6 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 							value={newMilestone}
 							onChange={(e) => handleNewMilestoneChange(e.target.value)}
 							placeholder="e.g. Release 1.0"
-							autoFocus
 							className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 						{error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
@@ -1030,7 +1029,6 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 							type="text"
 							value={editMilestoneName}
 							onInput={(event) => handleEditMilestoneNameChange((event.target as HTMLInputElement).value)}
-							autoFocus
 							className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 						<p className="text-xs text-gray-500 dark:text-gray-400">

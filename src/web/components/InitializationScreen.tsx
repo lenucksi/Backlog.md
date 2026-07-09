@@ -269,7 +269,6 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				onChange={(e) => setProjectName(e.target.value)}
 				placeholder="My Awesome Project"
 				className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition-colors duration-200"
-				autoFocus
 			/>
 		</div>
 	);
@@ -640,7 +639,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 											onChange={(e) =>
 												setAdvancedConfig((prev) => ({
 													...prev,
-													activeBranchDays: Number.parseInt(e.target.value) || 30,
+													activeBranchDays: Number.parseInt(e.target.value, 10) || 30,
 												}))
 											}
 											min={1}
@@ -718,7 +717,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 									onChange={(e) =>
 										setAdvancedConfig((prev) => ({
 											...prev,
-											zeroPaddedIds: Number.parseInt(e.target.value) || 3,
+											zeroPaddedIds: Number.parseInt(e.target.value, 10) || 3,
 										}))
 									}
 									min={1}
@@ -774,7 +773,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 									onChange={(e) =>
 										setAdvancedConfig((prev) => ({
 											...prev,
-											defaultPort: Number.parseInt(e.target.value) || 6420,
+											defaultPort: Number.parseInt(e.target.value, 10) || 6420,
 										}))
 									}
 									min={1}

@@ -126,7 +126,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 			setIsEditing(false); // Ensure we start in preview mode for existing decisions
 			loadDecisionContent();
 		}
-	}, [id, decisions]);
+	}, [id, searchParams.get, loadDecisionContent]);
 
 	// Check for edit query parameter to start in edit mode
 	useEffect(() => {

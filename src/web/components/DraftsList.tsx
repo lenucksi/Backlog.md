@@ -24,7 +24,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 		return () => {
 			window.removeEventListener("drafts-updated", handleDraftsUpdated);
 		};
-	}, []);
+	}, [loadDrafts]);
 
 	const loadDrafts = async () => {
 		try {

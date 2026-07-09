@@ -202,27 +202,25 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 						Cancel
 					</button>
 
-					{selectedAge !== null && previewCount > 0 && (
-						<>
-							{!showConfirmation ? (
-								<button
-									onClick={() => setShowConfirmation(true)}
-									disabled={isLoadingPreview || isExecuting}
-									className="px-4 py-2 text-sm font-medium text-white bg-blue-500 dark:bg-blue-600 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors duration-200"
-								>
-									Continue
-								</button>
-							) : (
-								<button
-									onClick={handleExecuteCleanup}
-									disabled={isExecuting}
-									className="px-4 py-2 text-sm font-medium text-white bg-red-500 dark:bg-red-600 rounded-md hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
-								>
-									{isExecuting ? "Moving Tasks..." : `Move ${previewCount} Task${previewCount !== 1 ? "s" : ""}`}
-								</button>
-							)}
-						</>
-					)}
+					{selectedAge !== null &&
+						previewCount > 0 &&
+						(!showConfirmation ? (
+							<button
+								onClick={() => setShowConfirmation(true)}
+								disabled={isLoadingPreview || isExecuting}
+								className="px-4 py-2 text-sm font-medium text-white bg-blue-500 dark:bg-blue-600 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors duration-200"
+							>
+								Continue
+							</button>
+						) : (
+							<button
+								onClick={handleExecuteCleanup}
+								disabled={isExecuting}
+								className="px-4 py-2 text-sm font-medium text-white bg-red-500 dark:bg-red-600 rounded-md hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
+							>
+								{isExecuting ? "Moving Tasks..." : `Move ${previewCount} Task${previewCount !== 1 ? "s" : ""}`}
+							</button>
+						))}
 				</div>
 			</div>
 		</Modal>
