@@ -1,0 +1,30 @@
+src/web/components/TaskDetailsModal.tsx
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 312,351,536,685,729,750,771,776,786
+  s_fcab4aaacdca6c::t_5c8259173e1971 1310
+  s_fcab4aaacdca6c::t_92ab4eadad545a 311,883-886,1236
+src/web/components/TaskList.tsx
+  s_fcab4aaacdca6c::t_cd60bce8dc6d37 250
+  s_fcab4aaacdca6c::t_c586e7b3bf2e19 1443
+  s_fcab4aaacdca6c::t_6b5fb94f4797fb 126,341,423-424,794
+  s_fcab4aaacdca6c::t_a26341f6a80cb1 278
+  s_fcab4aaacdca6c::t_c88ec4e6b2680e 2,256,802,874,908,923,1158,1259
+src/web/components/ThemeToggle.tsx
+  s_fcab4aaacdca6c::t_6b47afdc6bbb34 18,29
+  s_fcab4aaacdca6c::t_ed4782072501ad 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1bcea41755215cf75ef9b1c37dcce3bec4061d8f",
+  "prompts": {},
+  "sessions": {
+    "s_fcab4aaacdca6c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0bc5f1252ffenO70hwumqlW6TY",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
