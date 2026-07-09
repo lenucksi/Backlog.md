@@ -241,7 +241,8 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 	}, [tasks]);
 
 	return (
-		<div
+		<section
+			aria-label={`${title} column`}
 			className={`rounded-lg p-4 transition-colors duration-200 h-full ${isEmpty ? "min-h-24" : "min-h-96"} ${
 				isDragOver && (dragSourceStatus !== title || (dragSourceLane ?? null) !== (laneId ?? null))
 					? "bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-600 border-dashed"
@@ -274,7 +275,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 							aria-expanded={showMenu}
 							aria-controls={columnActionsId}
 						>
-							<svg className="size-5" fill="currentColor" viewBox="0 0 20 20">
+							<svg aria-hidden="true" className="size-5" fill="currentColor" viewBox="0 0 20 20">
 								<path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
 							</svg>
 						</button>
@@ -292,6 +293,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 									className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors duration-150"
 								>
 									<svg
+										aria-hidden="true"
 										className="size-4 text-gray-500 dark:text-gray-400"
 										fill="none"
 										stroke="currentColor"
@@ -313,6 +315,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 									className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors duration-150"
 								>
 									<svg
+										aria-hidden="true"
 										className="size-4 text-gray-500 dark:text-gray-400"
 										fill="none"
 										stroke="currentColor"
@@ -353,7 +356,8 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 										title={isCollapsed ? "Show subtasks" : "Hide subtasks"}
 									>
 										<svg
-											className={`size-3 transition-transform ${isCollapsed ? "" : "rotate-90"}`}
+											aria-hidden="true"
+											className="size-4 text-gray-500 dark:text-gray-400"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -463,17 +467,12 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 				{onCleanup && tasks.length > 0 && (
 					<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
 						<button
+							type="button"
 							onClick={onCleanup}
 							className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-200"
 							title="Clean up old completed tasks"
 						>
-							<svg
-								className="size-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
+							<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
 									strokeLinecap="round"
 									strokeLinejoin="round"
@@ -486,7 +485,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 					</div>
 				)}
 			</div>
-		</div>
+		</section>
 	);
 };
 

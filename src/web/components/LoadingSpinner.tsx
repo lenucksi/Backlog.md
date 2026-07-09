@@ -41,6 +41,7 @@ export const SidebarSkeleton = memo(function SidebarSkeleton({ isCollapsed = fal
 		return (
 			<div className="px-2 py-2 space-y-2 animate-pulse">
 				{Array.from({ length: 4 }, (_, i) => (
+					// biome-ignore lint/suspicious/noArrayIndexKey: static skeleton elements never reorder
 					<div key={i} className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors duration-200" />
 				))}
 			</div>
@@ -54,6 +55,7 @@ export const SidebarSkeleton = memo(function SidebarSkeleton({ isCollapsed = fal
 
 			{/* Navigation items */}
 			{Array.from({ length: 3 }, (_, i) => (
+				/* biome-ignore lint/suspicious/noArrayIndexKey: static skeleton */
 				<div key={i} className="flex items-center gap-3 px-3 py-2">
 					<div className="size-5 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-200" />
 					<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1 transition-colors duration-200" />
@@ -62,12 +64,14 @@ export const SidebarSkeleton = memo(function SidebarSkeleton({ isCollapsed = fal
 
 			{/* Section headers */}
 			{Array.from({ length: 2 }, (_, sectionIndex) => (
+				/* biome-ignore lint/suspicious/noArrayIndexKey: static skeleton */
 				<div key={sectionIndex} className="space-y-2">
 					<div className="flex items-center gap-3 mb-3">
 						<div className="size-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-200" />
 						<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 transition-colors duration-200" />
 					</div>
 					{Array.from({ length: 3 }, (_, itemIndex) => (
+						/* biome-ignore lint/suspicious/noArrayIndexKey: static skeleton */
 						<div key={itemIndex} className="flex items-center gap-3 px-3 py-2">
 							<div className="size-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-200" />
 							<div className="h-3 bg-gray-200 dark:bg-gray-700 rounded flex-1 transition-colors duration-200" />

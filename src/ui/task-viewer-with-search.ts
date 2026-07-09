@@ -96,6 +96,7 @@ export async function viewTaskEnhanced(
 	let allTasks: Task[];
 	let statuses: string[];
 	let statusStyleOptions: StatusStyleOptions = {};
+	// biome-ignore lint/style/useConst: assigned later after config load
 	let labels: (string | LabelConfig)[];
 	let availableLabels: string[] = [];
 	let taskSearchIndex: ReturnType<typeof createTaskSearchIndex> | null = null;

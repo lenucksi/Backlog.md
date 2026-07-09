@@ -293,9 +293,12 @@ describe("Web milestones page search", () => {
 	it("submits milestone edits through the API and refreshes data", async () => {
 		let updateArgs: [string, string] | undefined;
 		let refreshCount = 0;
-		apiClient.updateMilestone = async (id: string, title: string) => {
+		apiClient.updateMilestone = async (id: string, title: string, _description?: string) => {
 			updateArgs = [id, title];
-			return { success: true, milestone: { ...milestoneEntities[1]!, title } };
+			const entity = milestoneEntities[1];
+			return { success: true as const, milestone: entity ? { ...entity, title } : undefined } as Awaited<
+				ReturnType<typeof apiClient.updateMilestone>
+			>;
 		};
 
 		const container = renderPage(baseTasks, {

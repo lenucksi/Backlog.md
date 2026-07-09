@@ -261,7 +261,7 @@ Implementation Plan (für LLMs) und Description (für Menschen) sind getrennte F
 
 - `bun i` - Install dependencies
 - `bun test` - Run all tests
-- `bunx tsc --noEmit` - Type-check code
+- `bun run check:types` - Type-check code
 - `bun run check .` - Run all Biome checks (format + lint)
 - `bun run build` - Build the CLI tool
 - `bun run cli` - Uses the CLI tool directly
@@ -348,7 +348,63 @@ All Swagger documentation (`summary`, `description`, `responses.*.description`, 
 - Use `t.Optional()` for nullable/optional schema fields
 - Do NOT add `body` schemas unless the handler is refactored to use Elysia's parsed body instead of `await req.json()`
 
-### WebUI Conventions
+### Post-Change Verification
+
+After **every** file creation, modification, or extraction during a session:
+
+```bash
+bun run check src/web/ src/test/ src/ui/ --write   # lint + format (scoped to your files)
+bun run check:types                                 # catch broken imports/types
+```
+
+Run this mid-session (after the second dependent file in a chain), not only at session-end.
+A skipped `check:types` after an extraction propagates type errors into unrelated files.
+
+## WebUI A11y & Icon Conventions
+
+### Icons — never inline SVGs that already exist
+
+- Before writing `<svg>`, check `src/web/components/icons.tsx` for an existing icon.
+- If a path pattern appears in **≥2 files** and is not yet in `icons.tsx`, extract it immediately.
+- Always add `aria-hidden="true"` to unmatched/un-icon'd SVGs.
+
+### Interactive elements
+
+- Every `<button>` must have `type="button"` (unless `type="submit"` is intentional).
+- Every `<label>` must have `htmlFor` matching an input's `id`.
+- Every clickable `<div>` / `<span>` must have `role="button" tabIndex={0} onKeyDown` that handles Enter + Space.
+- Non-interactive containers with `onKeyDown` (wizard steps, backdrop overlays) should use `role="presentation"` + a biome.json override.
+
+### TypeScript quality
+
+- **Array keys**: Never `key={index}`. Use `key={item.id}` or `key={stableDataProperty}`.
+- **`as any`** is banned. Use `as unknown as TargetType`, `as Record<string, unknown>`, or define an interface.
+- **Non-null assertions (`!`)** are banned. Use `?? fallback` or a conditional guard.
+- **Variables used before declaration**: Keep `useEffect` and event listeners after the functions they reference.
+- **Callback returns**: `forEach(() => expr)` needs a block body if `expr` has side effects — `forEach(() => { doSomething(); })`.
+
+### tsconfig `paths` — Bun runtime trap
+
+`compilerOptions.paths` in `tsconfig.json` affects **Bun's runtime** module resolution, not just
+`tsc`. A type-only stub redirected via `paths` causes `SyntaxError: Export named 'X' not found`
+at runtime because Bun loads the `.d.ts` file instead of the real package.
+
+```typescript
+// ❌ WRONG — in tsconfig.json, breaks Bun runtime
+"paths": { "@termless/core": ["./src/types/termless-core.d.ts"] }
+
+// ✅ CORRECT — in tsconfig.tsc.json only, tsc uses it, Bun ignores it
+```
+
+Use a separate `tsconfig.tsc.json` with `paths` and point `check:types` at it:
+```json
+// package.json
+"check:types": "bun x tsc -p tsconfig.tsc.json --noEmit"
+```
+
+Run `bun run check <your-files> --write` on any new `.tsx` file immediately after creation — this catches all of the above before they compound.
+
+## WebUI Conventions
 
 - **shadcn/ui**: Komponenten via `bun x shadcn@latest add <name>`. Keine custom Modals — `Dialog`, `AlertDialog` aus `@/components/ui/` verwenden. `Dialog`/`Sheet`/`Drawer` brauchen immer einen `DialogTitle` (auch `sr-only` wenn unsichtbar).
 - **Buttons**: `Button` aus shadcn mit `variant` (`default`, `outline`, `destructive`, `ghost`, `link`). Nie rohe `<button>` mit custom Klassen.

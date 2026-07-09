@@ -17,6 +17,7 @@ import { sanitizeUrlTitle } from "../utils/urlHelpers";
 import { getWebVersion } from "../utils/version";
 import CollapsibleGroup from "./CollapsibleGroup";
 import ErrorBoundary from "./ErrorBoundary";
+import { Icons } from "./icons";
 import { SidebarSkeleton } from "./LoadingSpinner";
 
 // Utility functions for ID transformations
@@ -35,212 +36,7 @@ const hasTaskSearchFilters = (parsedQuery: ReturnType<typeof parseSearchCommandQ
 	);
 };
 
-// Icon components for better semantics and performance
-const Icons = {
-	Tasks: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-			/>
-		</svg>
-	),
-	Board: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
-			/>
-		</svg>
-	),
-	List: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-			/>
-		</svg>
-	),
-	Draft: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-			/>
-		</svg>
-	),
-	Document: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-			/>
-		</svg>
-	),
-	DocumentPage: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-			/>
-		</svg>
-	),
-	DocumentCode: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-		</svg>
-	),
-	DocumentBook: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-			/>
-		</svg>
-	),
-	DocumentChart: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-			/>
-		</svg>
-	),
-	DocumentSettings: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-			/>
-			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-		</svg>
-	),
-	DocumentInfo: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-			/>
-		</svg>
-	),
-	Decision: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-			/>
-		</svg>
-	),
-	DecisionPage: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-			/>
-		</svg>
-	),
-	DecisionArchitecture: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-			/>
-		</svg>
-	),
-	DecisionTech: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-			/>
-		</svg>
-	),
-	DecisionProcess: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-			/>
-		</svg>
-	),
-	DecisionBusiness: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"
-			/>
-		</svg>
-	),
-	Search: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2}
-				d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-			/>
-		</svg>
-	),
-	ChevronLeft: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-		</svg>
-	),
-	ChevronRight: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-		</svg>
-	),
-	ChevronDown: () => (
-		<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-		</svg>
-	),
-	Statistics: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-		</svg>
-	),
-	Milestone: () => (
-		<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<circle cx="12" cy="12" r="9" strokeWidth={2} />
-			<circle cx="12" cy="12" r="5" strokeWidth={2} />
-			<circle cx="12" cy="12" r="1" strokeWidth={2} />
-		</svg>
-	),
-};
+// Icon components imported from centralized icon set
 
 interface SideNavigationProps {
 	tasks: Task[];
@@ -263,7 +59,6 @@ const SideNavigation = memo(function SideNavigation({
 	isLoading,
 	error,
 	onRetry,
-	onRefreshData,
 }: SideNavigationProps) {
 	const [isCollapsed, setIsCollapsed] = useState(() => {
 		const saved = localStorage.getItem("sideNavCollapsed");
@@ -471,7 +266,7 @@ const SideNavigation = memo(function SideNavigation({
 	);
 
 	const toggleCollapse = useCallback(() => {
-		setIsCollapsed((prev: any) => !prev);
+		setIsCollapsed((prev: boolean) => !prev);
 	}, []);
 
 	return (
@@ -486,6 +281,7 @@ const SideNavigation = memo(function SideNavigation({
 				>
 					{/* Collapse Toggle Button - Always positioned on the border */}
 					<button
+						type="button"
 						onClick={toggleCollapse}
 						className="absolute -right-3 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center size-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-circle shadow-sm hover:shadow-md text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-all duration-200"
 						aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -510,12 +306,11 @@ const SideNavigation = memo(function SideNavigation({
 								/>
 								{searchQuery && (
 									<button
+										type="button"
 										onClick={() => setSearchQuery("")}
 										className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
 									>
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-										</svg>
+										<Icons.Close />
 									</button>
 								)}
 							</div>
@@ -523,6 +318,7 @@ const SideNavigation = memo(function SideNavigation({
 					) : (
 						<div className="flex items-center justify-center">
 							<button
+								type="button"
 								onClick={() => setIsCollapsed(false)}
 								className="flex items-center justify-center p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
 								title="Search (⌘K)"
@@ -541,7 +337,7 @@ const SideNavigation = memo(function SideNavigation({
 							{isSearching && <span className="text-xs text-gray-500 dark:text-gray-400">Searching…</span>}
 						</div>
 						<div className="space-y-1">
-							{unifiedSearchResults.map((result, index) => {
+							{unifiedSearchResults.map((result) => {
 								const item =
 									result.type === "task"
 										? (result as TaskSearchResult).task
@@ -580,7 +376,7 @@ const SideNavigation = memo(function SideNavigation({
 
 								return (
 									<NavLink
-										key={`${result.type}-${item.id}-${index}`}
+										key={`${result.type}-${item.id}`}
 										to={getResultLink()}
 										className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100"
 									>
@@ -626,6 +422,7 @@ const SideNavigation = memo(function SideNavigation({
 								<p className="text-sm text-red-700 dark:text-red-400 mb-2">Failed to load navigation</p>
 								{onRetry && (
 									<button
+										type="button"
 										onClick={onRetry}
 										className="text-xs px-3 py-1 bg-red-600 dark:bg-red-700 text-white rounded hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200"
 									>
@@ -813,6 +610,7 @@ const SideNavigation = memo(function SideNavigation({
 										className="flex items-center gap-1.5 w-full px-3 py-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
 									>
 										<svg
+											aria-hidden="true"
 											className={`size-3 transition-transform ${archivedDocsOpen ? "rotate-90" : ""}`}
 											fill="none"
 											stroke="currentColor"
@@ -904,6 +702,7 @@ const SideNavigation = memo(function SideNavigation({
 										className="flex items-center gap-1.5 w-full px-3 py-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
 									>
 										<svg
+											aria-hidden="true"
 											className={`size-3 transition-transform ${supersededOpen ? "rotate-90" : ""}`}
 											fill="none"
 											stroke="currentColor"
@@ -1035,6 +834,7 @@ const SideNavigation = memo(function SideNavigation({
 								</div>
 							</NavLink>
 							<button
+								type="button"
 								onClick={() => setIsCollapsed(false)}
 								data-tooltip-id="sidebar-tooltip"
 								data-tooltip-content="Documentation"
@@ -1049,6 +849,7 @@ const SideNavigation = memo(function SideNavigation({
 								</div>
 							</button>
 							<button
+								type="button"
 								onClick={() => setIsCollapsed(false)}
 								data-tooltip-id="sidebar-tooltip"
 								data-tooltip-content="Decisions"
@@ -1107,6 +908,12 @@ const SideNavigation = memo(function SideNavigation({
 
 				{!isCollapsed && (
 					<div
+						role="slider"
+						tabIndex={0}
+						aria-valuenow={sidebarWidth}
+						aria-valuemin={240}
+						aria-valuemax={600}
+						aria-label="Sidebar width"
 						onMouseDown={handleResizeStart}
 						className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-20 group"
 					>

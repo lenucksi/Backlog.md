@@ -12,20 +12,6 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		loadDrafts();
-
-		// Listen for draft updates
-		const handleDraftsUpdated = () => {
-			loadDrafts();
-		};
-
-		window.addEventListener("drafts-updated", handleDraftsUpdated);
-		return () => {
-			window.removeEventListener("drafts-updated", handleDraftsUpdated);
-		};
-	}, [loadDrafts]);
-
 	const loadDrafts = async () => {
 		try {
 			setLoading(true);
@@ -49,6 +35,19 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 			setLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		loadDrafts();
+
+		const handleDraftsUpdated = () => {
+			loadDrafts();
+		};
+
+		window.addEventListener("drafts-updated", handleDraftsUpdated);
+		return () => {
+			window.removeEventListener("drafts-updated", handleDraftsUpdated);
+		};
+	}, [loadDrafts]);
 
 	const handlePromoteDraft = async (draftId: string) => {
 		try {
@@ -93,6 +92,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 			<div className="flex-1 flex items-center justify-center">
 				<div className="text-red-600 dark:text-red-400">Error: {error}</div>
 				<button
+					type="button"
 					onClick={loadDrafts}
 					className="ml-4 inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors"
 				>
@@ -111,6 +111,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 						{drafts.length} draft{drafts.length !== 1 ? "s" : ""}
 					</div>
 					<button
+						type="button"
 						className="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 						onClick={onNewDraft}
 					>
@@ -122,6 +123,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 			{drafts.length === 0 ? (
 				<div className="text-center py-12">
 					<svg
+						aria-hidden="true"
 						className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
 						fill="none"
 						stroke="currentColor"
@@ -147,7 +149,18 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 							className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
 						>
 							<div className="flex items-start justify-between">
-								<div className="flex-1 cursor-pointer" onClick={() => onEditTask(draft)}>
+								<div
+									className="flex-1 cursor-pointer"
+									role="button"
+									tabIndex={0}
+									onClick={() => onEditTask(draft)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											onEditTask(draft);
+										}
+									}}
+								>
 									<div className="flex items-center gap-3 mb-2">
 										<h3 className="text-lg font-medium text-gray-900 dark:text-white">{draft.title}</h3>
 										{draft.priority && (
@@ -193,6 +206,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 								</div>
 								<div className="ml-4">
 									<button
+										type="button"
 										onClick={(e) => {
 											e.stopPropagation();
 											handlePromoteDraft(draft.id);

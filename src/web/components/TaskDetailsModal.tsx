@@ -283,34 +283,6 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		);
 	}, [title, description, plan, notes, finalSummary, criteria, definitionOfDone, baseline]);
 
-	// Intercept Escape to cancel edit (not close modal) when in edit mode
-	useEffect(() => {
-		const onKey = (e: KeyboardEvent) => {
-			if (mode === "edit" && e.key === "Escape") {
-				e.preventDefault();
-				e.stopPropagation();
-				handleCancelEdit();
-			}
-			if (mode === "edit" && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
-				e.preventDefault();
-				e.stopPropagation();
-				void handleSave();
-			}
-			if (mode === "preview" && e.key.toLowerCase() === "e" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-				e.preventDefault();
-				e.stopPropagation();
-				setMode("edit");
-			}
-			if (mode === "preview" && isTerminal && e.key.toLowerCase() === "c" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-				e.preventDefault();
-				e.stopPropagation();
-				void handleComplete();
-			}
-		};
-		window.addEventListener("keydown", onKey, { capture: true });
-		return () => window.removeEventListener("keydown", onKey, { capture: true } as any);
-	}, [mode, title, description, plan, notes, finalSummary, criteria, definitionOfDone, status]);
-
 	// Reset local state when task changes or modal opens
 	// When in edit mode, preserve content fields and mode to avoid losing unsaved drafts
 	useEffect(() => {
@@ -348,7 +320,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			.fetchTasks()
 			.then(setAvailableTasks)
 			.catch(() => setAvailableTasks([]));
-	}, [task, isOpen, mode, isCreateMode, isDraftMode, availableStatuses, defaultDefinitionOfDone]);
+	}, [task, mode, isCreateMode, isDraftMode, availableStatuses, defaultDefinitionOfDone]);
 
 	const availableAssignees = useMemo(
 		() => [...new Set(availableTasks.flatMap((t) => t.assignee ?? []).filter(Boolean))].sort(),
@@ -533,7 +505,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			if (err instanceof Error) {
 				errorMessage = err.message;
 			} else if (typeof err === "object" && err !== null && "error" in err) {
-				errorMessage = String((err as any).error);
+				errorMessage = String((err as Record<string, unknown>).error);
 			} else if (typeof err === "string") {
 				errorMessage = err;
 			}
@@ -649,6 +621,34 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		isTerminalStatus(status || "", availableStatuses || [], terminalStatuses) &&
 		!(blockedStatuses?.some((b) => b.toLowerCase() === (status || "").trim().toLowerCase()) ?? false);
 
+	// Intercept Escape to cancel edit (not close modal) when in edit mode
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			if (mode === "edit" && e.key === "Escape") {
+				e.preventDefault();
+				e.stopPropagation();
+				handleCancelEdit();
+			}
+			if (mode === "edit" && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+				e.preventDefault();
+				e.stopPropagation();
+				void handleSave();
+			}
+			if (mode === "preview" && e.key.toLowerCase() === "e" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+				e.preventDefault();
+				e.stopPropagation();
+				setMode("edit");
+			}
+			if (mode === "preview" && isTerminal && e.key.toLowerCase() === "c" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+				e.preventDefault();
+				e.stopPropagation();
+				void handleComplete();
+			}
+		};
+		window.addEventListener("keydown", onKey, { capture: true });
+		return () => window.removeEventListener("keydown", onKey, { capture: true });
+	}, [mode, isTerminal]);
+
 	const displayId = task?.id ?? "";
 	const documentation = task?.documentation ?? [];
 
@@ -669,6 +669,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 				<div className="flex items-center gap-2">
 					{isTerminal && mode === "preview" && !isCreateMode && !isFromOtherBranch && (
 						<button
+							type="button"
 							onClick={handleComplete}
 							className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 							title="Move this task to the archive. It cannot be reopened."
@@ -678,11 +679,12 @@ export const TaskDetailsModal: React.FC<Props> = ({
 					)}
 					{mode === "preview" && !isCreateMode && !isFromOtherBranch ? (
 						<button
+							type="button"
 							onClick={() => setMode("edit")}
 							className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 							title="Edit"
 						>
-							<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
 									strokeLinecap="round"
 									strokeLinejoin="round"
@@ -695,6 +697,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 					) : mode === "edit" || mode === "create" ? (
 						<div className="flex items-center gap-2">
 							<button
+								type="button"
 								onClick={handleCancelEdit}
 								className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 								title="Cancel"
@@ -705,6 +708,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={() => void handleSave()}
 								disabled={saving}
 								className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 disabled:opacity-50"
@@ -726,6 +730,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			{task && (task.status === "Archived" || task.status === "archived") && (
 				<div className="mb-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200">
 					<svg
+						aria-hidden="true"
 						className="size-5 flex-shrink-0 text-red-600 dark:text-red-400"
 						fill="none"
 						stroke="currentColor"
@@ -746,6 +751,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			{isFromOtherBranch && (
 				<div className="mb-4 flex items-center gap-2 px-4 py-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg text-amber-800 dark:text-amber-200">
 					<svg
+						aria-hidden="true"
 						className="size-5 flex-shrink-0 text-amber-600 dark:text-amber-400"
 						fill="none"
 						stroke="currentColor"
@@ -766,12 +772,13 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			)}
 
 			{/* Parent task reference */}
-			{task && task.parentTaskTitle && task.parentTaskId && !isCreateMode && (
+			{task?.parentTaskTitle && task.parentTaskId && !isCreateMode && (
 				<div className="mb-4 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
 					<div className="flex items-center gap-2 text-sm">
 						<span className="font-medium text-blue-700 dark:text-blue-300">Parent:</span>
 						<button
-							onClick={() => onNavigateToTask?.(task.parentTaskId!)}
+							type="button"
+							onClick={() => onNavigateToTask?.(task.parentTaskId ?? "")}
 							className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
 						>
 							{task.parentTaskTitle}
@@ -781,7 +788,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			)}
 
 			{/* Subtasks section */}
-			{task && task.subtaskSummaries && task.subtaskSummaries.length > 0 && !isCreateMode && (
+			{task?.subtaskSummaries && task.subtaskSummaries.length > 0 && !isCreateMode && (
 				<details className="mb-4 group">
 					<summary className="cursor-pointer px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
 						Subtasks ({task.subtaskSummaries.length})
@@ -790,6 +797,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 						{task.subtaskSummaries.map((sub) => (
 							<li key={sub.id}>
 								<button
+									type="button"
 									onClick={() => onNavigateToTask?.(sub.id)}
 									className="w-full text-left px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
 								>
@@ -849,7 +857,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 							{references.length > 0 ? (
 								<ul className="space-y-2">
 									{references.map((ref, idx) => (
-										<li key={idx} className="flex items-center gap-3 group">
+										<li key={ref} className="flex items-center gap-3 group">
 											<span className="flex-1 min-w-0">
 												{ref.startsWith("http://") || ref.startsWith("https://") ? (
 													<a
@@ -862,6 +870,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 													</a>
 												) : (
 													<button
+														type="button"
 														onClick={() => setPreviewFilePath(ref)}
 														className="text-left w-full"
 														title="Preview file"
@@ -874,6 +883,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 											</span>
 											{!isFromOtherBranch && (
 												<button
+													type="button"
 													onClick={() => {
 														const newRefs = references.filter((_, i) => i !== idx);
 														handleInlineMetaUpdate({ references: newRefs });
@@ -881,7 +891,13 @@ export const TaskDetailsModal: React.FC<Props> = ({
 													className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all flex-shrink-0"
 													title="Remove reference"
 												>
-													<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<svg
+														aria-hidden="true"
+														className="size-4"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+													>
 														<path
 															strokeLinecap="round"
 															strokeLinejoin="round"
@@ -933,8 +949,8 @@ export const TaskDetailsModal: React.FC<Props> = ({
 							<SectionHeader title="Documentation" />
 							<div className="space-y-2">
 								<ul className="space-y-2">
-									{documentation.map((doc, idx) => (
-										<li key={idx} className="flex items-center gap-3">
+									{documentation.map((doc) => (
+										<li key={doc} className="flex items-center gap-3">
 											<span className="flex-1 min-w-0">
 												{doc.startsWith("http://") || doc.startsWith("https://") ? (
 													<a
@@ -947,6 +963,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 													</a>
 												) : (
 													<button
+														type="button"
 														onClick={() => setPreviewFilePath(doc)}
 														className="text-left w-full"
 														title="Preview file"
@@ -1231,7 +1248,11 @@ export const TaskDetailsModal: React.FC<Props> = ({
 						<select
 							className={`w-full h-10 px-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 focus:border-transparent transition-colors duration-200 ${isFromOtherBranch ? "opacity-60 cursor-not-allowed" : ""}`}
 							value={priority}
-							onChange={(e) => handleInlineMetaUpdate({ priority: e.target.value as any })}
+							onChange={(e) =>
+								handleInlineMetaUpdate({
+									priority: (e.target as HTMLSelectElement).value as "high" | "low" | "medium" | undefined,
+								})
+							}
 							disabled={isFromOtherBranch}
 						>
 							<option value="">No Priority</option>
@@ -1302,10 +1323,11 @@ export const TaskDetailsModal: React.FC<Props> = ({
 					{mode === "preview" && task && !isFromOtherBranch && (status || "").toLowerCase() !== "draft" && (
 						<div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
 							<button
+								type="button"
 								onClick={handleDemote}
 								className="w-full inline-flex items-center justify-center px-4 py-2 bg-orange-500 dark:bg-orange-600 text-white text-sm font-medium rounded-md hover:bg-orange-600 dark:hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-orange-400 dark:focus:ring-orange-500 transition-colors duration-200"
 							>
-								<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
 										strokeLinecap="round"
 										strokeLinejoin="round"
@@ -1322,10 +1344,11 @@ export const TaskDetailsModal: React.FC<Props> = ({
 					{task && onArchive && !isFromOtherBranch && (
 						<div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
 							<button
+								type="button"
 								onClick={handleArchive}
 								className="w-full inline-flex items-center justify-center px-4 py-2 bg-red-500 dark:bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-600 dark:hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-red-400 dark:focus:ring-red-500 transition-colors duration-200"
 							>
-								<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
 										strokeLinecap="round"
 										strokeLinejoin="round"

@@ -64,6 +64,7 @@ const Modal: React.FC<ModalProps> = ({
 					<div className="flex items-center gap-2">
 						{actions}
 						<button
+							type="button"
 							onClick={onClose}
 							className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded p-1 transition-colors duration-200 text-2xl leading-none size-8 flex items-center justify-center"
 							aria-label="Close modal"

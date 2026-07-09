@@ -4,7 +4,7 @@ title: Refactor src/ui/task-viewer-with-search.ts — Pane-Separation (1.883→6
 status: To Do
 assignee: []
 created_date: 2026-06-28 18:19
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-07 12:35
 labels:
   - refactoring
   - tech-debt
@@ -19,11 +19,16 @@ ordinal: 383000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Die Datei task-viewer-with-search.ts ist mit 1.883 Zeilen die zweitgrößte UI-Datei. Die Hauptfunktion viewTaskEnhanced ist eine God-Function die Task-Loading, Filter-UI, Task-Liste, Detail-Pane, Keybindings und Popup-Task-Erstellung in einer einzigen Funktion mischt.
+Die Datei task-viewer-with-search.ts ist mit 1.883 Zeilen die zweitgrößte UI-Datei. Die Hauptfunktion viewTaskEnhanced ist eine God-Function mit 11 Verantwortlichkeiten und 25 mutable let-Variablen.
 
-Ziel: In sechs Module auftrennen — detail-content, viewer-state, list-pane, detail-pane, popup, keybindings. Die Hauptfunktion bleibt als Orchestrator (~600 Zeilen).
+Ziel: In sechs Module auftrennen — detail-content, popup, viewer-state, list-pane, detail-pane, keybindings. Die Hauptfunktion wird zum Orchestrator (~600 Zeilen).
 
-Siehe subagent-reports/sonarlint-large-file-analysis.md Section 2b
+Drei Subtasks nach Extraktionsreihenfolge (steigendes Risiko):
+1. **0600.01** — pure functions: detail-content (generateDetailContent + helpers) + createTaskPopup → neue Module, keine blessed-Abhängigkeit
+2. **0600.02** — state + debt: ViewerState Interface, Layout-Konstanten, tech-debt Fixes (isPast in detail-content, header-height dedup, guard dedup in keybindings, cleanup-Triade vereinheitlichen)
+3. **0600.03** — panes + shrink: list-pane + detail-pane + keybindings extrahieren, main auf 600 Zeilen
+
+Tech-Debt-Strategie: Nur das mitnehmen was die Zerlegung blockiert oder beim Umbau eh getroffen wird. Rest (executeBulkUpdate Strategy-Pattern, Metadata-Helper, openFilterPicker dedup) in separate Tasks.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -38,22 +43,16 @@ Siehe subagent-reports/sonarlint-large-file-analysis.md Section 2b
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-Extraktions-Reihenfolge (abnehmende Abhängigkeit):
-1. src/ui/task-detail-content.ts — generateDetailContent, getPriorityDisplay, createMilestoneLabelResolver (pure functions, keine dependency)
-2. src/ui/task-viewer-state.ts — state interface + focus/direction helpers
-3. src/ui/task-list-pane.ts — TaskList blessed box creation, rendering, bulk selection
-4. src/ui/task-detail-pane.ts — Detail pane rendering und scrolling
-5. src/ui/task-popup.ts — createTaskPopup
-6. src/ui/task-viewer-keybindings.ts — Alle screen.key() shortcuts
-7. viewTaskEnhanced in main file auf 600 Zeilen reduzieren (nur noch Orchestrierung)
+Extraktions-Reihenfolge (steigendes Risiko):
+1. **0600.01** — pure Extraktionen: detail-content (177 Zeilen) + popup (140 Zeilen). Keine state-Abhängigkeit.
+2. **0600.02** — State formalisieren + tech-debt Fixes: ViewerState Interface, LAYOUT Constants, isPast-Parameter, header-height Dedup, Guard-Helper, cleanup()-Helper.
+3. **0600.03** — Pane-Extraktion + Shrink: list-pane (~300 Zeilen) + detail-pane (~200 Zeilen) + keybindings (~200 Zeilen). Main von 1398→~600.
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Die God-Function viewTaskEnhanced ist ~1.400 Zeilen lang. Die Extraktion muss von innen nach außen passieren: erst die puren Helper raus, dann die Rendering-Blöcke, dann die State-Verwaltung, zuletzt die Keybindings.
-
-TUI-Komponenten haben oft subtile Interaktionen zwischen Panes — nach jedem Extract-Task manuell testen dass die TUI noch funktioniert.
+Siehe subagent-reports/sonarlint-large-file-analysis.md Section 2b. Code-Smell-Analyse mit context-hunter + code-smells Skills erstellt: F90k-K_25-Kopplung, 10× Guard-Duplikation, 4× Cleanup-Triade, 16× Metadata-Formatierung, 7× if-Kette executeBulkUpdate.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

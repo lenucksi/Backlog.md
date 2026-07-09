@@ -12,7 +12,7 @@ export class StatisticsHandlers {
 	async getStatistics(args: StatisticsArgs = {}): Promise<CallToolResult> {
 		await this.core.ensureConfigLoaded();
 		const { tasks, drafts, statuses, terminalStatuses, blockedStatuses } = await this.core.loadAllTasksForStatistics();
-		const archivedTasks = await this.core.fs.listArchivedTasks();
+		const archivedTasks = await this.core.filesystem.listArchivedTasks();
 
 		const filteredTasks = args.milestone
 			? tasks.filter((t) => {

@@ -115,37 +115,6 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 		}
 	}, [id]);
 
-	useEffect(() => {
-		if (id === "new") {
-			// Handle new document creation
-			setIsNewDocument(true);
-			setIsEditing(true);
-			setIsLoading(false);
-			setDocTitle("");
-			setOriginalDocTitle("");
-			setDocPath("");
-			setOriginalDocPath("");
-			setContent("");
-			setOriginalContent("");
-		} else if (id) {
-			setIsNewDocument(false);
-			setIsEditing(false); // Ensure we start in preview mode for existing documents
-			loadDocContent();
-		}
-	}, [id, loadDocContent]);
-
-	// Check for edit query parameter to start in edit mode
-	useEffect(() => {
-		if (searchParams.get("edit") === "true") {
-			setIsEditing(true);
-			// Remove the edit parameter from URL
-			setSearchParams((params) => {
-				params.delete("edit");
-				return params;
-			});
-		}
-	}, [searchParams, setSearchParams]);
-
 	const loadDocContent = useCallback(async () => {
 		if (!id) return;
 
@@ -190,6 +159,37 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 			setIsLoading(false);
 		}
 	}, [id, docs]);
+
+	useEffect(() => {
+		if (id === "new") {
+			// Handle new document creation
+			setIsNewDocument(true);
+			setIsEditing(true);
+			setIsLoading(false);
+			setDocTitle("");
+			setOriginalDocTitle("");
+			setDocPath("");
+			setOriginalDocPath("");
+			setContent("");
+			setOriginalContent("");
+		} else if (id) {
+			setIsNewDocument(false);
+			setIsEditing(false); // Ensure we start in preview mode for existing documents
+			loadDocContent();
+		}
+	}, [id, loadDocContent]);
+
+	// Check for edit query parameter to start in edit mode
+	useEffect(() => {
+		if (searchParams.get("edit") === "true") {
+			setIsEditing(true);
+			// Remove the edit parameter from URL
+			setSearchParams((params) => {
+				params.delete("edit");
+				return params;
+			});
+		}
+	}, [searchParams, setSearchParams]);
 
 	const handleSave = useCallback(async () => {
 		if (!docTitle.trim()) {
@@ -316,7 +316,13 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 		return (
 			<div className="flex-1 flex items-center justify-center p-8">
 				<div className="text-center">
-					<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						className="mx-auto h-12 w-12 text-gray-400"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -371,7 +377,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 								)}
 								<div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
 									<div className="flex items-center gap-2">
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
@@ -382,7 +388,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 										<span>ID: {document?.id || `doc-${id}`}</span>
 									</div>
 									<div className="flex items-center gap-2">
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
@@ -394,7 +400,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 									</div>
 									{document?.path && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -407,7 +413,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 									)}
 									{document?.createdDate && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -426,10 +432,17 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 										{!isNewDocument && (
 											<>
 												<button
+													type="button"
 													onClick={() => setConfirmAction("archive")}
 													className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 												>
-													<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<svg
+														className="size-4 mr-2"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+														aria-hidden="true"
+													>
 														<path
 															strokeLinecap="round"
 															strokeLinejoin="round"
@@ -440,10 +453,17 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 													Archive
 												</button>
 												<button
+													type="button"
 													onClick={() => setConfirmAction("delete")}
 													className="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 												>
-													<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<svg
+														className="size-4 mr-2"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+														aria-hidden="true"
+													>
 														<path
 															strokeLinecap="round"
 															strokeLinejoin="round"
@@ -456,10 +476,17 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 											</>
 										)}
 										<button
+											type="button"
 											onClick={handleEdit}
 											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 										>
-											<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg
+												className="size-4 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+												aria-hidden="true"
+											>
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -473,12 +500,14 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 								) : (
 									<div className="flex items-center gap-2">
 										<button
+											type="button"
 											onClick={handleCancelEdit}
 											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 										>
 											Cancel
 										</button>
 										<button
+											type="button"
 											onClick={handleSave}
 											disabled={!hasChanges || isSaving}
 											className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
@@ -487,7 +516,13 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 													: "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
 											}`}
 										>
-											<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg
+												className="size-4 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+												aria-hidden="true"
+											>
 												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 											</svg>
 											{isSaving ? "Saving..." : "Save"}
@@ -532,7 +567,13 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 				{saveError && (
 					<div className="border-t border-red-200 bg-red-50 px-8 py-3">
 						<div className="flex items-center gap-3">
-							<svg className="size-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg
+								className="size-5 text-red-500"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+							>
 								<path
 									strokeLinecap="round"
 									strokeLinejoin="round"
@@ -541,8 +582,12 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 								/>
 							</svg>
 							<span className="text-sm text-red-700">Failed to save: {saveError.message}</span>
-							<button onClick={() => setSaveError(null)} className="ml-auto text-red-700 hover:text-red-900">
-								<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<button
+								type="button"
+								onClick={() => setSaveError(null)}
+								className="ml-auto text-red-700 hover:text-red-900"
+							>
+								<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 								</svg>
 							</button>
@@ -565,6 +610,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
+										aria-hidden="true"
 									>
 										<path
 											strokeLinecap="round"
@@ -579,6 +625,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
+										aria-hidden="true"
 									>
 										<path
 											strokeLinecap="round"
@@ -602,12 +649,14 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 						</div>
 						<div className="mt-6 flex justify-end gap-3">
 							<button
+								type="button"
 								onClick={() => setConfirmAction(null)}
 								className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 							>
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={confirmAction === "delete" ? handleDelete : handleArchive}
 								className={`px-4 py-2 rounded-lg text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
 									confirmAction === "delete"
@@ -628,7 +677,7 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 					message={`Document "${docTitle}" saved successfully!`}
 					onDismiss={() => setShowSaveSuccess(false)}
 					icon={
-						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"

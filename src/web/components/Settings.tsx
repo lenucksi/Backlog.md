@@ -42,11 +42,6 @@ const Settings: React.FC = () => {
 	const [newAuthorColor, setNewAuthorColor] = useState("");
 	const colorPickerRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		loadConfig();
-		loadStatuses();
-	}, [loadStatuses, loadConfig]);
-
 	const loadConfig = async () => {
 		try {
 			setLoading(true);
@@ -70,7 +65,12 @@ const Settings: React.FC = () => {
 		}
 	};
 
-	const handleInputChange = (field: keyof BacklogConfig, value: any) => {
+	useEffect(() => {
+		loadConfig();
+		loadStatuses();
+	}, [loadStatuses, loadConfig]);
+
+	const handleInputChange = (field: keyof BacklogConfig, value: unknown) => {
 		if (!config) return;
 
 		setConfig({
@@ -216,8 +216,8 @@ const Settings: React.FC = () => {
 								</label>
 								<select
 									id="dateFormat"
-									value={(config as any).dateFormat}
-									onChange={(e) => handleInputChange("dateFormat" as any, e.target.value)}
+									value={(config as unknown as Record<string, unknown>).dateFormat as string}
+									onChange={(e) => handleInputChange("dateFormat" as keyof BacklogConfig, e.target.value)}
 									className="w-full h-10 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"
 								>
 									<option value="yyyy-mm-dd">yyyy-mm-dd</option>
@@ -420,14 +420,22 @@ const Settings: React.FC = () => {
 								const labelColor = getLabelColor(label);
 								const labelName = getLabelName(label);
 								return (
-									<div key={`label-${index}`} className="flex items-center gap-2 relative">
-										<div
+									<div key={labelName} className="flex items-center gap-2 relative">
+										<button
+											type="button"
 											className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
 											style={{ backgroundColor: labelColor || "#9ca3af" }}
 											onClick={(e) => {
 												e.stopPropagation();
 												setColorPickerIndex(index);
 												setColorPickerColor(labelColor || "");
+											}}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													e.preventDefault();
+													setColorPickerIndex(index);
+													setColorPickerColor(labelColor || "");
+												}
 											}}
 											title="Change label color"
 										/>
@@ -522,13 +530,22 @@ const Settings: React.FC = () => {
 								);
 							})}
 							<div className="flex items-center gap-2 pt-2">
-								<div
+								<button
+									type="button"
 									className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
 									style={{ backgroundColor: newLabelColor || "#9ca3af" }}
 									onClick={() => {
 										const idx = Math.floor(Math.random() * PRESET_COLORS.length);
 										const picked = PRESET_COLORS[idx];
 										setNewLabelColor(newLabelColor ? "" : (picked ?? ""));
+									}}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											const idx = Math.floor(Math.random() * PRESET_COLORS.length);
+											const picked = PRESET_COLORS[idx];
+											setNewLabelColor(newLabelColor ? "" : (picked ?? ""));
+										}
 									}}
 									title="Toggle random color for new label"
 								/>
@@ -570,8 +587,9 @@ const Settings: React.FC = () => {
 								const authorColor = typeof author === "string" ? undefined : author.color;
 								const authorName = typeof author === "string" ? author : author.name;
 								return (
-									<div key={`author-${index}`} className="flex items-center gap-2 relative">
-										<div
+									<div key={authorName} className="flex items-center gap-2 relative">
+										<button
+											type="button"
 											className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
 											style={{ backgroundColor: authorColor || "#9ca3af" }}
 											onClick={(e) => {
@@ -671,7 +689,8 @@ const Settings: React.FC = () => {
 								);
 							})}
 							<div className="flex items-center gap-2 pt-2">
-								<div
+								<button
+									type="button"
 									className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
 									style={{ backgroundColor: newAuthorColor || "#9ca3af" }}
 									onClick={() => {
@@ -719,7 +738,7 @@ const Settings: React.FC = () => {
 						</p>
 						<div className="space-y-3">
 							{(config.definitionOfDone ?? []).map((item, index) => (
-								<div key={`definition-of-done-${index}`} className="flex items-center gap-2">
+								<div key={item} className="flex items-center gap-2">
 									<input
 										type="text"
 										value={item}
@@ -874,10 +893,14 @@ const Settings: React.FC = () => {
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+								<label
+									htmlFor="task-prefix-readonly"
+									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+								>
 									Task Prefix <span className="text-gray-400 dark:text-gray-500 font-normal">(read-only)</span>
 								</label>
 								<input
+									id="task-prefix-readonly"
 									type="text"
 									value={(config.prefixes?.task || "task").toUpperCase()}
 									disabled
@@ -893,6 +916,7 @@ const Settings: React.FC = () => {
 					{/* Save/Cancel Buttons */}
 					<div className="flex items-center justify-end gap-4">
 						<button
+							type="button"
 							onClick={handleCancel}
 							disabled={!hasUnsavedChanges || saving}
 							className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 disabled:opacity-50 transition-colors duration-200"
@@ -900,6 +924,7 @@ const Settings: React.FC = () => {
 							Cancel
 						</button>
 						<button
+							type="button"
 							onClick={handleSave}
 							disabled={!hasUnsavedChanges || saving}
 							className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200"

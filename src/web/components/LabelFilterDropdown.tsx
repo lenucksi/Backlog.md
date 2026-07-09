@@ -71,7 +71,7 @@ export function MultiSelectDropdown({
 						{selected.length === 0
 							? "All"
 							: selected.length === 1
-								? (labels?.[selected[0]!] ?? selected[0]!)
+								? (labels?.[selected[0] ?? ""] ?? selected[0] ?? "")
 								: `${selected.length} selected`}
 					</span>
 				</div>

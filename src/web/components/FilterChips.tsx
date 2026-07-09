@@ -32,7 +32,7 @@ export default function FilterChips({ chips }: FilterChipsProps) {
 						className="inline-flex items-center justify-center size-3.5 rounded-circle hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 ml-0.5"
 						aria-label={`Remove filter: ${chip.label}`}
 					>
-						<svg className="size-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg aria-hidden="true" className="size-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 						</svg>
 					</button>

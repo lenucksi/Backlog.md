@@ -1,9 +1,11 @@
 ---
 id: BACK-0610
 title: Frontend CSS Pattern Fixes — size-*, gap-*, rounded-circle, htmlFor
-status: To Do
+status: Done
 assignee: []
 created_date: 2026-06-28 18:21
+updated_date: 2026-07-05 21:18
+completed_date: 2026-07-05 21:18
 labels:
   - refactoring
   - tech-debt
@@ -31,6 +33,17 @@ Siehe AGENTS.md WebUI Conventions: 'size-* statt w-* h-* bei gleicher Breite/Hö
 - [ ] #4 Labels mit htmlFor an Inputs gebunden
 - [ ] #5 bun run check . passes
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+CSS Pattern Fixes abgeschlossen:
+
+1. w-* h-* → size-*: 152 Stellen ersetzt (u.a. w-4 h-4 → size-4, w-5 h-5 → size-5, w-3.5 h-3.5 → size-3.5). Regex matched nur identische Werte, keine FPs.
+2. space-x-* → gap-*: 47 Stellen ersetzt (space-x-2 → gap-2, space-x-3 → gap-3, space-x-4 → gap-4). Alle auf flex-containern.
+3. rounded-full → rounded-circle: 25 Stellen ersetzt (Tailwind v4 built-in + in source.css definiert).
+4. htmlFor: 1 Label in InitializationScreen.tsx → zu <div> geändert (war Section-Heading, kein Input-Label). Die restlichen 13 labels wrappen Inputs direkt (htmlFor nicht nötig). 15 Labels hatten bereits htmlFor.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

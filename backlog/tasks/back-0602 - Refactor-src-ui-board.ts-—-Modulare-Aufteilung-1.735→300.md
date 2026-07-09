@@ -4,7 +4,7 @@ title: Refactor src/ui/board.ts — Modulare Aufteilung (1.735→300)
 status: To Do
 assignee: []
 created_date: 2026-06-28 18:19
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-05 19:57
 labels:
   - refactoring
   - tech-debt
@@ -21,19 +21,29 @@ ordinal: 385000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 board.ts ist die Kanban-Board-TUI-Komponente mit 1.735 Zeilen. renderBoardTui ist eine God-Function die Column-Rendering, Move-Mode, Filter-Integration, Bulk-Operationen, Keybindings und Editor-Integration in einer Funktion mischt.
 
-Ziel: In 8 Module aufteilen — helpers, column, move-mode, state, keybindings, editor, footer, bulk.
+Ziel: In 8 Module aufteilen — helpers, column, move-mode, state, keybindings, editor, footer, bulk. board.ts wird zur schmalen Facade (~300 Zeilen).
 
-Siehe subagent-reports/sonarlint-large-file-analysis.md Section 2d
+Subtasks:
+- 0602.01 board-helpers.ts — buildColumnTasks, formatTaskListItem (pure helpers)
+- 0602.02 board-column.ts — ColumnView management
+- 0602.03 board-move-mode.ts — MoveOperation, drag-drop
+- 0602.04 board-editor.ts — openTaskEditor (ID mit ordinal vertauscht)
+- 0602.05 board-state.ts — state + selection (ID mit ordinal vertauscht)
+- 0602.06 board-footer.ts — footer management
+- 0602.07 board-bulk.ts — bulk operations
+- 0602.08 board-keybindings.ts — alle screen.key() shortcuts
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Alle 8 Sub-Tasks erledigt
+- [ ] #1 Alle 8 Subtasks (0602.01-.08) erledigt
 - [ ] #2 board.ts ≤ 400 Zeilen
 - [ ] #3 bun run check . passes
 - [ ] #4 bun test passes
 - [ ] #5 TUI board funktioniert (manuell prüfen)
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 

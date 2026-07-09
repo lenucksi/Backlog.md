@@ -1,10 +1,11 @@
 ---
 id: BACK-0608
 title: Code-Qualitäts-Tooling einrichten
-status: To Do
+status: Done
 assignee: []
 created_date: 2026-06-28 18:20
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-05 20:52
+completed_date: 2026-07-05 20:46
 labels:
   - tooling
   - tech-debt
@@ -45,6 +46,26 @@ ordinal: 391000
 <!-- SECTION:NOTES:BEGIN -->
 SonarLint LSP ist in der globalen opencode config eingerichtet aber läuft nicht aktiv weil in dieser Session keine .ts Datei geöffnet wurde. Kann manuell getriggert werden.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Tooling-Check abgeschlossen:
+
+1. knip.json: ignoreDependencies aufgeräumt — @types/react-router-dom + react-tooltip entfernt (werden nirgends importiert). @uiw/* + tailwindcss etc. bleiben (CSS-Imports, dynamisch genutzt).
+
+2. biome.json: Schema 2.4.12 passt zu installierter Version 2.4.12. Kein Update nötig. 267 pre-existing lint errors in src/web/ (useOptionalChain, noSvgWithoutTitle, useExhaustiveDependencies) — biome auto-fixbar mit --unsafe, aber ausserhalb dieses Tasks.
+
+3. commander@15.0.0: Major-Update von 14→15. Build + Tests + CLI --help + --version funktionieren. Keine Breaking Changes sichtbar. package.json auf ^15.0.0 gesetzt.
+
+4. bun update: @playwright/test 1.60→1.61, dep-cruiser 17.4→17.4.3, knip 6.14→6.24, vite 8.1→8.1.3, shell-quote 1.8→1.9.
+
+5. aislop: Timeout beim Download von golangci-lint. Subdirs: src/core/ src/file-system/. Nicht abschliessbar ohne Netzwerk/Zeit.
+
+6. SonarLint LSP: sonarlint-ls ist installiert (/usr/bin/sonarlint-ls) aber LSP-Plugin nicht in opencode config eingetragen. Manuell per CLI triggern möglich (--stdio --port). Code-Action-LSP-Tools sind verfügbar (completions, code_action, document_symbols) aber timeouteten — LSP-Plugin läuft nicht in dieser Session.
+
+aislop scan (2. Versuch) erfolgreich: 239 files in 3.8s. Score 12/100 Critical. Top Findings: 279 console.log, 157 triviale Kommentare, 101 Duplicate Code Blocks, 45 Functions too long, 34 Files too large. Report in /tmp/aislop-report.txt
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

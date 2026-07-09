@@ -145,8 +145,9 @@ export function buildElysiaApp(
 			)
 			// --- Asset Routes (previously in Bun.serve.fetch) ---
 			.get("/", async () => {
-				const html = await (assetHelpers?.resolveHtml?.() ?? spaHandler());
-				return new Response(html, {
+				const result = await (assetHelpers?.resolveHtml?.() ?? spaHandler());
+				if (result instanceof Response) return result;
+				return new Response(result as BodyInit, {
 					headers: { "Content-Type": "text/html" },
 				});
 			})
@@ -788,7 +789,7 @@ export function buildElysiaApp(
 			})
 			.onAfterHandle(({ response }) => {
 				if (response) {
-					applyNoStoreHeaders(response.headers);
+					applyNoStoreHeaders((response as Response).headers);
 				}
 			})
 			// --- SPA fallback ---

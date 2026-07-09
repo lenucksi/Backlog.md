@@ -574,7 +574,7 @@ const Board: React.FC<BoardProps> = ({
 							</button>
 						</div>
 						{onFiltersChange && (
-							<div className="flex flex-wrap items-center gap-3" aria-label="Board filters">
+							<section className="flex flex-wrap items-center gap-3" aria-label="Board filters">
 								<LabelFilterDropdown
 									availableLabels={["__unassigned__", ...uniqueAssignees]}
 									selectedLabels={filterAssignee ? [filterAssignee] : []}
@@ -622,6 +622,7 @@ const Board: React.FC<BoardProps> = ({
 
 								<div className="relative">
 									<svg
+										aria-hidden="true"
 										className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 pointer-events-none"
 										fill="none"
 										stroke="currentColor"
@@ -662,7 +663,7 @@ const Board: React.FC<BoardProps> = ({
 											className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
 											aria-label="Clear search"
 										>
-											<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 											</svg>
 										</button>
@@ -678,11 +679,12 @@ const Board: React.FC<BoardProps> = ({
 										Clear filters
 									</button>
 								)}
-							</div>
+							</section>
 						)}
 					</div>
 				</div>
 				<button
+					type="button"
 					className="inline-flex items-center px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors duration-200"
 					onClick={onNewTask}
 				>
@@ -772,6 +774,7 @@ const Board: React.FC<BoardProps> = ({
 									>
 										<div className="flex items-center gap-3 min-w-0">
 											<svg
+												aria-hidden="true"
 												className={`size-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isCollapsed ? "" : "rotate-90"}`}
 												fill="none"
 												stroke="currentColor"
@@ -850,7 +853,7 @@ const Board: React.FC<BoardProps> = ({
 					message={cleanupSuccessMessage}
 					onDismiss={() => setCleanupSuccessMessage(null)}
 					icon={
-						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg aria-hidden="true" className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"

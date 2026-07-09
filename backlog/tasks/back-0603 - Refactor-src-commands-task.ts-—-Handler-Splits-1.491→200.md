@@ -4,7 +4,7 @@ title: Refactor src/commands/task.ts — Handler-Splits (1.491→200)
 status: To Do
 assignee: []
 created_date: 2026-06-28 18:19
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-05 19:58
 labels:
   - refactoring
   - tech-debt
@@ -22,16 +22,24 @@ task.ts ist der CLI-Task-Command mit 1.491 Zeilen. Enthält 7 Handler-Funktionen
 
 Ziel: Jeder Handler in eigene Datei + command-registration separat. task.ts wird zur Imports-only Datei (~200 Zeilen).
 
-Siehe subagent-reports/sonarlint-large-file-analysis.md Section 2e
+Subtasks:
+- 0603.01 task-create-handler.ts — handleTaskCreateCommand
+- 0603.02 task-list-handler.ts — handleTaskListCommand
+- 0603.03 task-edit-handler.ts — handleTaskEditCommand (größter Handler)
+- 0603.04 task-view-section.ts — viewTaskSection
+- 0603.05 task-reorder-handler.ts — handleTaskReorderCommand
+- 0603.06 task-command-registration.ts — Commander-Setup + Optionen
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Alle 6 Sub-Tasks erledigt
+- [ ] #1 Alle 6 Subtasks (0603.01-.06) erledigt
 - [ ] #2 task.ts ≤ 250 Zeilen
 - [ ] #3 bun run check . passes
 - [ ] #4 bun test passes
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 

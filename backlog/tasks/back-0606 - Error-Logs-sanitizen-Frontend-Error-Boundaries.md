@@ -1,10 +1,11 @@
 ---
 id: BACK-0606
 title: Error Logs sanitizen + Frontend Error Boundaries
-status: To Do
+status: Done
 assignee: []
 created_date: 2026-06-28 18:19
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-05 21:43
+completed_date: 2026-07-05 21:43
 labels:
   - hygiene
   - refactoring
@@ -44,6 +45,24 @@ Hygiene-Audit: subagent-reports/sonarlint-large-file-analysis.md Hygiene Section
 <!-- SECTION:NOTES:BEGIN -->
 Die Error-Boundary-Datei existiert bereits (ErrorBoundary.tsx) — wird aber nur in SideNavigation, DecisionDetail, DocumentationDetail genutzt. Einfach importieren und wrappen.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+## Error Logs sanitizen + Error Boundaries
+
+### Part 1: Error Log Sanitization (29 Dateien, ~70 calls)
+Alle console.error("...", error) durch perl-regex ersetzt: `error` → `error instanceof Error ? error.message : String(error)`. Betrifft Server-Handler (44), ContentStore (7), task-loader (5), CLI-Commands (10), und 10 weitere. 2 Test-Erwartungen angepasst (erwarteten Error Objekt, jetzt String).
+
+### Part 2: Error Boundaries (App.tsx)
+8 Route-Komponenten in `<ErrorBoundary>` gewrappt:
+- BoardPage (2 Routen: / + /board/:id/:title)
+- TaskList (3 Routen: /tasks, /tasks/:id, /tasks/:id/:title)
+- MilestonesPage
+- DraftsList
+- Statistics
+- Settings
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

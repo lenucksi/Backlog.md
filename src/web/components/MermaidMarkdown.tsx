@@ -7,7 +7,7 @@ interface Props {
 	onFileClick?: (path: string) => void;
 }
 
-const URI_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\u0000-\u0020]*>/;
+const URI_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\0-\x20]*>/;
 const EMAIL_AUTOLINK_PREFIX_REGEX = /^<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z0-9-]+>/;
 
 const ENTITY_LINK_REGEX = /\b(([A-Z]+-\d+)|(?:#)?(doc-\d+)|(?:#)?(decision-\d+))\b/g;
@@ -67,10 +67,18 @@ function slugify(text: string): string {
 		.replace(/^-|-$/g, "");
 }
 
-function extractText(node: Record<string, any>): string {
+interface RemarkNode {
+	type: string;
+	value?: string;
+	tagName?: string;
+	children?: RemarkNode[];
+	properties?: Record<string, unknown>;
+}
+
+function extractText(node: RemarkNode): string {
 	if (!node.children) return "";
 	return node.children
-		.map((child: Record<string, any>) => {
+		.map((child: RemarkNode) => {
 			if (child.type === "text") return child.value;
 			if (child.type === "element") return extractText(child);
 			return "";
@@ -78,10 +86,10 @@ function extractText(node: Record<string, any>): string {
 		.join("");
 }
 
-const headingPlugin: any = () => (tree: Record<string, any>) => {
+const headingPlugin = () => (tree: RemarkNode) => {
 	const seenIds = new Set<string>();
-	function visit(node: Record<string, any>) {
-		if (node.type === "element" && /^h[1-6]$/.test(node.tagName)) {
+	function visit(node: RemarkNode) {
+		if (node.type === "element" && node.tagName && /^h[1-6]$/.test(node.tagName)) {
 			const text = extractText(node);
 			if (text) {
 				let id = slugify(text);
@@ -93,12 +101,14 @@ const headingPlugin: any = () => (tree: Record<string, any>) => {
 					id = `${id}-${counter}`;
 				}
 				seenIds.add(id);
-				node.properties = node.properties || {};
+				node.properties ??= {};
 				node.properties.id = id;
 			}
 		}
 		if (node.children) {
-			node.children.forEach(visit);
+			for (const child of node.children) {
+				visit(child);
+			}
 		}
 	}
 	visit(tree);

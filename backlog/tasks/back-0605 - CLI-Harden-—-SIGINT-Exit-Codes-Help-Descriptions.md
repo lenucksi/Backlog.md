@@ -1,10 +1,11 @@
 ---
 id: BACK-0605
 title: CLI Harden — SIGINT + Exit-Codes + Help-Descriptions
-status: To Do
+status: Done
 assignee: []
 created_date: 2026-06-28 18:19
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-05 21:59
+completed_date: 2026-07-05 21:59
 labels:
   - cli
   - refactoring
@@ -47,6 +48,17 @@ Die Exit-Code-Ersetzung ist 90+ Stellen aber rein mechanisch. Regex Replace ist 
 
 Der SIGINT-Handler muss VOR program.parseAsync() registriert werden, sonst fängt Commander das Signal ab.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+## CLI Harden
+
+1. **SIGINT Handler**: In src/cli.ts registriert (vor program.parseAsync()). Exit-Code 130 (128+SIGINT).
+2. **Exit Codes**: src/utils/exit-codes.ts erstellt mit EXIT.SUCCESS(0), EXIT.ERROR(1), EXIT.SIGINT(130). Alle process.exit(0) in commands/ → EXIT.SUCCESS, alle process.exit(1) → EXIT.ERROR (~90 Stellen in 17 Dateien).
+3. **--help descriptions**: Ergänzt in task.ts (assignee, status), draft.ts (assignee, status, labels), decision.ts (status), doc.ts (path).
+4. **Import Fixes**: Duplicate EXIT imports bereinigt (durch sed-Bug entstanden).
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

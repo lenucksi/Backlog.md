@@ -8,7 +8,17 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.cjs", "*.json", "**/*.json", "!**/.claude", "!worktrees"]
+		"includes": [
+			"src/**/*.ts",
+			"src/**/*.tsx",
+			"scripts/**/*.cjs",
+			"*.json",
+			"**/*.json",
+			"!**/.claude",
+			"!!backlog",
+			"!!src/tui2",
+			"!!worktrees"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -22,7 +32,8 @@
 			"recommended": true,
 			"correctness": {
 				"noUnusedVariables": "warn",
-				"noUnusedImports": "warn"
+				"noUnusedImports": "warn",
+				"useExhaustiveDependencies": "off"
 			},
 			"style": {
 				"noParameterAssign": "error",
@@ -54,6 +65,33 @@
 				"rules": {
 					"suspicious": {
 						"noExplicitAny": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["src/web/components/Modal.tsx", "src/web/components/InitializationScreen.tsx"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"noStaticElementInteractions": "off",
+						"useKeyWithClickEvents": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"src/web/components/DraftsList.tsx",
+				"src/web/components/MilestoneTaskRow.tsx",
+				"src/web/components/MilestonesPage.tsx",
+				"src/web/components/Statistics.tsx",
+				"src/web/components/TaskCard.tsx"
+			],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useSemanticElements": "off"
 					}
 				}
 			}

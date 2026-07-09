@@ -100,13 +100,14 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 			<div className="space-y-6">
 				{/* Age Selector */}
 				<div>
-					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+					<span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
 						Move tasks to completed folder if they are older than:
-					</label>
+					</span>
 					<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 						{AGE_OPTIONS.map((option) => (
 							<button
 								key={option.value}
+								type="button"
 								onClick={() => handleAgeSelect(option.value)}
 								disabled={isLoadingPreview || isExecuting}
 								className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
@@ -195,6 +196,7 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 				{/* Action Buttons */}
 				<div className="flex justify-end gap-3">
 					<button
+						type="button"
 						onClick={handleClose}
 						disabled={isExecuting}
 						className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200"
@@ -207,6 +209,7 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 						(!showConfirmation ? (
 							<button
 								onClick={() => setShowConfirmation(true)}
+								type="button"
 								disabled={isLoadingPreview || isExecuting}
 								className="px-4 py-2 text-sm font-medium text-white bg-blue-500 dark:bg-blue-600 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors duration-200"
 							>
@@ -215,6 +218,7 @@ const CleanupModal: React.FC<CleanupModalProps> = ({ isOpen, onClose, onSuccess 
 						) : (
 							<button
 								onClick={handleExecuteCleanup}
+								type="button"
 								disabled={isExecuting}
 								className="px-4 py-2 text-sm font-medium text-white bg-red-500 dark:bg-red-600 rounded-md hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
 							>

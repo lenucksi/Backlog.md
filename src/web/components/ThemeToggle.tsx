@@ -6,6 +6,7 @@ const ThemeToggle: React.FC = () => {
 
 	return (
 		<button
+			type="button"
 			onClick={toggleTheme}
 			className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-stone-400 dark:focus:ring-offset-gray-900"
 			aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
@@ -14,6 +15,7 @@ const ThemeToggle: React.FC = () => {
 			{theme === "light" ? (
 				// Moon icon - show when in light mode (to switch to dark)
 				<svg
+					aria-hidden="true"
 					className="size-5 text-gray-600 dark:text-gray-400"
 					fill="currentColor"
 					viewBox="0 0 24 24"
@@ -24,6 +26,7 @@ const ThemeToggle: React.FC = () => {
 			) : (
 				// Sun icon - show when in dark mode (to switch to light)
 				<svg
+					aria-hidden="true"
 					className="size-5 text-gray-600 dark:text-gray-400"
 					fill="currentColor"
 					viewBox="0 0 24 24"

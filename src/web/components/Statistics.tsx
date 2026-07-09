@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { TaskStatistics } from "../../core/statistics";
 import type { Task } from "../../types";
 import { apiClient } from "../lib/api";
+import { Icons } from "./icons";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface StatisticsData extends Omit<TaskStatistics, "statusCounts" | "priorityCounts" | "archivedTasks"> {
@@ -188,10 +189,22 @@ const Statistics: React.FC<StatisticsProps> = ({
 		return (
 			<div
 				key={task.id}
+				role="button"
+				tabIndex={0}
 				className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg transition-colors duration-200 ${
 					onClick ? "hover:bg-gray-100 dark:hover:bg-gray-600/50 cursor-pointer" : ""
 				}`}
 				onClick={onClick}
+				onKeyDown={
+					onClick
+						? (e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									e.preventDefault();
+									onClick();
+								}
+							}
+						: undefined
+				}
 			>
 				<StatusIcon status={task.status} />
 				<div className="flex-1 min-w-0">
@@ -208,7 +221,13 @@ const Statistics: React.FC<StatisticsProps> = ({
 		switch (status.toLowerCase()) {
 			case "to do":
 				return (
-					<svg className="size-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						aria-hidden="true"
+						className="size-4 text-gray-500"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -219,7 +238,13 @@ const Statistics: React.FC<StatisticsProps> = ({
 				);
 			case "in progress":
 				return (
-					<svg className="size-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						aria-hidden="true"
+						className="size-4 text-blue-500"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -230,13 +255,19 @@ const Statistics: React.FC<StatisticsProps> = ({
 				);
 			case "done":
 				return (
-					<svg className="size-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+					<svg aria-hidden="true" className="size-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
 						<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 					</svg>
 				);
 			default:
 				return (
-					<svg className="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						aria-hidden="true"
+						className="size-4 text-gray-400"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -252,25 +283,31 @@ const Statistics: React.FC<StatisticsProps> = ({
 		switch (priority.toLowerCase()) {
 			case "high":
 				return (
-					<svg className="size-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+					<svg aria-hidden="true" className="size-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
 						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
 					</svg>
 				);
 			case "medium":
 				return (
-					<svg className="size-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+					<svg aria-hidden="true" className="size-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
 						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
 					</svg>
 				);
 			case "low":
 				return (
-					<svg className="size-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+					<svg aria-hidden="true" className="size-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
 						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
 					</svg>
 				);
 			default:
 				return (
-					<svg className="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						aria-hidden="true"
+						className="size-4 text-gray-400"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
 					</svg>
 				);
@@ -329,19 +366,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 					<div className="flex items-center">
 						<div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-							<svg
-								className="size-6 text-blue-600 dark:text-blue-400"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-								/>
-							</svg>
+							<Icons.Tasks />
 						</div>
 						<div className="ml-4">
 							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{statistics.totalTasks}</p>
@@ -354,7 +379,12 @@ const Statistics: React.FC<StatisticsProps> = ({
 				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 					<div className="flex items-center">
 						<div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-							<svg className="size-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
+							<svg
+								aria-hidden="true"
+								className="size-6 text-green-600 dark:text-green-400"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+							>
 								<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 							</svg>
 						</div>
@@ -369,19 +399,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 					<div className="flex items-center">
 						<div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-							<svg
-								className="size-6 text-purple-600 dark:text-purple-400"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-								/>
-							</svg>
+							<Icons.DocumentChart />
 						</div>
 						<div className="ml-4">
 							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{statistics.completionPercentage}%</p>
@@ -395,6 +413,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 					<div className="flex items-center">
 						<div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
 							<svg
+								aria-hidden="true"
 								className="size-6 text-orange-600 dark:text-orange-400"
 								fill="none"
 								stroke="currentColor"
@@ -535,7 +554,12 @@ const Statistics: React.FC<StatisticsProps> = ({
 					{statistics.recentActivity.created.length > 0 ? (
 						<div className="space-y-3">
 							{statistics.recentActivity.created.map((task) => (
-								<TaskPreview task={task} showDate="created" onClick={onEditTask ? () => onEditTask(task) : undefined} />
+								<TaskPreview
+									key={task.id}
+									task={task}
+									showDate="created"
+									onClick={onEditTask ? () => onEditTask(task) : undefined}
+								/>
 							))}
 						</div>
 					) : (
@@ -549,7 +573,12 @@ const Statistics: React.FC<StatisticsProps> = ({
 					{statistics.recentActivity.updated.length > 0 ? (
 						<div className="space-y-3">
 							{statistics.recentActivity.updated.map((task) => (
-								<TaskPreview task={task} showDate="updated" onClick={onEditTask ? () => onEditTask(task) : undefined} />
+								<TaskPreview
+									key={task.id}
+									task={task}
+									showDate="updated"
+									onClick={onEditTask ? () => onEditTask(task) : undefined}
+								/>
 							))}
 						</div>
 					) : (
@@ -702,8 +731,8 @@ const Statistics: React.FC<StatisticsProps> = ({
 										Tasks in circular dependency chains that cannot be completed
 									</p>
 									<div className="space-y-2">
-										{statistics.projectHealth.deadlockedTaskGroups.map((group, i) => (
-											<div key={i} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+										{statistics.projectHealth.deadlockedTaskGroups.map((group) => (
+											<div key={group.join("→")} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
 												<p className="text-sm font-mono text-purple-700 dark:text-purple-400">{group.join(" → ")}</p>
 											</div>
 										))}
@@ -734,19 +763,9 @@ const Statistics: React.FC<StatisticsProps> = ({
 				{statistics.archivedTasks.length > 0 ? (
 					<>
 						<div className="relative mb-4">
-							<svg
-								className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 pointer-events-none"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-								/>
-							</svg>
+							<div className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 pointer-events-none">
+								<Icons.Search />
+							</div>
 							<input
 								type="text"
 								value={archivedSearch}
@@ -761,9 +780,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 									className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
 									aria-label="Clear search"
 								>
-									<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-									</svg>
+									<Icons.Close />
 								</button>
 							)}
 						</div>

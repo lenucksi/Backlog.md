@@ -109,37 +109,6 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		}
 	}, [id]);
 
-	useEffect(() => {
-		if (id === "new") {
-			// Handle new decision creation
-			setIsNewDecision(true);
-			setIsEditing(true);
-			setIsLoading(false);
-			const prefillTitle = searchParams.get("title") || "";
-			const prefillContent = searchParams.get("content") || "";
-			setDecisionTitle(prefillTitle);
-			setOriginalDecisionTitle(prefillTitle);
-			setContent(prefillContent);
-			setOriginalContent(prefillContent);
-		} else if (id) {
-			setIsNewDecision(false);
-			setIsEditing(false); // Ensure we start in preview mode for existing decisions
-			loadDecisionContent();
-		}
-	}, [id, searchParams.get, loadDecisionContent]);
-
-	// Check for edit query parameter to start in edit mode
-	useEffect(() => {
-		if (searchParams.get("edit") === "true") {
-			setIsEditing(true);
-			// Remove the edit parameter from URL
-			setSearchParams((params) => {
-				params.delete("edit");
-				return params;
-			});
-		}
-	}, [searchParams, setSearchParams]);
-
 	const loadDecisionContent = async () => {
 		if (!id) return;
 
@@ -176,6 +145,37 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 			setIsLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		if (id === "new") {
+			// Handle new decision creation
+			setIsNewDecision(true);
+			setIsEditing(true);
+			setIsLoading(false);
+			const prefillTitle = searchParams.get("title") || "";
+			const prefillContent = searchParams.get("content") || "";
+			setDecisionTitle(prefillTitle);
+			setOriginalDecisionTitle(prefillTitle);
+			setContent(prefillContent);
+			setOriginalContent(prefillContent);
+		} else if (id) {
+			setIsNewDecision(false);
+			setIsEditing(false); // Ensure we start in preview mode for existing decisions
+			loadDecisionContent();
+		}
+	}, [id, searchParams.get, loadDecisionContent]);
+
+	// Check for edit query parameter to start in edit mode
+	useEffect(() => {
+		if (searchParams.get("edit") === "true") {
+			setIsEditing(true);
+			// Remove the edit parameter from URL
+			setSearchParams((params) => {
+				params.delete("edit");
+				return params;
+			});
+		}
+	}, [searchParams, setSearchParams]);
 
 	const handleSave = async () => {
 		if (!decisionTitle.trim()) {
@@ -261,10 +261,6 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		}
 	};
 
-	const handleEdit = () => {
-		setIsEditing(true);
-	};
-
 	const handleCancelEdit = () => {
 		if (isNewDecision) {
 			// Navigate back for new decisions
@@ -293,7 +289,13 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		return (
 			<div className="flex-1 flex items-center justify-center p-8">
 				<div className="text-center">
-					<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						className="mx-auto h-12 w-12 text-gray-400"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -339,7 +341,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 								)}
 								<div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
 									<div className="flex items-center gap-2">
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
@@ -350,7 +352,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 										<span>ID: {decision?.id}</span>
 									</div>
 									<div className="flex items-center gap-2">
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
@@ -362,7 +364,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 									</div>
 									{decision?.date && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -375,7 +377,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 									)}
 									{decision?.status && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -392,7 +394,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 									)}
 									{decision?.supersedes && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -411,7 +413,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 									)}
 									{decision?.supersededBy && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 												<path
 													strokeLinecap="round"
 													strokeLinejoin="round"
@@ -431,29 +433,19 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 								</div>
 							</div>
 							<div className="flex items-center gap-3 ml-6">
-								{/* Temporarily hidden - decisions editing not ready */}
-								{false ? (
-									<button
-										onClick={handleEdit}
-										className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-									>
-										<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-												d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-											/>
-										</svg>
-										Edit
-									</button>
-								) : null}
 								{!isEditing && decision && decision.status !== "superseded" && (
 									<button
+										type="button"
 										onClick={() => setShowResolveConfirmModal(true)}
 										className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 									>
-										<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg
+											className="size-4 mr-2"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+											aria-hidden="true"
+										>
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 										</svg>
 										Resolve
@@ -462,12 +454,14 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 								{isEditing && (
 									<div className="flex items-center gap-2">
 										<button
+											type="button"
 											onClick={handleCancelEdit}
 											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 										>
 											Cancel
 										</button>
 										<button
+											type="button"
 											onClick={handleSaveClicked}
 											disabled={!hasChanges || isSaving}
 											className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
@@ -476,7 +470,13 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 													: "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
 											}`}
 										>
-											<svg className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg
+												className="size-4 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+												aria-hidden="true"
+											>
 												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 											</svg>
 											{isSaving ? "Saving..." : "Save"}
@@ -532,6 +532,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 					</p>
 					<div className="flex justify-end gap-3">
 						<button
+							type="button"
 							onClick={() => {
 								setShowEditGuardModal(false);
 								handleSave();
@@ -541,6 +542,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 							Edit anyway
 						</button>
 						<button
+							type="button"
 							onClick={handleSupersedeWithDiff}
 							className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
 						>
@@ -564,12 +566,14 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 					</p>
 					<div className="flex justify-end gap-3">
 						<button
+							type="button"
 							onClick={() => setShowResolveConfirmModal(false)}
 							className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
 						>
 							Cancel
 						</button>
 						<button
+							type="button"
 							onClick={handleResolve}
 							disabled={isResolving}
 							className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors duration-200 ${
@@ -588,7 +592,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 					message={`Decision "${decisionTitle}" saved successfully!`}
 					onDismiss={() => setShowSaveSuccess(false)}
 					icon={
-						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"

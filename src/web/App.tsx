@@ -764,6 +764,7 @@ function App() {
 						{ path: "decisions/:id", Component: DecisionDetail, props: { decisions } },
 						{ path: "decisions/:id/:title", Component: DecisionDetail, props: { decisions } },
 					].map(({ path, Component, props }) => (
+						// biome-ignore lint/suspicious/noExplicitAny: Component+props union can't be discriminated statically
 						<Route key={path} path={path} element={<Component {...(props as any)} onRefreshData={refreshData} />} />
 					))}
 					<Route
@@ -822,7 +823,7 @@ function App() {
 					message={`${taskConfirmation.isDraft ? "Draft" : "Task"} "${taskConfirmation.task.title}" created successfully! (${taskConfirmation.task.id.replace("task-", "")})`}
 					onDismiss={() => setTaskConfirmation(null)}
 					icon={
-						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"

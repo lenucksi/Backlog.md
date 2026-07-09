@@ -4,7 +4,7 @@ title: Refactor Web-Komponenten — TaskList (1.289) + TaskDetailsModal (1.277)
 status: To Do
 assignee: []
 created_date: 2026-06-28 18:19
-updated_date: 2026-06-28 18:20
+updated_date: 2026-07-05 19:58
 labels:
   - refactoring
   - tech-debt
@@ -21,20 +21,29 @@ ordinal: 387000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Zwei WebUI-Komponenten über 1.200 Zeilen: TaskList.tsx mischt Filter-UI, Tabellen-Rendering, Bulk-Selection, Sortierung. TaskDetailsModal.tsx mischt Preview/Edit/Create-Modus, Markdown-Editor, Acceptance-Criteria-Manager, Dependency-Manager, API-Calls.
 
-Ziel: In Hooks + Subkomponenten zerlegen (useTaskFilters, TaskTableRow, useBulkSelection, useSortableColumns — und für TaskDetails: TaskMetadataFields, TaskContentSection, useTaskSave).
+Ziel: In Hooks + Subkomponenten zerlegen. TaskList.tsx ≤ 600 Zeilen, TaskDetailsModal.tsx ≤ 600 Zeilen.
 
-Siehe subagent-reports/sonarlint-large-file-analysis.md Section 2f und 2g
+Subtasks:
+- 0604.01 useTaskFilters — Filter-State (URL params + local state)
+- 0604.02 TaskTableRow — einzelne Tabellenzeile
+- 0604.03 useBulkSelection — Checkbox + Select-All
+- 0604.04 useSortableColumns — Sort-State + Toggle
+- 0604.05 TaskMetadataFields — labels, milestone, priority, assignee
+- 0604.06 TaskContentSection — description, plan, notes, summary Editoren
+- 0604.07 useTaskSave — save/update/archive logic
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Alle Sub-Tasks erledigt
+- [ ] #1 Alle 7 Subtasks (0604.01-.07) erledigt
 - [ ] #2 TaskList.tsx ≤ 600 Zeilen
 - [ ] #3 TaskDetailsModal.tsx ≤ 600 Zeilen
 - [ ] #4 bun run check . passes
-- [ ] #5 Bun test passes
+- [ ] #5 bun test passes
 - [ ] #6 WebUI funktioniert (manuell prüfen)
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 

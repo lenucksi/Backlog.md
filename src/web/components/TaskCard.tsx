@@ -116,7 +116,13 @@ const TaskCard: React.FC<TaskCardProps> = ({
 			{showBranchTooltip && isFromOtherBranch && (
 				<div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md shadow-lg whitespace-nowrap">
 					<div className="flex items-center gap-1">
-						<svg className="size-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg
+							aria-hidden="true"
+							className="size-3.5 text-amber-400"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"
@@ -131,6 +137,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
 			)}
 
 			<div
+				role="button"
+				tabIndex={0}
 				className={`bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md p-3 mb-2 transition-all duration-200 ${
 					isFromOtherBranch
 						? "opacity-75 cursor-not-allowed border-dashed"
@@ -140,11 +148,23 @@ const TaskCard: React.FC<TaskCardProps> = ({
 				onDragStart={handleDragStart}
 				onDragEnd={handleDragEnd}
 				onClick={() => onEdit(task)}
+				onKeyDown={(e) => {
+					if (!isFromOtherBranch && (e.key === "Enter" || e.key === " ")) {
+						e.preventDefault();
+						onEdit(task);
+					}
+				}}
 			>
 				{/* Cross-branch indicator banner */}
 				{isFromOtherBranch && (
 					<div className="flex items-center gap-1.5 mb-2 px-2 py-1 -mx-1 -mt-1 bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-700 rounded-t text-xs text-amber-700 dark:text-amber-300">
-						<svg className="size-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg
+							aria-hidden="true"
+							className="size-3.5 flex-shrink-0"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"
@@ -242,11 +262,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
 					</span>
 					{task.assignee.length > 0 && (
 						<span className="flex gap-1 truncate max-w-[80px]" title={task.assignee.join(", ")}>
-							{task.assignee.map((a, i) => {
+							{task.assignee.map((a) => {
 								const color = authorColors?.[a.replace("@", "")];
 								return (
 									<span
-										key={i}
+										key={a}
 										className={`inline-block px-1 py-0.5 text-[10px] rounded ${color ? "" : "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
 										style={
 											color

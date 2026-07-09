@@ -27,6 +27,7 @@ export default function DuplicateIdWarning() {
 					</span>
 				</div>
 				<button
+					type="button"
 					onClick={() => setDismissed(true)}
 					className="px-3 py-1.5 bg-amber-600 dark:bg-amber-700 hover:bg-amber-700 dark:hover:bg-amber-800 rounded text-xs font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-300 dark:focus:ring-amber-400"
 				>

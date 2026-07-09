@@ -1,6 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { getSchemaDefaults } from "../../utils/config-schema.ts";
+import { Icons } from "../components/icons";
 import { apiClient } from "../lib/api";
 
 type IntegrationMode = "mcp" | "cli" | "none";
@@ -519,10 +520,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				</div>
 				{backlogDirectorySource === "custom" && (
 					<div className="mt-4">
-						<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+						<label htmlFor="backlog-directory" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
 							Project-relative backlog directory
 						</label>
 						<input
+							id="backlog-directory"
 							type="text"
 							value={backlogDirectory}
 							onChange={(e) => setBacklogDirectory(e.target.value)}
@@ -632,8 +634,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 									</label>
 
 									<div className="ml-6">
-										<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Active branch days</label>
+										<label htmlFor="active-branch-days" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+											Active branch days
+										</label>
 										<input
+											id="active-branch-days"
 											type="number"
 											value={advancedConfig.activeBranchDays}
 											onChange={(e) =>
@@ -710,8 +715,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						</label>
 						{advancedConfig.zeroPaddedIds !== null && (
 							<div className="ml-6 mt-2">
-								<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Number of digits</label>
+								<label htmlFor="zero-padded-digits" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+									Number of digits
+								</label>
 								<input
+									id="zero-padded-digits"
 									type="number"
 									value={advancedConfig.zeroPaddedIds}
 									onChange={(e) =>
@@ -729,8 +737,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 
 						{/* Task Prefix */}
 						<div className="mt-4">
-							<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Task prefix</label>
+							<label htmlFor="task-prefix" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+								Task prefix
+							</label>
 							<input
+								id="task-prefix"
 								type="text"
 								value={advancedConfig.taskPrefix}
 								onChange={(e) =>
@@ -766,8 +777,11 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Web UI</h3>
 						<div className="space-y-3">
 							<div>
-								<label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Default port</label>
+								<label htmlFor="default-port" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+									Default port
+								</label>
 								<input
+									id="default-port"
 									type="number"
 									value={advancedConfig.defaultPort}
 									onChange={(e) =>
@@ -907,6 +921,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 
 	return (
 		<div
+			role="presentation"
 			className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200 p-4"
 			onKeyDown={handleKeyDown}
 		>
@@ -914,19 +929,9 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				{/* Header */}
 				<div className="text-center mb-6">
 					<div className="inline-flex items-center justify-center size-12 bg-blue-100 dark:bg-blue-900/30 rounded-circle mb-3">
-						<svg
-							className="size-6 text-blue-600 dark:text-blue-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-							/>
-						</svg>
+						<span className="size-6 text-blue-600 dark:text-blue-400">
+							<Icons.Tasks />
+						</span>
 					</div>
 					<h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Initialize Backlog.md</h1>
 				</div>
@@ -964,7 +969,12 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						>
 							{isInitializing ? (
 								<span className="flex items-center">
-									<svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+									<svg
+										aria-hidden="true"
+										className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
 										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 										<path
 											className="opacity-75"

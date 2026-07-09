@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { BulkOperationResult, Milestone, SearchPriorityFilter, Task, TaskSearchResult } from "../../types";
 import { getContrastTextColor } from "../../utils/color";
@@ -123,7 +123,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		const labelsCsv = searchParams.get("labels");
 		if (labelsCsv) labels.push(...labelsCsv.split(","));
 		return labels.map((label) => label.trim()).filter((label) => label.length > 0);
-	}, []);
+	}, [searchParams.getAll, searchParams.get]);
 	const [labelFilter, setLabelFilter] = useState<string[]>(initialLabelParams);
 	const [filterAssignee, setFilterAssignee] = useState(() => searchParams.get("assignee") ?? "");
 	const [filterQuery, setFilterQuery] = useState(() => searchParams.get("q") ?? "");
@@ -247,34 +247,42 @@ const TaskList: React.FC<TaskListProps> = ({
 		}
 		return aliasMap;
 	}, [milestoneEntities, archivedMilestones]);
+
 	const archivedMilestoneKeys = useMemo(
 		() =>
 			new Set(collectArchivedMilestoneKeys(archivedMilestones, milestoneEntities).map((value) => milestoneKey(value))),
 		[archivedMilestones, milestoneEntities],
 	);
-	const canonicalizeMilestone = (value?: string | null): string => {
-		const normalized = (value ?? "").trim();
-		if (!normalized) return "";
-		const key = normalized.toLowerCase();
-		const direct = milestoneAliasToCanonical.get(key);
-		if (direct) {
-			return direct;
-		}
-		const idMatch = normalized.match(/^m-(\d+)$/i);
-		if (idMatch?.[1]) {
-			const numericAlias = String(Number.parseInt(idMatch[1], 10));
-			return (
-				milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized
-			);
-		}
-		if (/^\d+$/.test(normalized)) {
-			const numericAlias = String(Number.parseInt(normalized, 10));
-			return (
-				milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized
-			);
-		}
-		return normalized;
-	};
+	const canonicalizeMilestone = useCallback(
+		(value?: string | null): string => {
+			const normalized = (value ?? "").trim();
+			if (!normalized) return "";
+			const key = normalized.toLowerCase();
+			const direct = milestoneAliasToCanonical.get(key);
+			if (direct) {
+				return direct;
+			}
+			const idMatch = normalized.match(/^m-(\d+)$/i);
+			if (idMatch?.[1]) {
+				const numericAlias = String(Number.parseInt(idMatch[1], 10));
+				return (
+					milestoneAliasToCanonical.get(`m-${numericAlias}`) ??
+					milestoneAliasToCanonical.get(numericAlias) ??
+					normalized
+				);
+			}
+			if (/^\d+$/.test(normalized)) {
+				const numericAlias = String(Number.parseInt(normalized, 10));
+				return (
+					milestoneAliasToCanonical.get(`m-${numericAlias}`) ??
+					milestoneAliasToCanonical.get(numericAlias) ??
+					normalized
+				);
+			}
+			return normalized;
+		},
+		[milestoneAliasToCanonical],
+	);
 
 	const sortedBaseTasks = useMemo(() => sortTasksByIdDescending(tasks), [tasks]);
 	const mergedAvailableLabels = useMemo(() => collectAvailableLabels(tasks, availableLabels), [tasks, availableLabels]);
@@ -337,7 +345,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		if (paramQ !== filterQuery) {
 			setFilterQuery(paramQ);
 		}
-	}, [searchParams]);
+	}, [searchParams, milestoneFilter.join, labelFilter.join, filterQuery, statusFilter.join, priorityFilter.join]);
 
 	useEffect(() => {
 		if (!hasActiveFilters) {
@@ -416,11 +424,11 @@ const TaskList: React.FC<TaskListProps> = ({
 		statusFilter,
 		labelFilter,
 		filterQuery,
-		tasks,
 		milestoneFilter,
 		sortedBaseTasks,
-		milestoneAliasToCanonical,
 		archivedMilestoneKeys,
+		filterAssignee,
+		canonicalizeMilestone,
 	]);
 
 	const syncUrl = (
@@ -790,7 +798,7 @@ const TaskList: React.FC<TaskListProps> = ({
 			headerEl.removeEventListener("scroll", handleHeaderScroll);
 			bodyEl.removeEventListener("scroll", handleBodyScroll);
 		};
-	}, [currentCount]);
+	}, []);
 
 	return (
 		<div className="container mx-auto px-4 py-8 transition-colors duration-200">
@@ -798,6 +806,7 @@ const TaskList: React.FC<TaskListProps> = ({
 				<div className="flex items-center justify-between gap-3">
 					<h1 className="text-2xl font-bold text-gray-900 dark:text-white">All Tasks</h1>
 					<button
+						type="button"
 						className="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900 transition-colors duration-200"
 						onClick={onNewTask}
 					>
@@ -869,6 +878,7 @@ const TaskList: React.FC<TaskListProps> = ({
 					<div className="flex items-center gap-3 flex-shrink-0">
 						<div className="relative">
 							<svg
+								aria-hidden="true"
 								className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 pointer-events-none"
 								fill="none"
 								stroke="currentColor"
@@ -902,7 +912,7 @@ const TaskList: React.FC<TaskListProps> = ({
 									className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
 									aria-label="Clear search"
 								>
-									<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 									</svg>
 								</button>
@@ -917,6 +927,7 @@ const TaskList: React.FC<TaskListProps> = ({
 								title="Clean up old completed tasks"
 							>
 								<svg
+									aria-hidden="true"
 									className="size-4"
 									fill="none"
 									stroke="currentColor"
@@ -1151,6 +1162,7 @@ const TaskList: React.FC<TaskListProps> = ({
 			{currentCount === 0 ? (
 				<div className="text-center py-12">
 					<svg
+						aria-hidden="true"
 						className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
 						fill="none"
 						stroke="currentColor"
@@ -1251,6 +1263,7 @@ const TaskList: React.FC<TaskListProps> = ({
 												>
 													{depth > 0 && (
 														<svg
+															aria-hidden="true"
 															className="size-3 flex-shrink-0 text-gray-400 dark:text-gray-500"
 															fill="none"
 															stroke="currentColor"
@@ -1434,7 +1447,7 @@ const TaskList: React.FC<TaskListProps> = ({
 					message={cleanupSuccessMessage}
 					onDismiss={() => setCleanupSuccessMessage(null)}
 					icon={
-						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg aria-hidden="true" className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"

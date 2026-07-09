@@ -46,16 +46,17 @@ function CollapsibleGroup({
 			<div className="flex items-center justify-between mb-4">
 				<div className="flex items-center gap-3">
 					<button
+						type="button"
 						onClick={() => setIsCollapsed(!isCollapsed)}
 						className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors duration-200"
 						title={isCollapsed ? `Expand ${title.toLowerCase()}` : `Collapse ${title.toLowerCase()}`}
 					>
 						{isCollapsed ? (
-							<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
 							</svg>
 						) : (
-							<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 							</svg>
 						)}
@@ -78,11 +79,12 @@ function CollapsibleGroup({
 					{headerRightContent}
 					{onCreate && (
 						<button
+							type="button"
 							onClick={onCreate}
 							className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
 							title={`Create new ${title.toLowerCase()}`}
 						>
-							<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
 								<circle cx="12" cy="12" r="10" />
 							</svg>

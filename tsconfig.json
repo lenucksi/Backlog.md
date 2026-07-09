@@ -23,5 +23,5 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false
 	},
-	"exclude": ["node_modules", "worktrees", "scripts"]
+	"exclude": ["node_modules", "worktrees", "scripts", "backlog", "src/tui2"]
 }

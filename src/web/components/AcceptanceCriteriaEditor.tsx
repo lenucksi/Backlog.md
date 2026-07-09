@@ -37,7 +37,9 @@ const AcceptanceCriteriaEditor: React.FC<Props> = ({
 
 	// Resize when criteria change (e.g., initial load or edits)
 	useEffect(() => {
-		Object.values(itemRefs.current).forEach((el) => autoResize(el));
+		Object.values(itemRefs.current).forEach((el) => {
+			autoResize(el);
+		});
 	}, [autoResize]);
 
 	// Resize new criterion textarea when text changes
@@ -77,9 +79,9 @@ const AcceptanceCriteriaEditor: React.FC<Props> = ({
 
 	return (
 		<div className="space-y-2">
-			<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">
+			<span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">
 				{label}
-			</label>
+			</span>
 			<ul className="space-y-2">
 				{criteria.map((c) => (
 					<li key={c.index} className="flex items-center gap-2">

@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.json",
+	"exclude": ["node_modules", "worktrees", "scripts", "backlog", "src/tui2", "vite.config.ts"],
+	"compilerOptions": {
+		"paths": {
+			"@termless/core": ["./src/types/termless-core.d.ts"]
+		}
+	}
+}
