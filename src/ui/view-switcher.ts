@@ -62,7 +62,6 @@ class BackgroundLoader {
 		// Clear last progress message when starting fresh load
 		this.lastProgressMessage = "";
 
-		// Create new abort controller for this loading operation
 		this.abortController = new AbortController();
 		this.loadingPromise = this.loadKanbanData();
 	}
@@ -119,13 +118,11 @@ class BackgroundLoader {
 
 	private async loadKanbanData(): Promise<Task[]> {
 		try {
-			// Check for cancellation at the start
-			if (this.abortController?.signal.aborted) {
+		if (this.abortController?.signal.aborted) {
 				throw new Error("Loading cancelled");
 			}
 
-			// Create a progress wrapper that stores the last message
-			const progressWrapper = (msg: string) => {
+		const progressWrapper = (msg: string) => {
 				this.lastProgressMessage = msg;
 				this.onProgress?.(msg);
 			};
@@ -260,8 +257,7 @@ export class ViewSwitcher {
 			this.onViewChange?.(this.state);
 			return this.state;
 		} catch (error) {
-			// Handle loading error
-			this.state = {
+		this.state = {
 				...this.state,
 				type: "kanban",
 				kanbanData: {

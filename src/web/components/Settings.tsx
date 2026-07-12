@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { BacklogConfig } from "../../types";
 import { apiClient } from "../lib/api";
 import ConfigEntityManager from "./ConfigEntityManager";
@@ -16,7 +16,7 @@ const Settings: React.FC = () => {
 	const [statuses, setStatuses] = useState<string[]>([]);
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-	const loadConfig = async () => {
+	const loadConfig = useCallback(async () => {
 		try {
 			setLoading(true);
 			const data = await apiClient.fetchConfig();
@@ -28,16 +28,16 @@ const Settings: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
-	const loadStatuses = async () => {
+	const loadStatuses = useCallback(async () => {
 		try {
 			const data = await apiClient.fetchStatuses();
 			setStatuses(data);
 		} catch (err) {
 			console.error("Failed to load statuses:", err);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		loadConfig();

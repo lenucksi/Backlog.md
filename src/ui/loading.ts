@@ -67,7 +67,6 @@ function createLoadingScreenBase(config: LoadingScreenConfig): {
 		};
 	}
 
-	// Create blessed screen
 	const screen = createScreen({ title });
 	let closed = false;
 
@@ -107,7 +106,6 @@ function createLoadingScreenBase(config: LoadingScreenConfig): {
 	let spinnerIndex = 0;
 
 	if (showSpinner) {
-		// Start spinner animation in the title
 		spinnerInterval = setInterval(() => {
 			spinnerIndex = (spinnerIndex + 1) % SPINNER_CHARS.length;
 			const spinnerChar = SPINNER_CHARS[spinnerIndex];

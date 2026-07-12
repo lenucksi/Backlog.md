@@ -49,7 +49,6 @@ if (process.env.BUN_OPTIONS) {
 	delete process.env.BUN_OPTIONS;
 }
 
-// Get version from package.json
 const version = await getVersion();
 
 // Config migration hook - runs via Commander before each command action.

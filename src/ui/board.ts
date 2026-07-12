@@ -1032,8 +1032,7 @@ export async function renderBoardTui(
 		}
 
 		const updateBoard = (nextTasks: Task[], nextStatuses: string[]) => {
-			// Update source of truth
-			currentTasks = nextTasks;
+				currentTasks = nextTasks;
 			// Only update statuses if they changed (rare in TUI)
 			if (nextStatuses.length > 0) currentStatuses = nextStatuses;
 			configuredLabels = collectAvailableLabels(currentTasks, options?.availableLabels ?? []);
@@ -1412,7 +1411,6 @@ export async function renderBoardTui(
 				const core = new Core(process.cwd(), { enableWatchers: true });
 				const config = await core.filesystem.loadConfig();
 
-				// Get the final state from the projection
 				const projectedData = getProjectedColumns(currentTasks, moveOp);
 				const targetColumn = projectedData.find((c) => c.status === moveOp?.targetStatus);
 
@@ -1440,7 +1438,6 @@ export async function renderBoardTui(
 				// Exit move mode
 				moveOp = null;
 
-				// Render with updated local state
 				renderView();
 			} catch (error) {
 				// On error, cancel the move and restore original position

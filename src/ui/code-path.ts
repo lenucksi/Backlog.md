@@ -70,7 +70,6 @@ export function transformCodePaths(text: string): string {
 			}
 			result.push(transformedLine);
 		} else {
-			// Extract code paths to separate lines
 			let workingLine = transformedLine;
 			const pathsToExtract: string[] = [];
 

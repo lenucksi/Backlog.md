@@ -384,7 +384,6 @@ export function registerConfigCommand(program: Command): void {
 					for (const m of milestones) console.log(`  - ${m.id}`);
 				}
 
-				// Check for unknown keys in raw config
 				const raw = await core.filesystem.loadRawConfig();
 				if (raw) {
 					const unknownKeys = Object.keys(raw).filter((k) => !CONFIG_SCHEMA_MAP.has(k) && k !== "dod_defaults");

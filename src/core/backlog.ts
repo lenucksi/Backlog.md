@@ -375,7 +375,6 @@ export class Core {
 		const localTask = await this._filesystem.loadTask(taskId);
 		if (localTask) return localTask;
 
-		// Check config for remote operations
 		const config = await this._filesystem.loadConfig();
 		if (config?.checkActiveBranches === false) return null;
 
@@ -909,9 +908,8 @@ export class Core {
 	}
 
 	async updateTasksBulk(tasks: Task[], commitMessage?: string, autoCommit?: boolean): Promise<void> {
-		// Update all tasks without committing individually
 		for (const task of tasks) {
-			await this.updateTask(task, false); // Don't auto-commit each one
+			await this.updateTask(task, false);
 		}
 
 		await this.stageAndCommit(commitMessage || `Update ${tasks.length} tasks`, autoCommit);
@@ -1080,7 +1078,6 @@ export class Core {
 			if (changed.length > 0) await this.updateTasksBulk(changed, `Update deps/order for ${taskId}`);
 		}
 
-		// Return updated sequences
 		const afterAll = await this._filesystem.listTasks();
 		const afterActive = afterAll.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 		return computeSequences(afterActive);
@@ -1168,7 +1165,6 @@ export class Core {
 		}
 		const normalizedTaskId = taskToArchive.id;
 
-		// Get paths before moving the file
 		const taskPath = taskToArchive.filePath ?? (await getTaskPath(normalizedTaskId, this));
 		const taskFilename = await getTaskFilename(normalizedTaskId, this);
 
@@ -1358,7 +1354,6 @@ export class Core {
 		return tasks.filter((task) => {
 			if (!isTerminalStatus(task.status, statuses)) return false;
 
-			// Check updatedDate first, then createdDate as fallback
 			const taskDate = task.updatedDate || task.createdDate;
 			if (!taskDate) return false;
 
@@ -1399,10 +1394,8 @@ export class Core {
 
 	async addAcceptanceCriteria(taskId: string, criteria: string[], autoCommit?: boolean): Promise<void> {
 		const task = await this.requireTask(taskId);
-		// Get existing criteria or initialize empty array
 		const current = Array.isArray(task.acceptanceCriteriaItems) ? [...task.acceptanceCriteriaItems] : [];
 
-		// Calculate next index (1-based)
 		let nextIndex = current.length > 0 ? Math.max(...current.map((c) => c.index)) + 1 : 1;
 
 		// Append new criteria
@@ -1437,10 +1430,9 @@ export class Core {
 		list = list.map((c, i) => ({ ...c, index: i + 1 }));
 		task.acceptanceCriteriaItems = list;
 
-		// Save the task
 		await this.updateTask(task, autoCommit);
 
-		return removed.sort((a, b) => a - b); // Return in ascending order
+		return removed.sort((a, b) => a - b);
 	}
 
 	// Silently ignores invalid indices; returns updated indices.
@@ -1473,7 +1465,6 @@ export class Core {
 
 		task.acceptanceCriteriaItems = list;
 
-		// Save the task
 		await this.updateTask(task, autoCommit);
 
 		return updated.sort((a, b) => a - b);
@@ -1524,7 +1515,6 @@ export class Core {
 			throw new Error(`Decision ${decisionId} not found`);
 		}
 
-		// Parse the markdown content to extract the decision data
 		const { parseFrontmatter: parseFm } = await import("../utils/frontmatter.ts");
 		const { data } = parseFm(content);
 
@@ -1551,7 +1541,6 @@ export class Core {
 	}
 
 	async createDecisionWithTitle(title: string, autoCommit?: boolean): Promise<Decision> {
-		// Import the generateNextDecisionId function
 		const { generateNextDecisionId } = await import("../commands/decision.ts");
 		const id = await generateNextDecisionId(this);
 

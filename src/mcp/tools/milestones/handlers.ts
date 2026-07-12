@@ -271,7 +271,6 @@ export class MilestoneHandlers {
 	}
 
 	async listMilestones(): Promise<CallToolResult> {
-		// Get file-based milestones
 		const fileMilestones = await this.listFileMilestones();
 		const archivedMilestones = await this.listArchivedMilestones();
 		const reservedIdKeys = new Set<string>();
@@ -298,7 +297,6 @@ export class MilestoneHandlers {
 		}
 		const archivedKeys = new Set<string>(collectArchivedMilestoneKeys(archivedMilestones, fileMilestones));
 
-		// Get milestones discovered from tasks
 		const tasks = await this.listLocalTasks();
 		const discoveredByKey = new Map<string, string>();
 		for (const task of tasks) {
@@ -351,7 +349,6 @@ export class MilestoneHandlers {
 			throw AppError.validation("Milestone name cannot be empty.");
 		}
 
-		// Check for duplicates in existing milestone files
 		const existing = await this.listFileMilestones();
 		const requestedKeys = buildMilestoneMatchKeys(name, existing);
 		const duplicate = existing.find((milestone) => {
@@ -364,7 +361,6 @@ export class MilestoneHandlers {
 			);
 		}
 
-		// Create milestone file
 		const milestone = await this.core.filesystem.createMilestone(name, args.description);
 
 		return {

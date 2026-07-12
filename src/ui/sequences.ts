@@ -363,7 +363,6 @@ export async function runSequencesView(
 				targetPos = pos >= 0 ? pos : 0;
 			}
 		}
-		// Update footer to indicate mode and overlays
 		footer.setContent(
 			moveMode ? moveFooterText() : " ↑/↓ navigate · Enter view · m move · q quit · Esc close popup/quit ",
 		);

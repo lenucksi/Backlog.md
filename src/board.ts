@@ -72,7 +72,6 @@ export function generateKanbanBoardWithMetadata(tasks: Task[], statuses: string[
 
 	const { orderedStatuses, groupedTasks } = buildKanbanStatusGroups(tasks, statuses);
 
-	// Create header
 	const header = `# Kanban Board Export (powered by Backlog.md)
 Generated on: ${timestamp}
 Project: ${projectName}
@@ -84,7 +83,6 @@ Project: ${projectName}
 		return `${header}No tasks found.`;
 	}
 
-	// Create table header
 	const headerRow = `| ${orderedStatuses.map((status) => status || "No Status").join(" | ")} |`;
 	const separatorRow = `| ${orderedStatuses.map(() => "---").join(" | ")} |`;
 
@@ -125,7 +123,6 @@ Project: ${projectName}
 			}
 		}
 
-		// Build final list with subtasks nested under parents
 		const result: Task[] = [];
 		for (const t of top) {
 			result.push(t);

@@ -166,7 +166,6 @@ _backlog() {
 		cword=$COMP_CWORD
 	fi
 
-	# Get the full command line and cursor position
 	local line="\${COMP_LINE}"
 	local point="\${COMP_POINT}"
 
@@ -188,7 +187,6 @@ _backlog() {
 	# "$cur": current word being completed
 	COMPREPLY=( $(compgen -W "$completions" -- "$cur") )
 
-	# Return success
 	return 0
 }
 
@@ -209,7 +207,6 @@ complete -F _backlog backlog
 # Or use: backlog completion install --shell zsh
 
 _backlog() {
-	# Get the current command line buffer and cursor position
 	local line=$BUFFER
 	local point=$CURSOR
 
@@ -416,7 +413,6 @@ export async function installCompletion(
 		throw new Error(`Unsupported shell: ${detectedShell}\nSupported shells: bash, zsh, fish, pwsh`);
 	}
 
-	// Get completion script content
 	let scriptContent: string;
 	try {
 		scriptContent = await getCompletionScript(detectedShell);
@@ -424,7 +420,6 @@ export async function installCompletion(
 		throw new Error(error instanceof Error ? error.message : String(error));
 	}
 
-	// Get installation paths
 	const paths = getInstallPaths(detectedShell, options.resolvePowerShellProfilePath, options.homeDir);
 
 	// Try user installation first (no sudo required)
@@ -437,7 +432,6 @@ export async function installCompletion(
 			await mkdir(installDir, { recursive: true });
 		}
 
-		// Write the completion script
 		await writeFile(installPath, scriptContent, "utf-8");
 	} catch (error) {
 		const scriptFilename = getScriptFilename(detectedShell);

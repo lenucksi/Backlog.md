@@ -124,7 +124,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		const labelsCsv = searchParams.get("labels");
 		if (labelsCsv) labels.push(...labelsCsv.split(","));
 		return labels.map((label) => label.trim()).filter((label) => label.length > 0);
-	}, [searchParams.getAll, searchParams.get]);
+	}, [searchParams]);
 	const [labelFilter, setLabelFilter] = useState<string[]>(initialLabelParams);
 	const [filterAssignee, setFilterAssignee] = useState(() => searchParams.get("assignee") ?? "");
 	const [filterQuery, setFilterQuery] = useState(() => searchParams.get("q") ?? "");
@@ -346,7 +346,7 @@ const TaskList: React.FC<TaskListProps> = ({
 		if (paramQ !== filterQuery) {
 			setFilterQuery(paramQ);
 		}
-	}, [searchParams, milestoneFilter.join, labelFilter.join, filterQuery, statusFilter.join, priorityFilter.join]);
+	}, [searchParams, milestoneFilter, labelFilter, filterQuery, statusFilter, priorityFilter]);
 
 	useEffect(() => {
 		if (!hasActiveFilters) {

@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AcceptanceCriterion } from "../../types";
 
 interface Props {
@@ -29,11 +29,11 @@ const AcceptanceCriteriaEditor: React.FC<Props> = ({
 	}, [initial]);
 
 	// Auto-resize helper
-	const autoResize = (el: HTMLTextAreaElement | null) => {
+	const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
 		if (!el) return;
 		el.style.height = "auto";
 		el.style.height = `${el.scrollHeight}px`;
-	};
+	}, []);
 
 	// Resize when criteria change (e.g., initial load or edits)
 	useEffect(() => {

@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { isDoneStatus } from "../../core/milestones";
 import type { Milestone, Task } from "../../types";
 import { collectAvailableLabels, labelsToLower } from "../../utils/label-filter";
@@ -196,29 +196,36 @@ const Board: React.FC<BoardProps> = ({
 		}
 		return aliasMap;
 	}, [milestoneEntities, archivedMilestones]);
-	const canonicalizeMilestone = (value?: string | null): string => {
-		const normalized = (value ?? "").trim();
-		if (!normalized) return "";
-		const key = normalized.toLowerCase();
-		const direct = milestoneAliasToCanonical.get(key);
-		if (direct) {
-			return direct;
-		}
-		const idMatch = normalized.match(/^m-(\d+)$/i);
-		if (idMatch?.[1]) {
-			const numericAlias = String(Number.parseInt(idMatch[1], 10));
-			return (
-				milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized
-			);
-		}
-		if (/^\d+$/.test(normalized)) {
-			const numericAlias = String(Number.parseInt(normalized, 10));
-			return (
-				milestoneAliasToCanonical.get(`m-${numericAlias}`) ?? milestoneAliasToCanonical.get(numericAlias) ?? normalized
-			);
-		}
-		return normalized;
-	};
+	const canonicalizeMilestone = useCallback(
+		(value?: string | null): string => {
+			const normalized = (value ?? "").trim();
+			if (!normalized) return "";
+			const key = normalized.toLowerCase();
+			const direct = milestoneAliasToCanonical.get(key);
+			if (direct) {
+				return direct;
+			}
+			const idMatch = normalized.match(/^m-(\d+)$/i);
+			if (idMatch?.[1]) {
+				const numericAlias = String(Number.parseInt(idMatch[1], 10));
+				return (
+					milestoneAliasToCanonical.get(`m-${numericAlias}`) ??
+					milestoneAliasToCanonical.get(numericAlias) ??
+					normalized
+				);
+			}
+			if (/^\d+$/.test(normalized)) {
+				const numericAlias = String(Number.parseInt(normalized, 10));
+				return (
+					milestoneAliasToCanonical.get(`m-${numericAlias}`) ??
+					milestoneAliasToCanonical.get(numericAlias) ??
+					normalized
+				);
+			}
+			return normalized;
+		},
+		[milestoneAliasToCanonical],
+	);
 	const canonicalMilestoneFilter = canonicalizeMilestone(milestoneFilter);
 
 	// Collect unique assignees and labels from all tasks for filter dropdowns
@@ -410,15 +417,18 @@ const Board: React.FC<BoardProps> = ({
 		return statusMap.get(status) ?? [];
 	};
 
-	const laneTaskCount = (laneKey: string): number => {
-		const statusMap = laneMetadataTasksByLane.get(laneKey);
-		if (!statusMap) return 0;
-		let count = 0;
-		for (const list of statusMap.values()) {
-			count += list.length;
-		}
-		return count;
-	};
+	const laneTaskCount = useCallback(
+		(laneKey: string): number => {
+			const statusMap = laneMetadataTasksByLane.get(laneKey);
+			if (!statusMap) return 0;
+			let count = 0;
+			for (const list of statusMap.values()) {
+				count += list.length;
+			}
+			return count;
+		},
+		[laneMetadataTasksByLane],
+	);
 
 	const countDoneTasksInLane = (laneKey: string): number => {
 		const statusMap = laneMetadataTasksByLane.get(laneKey);

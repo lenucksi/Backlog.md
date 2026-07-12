@@ -21,13 +21,11 @@ export interface CompletionContext {
  * Parse the command line to determine completion context
  */
 export function parseCompletionContext(line: string, point: number): CompletionContext {
-	// Extract the portion up to the cursor
 	const textBeforeCursor = line.slice(0, point);
 
 	// Split into words, handling quotes
 	const words = textBeforeCursor.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) || [];
 
-	// Remove "backlog" from the start
 	const cleanWords = words.slice(1);
 
 	// Determine if we're completing a partial word or starting a new one

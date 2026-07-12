@@ -283,7 +283,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		[availableTasks, task?.id],
 	);
 
-	const handleCancelEdit = () => {
+	const handleCancelEdit = useCallback(() => {
 		if (isDirty) {
 			const confirmDiscard = window.confirm("Discard unsaved changes?");
 			if (!confirmDiscard) return;
@@ -301,13 +301,13 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			setDefinitionOfDone(task?.definitionOfDoneItems || []);
 			setMode("preview");
 		}
-	};
+	}, [isDirty, isCreateMode, onClose, task]);
 
 	const normalizeChecklistItems = (items: AcceptanceCriterion[]): AcceptanceCriterion[] => {
 		return items.map((item) => ({ ...item, text: item.text.trim() })).filter((item) => item.text.length > 0);
 	};
 
-	const buildDefinitionOfDoneCreatePayload = (): TaskUpdatePayload => {
+	const buildDefinitionOfDoneCreatePayload = useCallback((): TaskUpdatePayload => {
 		const cleanedCurrent = normalizeChecklistItems(definitionOfDone);
 		const defaults = (definitionOfDoneDefaults ?? []).map((item) => item.trim()).filter((item) => item.length > 0);
 		const defaultItems = defaults.map((text, index) => ({ index: index + 1, text, checked: false }));
@@ -330,9 +330,9 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			payload.disableDefinitionOfDoneDefaults = true;
 		}
 		return payload;
-	};
+	}, [definitionOfDone, definitionOfDoneDefaults]);
 
-	const buildDefinitionOfDoneEditPayload = (): TaskUpdatePayload => {
+	const buildDefinitionOfDoneEditPayload = useCallback((): TaskUpdatePayload => {
 		const original = task?.definitionOfDoneItems ?? [];
 		const cleanedCurrent = normalizeChecklistItems(definitionOfDone);
 		const originalByIndex = new Map(original.map((item) => [item.index, item]));
@@ -392,9 +392,9 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			payload.definitionOfDoneUncheck = unchecks;
 		}
 		return payload;
-	};
+	}, [task, definitionOfDone]);
 
-	const handleSave = async () => {
+	const handleSave = useCallback(async () => {
 		setSaving(true);
 		setError(null);
 
@@ -451,7 +451,28 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		} finally {
 			setSaving(false);
 		}
-	};
+	}, [
+		isCreateMode,
+		title,
+		description,
+		plan,
+		notes,
+		finalSummary,
+		criteria,
+		status,
+		assignee,
+		labels,
+		priority,
+		dependencies,
+		milestone,
+		parentTaskId,
+		onSubmit,
+		onClose,
+		buildDefinitionOfDoneCreatePayload,
+		buildDefinitionOfDoneEditPayload,
+		task,
+		onSaved,
+	]);
 
 	const handleToggleCriterion = async (index: number, checked: boolean) => {
 		if (!task) return; // Can't toggle in create mode
@@ -514,7 +535,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 
 	// labels handled via ChipInput; no textarea parsing
 
-	const handleComplete = async () => {
+	const handleComplete = useCallback(async () => {
 		if (!task) return;
 		if (!window.confirm("Archive this task?")) return;
 		try {
@@ -524,7 +545,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
-	};
+	}, [task, onSaved, onClose]);
 
 	const handleArchive = async () => {
 		if (!task || !onArchive) return;
@@ -584,7 +605,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		};
 		window.addEventListener("keydown", onKey, { capture: true });
 		return () => window.removeEventListener("keydown", onKey, { capture: true });
-	}, [mode, isTerminal]);
+	}, [mode, isTerminal, handleCancelEdit, handleSave, handleComplete]);
 
 	const displayId = task?.id ?? "";
 	const documentation = task?.documentation ?? [];

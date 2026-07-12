@@ -46,7 +46,6 @@ export function createValidatedTool<T extends Record<string, unknown>>(
 					);
 				}
 
-				// Execute handler directly
 				const result = await handler(validationResult.sanitizedData as T, context);
 
 				return result;

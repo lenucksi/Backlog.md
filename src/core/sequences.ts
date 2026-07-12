@@ -40,7 +40,6 @@ export function computeSequences(tasks: Task[]): { unsequenced: Task[]; sequence
 		tasks.filter((t) => !hasAnyDeps(t) && !hasDependents(t.id) && t.ordinal === undefined),
 	);
 
-	// Build layering set by excluding unsequenced tasks
 	const layeringIds = new Set(Array.from(allIds).filter((id) => !unsequenced.some((t) => t.id === id)));
 
 	// Kahn-style layered topological grouping on the remainder
@@ -170,7 +169,6 @@ export function adjustDependenciesForInsertBetween(
 	const prevIds = prevSeq ? prevSeq.tasks.map((t) => t.id).filter((id) => id !== movedTaskId) : [];
 	moved.dependencies = [...prevIds];
 
-	// Update next sequence tasks to depend on moved task
 	if (nextSeq) {
 		for (const t of nextSeq.tasks) {
 			const orig = byId.get(t.id);

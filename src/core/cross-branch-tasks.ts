@@ -143,7 +143,6 @@ export async function getLatestTaskStatesForIds(
 			priorityBranches.unshift(currentBranch);
 		}
 
-		// Check priority branches first
 		for (const branch of priorityBranches) {
 			if (!branches.includes(branch)) continue;
 
@@ -175,8 +174,7 @@ export async function getLatestTaskStatesForIds(
 
 		onProgress?.(`Checking ${remainingTaskIds.length} remaining tasks across ${branches.length} branches...`);
 
-		// Check remaining branches in parallel batches
-		const BRANCH_BATCH_SIZE = 5; // Process 5 branches at a time for better performance
+		const BRANCH_BATCH_SIZE = 5;
 		for (let i = 0; i < branches.length; i += BRANCH_BATCH_SIZE) {
 			const branchBatch = branches.slice(i, i + BRANCH_BATCH_SIZE);
 

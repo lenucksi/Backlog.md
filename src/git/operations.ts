@@ -438,7 +438,6 @@ export class GitOperations {
 				refs.push("refs/remotes/origin");
 			}
 
-			// Get local and remote branches with commit dates
 			const { stdout } = await this.execGit(
 				["for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", ...refs],
 				{ readOnly: true },
@@ -643,7 +642,6 @@ export class GitOperations {
 			return null;
 		}
 		try {
-			// Get the hash of the last commit that touched the file
 			const { stdout: commitHash } = await this.execGit(["log", "-1", "--format=%H", "--", filePath], {
 				readOnly: true,
 			});

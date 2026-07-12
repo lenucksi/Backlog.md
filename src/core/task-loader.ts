@@ -360,11 +360,9 @@ export async function findTaskInRemoteBranches(
 		// Check if we have any remote
 		if (!(await git.hasAnyRemote())) return null;
 
-		// Get recent remote branches
 		const branches = await git.listRecentRemoteBranches(sinceDays);
 		if (branches.length === 0) return null;
 
-		// Build task index for remote branches
 		const remoteIndex = await buildRemoteTaskIndex(git, branches, backlogDir, sinceDays, undefined, prefix);
 
 		const normalizedId = normalizeId(taskId, prefix);
@@ -373,7 +371,6 @@ export async function findTaskInRemoteBranches(
 		const entries = remoteIndex.get(normalizedId);
 		if (!entries || entries.length === 0) return null;
 
-		// Get the newest version
 		const best = entries.reduce((a, b) => (a.lastModified >= b.lastModified ? a : b));
 
 		return hydrateTaskFromEntry(git, best, `origin/${best.branch}`, "remote");
@@ -403,7 +400,6 @@ export async function findTaskInLocalBranches(
 		const currentBranch = await git.getCurrentBranch();
 		if (!currentBranch) return null;
 
-		// Get recent local branches
 		const allBranches = await git.listRecentBranches(sinceDays);
 		const localBranches = allBranches.filter(
 			(b) => !b.startsWith("origin/") && !b.startsWith("refs/remotes/") && b !== "origin",
@@ -411,7 +407,6 @@ export async function findTaskInLocalBranches(
 
 		if (localBranches.length <= 1) return null; // Only current branch
 
-		// Build task index for local branches
 		const localIndex = await buildLocalBranchTaskIndex(
 			git,
 			localBranches,
@@ -428,7 +423,6 @@ export async function findTaskInLocalBranches(
 		const entries = localIndex.get(normalizedId);
 		if (!entries || entries.length === 0) return null;
 
-		// Get the newest version
 		const best = entries.reduce((a, b) => (a.lastModified >= b.lastModified ? a : b));
 
 		return hydrateTaskFromEntry(git, best, best.branch, "local-branch");
@@ -463,7 +457,6 @@ export async function loadRemoteTasks(
 			return [];
 		}
 
-		// Fetch remote branches
 		onProgress?.("Fetching remote branches...");
 		await gitOps.fetch();
 
@@ -478,7 +471,6 @@ export async function loadRemoteTasks(
 
 		onProgress?.(`Indexing ${branches.length} recent remote branches (last ${days} days)...`);
 
-		// Build a cheap index without fetching content
 		const taskPrefix = userConfig?.prefixes?.task ?? DEFAULT_TASK_PREFIX;
 		const remoteIndex = await buildRemoteTaskIndex(
 			gitOps,
@@ -609,7 +601,6 @@ export async function loadLocalBranchTasks(
 
 		onProgress?.(`Indexing ${localBranches.length - 1} other local branches...`);
 
-		// Build index of tasks from other local branches
 		const taskPrefix = userConfig?.prefixes?.task ?? DEFAULT_TASK_PREFIX;
 		const localBranchIndex = await buildLocalBranchTaskIndex(
 			gitOps,

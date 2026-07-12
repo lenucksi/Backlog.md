@@ -270,6 +270,5 @@ export async function installClaudeAgent(projectRoot: string): Promise<void> {
 	// Create the directory if it doesn't exist
 	await mkdir(agentDir, { recursive: true });
 
-	// Write the agent content
 	await Bun.write(agentPath, CLAUDE_AGENT_CONTENT);
 }

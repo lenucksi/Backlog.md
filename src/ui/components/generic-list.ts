@@ -156,7 +156,6 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 
 		const style = { ...defaultStyle, ...this.options.style };
 
-		// Extract bg for direct application to list widget
 		const listBg = this.options.style?.bg;
 
 		this.listBox = list({
@@ -192,7 +191,6 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 			? this.items.filter((item) => JSON.stringify(item).toLowerCase().includes(this.searchTerm.toLowerCase()))
 			: [...this.items];
 
-		// Build display items
 		const displayItems: string[] = [];
 		this.displayIndexByFilteredIndex.clear();
 		this.filteredIndexByDisplayIndex.clear();
@@ -219,8 +217,7 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 				}
 			}
 
-			// Render groups
-			for (const [group, groupItems] of groups) {
+		for (const [group, groupItems] of groups) {
 				displayItems.push(formatHeading(group || "No Group", 2));
 				displayIndex += 1;
 				for (const { item, filteredIndex } of groupItems) {
@@ -234,7 +231,6 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 				}
 			}
 		} else {
-			// Render flat list
 			for (const [filteredIndex, item] of this.filteredItems.entries()) {
 				if (!item) continue;
 				const content = this.buildDisplayContent(item, filteredIndex, false);
@@ -361,7 +357,6 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 			this.cancel();
 		});
 
-		// Handle search input
 		if (this.options.searchable) {
 			this.listBox.on("keypress", (ch: string, key: { name: string; ctrl?: boolean; meta?: boolean }) => {
 				if (this.isSearchMode && key.name !== "escape" && key.name !== "enter") {

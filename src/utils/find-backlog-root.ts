@@ -43,7 +43,6 @@ export async function findBacklogRoot(startDir: string, maxDepth?: number): Prom
 			return current;
 		}
 
-		// Check for backlog.json file
 		const backlogJson = join(current, "backlog.json");
 		if (await fileExists(backlogJson)) {
 			return current;

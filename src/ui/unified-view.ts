@@ -429,8 +429,7 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 			// After the first view, we're no longer on initial load
 			isInitialLoad = false;
 
-			// Handle the result
-			if (result === "switch") {
+		if (result === "switch") {
 				// User pressed Tab, switch to the next view
 				switch (currentView) {
 					case "task-list":

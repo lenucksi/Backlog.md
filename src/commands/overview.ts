@@ -15,7 +15,6 @@ export function formatTime(ms: number): string {
 export async function runOverviewCommand(core: Core): Promise<void> {
 	const startTime = performance.now();
 
-	// Load tasks with loading screen
 	const loadingScreen = await createLoadingScreen("Loading project statistics");
 
 	try {

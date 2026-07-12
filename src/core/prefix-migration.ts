@@ -47,7 +47,6 @@ export async function migrateDraftPrefixes(fs: FileSystem): Promise<void> {
 		return;
 	}
 
-	// Get existing draft IDs to generate unique new IDs
 	const existingDrafts = await fs.listDrafts();
 	const existingDraftIds = existingDrafts.map((d) => d.id);
 
@@ -64,23 +63,19 @@ export async function migrateDraftPrefixes(fs: FileSystem): Promise<void> {
 			const newDraftId = generateNextId(existingDraftIds, "draft");
 			existingDraftIds.push(newDraftId); // Track for next iteration
 
-			// Update task with new ID
 			const migratedTask: Task = {
 				...task,
 				id: newDraftId,
 			};
 
-			// Save with new draft- filename
 			await fs.saveDraft(migratedTask);
 
-			// Delete old task- file
 			await unlink(filePath);
 		} catch {
 			// expected: file may have been moved already
 		}
 	}
 
-	// Update config with prefixes section
 	await addPrefixesToConfig(fs);
 }
 

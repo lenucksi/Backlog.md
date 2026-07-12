@@ -513,7 +513,6 @@ export class FileSystem {
 			return [];
 		}
 
-		// Get configured task prefix
 		const config = await this.loadConfig();
 		const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
 		const globPattern = buildGlobPattern(taskPrefix);
@@ -583,22 +582,21 @@ export class FileSystem {
 			return [];
 		}
 
-		// Get configured task prefix
 		const config = await this.loadConfig();
 		const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
 		const globPattern = buildGlobPattern(taskPrefix);
 
 		let taskFiles: string[];
 		try {
-			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }));
+			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: tasksDir, followSymlinks: true }));
 		} catch (_error) {
 			return [];
 		}
 
-		return await this.parseTaskFilesFromDir(archiveTasksDir, taskFiles, "completed");
+		return await this.parseTaskFilesFromDir(tasksDir, taskFiles, "active");
 	}
 
-	async listArchivedTasks(): Promise<Task[]> {
+	async listCompletedTasks(): Promise<Task[]> {
 		let archiveTasksDir: string;
 		try {
 			archiveTasksDir = await this.getArchiveTasksDir();
@@ -606,7 +604,6 @@ export class FileSystem {
 			return [];
 		}
 
-		// Get configured task prefix
 		const config = await this.loadConfig();
 		const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
 		const globPattern = buildGlobPattern(taskPrefix);
@@ -720,7 +717,6 @@ export class FileSystem {
 	async promoteDraft(draftId: string): Promise<boolean> {
 		try {
 			return await this.withCreateLock(async () => {
-				// Load the draft
 				const draft = await this.loadDraft(draftId);
 				if (!draft?.filePath) return false;
 
@@ -752,7 +748,6 @@ export class FileSystem {
 
 				await this.saveTask(promotedTask);
 
-				// Delete old draft file
 				await unlink(draft.filePath);
 
 				return true;
@@ -768,7 +763,6 @@ export class FileSystem {
 	async demoteTask(taskId: string): Promise<boolean> {
 		try {
 			return await this.withCreateLock(async () => {
-				// Load the task
 				const task = await this.loadTask(taskId);
 				if (!task?.filePath) return false;
 
@@ -777,20 +771,17 @@ export class FileSystem {
 				const existingDrafts = await this.listDrafts();
 				const existingIds = existingDrafts.map((d) => d.id);
 
-				// Generate new draft ID
 				const config = await this.loadConfig();
 				const newDraftId = generateNextId(existingIds, "draft", config?.zeroPaddedIds);
 
-				// Update task with new draft ID and save as draft
 				const demotedDraft: Task = {
 					...task,
 					id: newDraftId,
-					filePath: undefined, // Will be set by saveDraft
+					filePath: undefined,
 				};
 
 				await this.saveDraft(demotedDraft);
 
-				// Delete old task file
 				await unlink(task.filePath);
 
 				return true;

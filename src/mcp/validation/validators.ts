@@ -175,15 +175,13 @@ function validateField(
 				break;
 			}
 
-			// Validate maxItems
-			if (schema.maxItems !== undefined && value.length > schema.maxItems) {
+		if (schema.maxItems !== undefined && value.length > schema.maxItems) {
 				errors.push(`Field '${fieldName}' must have at most ${schema.maxItems} items`);
 			}
 
 			const sanitizedArray: unknown[] = [];
 
-			// Validate array items
-			if (schema.items) {
+		if (schema.items) {
 				for (let i = 0; i < value.length; i++) {
 					const itemResult = validateField(`${fieldName}[${i}]`, value[i], schema.items);
 					if (!itemResult.isValid) {
@@ -218,7 +216,6 @@ function sanitizeString(input: string): string {
 		return String(input);
 	}
 
-	// Remove null bytes
 	let sanitized = input.replace(/\0/g, "");
 
 	// Trim whitespace

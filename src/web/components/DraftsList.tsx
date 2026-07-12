@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Task } from "../../types";
 
 interface DraftsListProps {
@@ -12,7 +12,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	const loadDrafts = async () => {
+	const loadDrafts = useCallback(async () => {
 		try {
 			setLoading(true);
 			const response = await fetch("/api/drafts");
@@ -34,7 +34,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		loadDrafts();

@@ -1,5 +1,5 @@
 import MDEditor from "@uiw/react-md-editor";
-import { memo, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type { Decision } from "../../types";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -109,7 +109,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		}
 	}, [id]);
 
-	const loadDecisionContent = async () => {
+	const loadDecisionContent = useCallback(async () => {
 		if (!id) return;
 
 		try {
@@ -144,7 +144,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [id, decisions, decision]);
 
 	useEffect(() => {
 		if (id === "new") {
@@ -163,7 +163,7 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 			setIsEditing(false); // Ensure we start in preview mode for existing decisions
 			loadDecisionContent();
 		}
-	}, [id, searchParams.get, loadDecisionContent]);
+	}, [id, searchParams, loadDecisionContent]);
 
 	// Check for edit query parameter to start in edit mode
 	useEffect(() => {
