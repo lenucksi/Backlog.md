@@ -8,7 +8,6 @@ async function ensureLabelsMigrated(core: Core): Promise<void> {
 	const config = await core.filesystem.loadConfig();
 	if (!config) return;
 
-	// Clean up corrupt [object Object] entries from serialization bug
 	const cleaned = (config.labels ?? []).filter((l) => (typeof l === "string" ? l !== "[object Object]" : true));
 	if (cleaned.length !== (config.labels?.length ?? 0)) {
 		config.labels = cleaned;
@@ -56,6 +55,65 @@ function preserveLabelColor(
 	return newName;
 }
 
+async function ensureProjectConfig() {
+	const cwd = await requireProjectRoot();
+	const core = new Core(cwd);
+	const config = await core.filesystem.loadConfig();
+	if (!config) {
+		console.error("No backlog project found. Initialize one first with: backlog init");
+		process.exit(EXIT.ERROR);
+	}
+	return { core, config };
+}
+
+async function updateLabelsOnEntities(core: Core, oldName: string, newName: string): Promise<void> {
+	const renameLabelInList = (labels: string[] | undefined): string[] | undefined => {
+		if (!labels) return undefined;
+		const updated = labels.map((l) => (l.toLowerCase() === oldName.toLowerCase() ? newName : l));
+		return updated.length > 0 ? updated : undefined;
+	};
+
+	const tasks = await core.filesystem.listTasks();
+	for (const task of tasks) {
+		const updatedLabels = renameLabelInList(task.labels);
+		if (updatedLabels) {
+			try {
+				await core.editTask(task.id, { labels: updatedLabels }, false);
+			} catch {
+				console.warn(`  Skipping task ${task.id} (not found, maybe from another branch)`);
+			}
+		}
+	}
+
+	const docs = await core.filesystem.listDocuments();
+	for (const doc of docs) {
+		const updatedLabels = renameLabelInList(doc.labels);
+		if (updatedLabels) {
+			try {
+				await core.updateDocumentFromInput({
+					id: doc.id,
+					labels: updatedLabels,
+					content: doc.rawContent,
+				});
+			} catch {
+				console.warn(`  Skipping document ${doc.id} (not found)`);
+			}
+		}
+	}
+
+	const decisions = await core.filesystem.listDecisions();
+	for (const decision of decisions) {
+		const updatedLabels = renameLabelInList(decision.labels);
+		if (updatedLabels) {
+			try {
+				await core.editDecision(decision.id, { labels: updatedLabels });
+			} catch {
+				console.warn(`  Skipping decision ${decision.id} (not found)`);
+			}
+		}
+	}
+}
+
 export function registerLabelCommand(program: Command): void {
 	const labelCmd = program.command("label").description("manage backlog labels");
 
@@ -64,13 +122,7 @@ export function registerLabelCommand(program: Command): void {
 		.description("list all labels from config")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { config } = await ensureProjectConfig();
 			const labels = config.labels ?? [];
 			if (options.json) {
 				console.log(JSON.stringify(labels, null, 2));
@@ -95,13 +147,7 @@ export function registerLabelCommand(program: Command): void {
 		.description("add a new label")
 		.option("--color <hex>", "hex color for the label (e.g. #ff0000)")
 		.action(async (name: string, options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core } = await ensureProjectConfig();
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
 			if (!reloaded) process.exit(EXIT.ERROR);
@@ -121,13 +167,7 @@ export function registerLabelCommand(program: Command): void {
 		.command("rename <old> <new>")
 		.description("rename a label and update all frontmatter")
 		.action(async (oldName: string, newName: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core } = await ensureProjectConfig();
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
 			if (!reloaded) process.exit(EXIT.ERROR);
@@ -157,51 +197,7 @@ export function registerLabelCommand(program: Command): void {
 			);
 			await core.filesystem.saveConfig(reloaded);
 
-			const renameInEntity = (labels: string[] | undefined): string[] | undefined => {
-				if (!labels) return undefined;
-				const updated = labels.map((l) => (l.toLowerCase() === oldName.toLowerCase() ? newName : l));
-				return updated.length > 0 ? updated : undefined;
-			};
-
-			const tasks = await core.filesystem.listTasks();
-			for (const task of tasks) {
-				const updatedLabels = renameInEntity(task.labels);
-				if (updatedLabels) {
-					try {
-						await core.editTask(task.id, { labels: updatedLabels }, false);
-					} catch {
-						console.warn(`  Skipping task ${task.id} (not found, maybe from another branch)`);
-					}
-				}
-			}
-
-			const docs = await core.filesystem.listDocuments();
-			for (const doc of docs) {
-				const updatedLabels = renameInEntity(doc.labels);
-				if (updatedLabels) {
-					try {
-						await core.updateDocumentFromInput({
-							id: doc.id,
-							labels: updatedLabels,
-							content: doc.rawContent,
-						});
-					} catch {
-						console.warn(`  Skipping document ${doc.id} (not found)`);
-					}
-				}
-			}
-
-			const decisions = await core.filesystem.listDecisions();
-			for (const decision of decisions) {
-				const updatedLabels = renameInEntity(decision.labels);
-				if (updatedLabels) {
-					try {
-						await core.editDecision(decision.id, { labels: updatedLabels });
-					} catch {
-						console.warn(`  Skipping decision ${decision.id} (not found)`);
-					}
-				}
-			}
+			await updateLabelsOnEntities(core, oldName, newName);
 
 			console.log(`Renamed label "${oldName}" to "${newName}" in config and all entities.`);
 		});
@@ -210,13 +206,7 @@ export function registerLabelCommand(program: Command): void {
 		.command("remove <name>")
 		.description("remove a label from config (does not remove from existing tasks/docs/decisions)")
 		.action(async (name: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core } = await ensureProjectConfig();
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
 			if (!reloaded) process.exit(EXIT.ERROR);
@@ -234,13 +224,7 @@ export function registerLabelCommand(program: Command): void {
 		.command("set-color <name> <color>")
 		.description("set or update a label's color")
 		.action(async (name: string, color: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core } = await ensureProjectConfig();
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
 			if (!reloaded) process.exit(EXIT.ERROR);
@@ -264,13 +248,7 @@ export function registerLabelCommand(program: Command): void {
 		.command("remove-color <name>")
 		.description("remove a label's color")
 		.action(async (name: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core } = await ensureProjectConfig();
 			await ensureLabelsMigrated(core);
 			const reloaded = await core.filesystem.loadConfig();
 			if (!reloaded) process.exit(EXIT.ERROR);
