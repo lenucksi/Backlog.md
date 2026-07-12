@@ -1,7 +1,7 @@
 type OutputMode = "auto" | "plain" | "json";
 let outputMode: OutputMode = "auto";
 
-export function setOutputMode(mode: OutputMode) {
+function setOutputMode(mode: OutputMode) {
 	outputMode = mode;
 }
 

@@ -125,7 +125,7 @@ export function sortByCreatedDateDesc<T extends { id: string; createdDate?: stri
  * Sort tasks by due date. Tasks without due date sort last.
  * Tasks with the same due date (or both undefined) are sorted by task ID.
  */
-export function sortByDueDate<T extends { id: string; dueDate?: string }>(items: T[]): T[] {
+function sortByDueDate<T extends { id: string; dueDate?: string }>(items: T[]): T[] {
 	return [...items].sort((a, b) => {
 		if (!a.dueDate && !b.dueDate) return compareTaskIds(a.id, b.id);
 		if (!a.dueDate) return 1;
@@ -141,7 +141,7 @@ export function sortByDueDate<T extends { id: string; dueDate?: string }>(items:
  * Tasks with ordinal values come before tasks without.
  * Tasks with the same ordinal (or both undefined) are sorted by task ID.
  */
-export function sortByOrdinal<T extends { id: string; ordinal?: number }>(items: T[]): T[] {
+function sortByOrdinal<T extends { id: string; ordinal?: number }>(items: T[]): T[] {
 	return [...items].sort((a, b) => {
 		// Tasks with ordinal come before tasks without
 		if (a.ordinal !== undefined && b.ordinal === undefined) {

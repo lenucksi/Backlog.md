@@ -41,5 +41,3 @@ export interface TaskEditArgs {
 	dueDate?: string | null;
 	deferDate?: string | null;
 }
-
-export type TaskEditRequest = TaskEditArgs & { id: string };
