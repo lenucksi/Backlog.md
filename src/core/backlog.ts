@@ -1,6 +1,6 @@
 import { rename as moveFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
-import { DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
+import { DEFAULT_STATUSES } from "../constants/index.ts";
 import { FileSystem } from "../file-system/operations.ts";
 import { GitOperations } from "../git/operations.ts";
 import {
@@ -42,14 +42,7 @@ import {
 	getCanonicalStatus as resolveCanonicalStatus,
 	getValidStatuses as resolveValidStatuses,
 } from "../utils/status.ts";
-import { executeStatusCallback } from "../utils/status-callback.ts";
-import {
-	buildDefinitionOfDoneItems,
-	normalizeDependencies,
-	normalizeStringList,
-	stringArraysEqual,
-	validateDependencies,
-} from "../utils/task-builders.ts";
+import { normalizeStringList, stringArraysEqual } from "../utils/task-builders.ts";
 import { getTaskFilename, getTaskPath, normalizeTaskId, taskIdsEqual } from "../utils/task-path.ts";
 import { attachSubtaskSummaries } from "../utils/task-subtasks.ts";
 import { upsertTaskUpdatedDate } from "../utils/task-updated-date.ts";
@@ -62,19 +55,12 @@ import { calculateNewOrdinal, DEFAULT_ORDINAL_STEP, resolveOrdinalConflicts } fr
 import { SearchService } from "./search-service.ts";
 import { computeSequences, planMoveToSequence, planMoveToUnsequenced } from "./sequences.ts";
 import {
-	applyClearSetAppendBlock,
-	applyStringField,
 	buildLatestStateMap,
 	filterTasksByStateSnapshots,
 	filterTasksWithCompleted,
 	getFilterValue,
 	mergeTaskArray,
 	normalizeDocumentTypeInput,
-	resolveAcceptanceCriteriaFromInput,
-	resolveDefinitionOfDoneFromInput,
-	resolveDependenciesFromInput,
-	resolveModifiedFilesFromInput,
-	resolveStringListField,
 } from "./task-input-resolvers.ts";
 import {
 	type BranchTaskStateEntry,
@@ -85,6 +71,7 @@ import {
 	loadRemoteTasks,
 	resolveTaskConflict,
 } from "./task-loader.ts";
+import * as taskOps from "./task-operations.ts";
 
 interface BlessedScreen {
 	program: {
@@ -147,26 +134,6 @@ export class Core {
 
 	async withCreateLock<T>(fn: () => Promise<T>): Promise<T> {
 		return await this._filesystem.withCreateLock(fn);
-	}
-
-	private async resolveCreateOrdinal(inputOrdinal: number | undefined, isDraft: boolean): Promise<number | undefined> {
-		if (typeof inputOrdinal === "number") {
-			return inputOrdinal;
-		}
-		if (isDraft) {
-			return undefined;
-		}
-
-		const tasks = await this._filesystem.listTasks();
-		const ordinals = tasks
-			.map((task) => task.ordinal)
-			.filter((ordinal): ordinal is number => typeof ordinal === "number" && Number.isFinite(ordinal));
-
-		if (ordinals.length === 0) {
-			return tasks.length === 0 ? DEFAULT_ORDINAL_STEP : undefined;
-		}
-
-		return Math.max(...ordinals) + DEFAULT_ORDINAL_STEP;
 	}
 
 	async getContentStore(): Promise<ContentStore> {
@@ -528,12 +495,28 @@ export class Core {
 		if (config?.filesystemOnly) {
 			return false;
 		}
-		// If override is explicitly provided, use it
 		if (overrideValue !== undefined) {
 			return overrideValue;
 		}
-		// Otherwise, check config (default to false for safety)
 		return config?.autoCommit ?? false;
+	}
+
+	private buildTaskOpDeps(): taskOps.TaskOpDeps {
+		return {
+			filesystem: this._filesystem,
+			contentStore: this.contentStore,
+			git: this.git,
+			idGenerator: { generateNextId: (type, parent) => this.generateNextId(type, parent) },
+			requireCanonicalStatus: (s) => this.requireCanonicalStatus(s),
+			normalizePriority: (v) => this.normalizePriority(v),
+			shouldAutoCommit: (v) => this.shouldAutoCommit(v),
+			getBacklogDirectoryName: () => this.getBacklogDirectoryName(),
+			withCreateLock: <T>(fn: () => Promise<T>) => this.withCreateLock(fn),
+			queryTasks: (opts) => this.queryTasks(opts),
+			demoteTaskWithUpdates: (t, i, a) => this.demoteTaskWithUpdates(t, i, a),
+			promoteDraftWithUpdates: (d, i, a) => this.promoteDraftWithUpdates(d, i, a),
+			updateDraftFromInput: (id, i, a) => this.updateDraftFromInput(id, i, a),
+		};
 	}
 
 	async getGitOps() {
@@ -768,384 +751,35 @@ export class Core {
 		);
 	}
 
-	private async writePreparedTask(task: Task, isDraft: boolean): Promise<string> {
-		if (isDraft) {
-			task.status = "Draft";
-			normalizeAssignee(task);
-			return await this._filesystem.saveDraft(task);
-		}
-
-		normalizeAssignee(task);
-		return await this._filesystem.saveTask(task);
-	}
-
-	private async finalizeCreatedTask(
-		task: Task,
-		filepath: string,
-		isDraft: boolean,
-		autoCommit?: boolean,
-	): Promise<Task | null> {
-		const savedTask = isDraft ? await this._filesystem.loadDraft(task.id) : await this._filesystem.loadTask(task.id);
-
-		if (!isDraft && this.contentStore && savedTask) {
-			this.contentStore.upsertTask(savedTask);
-		}
-
-		if (await this.shouldAutoCommit(autoCommit)) {
-			if (isDraft) {
-				await this.git.addFile(filepath);
-				await this.git.commitTaskChange(task.id, `Create draft ${task.id}`, filepath);
-			} else {
-				await this.git.addAndCommitTaskFile(task.id, filepath, "create");
-			}
-		}
-
-		return savedTask;
-	}
-
-	async createTaskFromInput(input: TaskCreateInput, autoCommit?: boolean): Promise<{ task: Task; filePath?: string }> {
-		if (!input.title || input.title.trim().length === 0) {
-			throw new Error("Title is required to create a task.");
-		}
-
-		// Determine if this is a draft BEFORE generating the ID
-		const requestedStatus = input.status?.trim();
-		const isDraft = requestedStatus?.toLowerCase() === "draft";
-
-		// Generate ID with appropriate entity type - drafts get DRAFT-X, tasks get TASK-X
-		const entityType = isDraft ? EntityType.Draft : EntityType.Task;
-
-		const normalizedLabels = normalizeStringList(input.labels) ?? [];
-		const normalizedAssignees = normalizeStringList(input.assignee) ?? [];
-		const normalizedDependencies = normalizeDependencies(input.dependencies);
-		const normalizedReferences = normalizeStringList(input.references) ?? [];
-		const normalizedDocumentation = normalizeStringList(input.documentation) ?? [];
-		const normalizedModifiedFiles = normalizeStringList(input.modifiedFiles) ?? [];
-
-		const { valid: validDependencies, invalid: invalidDependencies } = await validateDependencies(
-			normalizedDependencies,
-			this,
-		);
-		if (invalidDependencies.length > 0) {
-			throw new Error(
-				`The following dependencies do not exist: ${invalidDependencies.join(", ")}. Please create these tasks first or verify the IDs.`,
-			);
-		}
-
-		let status = "";
-		if (requestedStatus) {
-			if (isDraft) {
-				status = "Draft";
-			} else {
-				status = await this.requireCanonicalStatus(requestedStatus);
-			}
-		}
-
-		const priority = this.normalizePriority(input.priority);
-		const createdDate = new Date().toISOString().slice(0, 16).replace("T", " ");
-		if (
-			input.ordinal !== undefined &&
-			(typeof input.ordinal !== "number" || !Number.isFinite(input.ordinal) || input.ordinal < 0)
-		) {
-			throw new Error("Ordinal must be a non-negative number.");
-		}
-
-		const acceptanceCriteriaItems = Array.isArray(input.acceptanceCriteria)
-			? input.acceptanceCriteria
-					.map((criterion, index) => ({
-						index: index + 1,
-						text: String(criterion.text ?? "").trim(),
-						checked: Boolean(criterion.checked),
-					}))
-					.filter((criterion) => criterion.text.length > 0)
-			: [];
-		const config = await this._filesystem.loadConfig();
-		const definitionOfDoneItems = buildDefinitionOfDoneItems({
-			defaults: config?.definitionOfDone,
-			add: input.definitionOfDoneAdd,
-			disableDefaults: input.disableDefinitionOfDoneDefaults,
-		});
-		const resolvedStatus = isDraft ? "Draft" : status || config?.defaultStatus || FALLBACK_STATUS;
-
-		const { task, filePath } = await this.withCreateLock(async () => {
-			const id = await this.generateNextId(entityType, isDraft ? undefined : input.parentTaskId);
-			const ordinal = await this.resolveCreateOrdinal(input.ordinal, isDraft);
-			const task: Task = {
-				id,
-				title: input.title.trim(),
-				status: resolvedStatus,
-				assignee: normalizedAssignees,
-				labels: normalizedLabels,
-				dependencies: validDependencies,
-				references: normalizedReferences,
-				documentation: normalizedDocumentation,
-				modifiedFiles: normalizedModifiedFiles,
-				rawContent: input.rawContent ?? "",
-				createdDate,
-				...(input.parentTaskId && { parentTaskId: input.parentTaskId }),
-				...(priority && { priority }),
-				...(typeof ordinal === "number" && { ordinal }),
-				...(typeof input.milestone === "string" &&
-					input.milestone.trim().length > 0 && {
-						milestone: input.milestone.trim(),
-					}),
-				...(typeof input.description === "string" && { description: input.description }),
-				...(typeof input.implementationPlan === "string" && { implementationPlan: input.implementationPlan }),
-				...(typeof input.implementationNotes === "string" && { implementationNotes: input.implementationNotes }),
-				...(typeof input.finalSummary === "string" && { finalSummary: input.finalSummary }),
-				...(acceptanceCriteriaItems.length > 0 && { acceptanceCriteriaItems }),
-				...(definitionOfDoneItems && definitionOfDoneItems.length > 0 && { definitionOfDoneItems }),
-				...(input.dueDate && { dueDate: input.dueDate }),
-				...(input.deferDate && { deferDate: input.deferDate }),
-			};
-
-			const filePath = await this.writePreparedTask(task, isDraft);
-			return { task, filePath };
-		});
-
-		const savedTask = await this.finalizeCreatedTask(task, filePath, isDraft, autoCommit);
-		return { task: savedTask ?? task, filePath };
-	}
-
-	async createTask(task: Task, autoCommit?: boolean): Promise<string> {
-		if (!task.status) {
-			const config = await this._filesystem.loadConfig();
-			task.status = config?.defaultStatus || FALLBACK_STATUS;
-		}
-
-		const filepath = await this.writePreparedTask(task, false);
-		await this.finalizeCreatedTask(task, filepath, false, autoCommit);
-
-		return filepath;
-	}
-
-	async updateTask(task: Task, autoCommit?: boolean): Promise<void> {
-		normalizeAssignee(task);
-
-		// Load original task to detect status changes for callbacks
-		const originalTask = await this._filesystem.loadTask(task.id);
-		const oldStatus = originalTask?.status ?? "";
-		const newStatus = task.status ?? "";
-		const statusChanged = oldStatus !== newStatus;
-
-		// Auto-stamp completedDate when transitioning to terminal status (immutable)
-		if (statusChanged && !task.completedDate) {
-			const config = await this._filesystem.loadConfig();
-			const statuses = config?.statuses ?? [...DEFAULT_STATUSES];
-			if (isTerminalStatus(newStatus, statuses, config?.terminalStatuses)) {
-				const now = new Date().toISOString().slice(0, 16).replace("T", " ");
-				task.completedDate = now;
-			}
-		}
-
-		// Always set updatedDate when updating a task
-		task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
-
-		await this._filesystem.saveTask(task);
-		// Keep any in-process ContentStore in sync for immediate UI/search freshness.
-		if (this.contentStore) {
-			const savedTask = await this._filesystem.loadTask(task.id);
-			if (savedTask) {
-				this.contentStore.upsertTask(savedTask);
-			}
-		}
-
-		if (await this.shouldAutoCommit(autoCommit)) {
-			const filePath = await getTaskPath(task.id, this);
-			if (filePath) {
-				await this.git.addAndCommitTaskFile(task.id, filePath, "update");
-			}
-		}
-
-		// Fire status change callback if status changed
-		if (statusChanged) {
-			await this.executeStatusChangeCallback(task, oldStatus, newStatus);
-		}
-	}
-
 	private async applyTaskUpdateInput(
 		task: Task,
 		input: TaskUpdateInput,
 		statusResolver: (status: string) => Promise<string>,
 	): Promise<{ task: Task; mutated: boolean }> {
-		let mutated = false;
+		return taskOps.applyTaskUpdateInput(this.buildTaskOpDeps(), task, input, statusResolver);
+	}
 
-		if (input.title !== undefined) {
-			const trimmed = input.title.trim();
-			if (trimmed.length === 0) {
-				throw new Error("Title cannot be empty.");
-			}
-			if (task.title !== trimmed) {
-				task.title = trimmed;
-				mutated = true;
-			}
-		}
+	async createTaskFromInput(input: TaskCreateInput, autoCommit?: boolean): Promise<{ task: Task; filePath?: string }> {
+		return taskOps.createTaskFromInput(this.buildTaskOpDeps(), input, autoCommit);
+	}
 
-		mutated =
-			applyStringField(input.description, task.description, (next) => {
-				task.description = next;
-			}) || mutated;
+	async createTask(task: Task, autoCommit?: boolean): Promise<string> {
+		return taskOps.createTask(this.buildTaskOpDeps(), task, autoCommit);
+	}
 
-		if (input.status !== undefined) {
-			const canonicalStatus = await statusResolver(input.status);
-			if ((task.status ?? "") !== canonicalStatus) {
-				task.status = canonicalStatus;
-				mutated = true;
-			}
-		}
-
-		if (input.priority !== undefined) {
-			const normalizedPriority = this.normalizePriority(String(input.priority));
-			if (task.priority !== normalizedPriority) {
-				task.priority = normalizedPriority;
-				mutated = true;
-			}
-		}
-
-		if (input.milestone !== undefined) {
-			const normalizedMilestone =
-				input.milestone === null ? undefined : input.milestone.trim().length > 0 ? input.milestone.trim() : undefined;
-			if ((task.milestone ?? undefined) !== normalizedMilestone) {
-				if (normalizedMilestone === undefined) {
-					delete task.milestone;
-				} else {
-					task.milestone = normalizedMilestone;
-				}
-				mutated = true;
-			}
-		}
-
-		if (input.ordinal !== undefined) {
-			if (typeof input.ordinal !== "number" || !Number.isFinite(input.ordinal) || input.ordinal < 0) {
-				throw new Error("Ordinal must be a non-negative number.");
-			}
-			if (task.ordinal !== input.ordinal) {
-				task.ordinal = input.ordinal;
-				mutated = true;
-			}
-		}
-
-		if (input.assignee !== undefined) {
-			const sanitizedAssignee = normalizeStringList(input.assignee) ?? [];
-			if (!stringArraysEqual(sanitizedAssignee, task.assignee ?? [])) {
-				task.assignee = sanitizedAssignee;
-				mutated = true;
-			}
-		}
-
-		if (input.labels !== undefined && (input.addLabels || input.removeLabels)) {
-			throw new Error(
-				"Cannot combine --label (replace) with --add-label or --remove-label (incremental). Use only one mode.",
-			);
-		}
-		if (input.clearLabels) {
-			task.labels = [];
-			mutated = true;
-		}
-		mutated =
-			resolveStringListField(task, { set: input.labels, add: input.addLabels, remove: input.removeLabels }, "labels") ||
-			mutated;
-		mutated =
-			(await resolveDependenciesFromInput(
-				task,
-				{
-					set: input.dependencies,
-					add: input.addDependencies,
-					remove: input.removeDependencies,
-					force: input.force,
-				},
-				this,
-			)) || mutated;
-		mutated =
-			resolveStringListField(
-				task,
-				{ set: input.references, add: input.addReferences, remove: input.removeReferences },
-				"references",
-			) || mutated;
-		mutated =
-			resolveStringListField(
-				task,
-				{ set: input.documentation, add: input.addDocumentation, remove: input.removeDocumentation },
-				"documentation",
-			) || mutated;
-		mutated = resolveModifiedFilesFromInput(task, input) || mutated;
-
-		if (input.dueDate !== undefined) {
-			const normalized = input.dueDate === null ? undefined : input.dueDate;
-			if (task.dueDate !== normalized) {
-				task.dueDate = normalized;
-				mutated = true;
-			}
-		}
-
-		if (input.deferDate !== undefined) {
-			const normalized = input.deferDate === null ? undefined : input.deferDate;
-			if (task.deferDate !== normalized) {
-				task.deferDate = normalized;
-				mutated = true;
-			}
-		}
-
-		mutated =
-			applyClearSetAppendBlock(
-				task,
-				"implementationPlan",
-				input.clearImplementationPlan,
-				input.implementationPlan,
-				input.appendImplementationPlan,
-			) || mutated;
-		mutated =
-			applyClearSetAppendBlock(
-				task,
-				"implementationNotes",
-				input.clearImplementationNotes,
-				input.implementationNotes,
-				input.appendImplementationNotes,
-			) || mutated;
-		mutated =
-			applyClearSetAppendBlock(
-				task,
-				"finalSummary",
-				input.clearFinalSummary,
-				input.finalSummary,
-				input.appendFinalSummary,
-			) || mutated;
-
-		mutated = resolveAcceptanceCriteriaFromInput(task, input) || mutated;
-		mutated = resolveDefinitionOfDoneFromInput(task, input) || mutated;
-
-		return { task, mutated };
+	async updateTask(task: Task, autoCommit?: boolean): Promise<void> {
+		return taskOps.updateTask(this.buildTaskOpDeps(), task, autoCommit);
 	}
 
 	async updateTaskFromInput(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const task = await this._filesystem.loadTask(taskId);
-		if (!task) {
-			throw new Error(`Task not found: ${taskId}`);
-		}
-
-		const requestedStatus = input.status?.trim().toLowerCase();
-		if (requestedStatus === "draft") {
-			return await this.demoteTaskWithUpdates(task, input, autoCommit);
-		}
-
-		const { mutated } = await this.applyTaskUpdateInput(task, input, async (status) =>
-			this.requireCanonicalStatus(status),
-		);
-
-		if (!mutated) {
-			return task;
-		}
-
-		await this.updateTask(task, autoCommit);
-		const refreshed = await this._filesystem.loadTask(taskId);
-		return refreshed ?? task;
+		return taskOps.updateTaskFromInput(this.buildTaskOpDeps(), taskId, input, autoCommit);
 	}
 
 	async updateDraft(task: Task, autoCommit?: boolean): Promise<void> {
 		// Drafts always keep status Draft
 		task.status = "Draft";
 		normalizeAssignee(task);
-		task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
+		task.updatedDate = taskOps.formatDateStamp();
 
 		const filepath = await this._filesystem.saveDraft(task);
 
@@ -1178,28 +812,7 @@ export class Core {
 	}
 
 	async editTaskOrDraft(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const draft = await this._filesystem.loadDraft(taskId);
-		if (draft) {
-			const requestedStatus = input.status?.trim();
-			const wantsDraft = requestedStatus?.toLowerCase() === "draft";
-			if (requestedStatus && !wantsDraft) {
-				return await this.promoteDraftWithUpdates(draft, input, autoCommit);
-			}
-			return await this.updateDraftFromInput(draft.id, input, autoCommit);
-		}
-
-		const task = await this._filesystem.loadTask(taskId);
-		if (!task) {
-			throw new Error(`Task not found: ${taskId}`);
-		}
-
-		const requestedStatus = input.status?.trim();
-		const wantsDraft = requestedStatus?.toLowerCase() === "draft";
-		if (wantsDraft) {
-			return await this.demoteTaskWithUpdates(task, input, autoCommit);
-		}
-
-		return await this.updateTaskFromInput(task.id, input, autoCommit);
+		return taskOps.editTaskOrDraft(this.buildTaskOpDeps(), taskId, input, autoCommit);
 	}
 
 	private async promoteDraftWithUpdates(draft: Task, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
@@ -1226,9 +839,7 @@ export class Core {
 				id: newTaskId,
 				status: canonicalStatus,
 				filePath: undefined,
-				...(mutated || draft.status !== canonicalStatus
-					? { updatedDate: new Date().toISOString().slice(0, 16).replace("T", " ") }
-					: {}),
+				...(mutated || draft.status !== canonicalStatus ? { updatedDate: taskOps.formatDateStamp() } : {}),
 			};
 
 			normalizeAssignee(promotedTask);
@@ -1272,9 +883,7 @@ export class Core {
 				id: newDraftId,
 				status: "Draft",
 				filePath: undefined,
-				...(mutated || task.status !== "Draft"
-					? { updatedDate: new Date().toISOString().slice(0, 16).replace("T", " ") }
-					: {}),
+				...(mutated || task.status !== "Draft" ? { updatedDate: taskOps.formatDateStamp() } : {}),
 			};
 
 			normalizeAssignee(demotedDraft);
@@ -1296,54 +905,8 @@ export class Core {
 		return (await this._filesystem.loadDraft(demotedDraft.id)) ?? { ...demotedDraft, filePath: savedPath };
 	}
 
-	/**
-	 * Execute the onStatusChange callback if configured.
-	 * Per-task callback takes precedence over global config.
-	 * Failures are logged but don't block the status change.
-	 */
-	private async executeStatusChangeCallback(task: Task, oldStatus: string, newStatus: string): Promise<void> {
-		const config = await this._filesystem.loadConfig();
-
-		// Per-task callback takes precedence over global config
-		const callbackCommand = task.onStatusChange ?? config?.onStatusChange;
-		if (!callbackCommand) {
-			return;
-		}
-
-		try {
-			const result = await executeStatusCallback({
-				command: callbackCommand,
-				taskId: task.id,
-				oldStatus,
-				newStatus,
-				taskTitle: task.title,
-				cwd: this._filesystem.rootDir,
-			});
-
-			if (!result.success) {
-				console.error(`Status change callback failed for ${task.id}: ${result.error ?? "Unknown error"}`);
-				if (result.output) {
-					console.error(`Callback output: ${result.output}`);
-				}
-			} else if (process.env.DEBUG && result.output) {
-				console.log(`Status change callback output for ${task.id}: ${result.output}`);
-			}
-		} catch (error) {
-			console.error(
-				`Failed to execute status change callback for ${task.id}:`,
-				error instanceof Error ? error.message : String(error),
-			);
-		}
-	}
-
 	async editTask(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		// Reopen guard: reject edits on archived tasks
-		const archiveDir = this._filesystem.archiveTasksDir;
-		const taskPath = await getTaskPath(taskId, this);
-		if (taskPath?.startsWith(archiveDir)) {
-			throw new Error(`Cannot edit archived task ${normalizeTaskId(taskId)}`);
-		}
-		return await this.updateTaskFromInput(taskId, input, autoCommit);
+		return taskOps.editTask(this.buildTaskOpDeps(), taskId, input, autoCommit);
 	}
 
 	async updateTasksBulk(tasks: Task[], commitMessage?: string, autoCommit?: boolean): Promise<void> {
@@ -1604,7 +1167,7 @@ export class Core {
 		}
 		// Stamp lifecycle dates before moving the file
 		if (!taskToArchive.archivedDate) {
-			const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+			const now = taskOps.formatDateStamp();
 			taskToArchive.archivedDate = now;
 			taskToArchive.updatedDate = now;
 			await this._filesystem.saveTask(taskToArchive);
@@ -1778,7 +1341,7 @@ export class Core {
 				if (fields.dueDate !== undefined) task.dueDate = fields.dueDate ?? undefined;
 				if (fields.labels !== undefined) task.labels = fields.labels;
 				if (fields.assignee !== undefined) task.assignee = fields.assignee;
-				task.updatedDate = new Date().toISOString().slice(0, 16).replace("T", " ");
+				task.updatedDate = taskOps.formatDateStamp();
 				tasksToUpdate.push(task);
 				succeeded.push(id);
 			} catch (error) {
@@ -2043,7 +1606,7 @@ export class Core {
 		const decision: Decision = {
 			id,
 			title,
-			date: new Date().toISOString().slice(0, 16).replace("T", " "),
+			date: taskOps.formatDateStamp(),
 			status: "proposed",
 			context: "[Describe the context and problem that needs to be addressed]",
 			decision: "[Describe the decision that was made]",
@@ -2101,7 +1664,7 @@ export class Core {
 				id,
 				title,
 				type,
-				createdDate: new Date().toISOString().slice(0, 16).replace("T", " "),
+				createdDate: taskOps.formatDateStamp(),
 				rawContent: input.content ?? "",
 				...(labels && labels.length > 0 && { labels }),
 				...(tags && tags.length > 0 && { tags }),
@@ -2138,7 +1701,7 @@ export class Core {
 			title: normalizedTitle ?? existingDoc.title,
 			type,
 			rawContent: input.content ?? existingDoc.rawContent,
-			updatedDate: new Date().toISOString().slice(0, 16).replace("T", " "),
+			updatedDate: taskOps.formatDateStamp(),
 			labels: labels && labels.length > 0 ? labels : undefined,
 			tags: tags && tags.length > 0 ? tags : undefined,
 		};
@@ -2224,7 +1787,7 @@ export class Core {
 			return { changed: false, task: refreshedTask ?? editableTask };
 		}
 
-		const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+		const now = taskOps.formatDateStamp();
 		const withUpdatedDate = upsertTaskUpdatedDate(afterContent, now);
 		await Bun.write(filePath, withUpdatedDate);
 
