@@ -12,6 +12,19 @@ import type {
 	ToolAnnotations,
 } from "@modelcontextprotocol/sdk/types.js";
 
+export type {
+	CallToolResult,
+	GetPromptResult,
+	ListPromptsResult,
+	ListResourcesResult,
+	ListResourceTemplatesResult,
+	ListToolsResult,
+	Prompt,
+	ReadResourceResult,
+	Resource,
+	Tool,
+};
+
 export interface McpToolHandler {
 	name: string;
 	description: string;
@@ -38,16 +51,3 @@ export interface McpPromptHandler {
 	}>;
 	handler: (args: Record<string, unknown>) => Promise<GetPromptResult>;
 }
-
-export type {
-	CallToolResult,
-	GetPromptResult,
-	ListPromptsResult,
-	ListResourcesResult,
-	ListResourceTemplatesResult,
-	ListToolsResult,
-	Prompt,
-	ReadResourceResult,
-	Resource,
-	Tool,
-};
