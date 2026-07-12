@@ -160,7 +160,7 @@ function createLoadingScreenBase(config: LoadingScreenConfig): {
  *   return await fetchDataFromAPI();
  * });
  */
-export async function withLoadingScreen<T>(message: string, operation: () => Promise<T>): Promise<T> {
+async function withLoadingScreen<T>(message: string, operation: () => Promise<T>): Promise<T> {
 	const base = createLoadingScreenBase({
 		message,
 		width: 60, // Larger width to prevent wrapping

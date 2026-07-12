@@ -56,7 +56,7 @@ function cleanNode(node: Node): boolean {
 	return true;
 }
 
-export function cleanHtml(html: string): string {
+function cleanHtml(html: string): string {
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`, "text/html");
 	const body = doc.body;
@@ -88,7 +88,7 @@ export function extractHtmlFromClipboard(clipboardData: DataTransfer): string | 
 	return null;
 }
 
-export function insertTextAtCursor(textarea: HTMLTextAreaElement, text: string): string {
+function insertTextAtCursor(textarea: HTMLTextAreaElement, text: string): string {
 	const start = textarea.selectionStart;
 	const end = textarea.selectionEnd;
 	const before = textarea.value.slice(0, start);

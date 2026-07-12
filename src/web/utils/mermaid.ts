@@ -35,7 +35,7 @@ type MermaidGlobal = typeof globalThis & {
 let mermaidModule: MermaidModule | null = null;
 let initializationPromise: Promise<void> | null = null;
 
-export async function ensureMermaid(): Promise<MermaidModule> {
+async function ensureMermaid(): Promise<MermaidModule> {
 	const mock = (globalThis as MermaidGlobal).__MERMAID_MOCK__;
 	if (mock) {
 		// Reset cached initialization so each mock can configure itself.

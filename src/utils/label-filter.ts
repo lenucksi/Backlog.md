@@ -4,23 +4,6 @@ function normalizeLabel(label: string): string {
 	return label.trim().toLowerCase();
 }
 
-export function extractLabelNames(labels: Array<string | LabelConfig> | undefined): string[] {
-	if (!labels) return [];
-	return labels.map((l) => (typeof l === "string" ? l : l.name));
-}
-
-export function getLabelConfigMap(config: BacklogConfig): Map<string, string | null> {
-	const map = new Map<string, string | null>();
-	for (const label of config.labels) {
-		if (typeof label === "string") {
-			map.set(label.toLowerCase(), null);
-		} else {
-			map.set(label.name.toLowerCase(), label.color ?? null);
-		}
-	}
-	return map;
-}
-
 export function collectAvailableLabels(tasks: Task[], configured: Array<string | LabelConfig> = []): string[] {
 	const seen = new Set<string>();
 	const ordered: string[] = [];

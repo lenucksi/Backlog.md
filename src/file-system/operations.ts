@@ -48,7 +48,7 @@ const DEFAULT_CREATE_LOCK_TIMEOUT_MS = 30_000;
 const DEFAULT_CREATE_LOCK_RETRY_DELAY_MS = 100;
 const DEFAULT_CREATE_LOCK_STALE_MS = 10_000;
 
-export const CREATE_LOCK_ERROR_CODE = "ECREATELOCK";
+const CREATE_LOCK_ERROR_CODE = "ECREATELOCK";
 export const CREATE_LOCK_ERROR_MESSAGE =
 	"Another task create/promote/demote operation is already in progress. Please try again.";
 

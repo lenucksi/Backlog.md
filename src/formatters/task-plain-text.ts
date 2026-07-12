@@ -31,7 +31,7 @@ export function buildDefinitionOfDoneItems(task: Task): ChecklistItem[] {
 	return buildChecklistItems(task.definitionOfDoneItems);
 }
 
-export function formatAcceptanceCriteriaLines(items: ChecklistItem[]): string[] {
+function formatAcceptanceCriteriaLines(items: ChecklistItem[]): string[] {
 	if (items.length === 0) return [];
 	return items.map((item) => {
 		const prefix = item.checked ? "- [x]" : "- [ ]";

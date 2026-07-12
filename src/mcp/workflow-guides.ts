@@ -56,7 +56,7 @@ export const WORKFLOW_GUIDES: WorkflowGuideDefinition[] = [
 	},
 ];
 
-export function getWorkflowGuideByUri(uri: string): WorkflowGuideDefinition | undefined {
+function getWorkflowGuideByUri(uri: string): WorkflowGuideDefinition | undefined {
 	return WORKFLOW_GUIDES.find((guide) => guide.uri === uri);
 }
 

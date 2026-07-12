@@ -56,16 +56,6 @@ export function createScreen(options: Partial<ScreenOptions> = {}): ScreenInterf
 	return screen;
 }
 
-// Ask the user for a single line of input.  Falls back to readline.
-export async function promptText(message: string, defaultValue = ""): Promise<string> {
-	// Always use readline for simple text input to avoid blessed rendering quirks
-	const { createInterface } = await import("node:readline/promises");
-	const rl = createInterface({ input, output });
-	const answer = (await rl.question(`${message} `)).trim();
-	rl.close();
-	return answer || defaultValue;
-}
-
 // Display long content in a scrollable viewer.
 export async function scrollableViewer(content: string): Promise<void> {
 	if (output.isTTY === false) {

@@ -227,7 +227,7 @@ function sanitizeString(input: string): string {
 	return sanitized;
 }
 
-export function sanitizeStringPreserveWhitespace(input: string): string {
+function sanitizeStringPreserveWhitespace(input: string): string {
 	if (typeof input !== "string") {
 		return String(input);
 	}

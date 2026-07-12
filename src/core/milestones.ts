@@ -381,7 +381,7 @@ function prepareMilestoneData(
 /**
  * Build a complete milestone summary
  */
-export function buildMilestoneSummary(
+function buildMilestoneSummary(
 	tasks: Task[],
 	milestoneEntities: Milestone[],
 	statuses: string[],

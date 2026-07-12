@@ -4,7 +4,6 @@
  */
 export {
 	buildMilestoneBuckets,
-	buildMilestoneSummary,
 	collectArchivedMilestoneKeys,
 	collectMilestoneIds,
 	getMilestoneLabel,

@@ -210,7 +210,7 @@ export function resolveModifiedFilesFromInput(task: Task, input: TaskUpdateInput
 	return false;
 }
 
-export function sanitizeAppendInput(values: string[] | undefined): string[] {
+function sanitizeAppendInput(values: string[] | undefined): string[] {
 	if (!values) return [];
 	return values.map((value) => String(value).trim()).filter((value) => value.length > 0);
 }
@@ -248,7 +248,7 @@ export function applyClearSetAppendBlock(
 	return mutated;
 }
 
-export function appendBlock(
+function appendBlock(
 	existing: string | undefined,
 	additions: string[] | undefined,
 ): { value?: string; changed: boolean } {

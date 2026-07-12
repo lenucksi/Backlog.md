@@ -21,7 +21,7 @@ export interface IdGeneratorDeps {
 	listTasksWithMetadata(): Promise<Array<Task & { lastModified?: Date }>>;
 }
 
-export function getActiveAndCompletedIdsFromStateMap(latestState: Map<string, BranchTaskStateEntry>): string[] {
+function getActiveAndCompletedIdsFromStateMap(latestState: Map<string, BranchTaskStateEntry>): string[] {
 	const ids: string[] = [];
 	for (const [id, entry] of latestState) {
 		if (entry.type === "task" || entry.type === "completed") {

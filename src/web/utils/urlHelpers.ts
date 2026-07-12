@@ -20,12 +20,3 @@ export function sanitizeUrlTitle(title: string): string {
 			.replace(/^-+|-+$/g, "")
 	);
 }
-
-/**
- * Creates a URL-friendly path for documentation or decision items
- */
-export function createUrlPath(basePath: string, id: string, title: string): string {
-	const sanitizedTitle = sanitizeUrlTitle(title);
-	const cleanId = id.replace(/^(doc-|decision-|task-)/, "");
-	return `${basePath}/${cleanId}/${sanitizedTitle}`;
-}

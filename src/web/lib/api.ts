@@ -31,7 +31,7 @@ export interface InitializationStatus {
 	rootConfigPath?: string | null;
 }
 
-export class ApiError extends Error {
+class ApiError extends Error {
 	constructor(
 		message: string,
 		public status?: number,
@@ -48,7 +48,7 @@ export class ApiError extends Error {
 	}
 }
 
-export class NetworkError extends Error {
+class NetworkError extends Error {
 	constructor(message = "Network request failed") {
 		super(message);
 		this.name = "NetworkError";
@@ -66,7 +66,7 @@ const DEFAULT_CONFIG: RequestConfig = {
 	timeout: 10000,
 };
 
-export class ApiClient {
+class ApiClient {
 	private config: RequestConfig;
 
 	constructor(config: RequestConfig = {}) {

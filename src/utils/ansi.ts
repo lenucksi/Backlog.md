@@ -1,6 +1,6 @@
 import { hexToRgb } from "./color.ts";
 
-export function hexToAnsi256(hex: string): number {
+function hexToAnsi256(hex: string): number {
 	const { r, g, b } = hexToRgb(hex);
 	const best = ANSI216_COLORS.reduce(
 		(best, ansi) => {
@@ -15,7 +15,7 @@ export function hexToAnsi256(hex: string): number {
 	return best.ansi;
 }
 
-export function detectTerminalColorSupport(): "truecolor" | "256" | "none" {
+function detectTerminalColorSupport(): "truecolor" | "256" | "none" {
 	if (!process.stdout.isTTY || !process.stderr.isTTY) return "none";
 	const colorTerm = process.env.COLORTERM;
 	if (colorTerm === "truecolor" || colorTerm === "24bit") return "truecolor";
@@ -26,12 +26,12 @@ export function detectTerminalColorSupport(): "truecolor" | "256" | "none" {
 	return "none";
 }
 
-export function hexToTruecolorSequence(hex: string): string {
+function hexToTruecolorSequence(hex: string): string {
 	const { r, g, b } = hexToRgb(hex);
 	return `\x1b[38;2;${r};${g};${b}m`;
 }
 
-export function hexToAnsiSequence(hex: string): string {
+function hexToAnsiSequence(hex: string): string {
 	const support = detectTerminalColorSupport();
 	if (support === "truecolor") return hexToTruecolorSequence(hex);
 	if (support === "256") {

@@ -12,7 +12,7 @@ export interface LaneDefinition {
 }
 
 export const DEFAULT_LANE_KEY = "lane:none";
-export const NO_MILESTONE_LABEL = "No milestone";
+const NO_MILESTONE_LABEL = "No milestone";
 
 export const laneKeyFromMilestone = (milestone?: string | null): string => {
 	const key = milestoneKey(milestone);
@@ -239,100 +239,6 @@ function normalizeMilestoneValue(value: string | null): string | undefined {
 	if (value === null) return undefined;
 	const trimmed = value.trim();
 	return trimmed.length > 0 ? trimmed : undefined;
-}
-
-export function buildGlobalOrderedTaskIdsForMilestoneLaneReorder(params: {
-	tasks: Task[];
-	taskId: string;
-	targetStatus: string;
-	targetMilestone: string | null;
-	laneOrderedTaskIds: string[];
-	statuses?: readonly string[];
-	terminalStatuses?: readonly string[] | null;
-}): string[] {
-	const targetMilestoneValue = normalizeMilestoneValue(params.targetMilestone);
-	const taskId = String(params.taskId || "").trim();
-	const targetStatus = String(params.targetStatus || "").trim();
-
-	if (!taskId || !targetStatus) {
-		return params.laneOrderedTaskIds;
-	}
-
-	const nextTasks = params.tasks.map((task) => {
-		if (task.id !== taskId) return task;
-		return {
-			...task,
-			status: targetStatus,
-			milestone: targetMilestoneValue,
-		};
-	});
-
-	const statusTasks = nextTasks.filter((task) => (task.status ?? "") === targetStatus);
-	const templateIds = sortTasksForStatus(statusTasks, targetStatus, params.statuses, params.terminalStatuses).map(
-		(task) => task.id,
-	);
-
-	if (templateIds.length === 0) {
-		return params.laneOrderedTaskIds;
-	}
-
-	const targetMilestoneKey = milestoneKey(targetMilestoneValue);
-	const laneTaskIds = new Set(
-		statusTasks.filter((task) => milestoneKey(task.milestone) === targetMilestoneKey).map((task) => task.id),
-	);
-
-	const laneOrder: string[] = [];
-	const laneSeen = new Set<string>();
-	for (const id of params.laneOrderedTaskIds) {
-		if (!laneTaskIds.has(id)) continue;
-		if (laneSeen.has(id)) continue;
-		laneSeen.add(id);
-		laneOrder.push(id);
-	}
-
-	for (const id of templateIds) {
-		if (!laneTaskIds.has(id)) continue;
-		if (laneSeen.has(id)) continue;
-		laneSeen.add(id);
-		laneOrder.push(id);
-	}
-
-	const merged: string[] = [];
-	let laneIndex = 0;
-	for (const id of templateIds) {
-		if (laneTaskIds.has(id)) {
-			const nextLaneId = laneOrder[laneIndex];
-			if (nextLaneId) {
-				merged.push(nextLaneId);
-				laneIndex += 1;
-			} else {
-				merged.push(id);
-			}
-			continue;
-		}
-		merged.push(id);
-	}
-
-	if (!laneTaskIds.has(taskId) || !merged.includes(taskId)) {
-		return templateIds;
-	}
-
-	if (merged.length !== templateIds.length) {
-		return templateIds;
-	}
-
-	const mergedSet = new Set(merged);
-	if (mergedSet.size !== merged.length) {
-		return templateIds;
-	}
-
-	for (const id of templateIds) {
-		if (!mergedSet.has(id)) {
-			return templateIds;
-		}
-	}
-
-	return merged;
 }
 
 export function groupTasksByLaneAndStatus(

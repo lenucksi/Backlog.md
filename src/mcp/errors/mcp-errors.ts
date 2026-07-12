@@ -26,27 +26,9 @@ export function handleBacklogToolError(error: unknown): CallToolResult {
 }
 
 /**
- * Formats successful responses in a consistent structure
- */
-export function handleMcpSuccess(data: unknown): CallToolResult {
-	return {
-		content: [
-			{
-				type: "text",
-				text: "OK",
-			},
-		],
-		structuredContent: {
-			success: true,
-			data,
-		},
-	};
-}
-
-/**
  * Format error messages in markdown for consistent MCP error responses
  */
-export function formatErrorMarkdown(code: string, message: string, details?: unknown, includeDetails = false): string {
+function formatErrorMarkdown(code: string, message: string, details?: unknown, includeDetails = false): string {
 	if (includeDetails && details) {
 		let result = `${code}: ${message}`;
 

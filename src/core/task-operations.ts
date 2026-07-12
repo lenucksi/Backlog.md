@@ -26,7 +26,7 @@ export function formatDateStamp(): string {
 	return new Date().toISOString().slice(0, 16).replace("T", " ");
 }
 
-export async function withGitCommit(shouldAutoCommit: boolean, fn: () => Promise<void>): Promise<void> {
+async function withGitCommit(shouldAutoCommit: boolean, fn: () => Promise<void>): Promise<void> {
 	if (shouldAutoCommit) {
 		await fn();
 	}
@@ -71,7 +71,7 @@ export interface TaskOpDeps {
 	updateDraftFromInput(draftId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task>;
 }
 
-export async function resolveCreateOrdinal(
+async function resolveCreateOrdinal(
 	deps: TaskOpDeps,
 	inputOrdinal: number | undefined,
 	isDraft: boolean,
@@ -95,7 +95,7 @@ export async function resolveCreateOrdinal(
 	return Math.max(...ordinals) + DEFAULT_ORDINAL_STEP;
 }
 
-export async function writePreparedTask(deps: TaskOpDeps, task: Task, isDraft: boolean): Promise<string> {
+async function writePreparedTask(deps: TaskOpDeps, task: Task, isDraft: boolean): Promise<string> {
 	if (isDraft) {
 		task.status = "Draft";
 		normalizeAssignee(task);
@@ -106,7 +106,7 @@ export async function writePreparedTask(deps: TaskOpDeps, task: Task, isDraft: b
 	return await deps.filesystem.saveTask(task);
 }
 
-export async function finalizeCreatedTask(
+async function finalizeCreatedTask(
 	deps: TaskOpDeps,
 	task: Task,
 	filepath: string,

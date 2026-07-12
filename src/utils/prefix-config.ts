@@ -10,7 +10,7 @@ export const DEFAULT_PREFIX_CONFIG: PrefixConfig = {
 /**
  * Hardcoded draft prefix. Not configurable - always "draft".
  */
-export const DRAFT_PREFIX = "draft";
+const DRAFT_PREFIX = "draft";
 
 /**
  * Returns the default prefix configuration.
@@ -195,23 +195,6 @@ export function hasPrefix(id: string, prefix: string): boolean {
 export function hasAnyPrefix(id: string): boolean {
 	if (!id || typeof id !== "string") return false;
 	return /^[a-zA-Z]+-\S/.test(id.trim());
-}
-
-/**
- * Strips any prefix from an ID (e.g., "task-123" -> "123", "JIRA-456" -> "456").
- * Use this when you need the body/number part without the prefix.
- *
- * @param id - The ID to strip
- * @returns The ID without its prefix, or the original if no prefix
- *
- * @example
- * stripAnyPrefix("task-123") // => "123"
- * stripAnyPrefix("JIRA-456.1") // => "456.1"
- * stripAnyPrefix("123") // => "123"
- */
-export function stripAnyPrefix(id: string): string {
-	if (!id || typeof id !== "string") return id;
-	return id.trim().replace(/^[a-zA-Z]+-/, "");
 }
 
 /**

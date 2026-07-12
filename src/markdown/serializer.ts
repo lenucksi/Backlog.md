@@ -193,29 +193,16 @@ export function updateTaskAcceptanceCriteria(content: string, criteria: string[]
 	return useCRLF ? out.replace(/\n/g, "\r\n") : out;
 }
 
-export function updateTaskImplementationPlan(content: string, plan: string): string {
+function updateTaskImplementationPlan(content: string, plan: string): string {
 	return updateSection(content, { implementationPlan: plan });
 }
 
-export function updateTaskImplementationNotes(content: string, notes: string): string {
+function updateTaskImplementationNotes(content: string, notes: string): string {
 	return updateSection(content, { implementationNotes: notes });
 }
 
-export function updateTaskFinalSummary(content: string, summary: string): string {
+function updateTaskFinalSummary(content: string, summary: string): string {
 	return updateSection(content, { finalSummary: summary });
-}
-
-export function appendTaskImplementationNotes(content: string, notesChunks: string | string[]): string {
-	const chunks = (Array.isArray(notesChunks) ? notesChunks : [notesChunks])
-		.map((c) => String(c))
-		.map((c) => c.replace(/\r\n/g, "\n"))
-		.map((c) => c.trim())
-		.filter(Boolean);
-
-	const appendedBlock = chunks.join("\n\n");
-	const existingNotes = getStructuredSections(content).implementationNotes?.trim();
-	const combined = existingNotes ? `${existingNotes}\n\n${appendedBlock}` : appendedBlock;
-	return updateSection(content, { implementationNotes: combined });
 }
 
 export function updateTaskDescription(content: string, description: string): string {

@@ -34,7 +34,7 @@ export interface ViewerState {
 	divider: LineInterface | undefined;
 }
 
-export function createInitialViewerState(): Partial<ViewerState> {
+function createInitialViewerState(): Partial<ViewerState> {
 	return {
 		currentFocus: "list",
 		filterPopupOpen: false,

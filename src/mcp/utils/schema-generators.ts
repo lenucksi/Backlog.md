@@ -27,7 +27,7 @@ const DEFINITION_OF_DONE_ADD_FIELD = {
 /**
  * Generates a status field schema with dynamic enum values sourced from config.
  */
-export function generateStatusFieldSchema(config: BacklogConfig): JsonSchema {
+function generateStatusFieldSchema(config: BacklogConfig): JsonSchema {
 	const configuredStatuses =
 		config.statuses && config.statuses.length > 0 ? [...config.statuses] : [...DEFAULT_STATUSES];
 	const normalizedStatuses = configuredStatuses.map((status) => status.trim());

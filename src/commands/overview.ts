@@ -12,7 +12,7 @@ export function formatTime(ms: number): string {
 	return `${(ms / 1000).toFixed(1)}s`;
 }
 
-export async function runOverviewCommand(core: Core): Promise<void> {
+async function runOverviewCommand(core: Core): Promise<void> {
 	const startTime = performance.now();
 
 	const loadingScreen = await createLoadingScreen("Loading project statistics");

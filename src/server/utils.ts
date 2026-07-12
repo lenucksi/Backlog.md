@@ -4,7 +4,7 @@ const PREFIX_PATTERN = /^[a-zA-Z]+-/i;
 const DEFAULT_PREFIX = "task-";
 const DOCUMENT_TYPES = new Set<Document["type"]>(["readme", "guide", "specification", "other"]);
 
-export class DocumentPayloadValidationError extends Error {
+class DocumentPayloadValidationError extends Error {
 	constructor(message: string) {
 		super(message);
 		this.name = "DocumentPayloadValidationError";
@@ -83,7 +83,7 @@ export function handleDocumentUpdateError(error: unknown): Response {
 	return Response.json({ error: "Failed to update document" }, { status: 500 });
 }
 
-export function stripPrefix(id: string): string {
+function stripPrefix(id: string): string {
 	return id.replace(PREFIX_PATTERN, "");
 }
 
@@ -94,7 +94,7 @@ export function ensurePrefix(id: string): string {
 	return `${DEFAULT_PREFIX}${id}`;
 }
 
-export function parseTaskIdSegments(value: string): number[] | null {
+function parseTaskIdSegments(value: string): number[] | null {
 	const withoutPrefix = stripPrefix(value);
 	if (!/^[0-9]+(?:\.[0-9]+)*$/.test(withoutPrefix)) {
 		return null;
