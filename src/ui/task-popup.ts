@@ -123,13 +123,13 @@ export async function createTaskPopup(options: CreateTaskPopupOptions): Promise<
 
 	contentArea.on("focus", () => {
 		const popupStyle = popup.style as { border?: { fg?: string } };
-		popupStyle.border = { ...(popupStyle.border ?? {}), fg: "yellow" };
+		popupStyle.border = { ...popupStyle.border, fg: "yellow" };
 		screen.render();
 	});
 
 	contentArea.on("blur", () => {
 		const popupStyle = popup.style as { border?: { fg?: string } };
-		popupStyle.border = { ...(popupStyle.border ?? {}), fg: "gray" };
+		popupStyle.border = { ...popupStyle.border, fg: "gray" };
 		screen.render();
 	});
 

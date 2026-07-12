@@ -1,5 +1,6 @@
 import { Core } from "../index.ts";
 import type { BacklogConfig } from "../types/index.ts";
+import { getLogger } from "../utils/logger.ts";
 
 type CoreCallback<T> = (core: Core) => Promise<T>;
 
@@ -17,7 +18,8 @@ async function withCore<T>(callback: CoreCallback<T>, fallback: T): Promise<T> {
 	try {
 		const core = createCore();
 		return await callback(core);
-	} catch {
+	} catch (e) {
+		getLogger().debug(`Completion provider failed: ${e instanceof Error ? e.message : String(e)}`);
 		return fallback;
 	}
 }

@@ -795,10 +795,8 @@ export async function renderBoardTui(
 			// 3. Insert the moving task into the target column at the target index
 			const targetColumn = columns.find((c) => c.status === operation.targetStatus);
 			if (targetColumn) {
-				// Create a "ghost" task with updated status
 				const ghostTask = { ...movingTask, status: operation.targetStatus };
 
-				// Clamp index to valid bounds
 				const safeIndex = Math.max(0, Math.min(operation.targetIndex, targetColumn.tasks.length));
 				targetColumn.tasks.splice(safeIndex, 0, ghostTask);
 			}

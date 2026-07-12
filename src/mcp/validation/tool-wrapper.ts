@@ -117,7 +117,6 @@ export function validateSanitizedStrings(data: Record<string, unknown>): string[
 
 	function checkValue(key: string, value: unknown): void {
 		if (typeof value === "string") {
-			// Check for potential injection attempts
 			if (value.includes("\0")) {
 				errors.push(`Field '${key}' contains null bytes`);
 			}

@@ -9,7 +9,9 @@
 		"@tailwindcss/cli",
 		"@types/shell-quote",
 		"@uiw/react-markdown-preview",
-		"@uiw/react-md-editor"
+		"@uiw/react-md-editor",
+		"@opentui/core",
+		"react-tooltip"
 	],
 	"ignoreBinaries": [
 		"backlog",
@@ -22,7 +24,8 @@
 		"search",
 		"config",
 		"where",
-		"which"
+		"which",
+		"prek"
 	],
 	"ignoreExportsUsedInFile": {
 		"interface": true,

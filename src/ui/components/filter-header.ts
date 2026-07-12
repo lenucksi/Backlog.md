@@ -259,7 +259,7 @@ export class FilterHeader {
 
 	setBorderColor(color: string): void {
 		const style = this.container.style as { border?: { fg?: string } };
-		style.border = { ...(style.border ?? {}), fg: color };
+		style.border = { ...style.border, fg: color };
 	}
 
 	getContainer(): BoxInterface {

@@ -163,7 +163,7 @@ export class ContentStore {
 	}
 
 	private emit(event: ContentStoreEvent): void {
-		for (const listener of [...this.listeners]) {
+		for (const listener of this.listeners) {
 			listener(event);
 		}
 	}
@@ -869,7 +869,7 @@ export class ContentStore {
 
 		const removeSubtreeWatchers = (baseDir: string) => {
 			const prefix = baseDir.endsWith(sep) ? baseDir : `${baseDir}${sep}`;
-			for (const path of [...watchers.keys()]) {
+			for (const path of watchers.keys()) {
 				if (path === baseDir || path.startsWith(prefix)) {
 					watchers.get(path)?.close();
 					watchers.delete(path);

@@ -69,7 +69,7 @@ function loadConfigWithGitRoot(cwd) {
       _configCache = resolveDirs(gitRoot, raw);
       return _configCache;
     }
-  } catch {}
+  } catch { /* expected — no guard config */ }
   return loadConfig(cwd);
 }
 function isProtected(filePath, protectedDirs) {
@@ -248,7 +248,8 @@ CLI:  backlog search "${pattern}"`;
   ].join(`
 `);
 }
-function buildErrorMessage(tool, kind, taskId, blockedPath, matchedDir, configSource, grepPattern) {
+function buildErrorMessage(opts) {
+  const { tool, kind, taskId, blockedPath, matchedDir, configSource, grepPattern } = opts;
   let header;
   if (tool === "Grep" || tool === "grep") {
     header = "BACKLOG GUARD -- Grep on backlog directory is forbidden.";
@@ -319,7 +320,7 @@ function evaluate(input, config) {
     return { blocked: false };
   const kind = classifyPath(blockedPath);
   const taskId = kind === "task" ? extractTaskId(blockedPath) : null;
-  const errorMessage = buildErrorMessage(tool, kind, taskId, blockedPath, matchedDir, config.configSource, actualGrepPattern);
+  const errorMessage = buildErrorMessage({ tool, kind, taskId, blockedPath, matchedDir, configSource: config.configSource, grepPattern: actualGrepPattern });
   return {
     blocked: true,
     blockedPath,
@@ -343,7 +344,7 @@ var cmd = process.env.HOOK_CMD || "";
 var toolInput = {};
 try {
   toolInput = JSON.parse(process.env.HOOK_INPUT || "{}");
-} catch {}
+} catch { /* expected — no tool input */ }
 var input = {
   tool,
   filePath: fp,

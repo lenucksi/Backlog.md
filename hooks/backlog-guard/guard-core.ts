@@ -94,7 +94,7 @@ export function loadConfigWithGitRoot(cwd: string): GuardConfig | null {
 			_configCache = resolveDirs(gitRoot, raw)
 			return _configCache
 		}
-	} catch {}
+	} catch { /* expected — no guard config found, fall through to loadConfig */ }
 
 	return loadConfig(cwd)
 }

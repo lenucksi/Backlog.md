@@ -71,7 +71,7 @@ export function processAcceptanceCriteriaOptions(options: {
 }): string[] {
 	const criteria: string[] = [];
 	const checkAndPush = (value: string) => {
-		const trimmed = String(value).trim();
+		const trimmed = value.trim();
 		if (!trimmed) return;
 		warnShellInjection(trimmed, "acceptance criteria");
 		criteria.push(trimmed);

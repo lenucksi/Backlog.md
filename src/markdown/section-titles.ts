@@ -26,7 +26,3 @@ export function getStructuredSectionTitles(): string[] {
 	}
 	return Array.from(titles);
 }
-
-function getBaseStructuredSectionTitles(): string[] {
-	return Array.from(BASE_SECTION_TITLES);
-}

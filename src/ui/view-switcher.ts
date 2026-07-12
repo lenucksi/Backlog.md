@@ -285,7 +285,6 @@ export class ViewSwitcher {
 			type: viewType,
 		};
 
-		// Start background loading for next potential kanban switch
 		this.backgroundLoader.startLoading();
 
 		this.onViewChange?.(this.state);

@@ -2,7 +2,6 @@ import { createConsola } from "consola";
 
 const logger = createConsola({ level: 4 });
 
-// Type definitions for Mermaid API
 interface MermaidAPI {
 	initialize: (config: MermaidConfig) => void;
 	run?: (options?: MermaidRunOptions) => Promise<void>;
@@ -42,15 +41,12 @@ let initializationPromise: Promise<void> | null = null;
 async function ensureMermaid(): Promise<MermaidModule> {
 	const mock = (globalThis as MermaidGlobal).__MERMAID_MOCK__;
 	if (mock) {
-		// Reset cached initialization so each mock can configure itself.
 		initializationPromise = null;
 		return mock;
 	}
 
 	if (mermaidModule) return mermaidModule;
 
-	// Import Mermaid's prebuilt browser bundle so the single-file CLI build
-	// keeps Mermaid embedded without traversing the parser dependency graph.
 	mermaidModule = (await import("mermaid/dist/mermaid.esm.mjs")) as unknown as MermaidModule;
 	return mermaidModule;
 }
@@ -61,8 +57,6 @@ async function initializeMermaid(mermaid: MermaidAPI): Promise<void> {
 	}
 
 	initializationPromise = (async () => {
-		// Initialize with secure settings
-		// Use 'strict' for production to prevent XSS attacks
 		mermaid.initialize({
 			startOnLoad: false,
 			securityLevel: "strict",
@@ -73,69 +67,66 @@ async function initializeMermaid(mermaid: MermaidAPI): Promise<void> {
 	return initializationPromise;
 }
 
+async function renderDiagram(diagramText: string, wrapper: HTMLElement, mermaid: MermaidAPI): Promise<void> {
+	if (mermaid.run) {
+		try {
+			await mermaid.run({ nodes: [wrapper] });
+			return;
+		} catch {
+			// fall through to render
+		}
+	}
+
+	if (mermaid.render) {
+		try {
+			const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
+			const result = await mermaid.render(id, diagramText);
+			wrapper.insertAdjacentHTML("beforeend", result.svg);
+			if (result.bindFunctions) {
+				result.bindFunctions(wrapper);
+			}
+			return;
+		} catch {
+			// fall through to warning
+		}
+	}
+
+	logger.warn("mermaid: no compatible render method found, leaving raw code block");
+}
+
 export async function renderMermaidIn(element: HTMLElement): Promise<void> {
-	// Check for mermaid blocks before touching the heavy library so plain markdown stays fast.
 	const codeBlocks = Array.from(element.querySelectorAll("pre > code.language-mermaid")) as HTMLElement[];
-	if (codeBlocks.length === 0) {
+	if (codeBlocks.length === 0) return;
+
+	let m: MermaidModule;
+	try {
+		m = await ensureMermaid();
+	} catch (err) {
+		logger.warn("Failed to load mermaid", err);
 		return;
 	}
 
-	try {
-		const m = await ensureMermaid();
-		await initializeMermaid(m.default);
+	await initializeMermaid(m.default);
 
-		// Find mermaid code blocks and render each into a generated div
-		for (const codeEl of codeBlocks) {
-			const parent = codeEl.parentElement as HTMLElement;
-			if (!parent) continue;
-			const diagramText = codeEl.textContent || "";
+	for (const codeEl of codeBlocks) {
+		const parent = codeEl.parentElement as HTMLElement;
+		if (!parent) continue;
+		const diagramText = codeEl.textContent || "";
 
-			const wrapper = document.createElement("div");
-			wrapper.className = "mermaid";
-			wrapper.textContent = diagramText;
+		const wrapper = document.createElement("div");
+		wrapper.className = "mermaid";
+		wrapper.textContent = diagramText;
 
-			// Replace the code block's parent (pre) with our wrapper so it's in the DOM
-			parent.replaceWith(wrapper);
+		parent.replaceWith(wrapper);
 
-			// Ensure wrapper is attached to document before rendering
-			if (!document.body.contains(wrapper)) {
-				// try to append to the element as a last resort
-				element.appendChild(wrapper);
-			}
-
-			try {
-				if (m?.default?.run) {
-					try {
-						await m.default.run({ nodes: [wrapper] });
-						continue;
-					} catch {
-						// Continue to render fallback if run fails
-					}
-				}
-
-				if (m?.default?.render) {
-					const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
-					try {
-						const result = await m.default.render(id, diagramText);
-						wrapper.insertAdjacentHTML("beforeend", result.svg);
-
-						// Bind interactive functions if available (for click events, etc.)
-						if (result.bindFunctions) {
-							result.bindFunctions(wrapper);
-						}
-						continue;
-					} catch {
-						// Continue to next fallback if render fails
-					}
-				}
-
-				// If none of the above worked, log warning
-				logger.warn("mermaid: no compatible render method found, leaving raw code block");
-			} catch (err) {
-				logger.warn("mermaid render failed", err);
-			}
+		if (!document.body.contains(wrapper)) {
+			element.appendChild(wrapper);
 		}
-	} catch (err) {
-		logger.warn("Failed to load mermaid", err);
+
+		try {
+			await renderDiagram(diagramText, wrapper, m.default);
+		} catch (err) {
+			logger.warn("mermaid render failed", err);
+		}
 	}
 }

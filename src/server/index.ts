@@ -123,7 +123,6 @@ export class BacklogServer {
 	}
 
 	private createHandlerContext(): ServerHandlerContext {
-		const self = this;
 		return {
 			core: this.core,
 			getContentStore: () => this.getContentStoreInstance(),
@@ -131,9 +130,7 @@ export class BacklogServer {
 			broadcastTasksUpdated: () => this.broadcastTasksUpdated(),
 			broadcastConfigUpdated: () => this.broadcastConfigUpdated(),
 			resolveMilestoneInput: (milestone: string) => this.resolveMilestoneInput(milestone),
-			get projectName() {
-				return self.projectName;
-			},
+			projectName: this.projectName,
 			setProjectName: (name: string) => {
 				this.projectName = name;
 			},

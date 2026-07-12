@@ -23,7 +23,6 @@ export function useHealthCheck() {
 			return;
 		}
 
-		// Clean up any existing connection before creating a new one
 		if (wsRef.current) {
 			wsRef.current.close();
 			wsRef.current = null;

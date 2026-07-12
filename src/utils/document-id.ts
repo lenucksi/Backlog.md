@@ -1,10 +1,3 @@
-function ensureDocumentPrefix(value: string): string {
-	const trimmed = value.trim();
-	const match = trimmed.match(/^doc-(.+)$/i);
-	const body = match ? match[1] : trimmed;
-	return `doc-${body}`;
-}
-
 function extractDocumentNumber(value: string): string | null {
 	const trimmed = value.trim();
 	const match = trimmed.match(/^(?:doc-)?0*([0-9]+)$/i);
@@ -12,7 +5,10 @@ function extractDocumentNumber(value: string): string | null {
 }
 
 export function normalizeDocumentId(id: string): string {
-	return ensureDocumentPrefix(id);
+	const trimmed = id.trim();
+	const match = trimmed.match(/^doc-(.+)$/i);
+	const body = match ? match[1] : trimmed;
+	return `doc-${body}`;
 }
 
 export function documentIdsEqual(left: string, right: string): boolean {

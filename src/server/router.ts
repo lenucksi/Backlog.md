@@ -1,7 +1,7 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
-// @ts-expect-error
+// @ts-expect-error — Bun-specific with { type: "file" } import, no TS types
 import favicon from "../web/favicon.png" with { type: "file" };
 import { applyNoStoreHeaders } from "./middleware.ts";
 import { createBulkRoutes, createEntityRoutes } from "./route-factories.ts";

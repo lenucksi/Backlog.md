@@ -171,7 +171,6 @@ const Statistics: React.FC<StatisticsProps> = ({
 				setLoading(true);
 				setError(null);
 
-				// Loading messages that reflect actual backend operations
 				const loadingMessages = [
 					"Building statistics...",
 					"Loading local tasks...",

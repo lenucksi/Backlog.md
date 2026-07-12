@@ -378,10 +378,7 @@ function prepareMilestoneData(
 	return { normalizedTasks, filteredMilestones };
 }
 
-/**
- * Build a complete milestone summary
- */
-function buildMilestoneSummary(
+function _buildMilestoneSummary(
 	tasks: Task[],
 	milestoneEntities: Milestone[],
 	statuses: string[],
