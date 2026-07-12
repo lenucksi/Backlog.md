@@ -36,6 +36,50 @@ const hasTaskSearchFilters = (parsedQuery: ReturnType<typeof parseSearchCommandQ
 	);
 };
 
+interface NavItemProps {
+	to: string;
+	icon: React.ReactNode;
+	label: string;
+	isCollapsed?: boolean;
+}
+
+const navItemClass = (isActive: boolean, isCollapsed?: boolean) =>
+	isCollapsed
+		? `flex items-center justify-center p-3 rounded-md transition-colors duration-200 ${
+				isActive
+					? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
+					: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+			}`
+		: `flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
+				isActive
+					? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
+					: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+			}`;
+
+function NavItem({ to, icon, label, isCollapsed }: NavItemProps) {
+	return (
+		<NavLink
+			to={to}
+			{...(isCollapsed
+				? {
+						"data-tooltip-id": "sidebar-tooltip",
+						"data-tooltip-content": label,
+					}
+				: {})}
+			className={({ isActive }) => navItemClass(isActive, isCollapsed)}
+		>
+			{isCollapsed ? (
+				<div className="size-6 flex items-center justify-center">{icon}</div>
+			) : (
+				<>
+					{icon}
+					<span className="ml-3 text-sm font-medium">{label}</span>
+				</>
+			)}
+		</NavLink>
+	);
+}
+
 // Icon components imported from centralized icon set
 
 interface SideNavigationProps {
@@ -450,80 +494,11 @@ const SideNavigation = memo(function SideNavigation({
 					{/* Navigation items only show when expanded and not loading */}
 					{!isCollapsed && !isLoading && (
 						<div className="px-4 space-y-1">
-							{/* Board Navigation */}
-							<NavLink
-								to="/"
-								className={({ isActive }) =>
-									`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-											: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<Icons.Board />
-								<span className="ml-3 text-sm font-medium">Kanban Board</span>
-							</NavLink>
-
-							{/* Tasks Navigation */}
-							<NavLink
-								to="/tasks"
-								className={({ isActive }) =>
-									`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-											: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<Icons.List />
-								<span className="ml-3 text-sm font-medium">All Tasks</span>
-							</NavLink>
-
-							{/* Milestones Navigation */}
-							<NavLink
-								to="/milestones"
-								className={({ isActive }) =>
-									`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-											: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<Icons.Milestone />
-								<span className="ml-3 text-sm font-medium">Milestones</span>
-							</NavLink>
-
-							{/* Drafts Navigation */}
-							<NavLink
-								to="/drafts"
-								className={({ isActive }) =>
-									`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-											: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<Icons.Draft />
-								<span className="ml-3 text-sm font-medium">Drafts</span>
-							</NavLink>
-
-							{/* Statistics Navigation */}
-							<NavLink
-								to="/statistics"
-								className={({ isActive }) =>
-									`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-											: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<Icons.Statistics />
-								<span className="ml-3 text-sm font-medium">Statistics</span>
-							</NavLink>
+							<NavItem to="/" icon={<Icons.Board />} label="Kanban Board" />
+							<NavItem to="/tasks" icon={<Icons.List />} label="All Tasks" />
+							<NavItem to="/milestones" icon={<Icons.Milestone />} label="Milestones" />
+							<NavItem to="/drafts" icon={<Icons.Draft />} label="Drafts" />
+							<NavItem to="/statistics" icon={<Icons.Statistics />} label="Statistics" />
 						</div>
 					)}
 
@@ -750,89 +725,11 @@ const SideNavigation = memo(function SideNavigation({
 
 					{isCollapsed && (
 						<div className="px-2 py-2 space-y-2">
-							<NavLink
-								to="/"
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="Kanban Board"
-								className={({ isActive }) =>
-									`flex items-center justify-center p-3 rounded-md transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-											: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.Board />
-								</div>
-							</NavLink>
-							<NavLink
-								to="/tasks"
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="All Tasks"
-								className={({ isActive }) =>
-									`flex items-center justify-center p-3 rounded-md transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-											: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.List />
-								</div>
-							</NavLink>
-							{/* Drafts Navigation */}
-							<NavLink
-								to="/drafts"
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="Drafts"
-								className={({ isActive }) =>
-									`flex items-center justify-center p-3 rounded-md transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-											: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.Draft />
-								</div>
-							</NavLink>
-							{/* Milestones Navigation */}
-							<NavLink
-								to="/milestones"
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="Milestones"
-								className={({ isActive }) =>
-									`flex items-center justify-center p-3 rounded-md transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-											: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.Milestone />
-								</div>
-							</NavLink>
-							{/* Statistics Navigation */}
-							<NavLink
-								to="/statistics"
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="Statistics"
-								className={({ isActive }) =>
-									`flex items-center justify-center p-3 rounded-md transition-colors duration-200 ${
-										isActive
-											? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-											: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-									}`
-								}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.Statistics />
-								</div>
-							</NavLink>
+							<NavItem to="/" icon={<Icons.Board />} label="Kanban Board" isCollapsed />
+							<NavItem to="/tasks" icon={<Icons.List />} label="All Tasks" isCollapsed />
+							<NavItem to="/drafts" icon={<Icons.Draft />} label="Drafts" isCollapsed />
+							<NavItem to="/milestones" icon={<Icons.Milestone />} label="Milestones" isCollapsed />
+							<NavItem to="/statistics" icon={<Icons.Statistics />} label="Statistics" isCollapsed />
 							<button
 								type="button"
 								onClick={() => setIsCollapsed(false)}
