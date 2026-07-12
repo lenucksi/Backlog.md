@@ -1,31 +1,10 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { BacklogConfig } from "../../types";
 import { apiClient } from "../lib/api";
+import ConfigEntityManager from "./ConfigEntityManager";
+import StatusSelector from "./StatusSelector";
 import { SuccessToast } from "./SuccessToast";
-
-const PRESET_COLORS = [
-	"#f9c4c4",
-	"#fad0b4",
-	"#f9e6b4",
-	"#c4e6c4",
-	"#b4e0d0",
-	"#b8d4f0",
-	"#d4b8e6",
-	"#f4b4c4",
-	"#b4e0e6",
-	"#c4e6b4",
-	"#f4d0b4",
-	"#c4c4d0",
-];
-
-function getLabelColor(label: string | { name: string; color?: string }): string | undefined {
-	return typeof label === "string" ? undefined : label.color;
-}
-
-function getLabelName(label: string | { name: string; color?: string }): string {
-	return typeof label === "string" ? label : label.name;
-}
 
 const Settings: React.FC = () => {
 	const [config, setConfig] = useState<BacklogConfig | null>(null);
@@ -36,11 +15,6 @@ const Settings: React.FC = () => {
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [statuses, setStatuses] = useState<string[]>([]);
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-	const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
-	const [colorPickerColor, setColorPickerColor] = useState("");
-	const [newLabelColor, setNewLabelColor] = useState("");
-	const [newAuthorColor, setNewAuthorColor] = useState("");
-	const colorPickerRef = useRef<HTMLDivElement>(null);
 
 	const loadConfig = async () => {
 		try {
@@ -86,17 +60,6 @@ const Settings: React.FC = () => {
 			});
 		}
 	};
-
-	useEffect(() => {
-		if (colorPickerIndex === null) return;
-		const handler = (e: MouseEvent) => {
-			if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
-				setColorPickerIndex(null);
-			}
-		};
-		document.addEventListener("mousedown", handler);
-		return () => document.removeEventListener("mousedown", handler);
-	}, [colorPickerIndex]);
 
 	const normalizeDefinitionOfDone = (items: string[] | undefined): string[] | undefined => {
 		const normalized = (items ?? []).map((item) => item.trim()).filter((item) => item.length > 0);
@@ -316,79 +279,23 @@ const Settings: React.FC = () => {
 								<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Default status for new tasks</p>
 							</div>
 
-							<div>
-								<label
-									htmlFor="terminalStatuses"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Terminal Statuses
-								</label>
-								<div className="flex flex-wrap gap-1.5 mb-1">
-									{statuses.map((status) => {
-										const checked = (config.terminalStatuses ?? []).includes(status);
-										return (
-											<button
-												key={status}
-												type="button"
-												onClick={() => {
-													const current = config.terminalStatuses ?? [];
-													handleInputChange(
-														"terminalStatuses",
-														checked ? current.filter((s) => s !== status) : [...current, status],
-													);
-												}}
-												className={`px-2.5 py-1 text-xs rounded-md border transition-colors duration-150 ${
-													checked
-														? "bg-stone-100 dark:bg-stone-700 border-stone-400 dark:border-stone-500 font-medium"
-														: "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400"
-												}`}
-											>
-												{status}
-											</button>
-										);
-									})}
-								</div>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Tasks in these statuses are considered complete (terminal)
-								</p>
-							</div>
+							<StatusSelector
+								configKey="terminalStatuses"
+								label="Terminal Statuses"
+								statuses={statuses}
+								value={config.terminalStatuses ?? []}
+								onChange={(key, value) => handleInputChange(key as keyof BacklogConfig, value)}
+								description="Tasks in these statuses are considered complete (terminal)"
+							/>
 
-							<div>
-								<label
-									htmlFor="blockedStatuses"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Blocked Statuses
-								</label>
-								<div className="flex flex-wrap gap-1.5 mb-1">
-									{statuses.map((status) => {
-										const checked = (config.blockedStatuses ?? []).includes(status);
-										return (
-											<button
-												key={status}
-												type="button"
-												onClick={() => {
-													const current = config.blockedStatuses ?? [];
-													handleInputChange(
-														"blockedStatuses",
-														checked ? current.filter((s) => s !== status) : [...current, status],
-													);
-												}}
-												className={`px-2.5 py-1 text-xs rounded-md border transition-colors duration-150 ${
-													checked
-														? "bg-stone-100 dark:bg-stone-700 border-stone-400 dark:border-stone-500 font-medium"
-														: "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400"
-												}`}
-											>
-												{status}
-											</button>
-										);
-									})}
-								</div>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Tasks in these statuses are considered blocked
-								</p>
-							</div>
+							<StatusSelector
+								configKey="blockedStatuses"
+								label="Blocked Statuses"
+								statuses={statuses}
+								value={config.blockedStatuses ?? []}
+								onChange={(key, value) => handleInputChange(key as keyof BacklogConfig, value)}
+								description="Tasks in these statuses are considered blocked"
+							/>
 
 							<div>
 								<label
@@ -412,323 +319,39 @@ const Settings: React.FC = () => {
 						</div>
 					</div>
 
-					{/* Labels Management */}
-					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Labels</h2>
-						<div className="space-y-3">
-							{config.labels.map((label, index) => {
-								const labelColor = getLabelColor(label);
-								const labelName = getLabelName(label);
-								return (
-									<div key={labelName} className="flex items-center gap-2 relative">
-										<button
-											type="button"
-											className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
-											style={{ backgroundColor: labelColor || "#9ca3af" }}
-											onClick={(e) => {
-												e.stopPropagation();
-												setColorPickerIndex(index);
-												setColorPickerColor(labelColor || "");
-											}}
-											onKeyDown={(e) => {
-												if (e.key === "Enter" || e.key === " ") {
-													e.preventDefault();
-													setColorPickerIndex(index);
-													setColorPickerColor(labelColor || "");
-												}
-											}}
-											title="Change label color"
-										/>
-										{colorPickerIndex === index && (
-											<div
-												ref={colorPickerRef}
-												className="absolute left-0 top-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 w-56"
-											>
-												<div className="grid grid-cols-6 gap-1.5 mb-2">
-													{PRESET_COLORS.map((c) => (
-														<button
-															key={c}
-															type="button"
-															className={`size-6 rounded-circle border-2 transition-all ${
-																colorPickerColor === c
-																	? "border-blue-500 scale-110"
-																	: "border-transparent hover:scale-110"
-															}`}
-															style={{ backgroundColor: c }}
-															onClick={() => setColorPickerColor(c)}
-														/>
-													))}
-												</div>
-												<div className="flex items-center gap-2">
-													<input
-														type="text"
-														value={colorPickerColor}
-														onChange={(e) => setColorPickerColor(e.target.value)}
-														placeholder="#ff0000"
-														className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-stone-500"
-													/>
-													<button
-														type="button"
-														onClick={async () => {
-															const name = labelName;
-															const color = colorPickerColor.startsWith("#") ? colorPickerColor : "";
-															try {
-																await apiClient.setLabelColor(name, color);
-																const updated = await apiClient.fetchLabels();
-																setConfig({ ...config, labels: updated });
-																setColorPickerIndex(null);
-															} catch (err) {
-																setError(err instanceof Error ? err.message : "Failed to set label color");
-															}
-														}}
-														className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-													>
-														Apply
-													</button>
-												</div>
-											</div>
-										)}
-										<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
-											{labelName}
-										</span>
-										<button
-											type="button"
-											onClick={async () => {
-												const newName = prompt("Rename label to:", labelName);
-												if (newName?.trim() && newName.trim() !== labelName) {
-													try {
-														await apiClient.renameLabel(labelName, newName.trim());
-														const updated = await apiClient.fetchLabels();
-														setConfig({ ...config, labels: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to rename label");
-													}
-												}
-											}}
-											className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
-										>
-											Rename
-										</button>
-										<button
-											type="button"
-											onClick={async () => {
-												if (confirm(`Remove label "${labelName}" from config?`)) {
-													try {
-														await apiClient.removeLabel(labelName);
-														const updated = await apiClient.fetchLabels();
-														setConfig({ ...config, labels: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to remove label");
-													}
-												}
-											}}
-											className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-										>
-											Delete
-										</button>
-									</div>
-								);
-							})}
-							<div className="flex items-center gap-2 pt-2">
-								<button
-									type="button"
-									className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
-									style={{ backgroundColor: newLabelColor || "#9ca3af" }}
-									onClick={() => {
-										const idx = Math.floor(Math.random() * PRESET_COLORS.length);
-										const picked = PRESET_COLORS[idx];
-										setNewLabelColor(newLabelColor ? "" : (picked ?? ""));
-									}}
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											e.preventDefault();
-											const idx = Math.floor(Math.random() * PRESET_COLORS.length);
-											const picked = PRESET_COLORS[idx];
-											setNewLabelColor(newLabelColor ? "" : (picked ?? ""));
-										}
-									}}
-									title="Toggle random color for new label"
-								/>
-								<input
-									type="text"
-									id="newLabelInput"
-									placeholder="New label name..."
-									className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400"
-								/>
-								<button
-									type="button"
-									onClick={async () => {
-										const input = document.getElementById("newLabelInput") as HTMLInputElement;
-										const name = input?.value?.trim();
-										if (!name) return;
-										try {
-											await apiClient.addLabel(name, newLabelColor || undefined);
-											const updated = await apiClient.fetchLabels();
-											setConfig({ ...config, labels: updated });
-											input.value = "";
-											setNewLabelColor("");
-										} catch (err) {
-											setError(err instanceof Error ? err.message : "Failed to add label");
-										}
-									}}
-									className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-								>
-									Add
-								</button>
-							</div>
-						</div>
-					</div>
+					<ConfigEntityManager
+						title="Labels"
+						items={config.labels}
+						api={{
+							add: (name, color) => apiClient.addLabel(name, color),
+							rename: (oldName, newName) => apiClient.renameLabel(oldName, newName),
+							remove: (name) => apiClient.removeLabel(name),
+							setColor: (name, color) => apiClient.setLabelColor(name, color),
+							fetch: () => apiClient.fetchLabels(),
+						}}
+						badgeClass="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200"
+						placeholder="New label name..."
+						entityName="label"
+						onItemsChange={(items) => setConfig((prev) => (prev ? { ...prev, labels: items } : null))}
+						onError={setError}
+					/>
 
-					{/* Authors Management */}
-					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Authors</h2>
-						<div className="space-y-3">
-							{(config.authors ?? []).map((author, index) => {
-								const authorColor = typeof author === "string" ? undefined : author.color;
-								const authorName = typeof author === "string" ? author : author.name;
-								return (
-									<div key={authorName} className="flex items-center gap-2 relative">
-										<button
-											type="button"
-											className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
-											style={{ backgroundColor: authorColor || "#9ca3af" }}
-											onClick={(e) => {
-												e.stopPropagation();
-												setColorPickerIndex(-(index + 1));
-												setColorPickerColor(authorColor || "");
-											}}
-											title="Change author color"
-										/>
-										{colorPickerIndex === -(index + 1) && (
-											<div
-												ref={colorPickerRef}
-												className="absolute left-0 top-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 w-56"
-											>
-												<div className="grid grid-cols-6 gap-1.5 mb-2">
-													{PRESET_COLORS.map((c) => (
-														<button
-															key={c}
-															type="button"
-															className={`size-6 rounded-circle border-2 transition-all ${
-																colorPickerColor === c
-																	? "border-blue-500 scale-110"
-																	: "border-transparent hover:scale-110"
-															}`}
-															style={{ backgroundColor: c }}
-															onClick={() => setColorPickerColor(c)}
-														/>
-													))}
-												</div>
-												<div className="flex items-center gap-2">
-													<input
-														type="text"
-														value={colorPickerColor}
-														onChange={(e) => setColorPickerColor(e.target.value)}
-														placeholder="#ff0000"
-														className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-stone-500"
-													/>
-													<button
-														type="button"
-														onClick={async () => {
-															const color = colorPickerColor.startsWith("#") ? colorPickerColor : "";
-															try {
-																await apiClient.setAuthorColor(authorName, color);
-																const updated = await apiClient.fetchAuthors();
-																setConfig({ ...config, authors: updated });
-																setColorPickerIndex(null);
-															} catch (err) {
-																setError(err instanceof Error ? err.message : "Failed to set author color");
-															}
-														}}
-														className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-													>
-														Apply
-													</button>
-												</div>
-											</div>
-										)}
-										<span className="flex-1 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 rounded text-sm">
-											{authorName}
-										</span>
-										<button
-											type="button"
-											onClick={async () => {
-												const newName = prompt("Rename author to:", authorName);
-												if (newName?.trim() && newName.trim() !== authorName) {
-													try {
-														await apiClient.renameAuthor(authorName, newName.trim());
-														const updated = await apiClient.fetchAuthors();
-														setConfig({ ...config, authors: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to rename author");
-													}
-												}
-											}}
-											className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
-										>
-											Rename
-										</button>
-										<button
-											type="button"
-											onClick={async () => {
-												if (confirm(`Remove author "${authorName}" from config?`)) {
-													try {
-														await apiClient.removeAuthor(authorName);
-														const updated = await apiClient.fetchAuthors();
-														setConfig({ ...config, authors: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to remove author");
-													}
-												}
-											}}
-											className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-										>
-											Delete
-										</button>
-									</div>
-								);
-							})}
-							<div className="flex items-center gap-2 pt-2">
-								<button
-									type="button"
-									className="size-4 rounded-circle border border-gray-300 cursor-pointer shrink-0"
-									style={{ backgroundColor: newAuthorColor || "#9ca3af" }}
-									onClick={() => {
-										const idx = Math.floor(Math.random() * PRESET_COLORS.length);
-										const picked = PRESET_COLORS[idx];
-										setNewAuthorColor(newAuthorColor ? "" : (picked ?? ""));
-									}}
-									title="Toggle random color for new author"
-								/>
-								<input
-									type="text"
-									id="newAuthorInput"
-									placeholder="New author name..."
-									className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400"
-								/>
-								<button
-									type="button"
-									onClick={async () => {
-										const input = document.getElementById("newAuthorInput") as HTMLInputElement;
-										const name = input?.value?.trim();
-										if (!name) return;
-										try {
-											await apiClient.addAuthor(name, newAuthorColor || undefined);
-											const updated = await apiClient.fetchAuthors();
-											setConfig({ ...config, authors: updated });
-											input.value = "";
-											setNewAuthorColor("");
-										} catch (err) {
-											setError(err instanceof Error ? err.message : "Failed to add author");
-										}
-									}}
-									className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-								>
-									Add
-								</button>
-							</div>
-						</div>
-					</div>
+					<ConfigEntityManager
+						title="Authors"
+						items={config.authors ?? []}
+						api={{
+							add: (name, color) => apiClient.addAuthor(name, color),
+							rename: (oldName, newName) => apiClient.renameAuthor(oldName, newName),
+							remove: (name) => apiClient.removeAuthor(name),
+							setColor: (name, color) => apiClient.setAuthorColor(name, color),
+							fetch: () => apiClient.fetchAuthors(),
+						}}
+						badgeClass="bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200"
+						placeholder="New author name..."
+						entityName="author"
+						onItemsChange={(items) => setConfig((prev) => (prev ? { ...prev, authors: items } : null))}
+						onError={setError}
+					/>
 
 					{/* Definition of Done Defaults */}
 					<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
