@@ -202,8 +202,8 @@ export const Icons = {
 			<circle cx="12" cy="12" r="1" strokeWidth={2} />
 		</svg>
 	),
-	Close: () => (
-		<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+	Close: ({ className }: { className?: string } = {}) => (
+		<svg aria-hidden="true" className={className ?? "size-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 		</svg>
 	),
@@ -292,8 +292,8 @@ export const Icons = {
 			/>
 		</svg>
 	),
-	Archive: () => (
-		<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+	Archive: ({ className }: { className?: string } = {}) => (
+		<svg aria-hidden="true" className={className ?? "size-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path
 				strokeLinecap="round"
 				strokeLinejoin="round"
@@ -307,8 +307,8 @@ export const Icons = {
 			<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
 		</svg>
 	),
-	Link: () => (
-		<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+	Link: ({ className }: { className?: string } = {}) => (
+		<svg aria-hidden="true" className={className ?? "size-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path
 				strokeLinecap="round"
 				strokeLinejoin="round"
@@ -320,6 +320,16 @@ export const Icons = {
 	ArrowRight: () => (
 		<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+		</svg>
+	),
+	Refresh: ({ className }: { className?: string } = {}) => (
+		<svg aria-hidden="true" className={className ?? "size-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+			/>
 		</svg>
 	),
 	X: () => (
