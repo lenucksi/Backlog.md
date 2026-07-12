@@ -574,6 +574,10 @@ export class FileSystem {
 		return sortByTaskId(tasks);
 	}
 
+	async listArchivedTasks(): Promise<Task[]> {
+		return this.listCompletedTasks();
+	}
+
 	async listCompletedTasks(): Promise<Task[]> {
 		let archiveTasksDir: string;
 		try {
