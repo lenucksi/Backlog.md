@@ -207,6 +207,18 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 
 	const [collapsedParents, setCollapsedParents] = React.useState<Record<string, boolean>>({});
 
+	const menuItemSvg = (path: string) => (
+		<svg
+			aria-hidden="true"
+			className="size-4 text-gray-500 dark:text-gray-400"
+			fill="none"
+			stroke="currentColor"
+			viewBox="0 0 24 24"
+		>
+			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={path} />
+		</svg>
+	);
+
 	const getDragHandlers = (taskId: string) => ({
 		onDragStart: () => {
 			setDraggedTaskId(taskId);
@@ -304,20 +316,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 									onClick={handleSortByPriority}
 									className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors duration-150"
 								>
-									<svg
-										aria-hidden="true"
-										className="size-4 text-gray-500 dark:text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
-										/>
-									</svg>
+									{menuItemSvg("M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12")}
 									Sort by Priority
 								</button>
 								<button
@@ -326,20 +325,9 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 									onClick={handleSortByCreatedDate}
 									className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors duration-150"
 								>
-									<svg
-										aria-hidden="true"
-										className="size-4 text-gray-500 dark:text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-										/>
-									</svg>
+									{menuItemSvg(
+										"M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+									)}
 									Sort by Creation Date
 									<span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
 										{sortByCreatedAsc === null ? "" : sortByCreatedAsc ? "▲" : "▼"}

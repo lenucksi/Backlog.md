@@ -159,6 +159,23 @@ function resolveDirectorySource(dir: string): BacklogDirectorySource {
 	return "custom";
 }
 
+function nullResolutionResult(
+	projectRoot: string,
+	rootConfigPath: string,
+	rootConfigExists: boolean,
+): BacklogDirectoryResolution {
+	return {
+		projectRoot,
+		backlogDir: null,
+		backlogPath: null,
+		source: null,
+		configPath: null,
+		configSource: null,
+		rootConfigPath,
+		rootConfigExists,
+	};
+}
+
 export function resolveBacklogDirectory(projectRoot: string): BacklogDirectoryResolution {
 	const rootConfigPath = join(projectRoot, DEFAULT_FILES.ROOT_CONFIG);
 	const rootConfigExists = fileExists(rootConfigPath);
@@ -196,31 +213,13 @@ export function resolveBacklogDirectory(projectRoot: string): BacklogDirectoryRe
 				};
 			}
 
-			return {
-				projectRoot,
-				backlogDir: null,
-				backlogPath: null,
-				source: null,
-				configPath: null,
-				configSource: null,
-				rootConfigPath,
-				rootConfigExists,
-			};
+			return nullResolutionResult(projectRoot, rootConfigPath, rootConfigExists);
 		}
 	}
 
 	const builtIn = resolveBuiltInBacklogDirectory(projectRoot);
 	if (!builtIn) {
-		return {
-			projectRoot,
-			backlogDir: null,
-			backlogPath: null,
-			source: null,
-			configPath: null,
-			configSource: null,
-			rootConfigPath,
-			rootConfigExists,
-		};
+		return nullResolutionResult(projectRoot, rootConfigPath, rootConfigExists);
 	}
 
 	const folderConfigPath = resolveFolderConfigPath(builtIn.backlogPath);
