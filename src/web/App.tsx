@@ -280,98 +280,60 @@ function App() {
 		[],
 	);
 
-	const loadAllData = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			const [
-				statusesData,
-				configData,
-				searchResults,
-				milestonesData,
-				archivedMilestonesData,
-				archivedDocsData,
-				completedTasksData,
-				authorsData,
-			] = await Promise.all([
-				apiClient.fetchStatuses(),
-				apiClient.fetchConfig(),
-				apiClient.search(),
-				apiClient.fetchMilestones(),
-				apiClient.fetchArchivedMilestones(),
-				apiClient.fetchArchivedDocs(),
-				apiClient.fetchCompletedTasks(),
-				apiClient.fetchAuthors(),
-			]);
+	const fetchAllData = useCallback(
+		async (isFullLoad: boolean) => {
+			if (isFullLoad) setIsLoading(true);
+			try {
+				const [
+					statusesData,
+					configData,
+					searchResults,
+					milestonesData,
+					archivedMilestonesData,
+					archivedDocsData,
+					completedTasksData,
+					authorsData,
+				] = await Promise.all([
+					apiClient.fetchStatuses(),
+					apiClient.fetchConfig(),
+					apiClient.search(),
+					apiClient.fetchMilestones(),
+					apiClient.fetchArchivedMilestones(),
+					apiClient.fetchArchivedDocs(),
+					apiClient.fetchCompletedTasks(),
+					apiClient.fetchAuthors(),
+				]);
 
-			const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
-			const milestoneAliases = buildMilestoneAliasMap(milestonesData, archivedMilestonesData);
-			const { tasks: tasksList } = applySearchResults(searchResults, archivedKeys, milestoneAliases);
+				const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
+				const milestoneAliases = buildMilestoneAliasMap(milestonesData, archivedMilestonesData);
+				const { tasks: tasksList } = applySearchResults(searchResults, archivedKeys, milestoneAliases);
 
-			setStatuses(statusesData);
-			setProjectName(configData.projectName);
-			setAvailableLabels((configData.labels || []).map((l) => (typeof l === "string" ? l : l.name)));
-			setAvailableAuthors(authorsData.map((a) => ({ name: a.name, color: a.color ?? null })));
-			setConfig(configData);
-			setMilestoneEntities(milestonesData);
-			setArchivedMilestones(archivedMilestonesData);
-			setArchivedDocs(archivedDocsData);
-			setCompletedTasks(completedTasksData);
-			setMilestones(
-				collectMilestoneIds(tasksList, milestonesData, archivedMilestonesData).filter(
-					(milestone) => !archivedKeys.has(milestoneKey(milestone)),
-				),
-			);
-		} catch (error) {
-			console.error("Failed to load data:", error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [applySearchResults]);
+				setStatuses(statusesData);
+				setProjectName(configData.projectName);
+				setAvailableLabels((configData.labels || []).map((l) => (typeof l === "string" ? l : l.name)));
+				setAvailableAuthors(authorsData.map((a) => ({ name: a.name, color: a.color ?? null })));
+				setConfig(configData);
+				setMilestoneEntities(milestonesData);
+				setArchivedMilestones(archivedMilestonesData);
+				setArchivedDocs(archivedDocsData);
+				setCompletedTasks(completedTasksData);
+				setMilestones(
+					collectMilestoneIds(tasksList, milestonesData, archivedMilestonesData).filter(
+						(milestone) => !archivedKeys.has(milestoneKey(milestone)),
+					),
+				);
+			} catch (error) {
+				console.error(isFullLoad ? "Failed to load data:" : "Failed to refresh data:", error);
+			} finally {
+				if (isFullLoad) setIsLoading(false);
+			}
+		},
+		[applySearchResults],
+	);
 
-	const refreshAllData = useCallback(async () => {
-		try {
-			const [
-				statusesData,
-				configData,
-				searchResults,
-				milestonesData,
-				archivedMilestonesData,
-				archivedDocsData,
-				completedTasksData,
-				authorsData,
-			] = await Promise.all([
-				apiClient.fetchStatuses(),
-				apiClient.fetchConfig(),
-				apiClient.search(),
-				apiClient.fetchMilestones(),
-				apiClient.fetchArchivedMilestones(),
-				apiClient.fetchArchivedDocs(),
-				apiClient.fetchCompletedTasks(),
-				apiClient.fetchAuthors(),
-			]);
+	const loadAllData = useCallback(() => fetchAllData(true), [fetchAllData]);
 
-			const archivedKeys = new Set(collectArchivedMilestoneKeys(archivedMilestonesData, milestonesData));
-			const milestoneAliases = buildMilestoneAliasMap(milestonesData, archivedMilestonesData);
-			const { tasks: tasksList } = applySearchResults(searchResults, archivedKeys, milestoneAliases);
-
-			setStatuses(statusesData);
-			setProjectName(configData.projectName);
-			setAvailableLabels((configData.labels || []).map((l) => (typeof l === "string" ? l : l.name)));
-			setAvailableAuthors(authorsData.map((a) => ({ name: a.name, color: a.color ?? null })));
-			setConfig(configData);
-			setMilestoneEntities(milestonesData);
-			setArchivedMilestones(archivedMilestonesData);
-			setArchivedDocs(archivedDocsData);
-			setCompletedTasks(completedTasksData);
-			setMilestones(
-				collectMilestoneIds(tasksList, milestonesData, archivedMilestonesData).filter(
-					(milestone) => !archivedKeys.has(milestoneKey(milestone)),
-				),
-			);
-		} catch (error) {
-			console.error("Failed to refresh data:", error);
-		}
-	}, [applySearchResults]);
+	const refreshAllData = useCallback(() => fetchAllData(false), [fetchAllData]);
 
 	React.useEffect(() => {
 		// Only load data when initialized
@@ -593,6 +555,63 @@ function App() {
 		);
 	}
 
+	const boardPageElement = (
+		<ErrorBoundary>
+			<BoardPage
+				onEditTask={handleDeepLinkEditTask}
+				onNewTask={handleNewTask}
+				tasks={tasks}
+				onRefreshData={refreshData}
+				statuses={statuses}
+				terminalStatuses={config?.terminalStatuses}
+				blockedStatuses={config?.blockedStatuses}
+				milestones={milestones}
+				availableLabels={availableLabels}
+				milestoneEntities={milestoneEntities}
+				archivedMilestones={archivedMilestones}
+				isLoading={isLoading}
+				labelColors={labelColors}
+				authorColors={authorColors}
+				autoCollapseMilestones={config?.autoCollapseMilestones}
+			/>
+		</ErrorBoundary>
+	);
+
+	const taskListElement = (
+		<ErrorBoundary>
+			<TaskList
+				onEditTask={handleDeepLinkEditTask}
+				onNewTask={handleNewTask}
+				tasks={tasks}
+				availableStatuses={statuses}
+				availableLabels={availableLabels}
+				availableMilestones={milestones}
+				milestoneEntities={milestoneEntities}
+				archivedMilestones={archivedMilestones}
+				onRefreshData={refreshData}
+				labelColors={labelColors}
+				authorColors={authorColors}
+				newStatuses={config?.newStatuses}
+				runningStatuses={config?.runningStatuses}
+				terminalStatuses={config?.terminalStatuses}
+				blockedStatuses={config?.blockedStatuses}
+			/>
+		</ErrorBoundary>
+	);
+
+	const milestonesPageElement = (
+		<ErrorBoundary>
+			<MilestonesPage
+				tasks={tasks}
+				statuses={statuses}
+				milestoneEntities={milestoneEntities}
+				archivedMilestones={archivedMilestones}
+				onEditTask={handleEditTask}
+				onRefreshData={refreshData}
+			/>
+		</ErrorBoundary>
+	);
+
 	return (
 		<ThemeProvider>
 			<Routes>
@@ -613,141 +632,12 @@ function App() {
 						/>
 					}
 				>
-					<Route
-						index
-						element={
-							<ErrorBoundary>
-								<BoardPage
-									onEditTask={handleDeepLinkEditTask}
-									onNewTask={handleNewTask}
-									tasks={tasks}
-									onRefreshData={refreshData}
-									statuses={statuses}
-									terminalStatuses={config?.terminalStatuses}
-									blockedStatuses={config?.blockedStatuses}
-									milestones={milestones}
-									availableLabels={availableLabels}
-									milestoneEntities={milestoneEntities}
-									archivedMilestones={archivedMilestones}
-									isLoading={isLoading}
-									labelColors={labelColors}
-									authorColors={authorColors}
-									autoCollapseMilestones={config?.autoCollapseMilestones}
-								/>
-							</ErrorBoundary>
-						}
-					/>
-					<Route
-						path="board/:id/:title"
-						element={
-							<ErrorBoundary>
-								<BoardPage
-									onEditTask={handleDeepLinkEditTask}
-									onNewTask={handleNewTask}
-									tasks={tasks}
-									onRefreshData={refreshData}
-									statuses={statuses}
-									terminalStatuses={config?.terminalStatuses}
-									blockedStatuses={config?.blockedStatuses}
-									milestones={milestones}
-									availableLabels={availableLabels}
-									milestoneEntities={milestoneEntities}
-									archivedMilestones={archivedMilestones}
-									isLoading={isLoading}
-									labelColors={labelColors}
-									authorColors={authorColors}
-									autoCollapseMilestones={config?.autoCollapseMilestones}
-								/>
-							</ErrorBoundary>
-						}
-					/>
-					<Route
-						path="tasks"
-						element={
-							<ErrorBoundary>
-								<TaskList
-									onEditTask={handleDeepLinkEditTask}
-									onNewTask={handleNewTask}
-									tasks={tasks}
-									availableStatuses={statuses}
-									availableLabels={availableLabels}
-									availableMilestones={milestones}
-									milestoneEntities={milestoneEntities}
-									archivedMilestones={archivedMilestones}
-									onRefreshData={refreshData}
-									labelColors={labelColors}
-									authorColors={authorColors}
-									newStatuses={config?.newStatuses}
-									runningStatuses={config?.runningStatuses}
-									terminalStatuses={config?.terminalStatuses}
-									blockedStatuses={config?.blockedStatuses}
-								/>
-							</ErrorBoundary>
-						}
-					/>
-					<Route
-						path="tasks/:id"
-						element={
-							<ErrorBoundary>
-								<TaskList
-									onEditTask={handleDeepLinkEditTask}
-									onNewTask={handleNewTask}
-									tasks={tasks}
-									availableStatuses={statuses}
-									availableLabels={availableLabels}
-									availableMilestones={milestones}
-									milestoneEntities={milestoneEntities}
-									archivedMilestones={archivedMilestones}
-									onRefreshData={refreshData}
-									labelColors={labelColors}
-									authorColors={authorColors}
-									newStatuses={config?.newStatuses}
-									runningStatuses={config?.runningStatuses}
-									terminalStatuses={config?.terminalStatuses}
-									blockedStatuses={config?.blockedStatuses}
-								/>
-							</ErrorBoundary>
-						}
-					/>
-					<Route
-						path="tasks/:id/:title"
-						element={
-							<ErrorBoundary>
-								<TaskList
-									onEditTask={handleDeepLinkEditTask}
-									onNewTask={handleNewTask}
-									tasks={tasks}
-									availableStatuses={statuses}
-									availableLabels={availableLabels}
-									availableMilestones={milestones}
-									milestoneEntities={milestoneEntities}
-									archivedMilestones={archivedMilestones}
-									onRefreshData={refreshData}
-									labelColors={labelColors}
-									authorColors={authorColors}
-									newStatuses={config?.newStatuses}
-									runningStatuses={config?.runningStatuses}
-									terminalStatuses={config?.terminalStatuses}
-									blockedStatuses={config?.blockedStatuses}
-								/>
-							</ErrorBoundary>
-						}
-					/>
-					<Route
-						path="milestones"
-						element={
-							<ErrorBoundary>
-								<MilestonesPage
-									tasks={tasks}
-									statuses={statuses}
-									milestoneEntities={milestoneEntities}
-									archivedMilestones={archivedMilestones}
-									onEditTask={handleEditTask}
-									onRefreshData={refreshData}
-								/>
-							</ErrorBoundary>
-						}
-					/>
+					<Route index element={boardPageElement} />
+					<Route path="board/:id/:title" element={boardPageElement} />
+					<Route path="tasks" element={taskListElement} />
+					<Route path="tasks/:id" element={taskListElement} />
+					<Route path="tasks/:id/:title" element={taskListElement} />
+					<Route path="milestones" element={milestonesPageElement} />
 					<Route
 						path="drafts"
 						element={
