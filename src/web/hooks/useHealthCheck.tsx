@@ -69,7 +69,6 @@ export function useHealthCheck() {
 		connectWebSocket();
 	}, [connectWebSocket]);
 
-	// Set up WebSocket connection
 	useEffect(() => {
 		isMountedRef.current = true;
 
@@ -85,7 +84,6 @@ export function useHealthCheck() {
 			// Clear the connect timer if it hasn't fired yet
 			clearTimeout(connectTimer);
 
-			// Cleanup on unmount
 			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
 				wsRef.current.close();
 				wsRef.current = null;

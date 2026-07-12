@@ -140,7 +140,6 @@ export default function MermaidMarkdown({ source, onFileClick }: Props) {
 		const handleClick = (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
 
-			// Handle hash link navigation
 			const hashAnchor = target.closest("a[href^='#']");
 			if (hashAnchor) {
 				const hash = hashAnchor.getAttribute("href");

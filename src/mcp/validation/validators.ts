@@ -175,13 +175,13 @@ function validateField(
 				break;
 			}
 
-		if (schema.maxItems !== undefined && value.length > schema.maxItems) {
+			if (schema.maxItems !== undefined && value.length > schema.maxItems) {
 				errors.push(`Field '${fieldName}' must have at most ${schema.maxItems} items`);
 			}
 
 			const sanitizedArray: unknown[] = [];
 
-		if (schema.items) {
+			if (schema.items) {
 				for (let i = 0; i < value.length; i++) {
 					const itemResult = validateField(`${fieldName}[${i}]`, value[i], schema.items);
 					if (!itemResult.isValid) {

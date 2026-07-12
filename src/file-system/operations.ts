@@ -588,28 +588,6 @@ export class FileSystem {
 
 		let taskFiles: string[];
 		try {
-			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: tasksDir, followSymlinks: true }));
-		} catch (_error) {
-			return [];
-		}
-
-		return await this.parseTaskFilesFromDir(tasksDir, taskFiles, "active");
-	}
-
-	async listCompletedTasks(): Promise<Task[]> {
-		let archiveTasksDir: string;
-		try {
-			archiveTasksDir = await this.getArchiveTasksDir();
-		} catch (_error) {
-			return [];
-		}
-
-		const config = await this.loadConfig();
-		const taskPrefix = (config?.prefixes?.task ?? "task").toLowerCase();
-		const globPattern = buildGlobPattern(taskPrefix);
-
-		let taskFiles: string[];
-		try {
 			taskFiles = await Array.fromAsync(new Bun.Glob(globPattern).scan({ cwd: archiveTasksDir, followSymlinks: true }));
 		} catch (_error) {
 			return [];

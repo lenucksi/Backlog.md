@@ -217,7 +217,7 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 				}
 			}
 
-		for (const [group, groupItems] of groups) {
+			for (const [group, groupItems] of groups) {
 				displayItems.push(formatHeading(group || "No Group", 2));
 				displayIndex += 1;
 				for (const { item, filteredIndex } of groupItems) {

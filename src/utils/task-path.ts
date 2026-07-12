@@ -70,7 +70,6 @@ export function normalizeTaskIdentity(task: Task): Task {
 function extractTaskBody(value: string, prefix: string = DEFAULT_TASK_PREFIX): string | null {
 	const trimmed = value.trim();
 	if (trimmed === "") return "";
-	// Build a pattern that optionally matches the prefix
 	const prefixPattern = new RegExp(`^(?:${escapeRegex(prefix)}-)?([0-9]+(?:\\.[0-9]+)*)$`, "i");
 	const match = trimmed.match(prefixPattern);
 	return match?.[1] ?? null;
@@ -148,10 +147,8 @@ export async function getTaskPath(taskId: string, core?: Core | TaskPathContext)
 	const { Core: CoreClass } = await import("../core/backlog.ts");
 	const coreInstance = core || new CoreClass(process.cwd());
 
-	// Extract prefix from the taskId
 	const detectedPrefix = extractAnyPrefix(taskId);
 
-	// If prefix is detected, search only for that prefix
 	if (detectedPrefix) {
 		const globPattern = buildGlobPattern(detectedPrefix);
 		try {
@@ -339,10 +336,8 @@ export async function getTaskFilename(taskId: string, core?: Core | TaskPathCont
 	const { Core: CoreClass } = await import("../core/backlog.ts");
 	const coreInstance = core || new CoreClass(process.cwd());
 
-	// Extract prefix from the taskId
 	const detectedPrefix = extractAnyPrefix(taskId);
 
-	// If prefix is detected, search only for that prefix
 	if (detectedPrefix) {
 		const globPattern = buildGlobPattern(detectedPrefix);
 		try {

@@ -1402,7 +1402,6 @@ export class Core {
 		const newCriteria = criteria.map((text) => ({ index: nextIndex++, text, checked: false }));
 		task.acceptanceCriteriaItems = [...current, ...newCriteria];
 
-		// Save the task
 		await this.updateTask(task, autoCommit);
 	}
 

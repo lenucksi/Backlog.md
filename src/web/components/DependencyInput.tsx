@@ -25,7 +25,6 @@ const DependencyInput: React.FC<DependencyInputProps> = ({
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const inputId = "dependency-input";
 
-	// Get task display text
 	const getTaskDisplay = (taskId: string) => {
 		const task = availableTasks.find((t) => t.id === taskId);
 		return task ? `${task.id} - ${task.title}` : taskId;

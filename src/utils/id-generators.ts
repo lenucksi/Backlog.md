@@ -7,7 +7,6 @@ import type { Core } from "../index.ts";
  */
 export async function generateNextDocId(core: Core): Promise<string> {
 	const config = await core.filesystem.loadConfig();
-	// Load local documents
 	const docs = await core.filesystem.listDocuments();
 	const allIds: string[] = [];
 
@@ -25,7 +24,6 @@ export async function generateNextDocId(core: Core): Promise<string> {
 
 		const branches = await core.gitOps.listAllBranches();
 
-		// Load files from all branches in parallel
 		const branchFilePromises = branches.map(async (branch) => {
 			const files = await core.gitOps.listFilesInTree(branch, `${backlogDir}/docs`);
 			return files
@@ -80,7 +78,6 @@ export async function generateNextDocId(core: Core): Promise<string> {
  */
 export async function generateNextDecisionId(core: Core): Promise<string> {
 	const config = await core.filesystem.loadConfig();
-	// Load local decisions
 	const decisions = await core.filesystem.listDecisions();
 	const allIds: string[] = [];
 
@@ -98,7 +95,6 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 
 		const branches = await core.gitOps.listAllBranches();
 
-		// Load files from all branches in parallel
 		const branchFilePromises = branches.map(async (branch) => {
 			const files = await core.gitOps.listFilesInTree(branch, `${backlogDir}/decisions`);
 			return files

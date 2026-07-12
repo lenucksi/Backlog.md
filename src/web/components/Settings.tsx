@@ -71,12 +71,10 @@ const Settings: React.FC = () => {
 
 		if (!config) return false;
 
-		// Validate project name
 		if (!config.projectName.trim()) {
 			errors.projectName = "Project name is required";
 		}
 
-		// Validate port number
 		if (config.defaultPort && (config.defaultPort < 1 || config.defaultPort > 65535)) {
 			errors.defaultPort = "Port must be between 1 and 65535";
 		}

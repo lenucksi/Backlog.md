@@ -118,11 +118,11 @@ class BackgroundLoader {
 
 	private async loadKanbanData(): Promise<Task[]> {
 		try {
-		if (this.abortController?.signal.aborted) {
+			if (this.abortController?.signal.aborted) {
 				throw new Error("Loading cancelled");
 			}
 
-		const progressWrapper = (msg: string) => {
+			const progressWrapper = (msg: string) => {
 				this.lastProgressMessage = msg;
 				this.onProgress?.(msg);
 			};
@@ -257,7 +257,7 @@ export class ViewSwitcher {
 			this.onViewChange?.(this.state);
 			return this.state;
 		} catch (error) {
-		this.state = {
+			this.state = {
 				...this.state,
 				type: "kanban",
 				kanbanData: {

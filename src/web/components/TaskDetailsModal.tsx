@@ -424,19 +424,16 @@ export const TaskDetailsModal: React.FC<Props> = ({
 
 			if (isCreateMode && onSubmit) {
 				Object.assign(taskData, buildDefinitionOfDoneCreatePayload());
-				// Create new task
 				await onSubmit(taskData);
 				// Only close if successful (no error thrown)
 				onClose();
 			} else if (task) {
 				Object.assign(taskData, buildDefinitionOfDoneEditPayload());
-				// Update existing task
 				await apiClient.updateTask(task.id, taskData);
 				setMode("preview");
 				if (onSaved) await onSaved();
 			}
 		} catch (err) {
-			// Extract and display the error message from API response
 			let errorMessage = "Failed to save task";
 
 			if (err instanceof Error) {

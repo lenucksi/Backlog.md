@@ -182,7 +182,6 @@ const Statistics: React.FC<StatisticsProps> = ({
 					"Calculating statistics...",
 				];
 
-				// Start with first message
 				if (isMounted) setLoadingMessage(loadingMessages[0] || "");
 
 				// Cycle through loading messages at a readable pace
@@ -199,7 +198,6 @@ const Statistics: React.FC<StatisticsProps> = ({
 				// Fetch data (this happens in parallel with message cycling)
 				const data = await apiClient.fetchStatistics();
 
-				// Stop the message cycling once data arrives
 				if (messageInterval) {
 					clearInterval(messageInterval);
 				}

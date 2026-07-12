@@ -24,13 +24,11 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 	const [theme, setTheme] = useState<Theme>(() => {
-		// Check localStorage for saved theme preference
 		const savedTheme = localStorage.getItem("backlog-theme") as Theme;
 		if (savedTheme && (savedTheme === "light" || savedTheme === "dark")) {
 			return savedTheme;
 		}
 
-		// Check system preference
 		if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
 			return "dark";
 		}
@@ -48,7 +46,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 			root.classList.remove("dark");
 		}
 
-		// Save to localStorage
 		localStorage.setItem("backlog-theme", theme);
 	}, [theme]);
 

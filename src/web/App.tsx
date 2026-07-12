@@ -222,7 +222,6 @@ function App() {
 		});
 	}, []);
 
-	// Check initialization status on mount
 	React.useEffect(() => {
 		const checkInitStatus = async () => {
 			try {
@@ -378,7 +377,6 @@ function App() {
 			return () => clearTimeout(timer);
 		}
 
-		// Update the ref for next time
 		previousOnlineRef.current = isOnline;
 	}, [isOnline]);
 

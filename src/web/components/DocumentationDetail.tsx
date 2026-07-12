@@ -169,7 +169,6 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 				setOriginalDocTitle(fullDoc.title || "");
 				setDocPath(getDocumentDirectory(fullDoc.path));
 				setOriginalDocPath(getDocumentDirectory(fullDoc.path));
-				// Update document state with full data
 				setDocument(fullDoc);
 			} catch (fetchError) {
 				// If fetch fails and we don't have the doc in props, show error
@@ -196,7 +195,6 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 
 	useEffect(() => {
 		if (id === "new") {
-			// Handle new document creation
 			setIsNewDocument(true);
 			setIsEditing(true);
 			setIsLoading(false);
@@ -213,11 +211,9 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 		}
 	}, [id, loadDocContent]);
 
-	// Check for edit query parameter to start in edit mode
 	useEffect(() => {
 		if (searchParams.get("edit") === "true") {
 			setIsEditing(true);
-			// Remove the edit parameter from URL
 			setSearchParams((params) => {
 				params.delete("edit");
 				return params;
@@ -238,7 +234,6 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 			const normalizedPath = docPath.trim();
 
 			if (isNewDocument) {
-				// Create new document
 				const result = await apiClient.createDoc(normalizedTitle, content, normalizedPath);
 				// Refresh data and navigate to the new document
 				await onRefreshData();
@@ -256,7 +251,6 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 				const documentId = result.id.replace("doc-", ""); // Remove prefix for URL
 				navigate(`/documentation/${documentId}/${sanitizeUrlTitle(normalizedTitle)}`);
 			} else {
-				// Update existing document
 				if (!id) return;
 
 				// Check if title has changed
@@ -270,7 +264,6 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 					optionalUpdateValue(pathChanged, normalizedPath),
 				);
 
-				// Update original title to the new value
 				if (titleChanged) {
 					setDocTitle(normalizedTitle);
 					setOriginalDocTitle(normalizedTitle);

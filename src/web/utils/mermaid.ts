@@ -86,7 +86,6 @@ export async function renderMermaidIn(element: HTMLElement): Promise<void> {
 			if (!parent) continue;
 			const diagramText = codeEl.textContent || "";
 
-			// Create container for mermaid
 			const wrapper = document.createElement("div");
 			wrapper.className = "mermaid";
 			wrapper.textContent = diagramText;

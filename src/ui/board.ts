@@ -1032,7 +1032,7 @@ export async function renderBoardTui(
 		}
 
 		const updateBoard = (nextTasks: Task[], nextStatuses: string[]) => {
-				currentTasks = nextTasks;
+			currentTasks = nextTasks;
 			// Only update statuses if they changed (rare in TUI)
 			if (nextStatuses.length > 0) currentStatuses = nextStatuses;
 			configuredLabels = collectAvailableLabels(currentTasks, options?.availableLabels ?? []);

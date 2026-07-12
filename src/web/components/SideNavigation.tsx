@@ -187,7 +187,6 @@ const SideNavigation = memo(function SideNavigation({
 	const [decisionSortDir, setDecisionSortDir] = useState<"asc" | "desc">("asc");
 	const navigate = useNavigate();
 
-	// Create handlers - just navigate to new pages
 	const handleCreateDocument = useCallback(() => {
 		navigate("/documentation/new");
 	}, [navigate]);
@@ -196,7 +195,6 @@ const SideNavigation = memo(function SideNavigation({
 		localStorage.setItem("sideNavCollapsed", JSON.stringify(isCollapsed));
 	}, [isCollapsed]);
 
-	// Fetch version on mount
 	useEffect(() => {
 		getWebVersion()
 			.then(setVersion)

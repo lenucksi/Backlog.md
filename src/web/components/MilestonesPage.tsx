@@ -665,7 +665,6 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		);
 	};
 
-	// Render unassigned tasks section with table layout
 	const renderUnassignedSection = () => {
 		if (!unassignedBucket || (!isSearchActive && unassignedBucket.total === 0)) return null;
 

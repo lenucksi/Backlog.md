@@ -126,7 +126,6 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 				setOriginalContent(fullDecision.rawContent || "");
 				setDecisionTitle(fullDecision.title || "");
 				setOriginalDecisionTitle(fullDecision.title || "");
-				// Update decision state with full data
 				setDecision(fullDecision);
 			} catch (fetchError) {
 				// If fetch fails and we don't have the decision in props, show error
@@ -148,7 +147,6 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 
 	useEffect(() => {
 		if (id === "new") {
-			// Handle new decision creation
 			setIsNewDecision(true);
 			setIsEditing(true);
 			setIsLoading(false);
@@ -165,11 +163,9 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 		}
 	}, [id, searchParams, loadDecisionContent]);
 
-	// Check for edit query parameter to start in edit mode
 	useEffect(() => {
 		if (searchParams.get("edit") === "true") {
 			setIsEditing(true);
-			// Remove the edit parameter from URL
 			setSearchParams((params) => {
 				params.delete("edit");
 				return params;
@@ -187,7 +183,6 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 			setIsSaving(true);
 
 			if (isNewDecision) {
-				// Create new decision
 				const decision = await apiClient.createDecision(decisionTitle);
 				// Refresh data and navigate to the new decision
 				await onRefreshData();
@@ -200,7 +195,6 @@ export default function DecisionDetail({ decisions, onRefreshData }: DecisionDet
 				const newId = stripIdPrefix(decision.id);
 				navigate(`/decisions/${newId}/${sanitizeUrlTitle(decisionTitle)}`);
 			} else {
-				// Update existing decision
 				if (!id) return;
 				await apiClient.updateDecision(addDecisionPrefix(id), content);
 				// Refresh data from parent

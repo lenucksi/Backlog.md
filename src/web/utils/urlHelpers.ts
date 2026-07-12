@@ -17,7 +17,6 @@ export function sanitizeUrlTitle(title: string): string {
 			.replace(/[^a-z0-9\-_]/g, "")
 			// Replace multiple hyphens with single hyphen
 			.replace(/-+/g, "-")
-			// Remove leading and trailing hyphens
 			.replace(/^-+|-+$/g, "")
 	);
 }
@@ -27,7 +26,6 @@ export function sanitizeUrlTitle(title: string): string {
  */
 export function createUrlPath(basePath: string, id: string, title: string): string {
 	const sanitizedTitle = sanitizeUrlTitle(title);
-	// Remove prefix from ID for cleaner URLs
 	const cleanId = id.replace(/^(doc-|decision-|task-)/, "");
 	return `${basePath}/${cleanId}/${sanitizedTitle}`;
 }
