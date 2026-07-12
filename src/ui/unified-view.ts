@@ -1,3 +1,4 @@
+import { stdout } from "../utils/output.ts";
 /**
  * Unified view manager that handles Tab switching between task views and kanban board
  */
@@ -189,9 +190,9 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 		const baseTasks = (loadedTasks || []).filter((t) => t.id && t.id.trim() !== "" && hasAnyPrefix(t.id));
 		if (baseTasks.length === 0) {
 			if (options.filter?.parentTaskId) {
-				console.log(`No child tasks found for parent task ${options.filter.parentTaskId}.`);
+				stdout(`No child tasks found for parent task ${options.filter.parentTaskId}.`);
 			} else {
-				console.log("No tasks found.");
+				stdout("No tasks found.");
 			}
 			return;
 		}
@@ -293,7 +294,7 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 			const availableTasks = tasks.filter((t) => t.id && t.id.trim() !== "" && hasAnyPrefix(t.id));
 
 			if (availableTasks.length === 0) {
-				console.log("No tasks available.");
+				stdout("No tasks available.");
 				return "exit";
 			}
 
@@ -307,7 +308,7 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 			}
 
 			if (!taskToView) {
-				console.log("No task selected.");
+				stdout("No task selected.");
 				return "exit";
 			}
 

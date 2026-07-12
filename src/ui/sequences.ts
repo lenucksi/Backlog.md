@@ -4,6 +4,7 @@ import { box, scrollablebox } from "neo-neo-bblessed";
 import { DEFAULT_STATUSES } from "../constants/index.ts";
 import type { Core } from "../index.ts";
 import type { Sequence, Task } from "../types/index.ts";
+import { stdout } from "../utils/output.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
 import { createTaskPopup } from "./task-viewer-with-search.ts";
 import { createScreen } from "./tui.ts";
@@ -36,7 +37,7 @@ export async function runSequencesView(
 	// Headless/CI fallback: when not a TTY or explicitly requested, just print text content
 	const forceHeadless = process.env.BACKLOG_HEADLESS === "1" || process.env.CI === "1" || process.env.CI === "true";
 	if (output.isTTY === false || forceHeadless) {
-		console.log(lines.join("\n"));
+		stdout(lines.join("\n"));
 		return;
 	}
 

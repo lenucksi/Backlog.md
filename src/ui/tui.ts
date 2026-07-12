@@ -1,3 +1,4 @@
+import { stdout } from "../utils/output.ts";
 /*
  * Lightweight wrapper around the `blessed` terminal UI library.
  *
@@ -59,7 +60,7 @@ export function createScreen(options: Partial<ScreenOptions> = {}): ScreenInterf
 // Display long content in a scrollable viewer.
 export async function scrollableViewer(content: string): Promise<void> {
 	if (output.isTTY === false) {
-		console.log(content);
+		stdout(content);
 		return;
 	}
 

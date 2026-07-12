@@ -153,7 +153,7 @@ async function runIndexWorkers(
 				}
 			} catch (error) {
 				const msg = options.silent && !process.env.DEBUG ? null : `Skipping ${ref}: ${error}`;
-				if (msg) console.debug(msg);
+				if (msg) getLogger().debug(msg);
 			}
 		}
 	});

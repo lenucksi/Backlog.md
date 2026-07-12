@@ -1,5 +1,5 @@
 import type { Core } from "../index.ts";
-import { getLogger } from "./logger.ts";
+import { getLogger } from "../utils/logger.ts";
 
 /**
  * Generate the next available document ID by checking all branches and local documents
@@ -17,7 +17,7 @@ export async function generateNextDocId(core: Core): Promise<string> {
 		// Skip remote operations if disabled
 		if (config?.remoteOperations === false) {
 			if (process.env.DEBUG) {
-				console.log("Remote operations disabled - generating ID from local documents only");
+				getLogger().info("Remote operations disabled - generating ID from local documents only");
 			}
 		} else {
 			await core.gitOps.fetch();

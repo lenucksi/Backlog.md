@@ -1,5 +1,6 @@
 import type { BoxInterface, ScreenInterface } from "neo-neo-bblessed";
 import { box, log } from "neo-neo-bblessed";
+import { stdout } from "../utils/output.ts";
 import { createScreen } from "./tui.ts";
 
 /**
@@ -56,13 +57,13 @@ function createLoadingScreenBase(config: LoadingScreenConfig): {
 
 	// Non-TTY fallback
 	if (!process.stdout.isTTY) {
-		console.log(`${message}...`);
+		stdout(`${message}...`);
 		return {
 			screen: null,
 			loadingBox: null,
 			spinnerInterval: null,
 			closed: false,
-			update: (msg) => console.log(`  ${msg}...`),
+			update: (msg) => stdout(`  ${msg}...`),
 			close: () => {},
 		};
 	}

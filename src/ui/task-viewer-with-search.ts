@@ -8,6 +8,7 @@ import type { LabelConfig, Milestone, Task, TaskSearchResult } from "../types/in
 import { copyToClipboard } from "../utils/clipboard.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
 import { NO_MILESTONE_FILTER_VALUE } from "../utils/milestone-filter.ts";
+import { stdout } from "../utils/output.ts";
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { applyTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { attachSubtaskSummaries } from "../utils/task-subtasks.ts";
@@ -88,7 +89,7 @@ export async function viewTaskEnhanced(
 	injectedScreen?: ScreenInterface,
 ): Promise<void> {
 	if (output.isTTY === false) {
-		console.log(formatTaskPlainText(task));
+		stdout(formatTaskPlainText(task));
 		return;
 	}
 	const cwd = process.cwd();

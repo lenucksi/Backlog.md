@@ -12,6 +12,7 @@ import { copyToClipboard } from "../utils/clipboard.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
 import { getLogger } from "../utils/logger.ts";
 import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/milestone-filter.ts";
+import { stdout } from "../utils/output.ts";
 import { applySharedTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { compareTaskIds } from "../utils/task-sorting.ts";
 import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
@@ -224,16 +225,16 @@ export async function renderBoardTui(
 ): Promise<void> {
 	if (!process.stdout.isTTY) {
 		if (options?.milestoneMode) {
-			console.log(generateMilestoneGroupedBoard(initialTasks, statuses, options.milestoneEntities ?? [], "Project"));
+			stdout(generateMilestoneGroupedBoard(initialTasks, statuses, options.milestoneEntities ?? [], "Project"));
 		} else {
-			console.log(generateKanbanBoardWithMetadata(initialTasks, statuses, "Project"));
+			stdout(generateKanbanBoardWithMetadata(initialTasks, statuses, "Project"));
 		}
 		return;
 	}
 
 	const initialColumns = prepareBoardColumns(initialTasks, statuses, options?.terminalStatuses);
 	if (initialColumns.length === 0) {
-		console.log("No tasks available for the Kanban board.");
+		stdout("No tasks available for the Kanban board.");
 		return;
 	}
 

@@ -1,5 +1,6 @@
 import { box } from "neo-neo-bblessed";
 import type { TaskStatistics } from "../core/statistics.ts";
+import { stdout } from "../utils/output.ts";
 import { getStatusIcon, type StatusStyleOptions } from "./status-icon.ts";
 import { createScreen } from "./tui.ts";
 
@@ -247,7 +248,7 @@ function formatPriorityLabel(priority: string): string {
 }
 
 function printTaskListLine(task: { id: string; title: string }): void {
-	console.log(`    ${task.id} - ${task.title}`);
+	stdout(`    ${task.id} - ${task.title}`);
 }
 
 function printTaskList(tasks: Array<{ id: string; title: string }>, emptyMessage: string): void {
@@ -256,62 +257,62 @@ function printTaskList(tasks: Array<{ id: string; title: string }>, emptyMessage
 			printTaskListLine(task);
 		}
 	} else {
-		console.log(`    ${emptyMessage}`);
+		stdout(`    ${emptyMessage}`);
 	}
 }
 
 function printStatusOverview(s: TaskStatistics): void {
-	console.log("Status Overview:");
+	stdout("Status Overview:");
 	for (const [status, count] of s.statusCounts) {
-		console.log(`  ${status}: ${printPercentage(count, s.totalTasks)}`);
+		stdout(`  ${status}: ${printPercentage(count, s.totalTasks)}`);
 	}
-	console.log(`\n  Total Tasks: ${s.totalTasks}`);
-	console.log(`  Completion: ${s.completionPercentage}%`);
+	stdout(`\n  Total Tasks: ${s.totalTasks}`);
+	stdout(`  Completion: ${s.completionPercentage}%`);
 	if (s.draftCount > 0) {
-		console.log(`  Drafts: ${s.draftCount}`);
+		stdout(`  Drafts: ${s.draftCount}`);
 	}
 }
 
 function printPriorityBreakdown(s: TaskStatistics): void {
-	console.log("\nPriority Breakdown:");
+	stdout("\nPriority Breakdown:");
 	for (const [priority, count] of s.priorityCounts) {
 		if (count > 0) {
-			console.log(`  ${formatPriorityLabel(priority)}: ${printPercentage(count, s.totalTasks)}`);
+			stdout(`  ${formatPriorityLabel(priority)}: ${printPercentage(count, s.totalTasks)}`);
 		}
 	}
 }
 
 function printRecentActivity(s: TaskStatistics): void {
-	console.log("\nRecent Activity:");
-	console.log("  Recently Created:");
+	stdout("\nRecent Activity:");
+	stdout("  Recently Created:");
 	printTaskList(s.recentActivity.created, "No tasks created in the last 7 days");
-	console.log("\n  Recently Updated:");
+	stdout("\n  Recently Updated:");
 	printTaskList(s.recentActivity.updated, "No tasks updated in the last 7 days");
 }
 
 function printProjectHealth(s: TaskStatistics): void {
-	console.log("\nProject Health:");
-	console.log(`  Average Task Age: ${s.projectHealth.averageTaskAge} days`);
+	stdout("\nProject Health:");
+	stdout(`  Average Task Age: ${s.projectHealth.averageTaskAge} days`);
 
-	console.log("\n  Stale Tasks (>30 days without updates):");
+	stdout("\n  Stale Tasks (>30 days without updates):");
 	printTaskList(s.projectHealth.staleTasks, "No stale tasks");
 
-	console.log("\n  Blocked Tasks (waiting on dependencies):");
+	stdout("\n  Blocked Tasks (waiting on dependencies):");
 	printTaskList(s.projectHealth.blockedTasks, "No blocked tasks");
 
-	console.log("\n  Blocked by Status:");
+	stdout("\n  Blocked by Status:");
 	printTaskList(s.projectHealth.blockedByStatus, "No blocked by status");
 
-	console.log("\n  Deadlocked Tasks (circular dependencies):");
+	stdout("\n  Deadlocked Tasks (circular dependencies):");
 	if (s.projectHealth.deadlockedTaskGroups.length > 0) {
 		for (const group of s.projectHealth.deadlockedTaskGroups) {
-			console.log(`    ${group.join(" → ")}`);
+			stdout(`    ${group.join(" → ")}`);
 		}
 	} else {
-		console.log("    No deadlocked tasks");
+		stdout("    No deadlocked tasks");
 	}
 
-	console.log("\n  Archived Tasks:");
+	stdout("\n  Archived Tasks:");
 	printTaskList(s.archivedTasks, "No archived tasks");
 }
 
@@ -319,11 +320,11 @@ function printProjectHealth(s: TaskStatistics): void {
  * Render plain text overview for non-TTY environments
  */
 function renderPlainTextOverview(statistics: TaskStatistics, projectName: string): void {
-	console.log(`\n${projectName} - Project Overview\n${"=".repeat(40)}\n`);
+	stdout(`\n${projectName} - Project Overview\n${"=".repeat(40)}\n`);
 
 	printStatusOverview(statistics);
 	printPriorityBreakdown(statistics);
 	printRecentActivity(statistics);
 	printProjectHealth(statistics);
-	console.log("");
+	stdout("");
 }
