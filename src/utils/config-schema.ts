@@ -1,5 +1,16 @@
 import type { BacklogConfig } from "../types/index.ts";
 
+function validateInteger(opts: { min?: number; max?: number; message: string }): (value: unknown) => string | null {
+	return (value) => {
+		if (typeof value !== "number" || !Number.isInteger(value)) {
+			return opts.message;
+		}
+		if (opts.min !== undefined && value < opts.min) return opts.message;
+		if (opts.max !== undefined && value > opts.max) return opts.message;
+		return null;
+	};
+}
+
 export interface ConfigSchemaEntry {
 	key: string;
 	type: "string" | "number" | "boolean" | "string[]" | "label[]" | "author[]";
@@ -151,12 +162,7 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		description: "Web UI port",
 		configKey: "defaultPort",
 		default: 6420,
-		validate: (value) => {
-			if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 65535) {
-				return "must be an integer between 1 and 65535";
-			}
-			return null;
-		},
+		validate: validateInteger({ min: 1, max: 65535, message: "must be an integer between 1 and 65535" }),
 	},
 	{
 		key: "auto_open_browser",
@@ -195,12 +201,7 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		description: "Zero-padded ID digits (0 = disabled)",
 		configKey: "zeroPaddedIds",
 		default: 0,
-		validate: (value) => {
-			if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
-				return "must be a non-negative integer (0 = disabled)";
-			}
-			return null;
-		},
+		validate: validateInteger({ min: 0, message: "must be a non-negative integer (0 = disabled)" }),
 	},
 	{
 		key: "bypass_git_hooks",
@@ -222,12 +223,7 @@ export const CONFIG_SCHEMA_ENTRIES: ConfigSchemaEntry[] = [
 		description: "How many days a branch is considered active",
 		configKey: "activeBranchDays",
 		default: 30,
-		validate: (value) => {
-			if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
-				return "must be a non-negative integer";
-			}
-			return null;
-		},
+		validate: validateInteger({ min: 0, message: "must be a non-negative integer" }),
 	},
 	{
 		key: "auto_collapse_milestones",

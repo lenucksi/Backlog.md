@@ -21,20 +21,20 @@ interface BacklogConfigMetadata {
 	backlogDirectory: string | null;
 }
 
-function directoryExists(path: string): boolean {
+function statSafe(path: string): ReturnType<typeof statSync> | null {
 	try {
-		return statSync(path).isDirectory();
+		return statSync(path);
 	} catch {
-		return false;
+		return null;
 	}
 }
 
+function directoryExists(path: string): boolean {
+	return statSafe(path)?.isDirectory() ?? false;
+}
+
 function fileExists(path: string): boolean {
-	try {
-		return statSync(path).isFile();
-	} catch {
-		return false;
-	}
+	return statSafe(path)?.isFile() ?? false;
 }
 
 function parseBacklogConfigMetadata(content: string): BacklogConfigMetadata {

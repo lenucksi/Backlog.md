@@ -207,6 +207,18 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 
 	const [collapsedParents, setCollapsedParents] = React.useState<Record<string, boolean>>({});
 
+	const getDragHandlers = (taskId: string) => ({
+		onDragStart: () => {
+			setDraggedTaskId(taskId);
+			onDragStart?.({ status: title, laneId: laneId ?? null });
+		},
+		onDragEnd: () => {
+			setDraggedTaskId(null);
+			setDropPosition(null);
+			onDragEnd?.();
+		},
+	});
+
 	const isEmpty = tasks.length === 0;
 
 	// Group subtasks under their parents within this column
@@ -370,15 +382,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 									task={parentTask}
 									onUpdate={onTaskUpdate}
 									onEdit={onEditTask}
-									onDragStart={() => {
-										setDraggedTaskId(parentTask.id);
-										onDragStart?.({ status: title, laneId: laneId ?? null });
-									}}
-									onDragEnd={() => {
-										setDraggedTaskId(null);
-										setDropPosition(null);
-										onDragEnd?.();
-									}}
+									{...getDragHandlers(parentTask.id)}
 									status={title}
 									laneId={laneId}
 									labelColors={labelColors}
@@ -402,15 +406,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 												task={child}
 												onUpdate={onTaskUpdate}
 												onEdit={onEditTask}
-												onDragStart={() => {
-													setDraggedTaskId(child.id);
-													onDragStart?.({ status: title, laneId: laneId ?? null });
-												}}
-												onDragEnd={() => {
-													setDraggedTaskId(null);
-													setDropPosition(null);
-													onDragEnd?.();
-												}}
+												{...getDragHandlers(child.id)}
 												status={title}
 												laneId={laneId}
 												labelColors={labelColors}
@@ -431,15 +427,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 							task={orphan}
 							onUpdate={onTaskUpdate}
 							onEdit={onEditTask}
-							onDragStart={() => {
-								setDraggedTaskId(orphan.id);
-								onDragStart?.({ status: title, laneId: laneId ?? null });
-							}}
-							onDragEnd={() => {
-								setDraggedTaskId(null);
-								setDropPosition(null);
-								onDragEnd?.();
-							}}
+							{...getDragHandlers(orphan.id)}
 							status={title}
 							laneId={laneId}
 							labelColors={labelColors}
