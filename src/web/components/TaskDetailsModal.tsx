@@ -48,6 +48,75 @@ type InlineMetaUpdatePayload = Omit<Partial<Task>, "milestone"> & {
 	milestone?: string | null;
 };
 
+interface MilestoneResolved {
+	id: string;
+	label: string;
+}
+
+function resolveMilestone(
+	value: string | null | undefined,
+	milestoneEntities: Milestone[] | undefined,
+	archivedMilestoneEntities: Milestone[] | undefined,
+): MilestoneResolved {
+	const normalized = (value ?? "").trim();
+	if (!normalized) return { id: "", label: "" };
+
+	const key = normalized.toLowerCase();
+	const aliasKeys = new Set<string>([key]);
+	const canonicalInputId =
+		/^\d+$/.test(normalized) || /^m-\d+$/i.test(normalized)
+			? `m-${String(Number.parseInt(normalized.replace(/^m-/i, ""), 10))}`
+			: null;
+	if (/^\d+$/.test(normalized)) {
+		const numericAlias = String(Number.parseInt(normalized, 10));
+		aliasKeys.add(numericAlias);
+		aliasKeys.add(`m-${numericAlias}`);
+	} else {
+		const idMatch = normalized.match(/^m-(\d+)$/i);
+		if (idMatch?.[1]) {
+			const numericAlias = String(Number.parseInt(idMatch[1], 10));
+			aliasKeys.add(numericAlias);
+			aliasKeys.add(`m-${numericAlias}`);
+		}
+	}
+	const idMatchesAlias = (milestoneId: string): boolean => {
+		const milestoneKey = milestoneId.trim().toLowerCase();
+		if (aliasKeys.has(milestoneKey)) {
+			return true;
+		}
+		const idMatch = milestoneId.trim().match(/^m-(\d+)$/i);
+		if (!idMatch?.[1]) {
+			return false;
+		}
+		const numericAlias = String(Number.parseInt(idMatch[1], 10));
+		return aliasKeys.has(numericAlias) || aliasKeys.has(`m-${numericAlias}`);
+	};
+	const findIdMatch = (milestones: Milestone[]): Milestone | undefined => {
+		const rawExactMatch = milestones.find((milestone) => milestone.id.trim().toLowerCase() === key);
+		if (rawExactMatch) {
+			return rawExactMatch;
+		}
+		if (canonicalInputId) {
+			const canonicalRawMatch = milestones.find((milestone) => milestone.id.trim().toLowerCase() === canonicalInputId);
+			if (canonicalRawMatch) {
+				return canonicalRawMatch;
+			}
+		}
+		return milestones.find((milestone) => idMatchesAlias(milestone.id));
+	};
+
+	const allMilestones = [...(milestoneEntities ?? []), ...(archivedMilestoneEntities ?? [])];
+	const idMatch = findIdMatch(allMilestones);
+	if (idMatch) {
+		return { id: idMatch.id, label: idMatch.title };
+	}
+	const titleMatches = allMilestones.filter((milestone) => milestone.title.trim().toLowerCase() === key);
+	if (titleMatches.length === 1) {
+		return { id: titleMatches[0]?.id ?? normalized, label: titleMatches[0]?.title ?? normalized };
+	}
+	return { id: normalized, label: normalized };
+}
+
 const SectionHeader: React.FC<{ title: string; right?: React.ReactNode }> = ({ title, right }) => (
 	<div className="flex items-center justify-between mb-3">
 		<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight transition-colors duration-200">
@@ -100,144 +169,11 @@ export const TaskDetailsModal: React.FC<Props> = ({
 	const initialDefinitionOfDone = task?.definitionOfDoneItems ?? (isCreateMode ? defaultDefinitionOfDone : []);
 	const [definitionOfDone, setDefinitionOfDone] = useState<AcceptanceCriterion[]>(initialDefinitionOfDone);
 	const resolveMilestoneToId = useCallback(
-		(value?: string | null): string => {
-			const normalized = (value ?? "").trim();
-			if (!normalized) return "";
-			const key = normalized.toLowerCase();
-			const aliasKeys = new Set<string>([key]);
-			const looksLikeMilestoneId = /^\d+$/.test(normalized) || /^m-\d+$/i.test(normalized);
-			const canonicalInputId = looksLikeMilestoneId
-				? `m-${String(Number.parseInt(normalized.replace(/^m-/i, ""), 10))}`
-				: null;
-			if (/^\d+$/.test(normalized)) {
-				const numericAlias = String(Number.parseInt(normalized, 10));
-				aliasKeys.add(numericAlias);
-				aliasKeys.add(`m-${numericAlias}`);
-			} else {
-				const idMatch = normalized.match(/^m-(\d+)$/i);
-				if (idMatch?.[1]) {
-					const numericAlias = String(Number.parseInt(idMatch[1], 10));
-					aliasKeys.add(numericAlias);
-					aliasKeys.add(`m-${numericAlias}`);
-				}
-			}
-			const idMatchesAlias = (milestoneId: string): boolean => {
-				const milestoneKey = milestoneId.trim().toLowerCase();
-				if (aliasKeys.has(milestoneKey)) {
-					return true;
-				}
-				const idMatch = milestoneId.trim().match(/^m-(\d+)$/i);
-				if (!idMatch?.[1]) {
-					return false;
-				}
-				const numericAlias = String(Number.parseInt(idMatch[1], 10));
-				return aliasKeys.has(numericAlias) || aliasKeys.has(`m-${numericAlias}`);
-			};
-			const findIdMatch = (milestones: Milestone[]): Milestone | undefined => {
-				const rawExactMatch = milestones.find((milestone) => milestone.id.trim().toLowerCase() === key);
-				if (rawExactMatch) {
-					return rawExactMatch;
-				}
-				if (canonicalInputId) {
-					const canonicalRawMatch = milestones.find(
-						(milestone) => milestone.id.trim().toLowerCase() === canonicalInputId,
-					);
-					if (canonicalRawMatch) {
-						return canonicalRawMatch;
-					}
-				}
-				return milestones.find((milestone) => idMatchesAlias(milestone.id));
-			};
-			const activeMilestones = milestoneEntities ?? [];
-			const archivedMilestones = archivedMilestoneEntities ?? [];
-			const activeIdMatch = findIdMatch(activeMilestones);
-			if (activeIdMatch) {
-				return activeIdMatch.id;
-			}
-			if (looksLikeMilestoneId) {
-				const archivedIdMatch = findIdMatch(archivedMilestones);
-				if (archivedIdMatch) {
-					return archivedIdMatch.id;
-				}
-			}
-			const activeTitleMatches = activeMilestones.filter((milestone) => milestone.title.trim().toLowerCase() === key);
-			if (activeTitleMatches.length === 1) {
-				return activeTitleMatches[0]?.id ?? normalized;
-			}
-			if (activeTitleMatches.length > 1) {
-				return normalized;
-			}
-			const archivedIdMatch = findIdMatch(archivedMilestones);
-			if (archivedIdMatch) {
-				return archivedIdMatch.id;
-			}
-			const archivedTitleMatches = archivedMilestones.filter(
-				(milestone) => milestone.title.trim().toLowerCase() === key,
-			);
-			if (archivedTitleMatches.length === 1) {
-				return archivedTitleMatches[0]?.id ?? normalized;
-			}
-			return normalized;
-		},
+		(value?: string | null): string => resolveMilestone(value, milestoneEntities, archivedMilestoneEntities).id,
 		[milestoneEntities, archivedMilestoneEntities],
 	);
 	const resolveMilestoneLabel = useCallback(
-		(value?: string | null): string => {
-			const normalized = (value ?? "").trim();
-			if (!normalized) return "";
-			const key = normalized.toLowerCase();
-			const aliasKeys = new Set<string>([key]);
-			const canonicalInputId =
-				/^\d+$/.test(normalized) || /^m-\d+$/i.test(normalized)
-					? `m-${String(Number.parseInt(normalized.replace(/^m-/i, ""), 10))}`
-					: null;
-			if (/^\d+$/.test(normalized)) {
-				const numericAlias = String(Number.parseInt(normalized, 10));
-				aliasKeys.add(numericAlias);
-				aliasKeys.add(`m-${numericAlias}`);
-			} else {
-				const idMatch = normalized.match(/^m-(\d+)$/i);
-				if (idMatch?.[1]) {
-					const numericAlias = String(Number.parseInt(idMatch[1], 10));
-					aliasKeys.add(numericAlias);
-					aliasKeys.add(`m-${numericAlias}`);
-				}
-			}
-			const idMatchesAlias = (milestoneId: string): boolean => {
-				const milestoneKey = milestoneId.trim().toLowerCase();
-				if (aliasKeys.has(milestoneKey)) {
-					return true;
-				}
-				const idMatch = milestoneId.trim().match(/^m-(\d+)$/i);
-				if (!idMatch?.[1]) {
-					return false;
-				}
-				const numericAlias = String(Number.parseInt(idMatch[1], 10));
-				return aliasKeys.has(numericAlias) || aliasKeys.has(`m-${numericAlias}`);
-			};
-			const findIdMatch = (milestones: Milestone[]): Milestone | undefined => {
-				const rawExactMatch = milestones.find((milestone) => milestone.id.trim().toLowerCase() === key);
-				if (rawExactMatch) {
-					return rawExactMatch;
-				}
-				if (canonicalInputId) {
-					const canonicalRawMatch = milestones.find(
-						(milestone) => milestone.id.trim().toLowerCase() === canonicalInputId,
-					);
-					if (canonicalRawMatch) {
-						return canonicalRawMatch;
-					}
-				}
-				return milestones.find((milestone) => idMatchesAlias(milestone.id));
-			};
-			const allMilestones = [...(milestoneEntities ?? []), ...(archivedMilestoneEntities ?? [])];
-			const idMatch = findIdMatch(allMilestones);
-			if (idMatch) {
-				return idMatch.title;
-			}
-			const titleMatches = allMilestones.filter((milestone) => milestone.title.trim().toLowerCase() === key);
-			return titleMatches.length === 1 ? (titleMatches[0]?.title ?? normalized) : normalized;
-		},
+		(value?: string | null): string => resolveMilestone(value, milestoneEntities, archivedMilestoneEntities).label,
 		[milestoneEntities, archivedMilestoneEntities],
 	);
 
@@ -726,49 +662,53 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		>
 			{error && <div className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</div>}
 
-			{/* Archived task indicator */}
 			{task && (task.status === "Archived" || task.status === "archived") && (
-				<div className="mb-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200">
-					<svg
-						aria-hidden="true"
-						className="size-5 flex-shrink-0 text-red-600 dark:text-red-400"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-						/>
-					</svg>
-					<div className="flex-1 font-medium">ARCHIVED — This task has been archived</div>
-				</div>
+				<InfoBanner
+					color="red"
+					icon={
+						<svg
+							aria-hidden="true"
+							className="size-5 flex-shrink-0 text-red-600 dark:text-red-400"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+							/>
+						</svg>
+					}
+				>
+					<span className="font-medium">ARCHIVED — This task has been archived</span>
+				</InfoBanner>
 			)}
 
-			{/* Cross-branch task indicator */}
 			{isFromOtherBranch && (
-				<div className="mb-4 flex items-center gap-2 px-4 py-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg text-amber-800 dark:text-amber-200">
-					<svg
-						aria-hidden="true"
-						className="size-5 flex-shrink-0 text-amber-600 dark:text-amber-400"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-						/>
-					</svg>
-					<div className="flex-1">
-						<span className="font-medium">Read-only:</span> This task exists in the{" "}
-						<span className="font-semibold">{task?.branch}</span> branch. Switch to that branch to edit it.
-					</div>
-				</div>
+				<InfoBanner
+					color="amber"
+					icon={
+						<svg
+							aria-hidden="true"
+							className="size-5 flex-shrink-0 text-amber-600 dark:text-amber-400"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+							/>
+						</svg>
+					}
+				>
+					<span className="font-medium">Read-only:</span> This task exists in the{" "}
+					<span className="font-semibold">{task?.branch}</span> branch. Switch to that branch to edit it.
+				</InfoBanner>
 			)}
 
 			{/* Parent task reference */}
@@ -1319,14 +1259,11 @@ export const TaskDetailsModal: React.FC<Props> = ({
 						/>
 					</div>
 
-					{/* Demote to Draft button */}
 					{mode === "preview" && task && !isFromOtherBranch && (status || "").toLowerCase() !== "draft" && (
-						<div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
-							<button
-								type="button"
-								onClick={handleDemote}
-								className="w-full inline-flex items-center justify-center px-4 py-2 bg-orange-500 dark:bg-orange-600 text-white text-sm font-medium rounded-md hover:bg-orange-600 dark:hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-orange-400 dark:focus:ring-orange-500 transition-colors duration-200"
-							>
+						<SidebarActionButton
+							variant="warning"
+							onClick={handleDemote}
+							icon={
 								<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
 										strokeLinecap="round"
@@ -1335,19 +1272,17 @@ export const TaskDetailsModal: React.FC<Props> = ({
 										d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
 									/>
 								</svg>
-								Demote to Draft
-							</button>
-						</div>
+							}
+						>
+							Demote to Draft
+						</SidebarActionButton>
 					)}
 
-					{/* Archive button at bottom of sidebar */}
 					{task && onArchive && !isFromOtherBranch && (
-						<div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
-							<button
-								type="button"
-								onClick={handleArchive}
-								className="w-full inline-flex items-center justify-center px-4 py-2 bg-red-500 dark:bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-600 dark:hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-red-400 dark:focus:ring-red-500 transition-colors duration-200"
-							>
+						<SidebarActionButton
+							variant="danger"
+							onClick={handleArchive}
+							icon={
 								<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
 										strokeLinecap="round"
@@ -1356,9 +1291,10 @@ export const TaskDetailsModal: React.FC<Props> = ({
 										d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
 									/>
 								</svg>
-								Archive Task
-							</button>
-						</div>
+							}
+						>
+							Archive Task
+						</SidebarActionButton>
 					)}
 				</div>
 			</div>
@@ -1366,6 +1302,47 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		</Modal>
 	);
 };
+
+const bannerColorStyles = {
+	red: "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700 text-red-800 dark:text-red-200",
+	amber: "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200",
+} as const;
+
+const InfoBanner: React.FC<{
+	color: keyof typeof bannerColorStyles;
+	icon: React.ReactNode;
+	children: React.ReactNode;
+}> = ({ color, icon, children }) => (
+	<div className={`mb-4 flex items-center gap-2 px-4 py-3 border rounded-lg ${bannerColorStyles[color]}`}>
+		{icon}
+		<div className="flex-1">{children}</div>
+	</div>
+);
+
+const sidebarActionVariants = {
+	warning:
+		"bg-orange-500 dark:bg-orange-600 hover:bg-orange-600 dark:hover:bg-orange-700 focus:ring-orange-400 dark:focus:ring-orange-500",
+	danger:
+		"bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 focus:ring-red-400 dark:focus:ring-red-500",
+} as const;
+
+const SidebarActionButton: React.FC<{
+	variant: keyof typeof sidebarActionVariants;
+	onClick: () => void;
+	icon: React.ReactNode;
+	children: React.ReactNode;
+}> = ({ variant, onClick, icon, children }) => (
+	<div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+		<button
+			type="button"
+			onClick={onClick}
+			className={`w-full inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors duration-200 ${sidebarActionVariants[variant]}`}
+		>
+			{icon}
+			{children}
+		</button>
+	</div>
+);
 
 const StatusSelect: React.FC<{ current: string; onChange: (v: string) => void; disabled?: boolean }> = ({
 	current,
