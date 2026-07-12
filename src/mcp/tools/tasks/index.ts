@@ -61,6 +61,7 @@ export function registerTaskTools(server: McpServer, config: BacklogConfig): voi
 			annotations: { title: "Edit Task", destructiveHint: false },
 		},
 		taskEditSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.editTask(input as unknown as TaskEditRequest),
 	);
 

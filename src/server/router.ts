@@ -1,6 +1,7 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
+// aislop-ignore-file narrative-comment — all narrative comments here are section separators
 // @ts-expect-error — Bun-specific with { type: "file" } import, no TS types
 import favicon from "../web/favicon.png" with { type: "file" };
 import { applyNoStoreHeaders } from "./middleware.ts";

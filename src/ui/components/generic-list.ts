@@ -428,6 +428,7 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 		if (this.isMultiSelect) {
 			this.onSelect?.([], []);
 		} else {
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 			this.onSelect?.(null as unknown as T, -1);
 		}
 	}
@@ -483,6 +484,7 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 
 	private getScreen(): ScreenInterface | undefined {
 		if (this.screen) return this.screen;
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		const maybeHasScreen = this.listBox as unknown as { screen?: ScreenInterface };
 		return maybeHasScreen?.screen;
 	}

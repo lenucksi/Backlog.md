@@ -27,6 +27,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Add Label", destructiveHint: false },
 		},
 		labelAddSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.addLabel(input as unknown as LabelAddArgs),
 	);
 
@@ -38,6 +39,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Rename Label", destructiveHint: false },
 		},
 		labelRenameSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.renameLabel(input as unknown as LabelRenameArgs),
 	);
 
@@ -49,6 +51,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Set Label Color", destructiveHint: false },
 		},
 		labelSetColorSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.setLabelColor(input as unknown as LabelSetColorArgs),
 	);
 
@@ -60,6 +63,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Remove Label Color", destructiveHint: false },
 		},
 		labelRemoveColorSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.removeLabelColor(input as unknown as LabelRemoveColorArgs),
 	);
 
@@ -71,6 +75,7 @@ export function registerLabelTools(server: McpServer): void {
 			annotations: { title: "Remove Label", destructiveHint: true },
 		},
 		labelRemoveSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.removeLabel(input as unknown as LabelRemoveArgs),
 	);
 

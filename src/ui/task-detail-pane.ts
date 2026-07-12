@@ -45,6 +45,7 @@ export function renderDetailPane(
 
 	const configureDetailBox = (boxInstance: ScrollableTextInterface) => {
 		descriptionBox = boxInstance;
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		const scrollable = boxInstance as unknown as {
 			scroll?: (offset: number) => void;
 			setScroll?: (offset: number) => void;

@@ -46,14 +46,14 @@ async function setup() {
 
 	// Use the default task prefix ("task") so listTasks glob finds them
 	await createSeedTask(core, { id: "task-1", title: "Implement login page", status: "To Do", priority: "high", assignee: ["alice"], labels: ["frontend", "auth"], createdDate: "2026-05-01", description: "Build a login page with email and password fields." });
-	await createSeedTask(_core, { id: "task-2", title: "Set up CI pipeline", status: "In Progress", priority: "high", assignee: ["bob"], labels: ["devops"], createdDate: "2026-05-05" });
-	await createSeedTask(_core, { id: "task-3", title: "Write API documentation", status: "To Do", priority: "medium", assignee: ["alice", "charlie"], labels: ["docs"], createdDate: "2026-05-10" });
-	await createSeedTask(_core, { id: "task-4", title: "Fix navigation bug on mobile", status: "Done", priority: "high", assignee: ["charlie"], labels: ["bug", "frontend"], createdDate: "2026-05-03" });
-	await createSeedTask(_core, { id: "task-5", title: "Add dark mode support", status: "To Do", priority: "low", assignee: [], labels: ["frontend", "ux"], createdDate: "2026-05-15" });
-	await createSeedTask(_core, { id: "task-6", title: "Database migration script", status: "In Progress", priority: "medium", assignee: ["bob"], labels: ["backend"], createdDate: "2026-05-08" });
-	await createSeedTask(_core, { id: "task-7", title: "User acceptance testing", status: "Done", priority: "high", assignee: ["alice"], labels: [], createdDate: "2026-05-02" });
-	await createSeedTask(_core, { id: "task-8", title: "Performance benchmark report", status: "Done", priority: "low", assignee: ["charlie"], labels: ["docs", "backend"], createdDate: "2026-04-28" });
-	await createSeedTask(_core, { id: "task-9", title: "Set up staging environment", status: "To Do", priority: "medium", assignee: [], labels: ["devops"], createdDate: "2026-05-20" });
+	await createSeedTask(core, { id: "task-2", title: "Set up CI pipeline", status: "In Progress", priority: "high", assignee: ["bob"], labels: ["devops"], createdDate: "2026-05-05" });
+	await createSeedTask(core, { id: "task-3", title: "Write API documentation", status: "To Do", priority: "medium", assignee: ["alice", "charlie"], labels: ["docs"], createdDate: "2026-05-10" });
+	await createSeedTask(core, { id: "task-4", title: "Fix navigation bug on mobile", status: "Done", priority: "high", assignee: ["charlie"], labels: ["bug", "frontend"], createdDate: "2026-05-03" });
+	await createSeedTask(core, { id: "task-5", title: "Add dark mode support", status: "To Do", priority: "low", assignee: [], labels: ["frontend", "ux"], createdDate: "2026-05-15" });
+	await createSeedTask(core, { id: "task-6", title: "Database migration script", status: "In Progress", priority: "medium", assignee: ["bob"], labels: ["backend"], createdDate: "2026-05-08" });
+	await createSeedTask(core, { id: "task-7", title: "User acceptance testing", status: "Done", priority: "high", assignee: ["alice"], labels: [], createdDate: "2026-05-02" });
+	await createSeedTask(core, { id: "task-8", title: "Performance benchmark report", status: "Done", priority: "low", assignee: ["charlie"], labels: ["docs", "backend"], createdDate: "2026-04-28" });
+	await createSeedTask(core, { id: "task-9", title: "Set up staging environment", status: "To Do", priority: "medium", assignee: [], labels: ["devops"], createdDate: "2026-05-20" });
 
 	return core;
 }

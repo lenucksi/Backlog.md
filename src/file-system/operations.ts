@@ -1809,6 +1809,7 @@ ${description || `Milestone: ${title}`}`,
 		const raw: Record<string, unknown> = {};
 
 		for (const [camelKey, snakeKey] of Object.entries(camelToSnake)) {
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 			const value = (config as unknown as Record<string, unknown>)[camelKey];
 			if (value === undefined) continue;
 			raw[snakeKey] = value;

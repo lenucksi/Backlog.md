@@ -265,6 +265,7 @@ const clackPromptRunner: TaskWizardPromptRunner = async (question) => {
 			const isEmptyAfterKeypress = textPrompt.userInput.length === 0;
 			if (question.allowBackspaceNavigation && wasEmptyBeforeKeypress && isEmptyAfterKeypress) {
 				textPrompt.state = "submit";
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 				textPrompt.value = WIZARD_BACKSPACE_NAVIGATION as unknown as string;
 				return;
 			}

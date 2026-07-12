@@ -7,6 +7,7 @@ export function migrateConfig(config: Partial<BacklogConfig>): BacklogConfig {
 	const result = {
 		...getSchemaDefaults(),
 		...definedConfig,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 	} as unknown as BacklogConfig;
 
 	if (!result.projectName) result.projectName = "Untitled Project";

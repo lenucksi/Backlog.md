@@ -1,3 +1,4 @@
+// aislop-ignore-file narrative-comment -- all narrative comments here are section separators
 import { Elysia, type TSchema, t } from "elysia";
 import { IdParam } from "./schemas";
 

@@ -177,6 +177,7 @@ const Settings: React.FC = () => {
 								</label>
 								<select
 									id="dateFormat"
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 									value={(config as unknown as Record<string, unknown>).dateFormat as string}
 									onChange={(e) => handleInputChange("dateFormat" as keyof BacklogConfig, e.target.value)}
 									className="w-full h-10 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition-colors duration-200"

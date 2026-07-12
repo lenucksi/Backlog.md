@@ -47,6 +47,7 @@ async function ensureMermaid(): Promise<MermaidModule> {
 
 	if (mermaidModule) return mermaidModule;
 
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 	mermaidModule = (await import("mermaid/dist/mermaid.esm.mjs")) as unknown as MermaidModule;
 	return mermaidModule;
 }

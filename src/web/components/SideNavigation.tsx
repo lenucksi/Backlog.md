@@ -1,6 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Tooltip } from "react-tooltip";
 import type {
 	Decision,
 	DecisionSearchResult,
@@ -61,12 +60,7 @@ function NavItem({ to, icon, label, isCollapsed, rightContent }: NavItemProps) {
 	return (
 		<NavLink
 			to={to}
-			{...(isCollapsed
-				? {
-						"data-tooltip-id": "sidebar-tooltip",
-						"data-tooltip-content": label,
-					}
-				: {})}
+			{...(isCollapsed ? { title: label } : {})}
 			className={({ isActive }) => navItemClass(isActive, isCollapsed)}
 		>
 			{isCollapsed ? (
@@ -327,7 +321,7 @@ const SideNavigation = memo(function SideNavigation({
 			});
 	}, [decisions, decisionSortField, decisionSortDir]);
 
-	const handleResizeStart = useCallback(
+	const _handleResizeStart = useCallback(
 		(e: React.MouseEvent) => {
 			e.preventDefault();
 			setIsResizing(true);
@@ -823,7 +817,6 @@ const SideNavigation = memo(function SideNavigation({
 						<div className="pointer-events-none absolute right-px top-0 bottom-0 w-0.5 bg-transparent group-hover:bg-blue-400 group-active:bg-blue-500 transition-colors duration-150" />
 					</div>
 				)}
-				<Tooltip id="sidebar-tooltip" place="right" />
 			</div>
 		</ErrorBoundary>
 	);

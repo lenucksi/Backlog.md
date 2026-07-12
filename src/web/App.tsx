@@ -645,18 +645,20 @@ function App() {
 						}
 					/>
 					{[
-						{ path: "documentation", Component: DocumentationDetail, props: { docs } },
-						{ path: "documentation/:id", Component: DocumentationDetail, props: { docs } },
-						{ path: "documentation/:id/:title", Component: DocumentationDetail, props: { docs } },
-						{ path: "decisions", Component: DecisionDetail, props: { decisions } },
-						{ path: "decisions/:id", Component: DecisionDetail, props: { decisions } },
-						{ path: "decisions/:id/:title", Component: DecisionDetail, props: { decisions } },
-					].map(({ path, Component, props }) => (
-						<Route
-							key={path}
-							path={path}
-							element={<Component {...(props as Record<string, unknown>)} onRefreshData={refreshData} />}
-						/>
+						{ path: "documentation", element: <DocumentationDetail docs={docs} onRefreshData={refreshData} /> },
+						{ path: "documentation/:id", element: <DocumentationDetail docs={docs} onRefreshData={refreshData} /> },
+						{
+							path: "documentation/:id/:title",
+							element: <DocumentationDetail docs={docs} onRefreshData={refreshData} />,
+						},
+						{ path: "decisions", element: <DecisionDetail decisions={decisions} onRefreshData={refreshData} /> },
+						{ path: "decisions/:id", element: <DecisionDetail decisions={decisions} onRefreshData={refreshData} /> },
+						{
+							path: "decisions/:id/:title",
+							element: <DecisionDetail decisions={decisions} onRefreshData={refreshData} />,
+						},
+					].map(({ path, element }) => (
+						<Route key={path} path={path} element={element} />
 					))}
 					<Route
 						path="statistics"

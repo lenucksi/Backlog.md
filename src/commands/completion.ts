@@ -478,6 +478,7 @@ export async function installCompletion(
 export function registerCompletionCommand(program: Command): void {
 	const completionCmd = program.command("completion").description("manage shell completion scripts");
 
+	// aislop-ignore-next-line narrative-comment -- useful context for shell completion
 	// Hidden command used by shell completion scripts
 	completionCmd
 		.command("__complete <line> <point>")

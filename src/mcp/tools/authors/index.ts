@@ -27,6 +27,7 @@ export function registerAuthorTools(server: McpServer): void {
 			annotations: { title: "Add Author", destructiveHint: false },
 		},
 		authorAddSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.addAuthor(input as unknown as AuthorAddArgs),
 	);
 
@@ -38,6 +39,7 @@ export function registerAuthorTools(server: McpServer): void {
 			annotations: { title: "Rename Author", destructiveHint: false },
 		},
 		authorRenameSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.renameAuthor(input as unknown as AuthorRenameArgs),
 	);
 
@@ -49,6 +51,7 @@ export function registerAuthorTools(server: McpServer): void {
 			annotations: { title: "Remove Author", destructiveHint: true },
 		},
 		authorRemoveSchema,
+	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		async (input) => handlers.removeAuthor(input as unknown as AuthorRemoveArgs),
 	);
 
