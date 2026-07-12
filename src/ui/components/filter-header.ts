@@ -315,13 +315,13 @@ export class FilterHeader {
 	}
 
 	private getSearchCursorX(): number {
-	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
+		// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		const searchInput = this.searchInput as unknown as { getCursor?: () => { x: number; y: number } };
 		return searchInput.getCursor?.().x ?? 0;
 	}
 
 	private getSearchTextWidth(value: string): number {
-	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
+		// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 		const searchInput = this.searchInput as unknown as { strWidth?: (input: string) => number };
 		return searchInput.strWidth?.(value) ?? value.length;
 	}

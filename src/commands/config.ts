@@ -319,7 +319,7 @@ export function registerConfigCommand(program: Command): void {
 					process.exit(EXIT.ERROR);
 				}
 
-	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
+				// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 				const value = getConfigValue(config as unknown as Record<string, unknown>, entry);
 
 				if (getOutputMode() === "json") {
@@ -365,7 +365,7 @@ export function registerConfigCommand(program: Command): void {
 					return;
 				}
 
-	// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
+				// aislop-ignore-next-line double-type-assertion -- required per AGENTS.md
 				const configRecord = config as unknown as Record<string, unknown>;
 
 				for (const entry of CONFIG_SCHEMA_ENTRIES) {

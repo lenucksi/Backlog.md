@@ -283,8 +283,11 @@ describe("viewTaskEnhanced non-TTY", () => {
 			const { viewTaskEnhanced } = await import("../ui/task-viewer-with-search.ts");
 
 			const lines: string[] = [];
-			const origLog = console.log;
-			console.log = (...args: unknown[]) => lines.push(args.join(" "));
+			const origWrite = process.stdout.write.bind(process.stdout);
+			process.stdout.write = (chunk: string | Uint8Array) => {
+				lines.push(typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk));
+				return true;
+			};
 
 			await viewTaskEnhanced({
 				id: "TEST-1",
@@ -296,7 +299,7 @@ describe("viewTaskEnhanced non-TTY", () => {
 				dependencies: [],
 			});
 
-			console.log = origLog;
+			process.stdout.write = origWrite;
 			expect(lines.length).toBeGreaterThan(0);
 			expect(lines.some((l) => l.includes("TEST-1"))).toBe(true);
 		}));

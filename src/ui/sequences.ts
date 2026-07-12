@@ -35,8 +35,12 @@ export async function runSequencesView(
 	}
 
 	// Headless/CI fallback: when not a TTY or explicitly requested, just print text content
-	const forceHeadless = process.env.BACKLOG_HEADLESS === "1" || process.env.CI === "1" || process.env.CI === "true";
-	if (output.isTTY === false || forceHeadless) {
+	if (
+		output.isTTY === false ||
+		process.env.BACKLOG_HEADLESS === "1" ||
+		process.env.CI === "1" ||
+		process.env.CI === "true"
+	) {
 		stdout(lines.join("\n"));
 		return;
 	}

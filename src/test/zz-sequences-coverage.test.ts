@@ -23,8 +23,8 @@ function makeTask(id: string, title: string, status = "To Do") {
 
 describe("runSequencesView", () => {
 	describe("headless mode (via BACKLOG_HEADLESS)", () => {
-		let logs: string[];
-		const originalLog = console.log;
+		let output: string;
+		const origWrite = process.stdout.write.bind(process.stdout);
 
 		beforeAll(() => {
 			process.env.BACKLOG_HEADLESS = "1";
@@ -35,17 +35,20 @@ describe("runSequencesView", () => {
 		});
 
 		beforeEach(() => {
-			logs = [];
-			console.log = (...args: string[]) => void logs.push(args.join(" "));
+			output = "";
+			process.stdout.write = (chunk: string | Uint8Array) => {
+				output += typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk);
+				return true;
+			};
 		});
 
 		afterEach(() => {
-			console.log = originalLog;
+			process.stdout.write = origWrite;
 		});
 
 		it("handles empty data", async () => {
 			await runSequencesView({ unsequenced: [], sequences: [] });
-			expect(logs).toEqual([""]);
+			expect(output).toBe("\n");
 		});
 
 		it("prints unsequenced tasks", async () => {
@@ -53,7 +56,7 @@ describe("runSequencesView", () => {
 				unsequenced: [makeTask("t1", "Task One")],
 				sequences: [],
 			});
-			expect(logs).toEqual(["Unsequenced:\n  t1 - Task One\n"]);
+			expect(output).toBe("Unsequenced:\n  t1 - Task One\n\n");
 		});
 
 		it("prints sequences with tasks", async () => {
@@ -61,7 +64,7 @@ describe("runSequencesView", () => {
 				unsequenced: [],
 				sequences: [{ index: 1, tasks: [makeTask("t2", "Task Two")] }],
 			});
-			expect(logs).toEqual(["Sequence 1:\n  t2 - Task Two\n"]);
+			expect(output).toBe("Sequence 1:\n  t2 - Task Two\n\n");
 		});
 
 		it("prints both unsequenced and sequences", async () => {
@@ -69,7 +72,7 @@ describe("runSequencesView", () => {
 				unsequenced: [makeTask("u1", "Unseq")],
 				sequences: [{ index: 1, tasks: [makeTask("s1", "Seq")] }],
 			});
-			expect(logs).toEqual(["Unsequenced:\n  u1 - Unseq\n\nSequence 1:\n  s1 - Seq\n"]);
+			expect(output).toBe("Unsequenced:\n  u1 - Unseq\n\nSequence 1:\n  s1 - Seq\n\n");
 		});
 
 		it("handles multiple sequences and tasks", async () => {
@@ -80,7 +83,7 @@ describe("runSequencesView", () => {
 					{ index: 2, tasks: [makeTask("s3", "Third")] },
 				],
 			});
-			expect(logs).toEqual(["Sequence 1:\n  s1 - First\n  s2 - Second\n\nSequence 2:\n  s3 - Third\n"]);
+			expect(output).toBe("Sequence 1:\n  s1 - First\n  s2 - Second\n\nSequence 2:\n  s3 - Third\n\n");
 		});
 
 		it("handles multiple unsequenced tasks", async () => {
@@ -88,7 +91,7 @@ describe("runSequencesView", () => {
 				unsequenced: [makeTask("a", "A"), makeTask("b", "B"), makeTask("c", "C")],
 				sequences: [],
 			});
-			expect(logs).toEqual(["Unsequenced:\n  a - A\n  b - B\n  c - C\n"]);
+			expect(output).toBe("Unsequenced:\n  a - A\n  b - B\n  c - C\n\n");
 		});
 	});
 });
