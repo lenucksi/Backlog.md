@@ -22,7 +22,8 @@
 		"search",
 		"config",
 		"where",
-		"which"
+		"which",
+		"prek"
 	],
 	"ignoreExportsUsedInFile": {
 		"interface": true,

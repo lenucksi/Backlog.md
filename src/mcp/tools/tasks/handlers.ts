@@ -5,7 +5,8 @@ import {
 	type Task,
 	type TaskListFilter,
 } from "../../../types/index.ts";
-import type { TaskEditArgs, TaskEditRequest } from "../../../types/task-edit-args.ts";
+import type { TaskEditArgs } from "../../../types/task-edit-args.ts";
+type TaskEditRequest = TaskEditArgs & { id: string };
 import { formatDuplicateWarning, scanForDuplicateIds } from "../../../utils/duplicate-detection.ts";
 import {
 	createMilestoneFilterValueResolver,
