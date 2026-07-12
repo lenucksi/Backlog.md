@@ -194,7 +194,7 @@ const Settings: React.FC = () => {
 						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Workflow Settings</h2>
 						<div className="space-y-4">
 							<div>
-								<label className="flex items-center justify-between">
+								<label className="flex items-center justify-between" aria-label="Auto Commit">
 									<div>
 										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">Auto Commit</span>
 										<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -214,7 +214,7 @@ const Settings: React.FC = () => {
 							</div>
 
 							<div>
-								<label className="flex items-center justify-between">
+								<label className="flex items-center justify-between" aria-label="Remote Operations">
 									<div>
 										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">Remote Operations</span>
 										<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -234,7 +234,7 @@ const Settings: React.FC = () => {
 							</div>
 
 							<div>
-								<label className="flex items-center justify-between">
+								<label className="flex items-center justify-between" aria-label="Auto-Collapse Milestones">
 									<div>
 										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
 											Auto-Collapse Milestones
@@ -423,7 +423,7 @@ const Settings: React.FC = () => {
 							</div>
 
 							<div>
-								<label className="flex items-center justify-between">
+								<label className="flex items-center justify-between" aria-label="Auto Open Browser">
 									<div>
 										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">Auto Open Browser</span>
 										<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">

@@ -149,10 +149,9 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 							className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
 						>
 							<div className="flex items-start justify-between">
-								<div
-									className="flex-1 cursor-pointer"
-									role="button"
-									tabIndex={0}
+								<button
+									type="button"
+									className="flex-1 cursor-pointer text-left"
 									onClick={() => onEditTask(draft)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
@@ -203,7 +202,7 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 											))}
 										</div>
 									)}
-								</div>
+								</button>
 								<div className="ml-4">
 									<button
 										type="button"

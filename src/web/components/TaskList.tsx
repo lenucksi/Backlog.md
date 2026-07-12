@@ -1193,6 +1193,7 @@ const TaskList: React.FC<TaskListProps> = ({
 															selectedTaskIds.size > 0 && selectedTaskIds.size < hierarchicalTasks.length;
 												}}
 												onChange={handleSelectAll}
+												aria-label="Select all tasks"
 											/>
 										</th>
 										{renderSortableHeader("ID", "id")}
@@ -1241,6 +1242,7 @@ const TaskList: React.FC<TaskListProps> = ({
 													checked={selectedTaskIds.has(task.id)}
 													onChange={() => handleToggleSelect(task.id)}
 													onClick={(e) => e.stopPropagation()}
+													aria-label={`Select task ${task.id}`}
 												/>
 											</td>
 											<td className="px-3 py-2.5 text-xs font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">

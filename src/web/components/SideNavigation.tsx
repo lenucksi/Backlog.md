@@ -806,17 +806,21 @@ const SideNavigation = memo(function SideNavigation({
 				</div>
 
 				{!isCollapsed && (
-					<div
-						role="slider"
-						tabIndex={0}
-						aria-valuenow={sidebarWidth}
-						aria-valuemin={240}
-						aria-valuemax={600}
-						aria-label="Sidebar width"
-						onMouseDown={handleResizeStart}
-						className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-20 group"
-					>
-						<div className="absolute inset-y-0 right-px w-0.5 bg-transparent group-hover:bg-blue-400 group-active:bg-blue-500 transition-colors duration-150" />
+					<div className="absolute right-0 top-0 bottom-0 w-1.5 z-20 group">
+						<input
+							type="range"
+							min={240}
+							max={600}
+							value={sidebarWidth}
+							onChange={(e) => {
+								const newWidth = Number(e.target.value);
+								setSidebarWidth(newWidth);
+								localStorage.setItem("sideNavWidth", String(newWidth));
+							}}
+							aria-label="Sidebar width"
+							className="absolute inset-0 cursor-col-resize opacity-0 m-0"
+						/>
+						<div className="pointer-events-none absolute right-px top-0 bottom-0 w-0.5 bg-transparent group-hover:bg-blue-400 group-active:bg-blue-500 transition-colors duration-150" />
 					</div>
 				)}
 				<Tooltip id="sidebar-tooltip" place="right" />

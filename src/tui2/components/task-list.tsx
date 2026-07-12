@@ -94,8 +94,10 @@ function TaskRow(props: { task: Task; selected: boolean; onSelect: () => void })
 	const priority = props.task.priority ?? "medium";
 	return (
 		// biome-ignore lint/a11y/useSemanticElements: opentui has no button element
+		// biome-ignore lint/a11y/preferTagOverRole: opentui has no native button element
 		<box
 			role="button"
+			tabIndex={0}
 			height={3}
 			paddingLeft={2}
 			backgroundColor={bg()}

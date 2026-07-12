@@ -48,12 +48,19 @@ const Modal: React.FC<ModalProps> = ({
 		<div
 			className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 p-4"
 			onClick={disableEscapeClose ? undefined : onClose}
+			onKeyDown={
+				disableEscapeClose
+					? undefined
+					: (e) => {
+							if (e.key === "Escape") onClose();
+						}
+			}
 			role="presentation"
 		>
-			<div
+			<dialog
+				open
 				className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl ${maxWidthClass} w-full max-h-[94vh] overflow-y-auto transition-colors duration-200`}
 				onClick={(e) => e.stopPropagation()}
-				role="dialog"
 				aria-modal="true"
 				aria-labelledby="modal-title"
 			>
@@ -74,7 +81,7 @@ const Modal: React.FC<ModalProps> = ({
 					</div>
 				</div>
 				<div className="px-6 pt-4 pb-6">{children}</div>
-			</div>
+			</dialog>
 		</div>
 	);
 };

@@ -304,11 +304,10 @@ const Statistics: React.FC<StatisticsProps> = ({
 		const displayDate = showDate === "created" ? task.createdDate : task.updatedDate || task.createdDate;
 
 		return (
-			<div
+			<button
+				type="button"
 				key={task.id}
-				role="button"
-				tabIndex={0}
-				className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg transition-colors duration-200 ${
+				className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg transition-colors duration-200 text-left w-full ${
 					onClick ? "hover:bg-gray-100 dark:hover:bg-gray-600/50 cursor-pointer" : ""
 				}`}
 				onClick={onClick}
@@ -330,7 +329,7 @@ const Statistics: React.FC<StatisticsProps> = ({
 						{task.id} • {showDate === "created" ? "Created" : "Updated"} {formatDate(displayDate)}
 					</p>
 				</div>
-			</div>
+			</button>
 		);
 	};
 

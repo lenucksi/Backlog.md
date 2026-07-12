@@ -1008,7 +1008,10 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 								Remove milestone &quot;{removingBucket?.label ?? ""}&quot; and choose what happens to its tasks.
 							</p>
 							<div className="space-y-3">
-								<label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200">
+								<label
+									className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200"
+									aria-label="Leave tasks unassigned"
+								>
 									<input
 										type="radio"
 										name="remove-milestone-task-handling"
@@ -1027,7 +1030,10 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 										</span>
 									</span>
 								</label>
-								<label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200">
+								<label
+									className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-3 text-sm text-gray-700 dark:text-gray-200"
+									aria-label="Reassign tasks"
+								>
 									<input
 										type="radio"
 										name="remove-milestone-task-handling"

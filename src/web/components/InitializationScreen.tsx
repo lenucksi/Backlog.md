@@ -17,6 +17,7 @@ interface SelectableCardProps {
 function SelectableCard({ selected, type, name, value, onChange, label, description }: SelectableCardProps) {
 	return (
 		<label
+			aria-label={label}
 			className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
 				selected
 					? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
@@ -402,7 +403,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 			</div>
 
 			<div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-				<label className="flex items-start cursor-pointer">
+				<label className="flex items-start cursor-pointer" aria-label="Install Claude Code Backlog.md Agent">
 					<input
 						type="checkbox"
 						checked={installClaudeAgent}
@@ -530,7 +531,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 					<div>
 						<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Branch Settings</h3>
 						<div className="space-y-3">
-							<label className="flex items-center cursor-pointer">
+							<label className="flex items-center cursor-pointer" aria-label="Check task states across branches">
 								<input
 									type="checkbox"
 									checked={advancedConfig.checkActiveBranches}
@@ -553,7 +554,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 
 							{advancedConfig.checkActiveBranches && (
 								<>
-									<label className="flex items-center cursor-pointer ml-6">
+									<label className="flex items-center cursor-pointer ml-6" aria-label="Include remote branches">
 										<input
 											type="checkbox"
 											checked={advancedConfig.remoteOperations}
@@ -596,7 +597,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 					<div>
 						<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Git Settings</h3>
 						<div className="space-y-3">
-							<label className="flex items-center cursor-pointer">
+							<label className="flex items-center cursor-pointer" aria-label="Auto-commit changes">
 								<input
 									type="checkbox"
 									checked={advancedConfig.autoCommit}
@@ -611,7 +612,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 								</div>
 							</label>
 
-							<label className="flex items-center cursor-pointer">
+							<label className="flex items-center cursor-pointer" aria-label="Bypass git hooks">
 								<input
 									type="checkbox"
 									checked={advancedConfig.bypassGitHooks}
@@ -631,7 +632,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 					{/* ID Formatting */}
 					<div>
 						<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">ID Formatting</h3>
-						<label className="flex items-center cursor-pointer">
+						<label className="flex items-center cursor-pointer" aria-label="Zero-padded IDs">
 							<input
 								type="checkbox"
 								checked={advancedConfig.zeroPaddedIds !== null}

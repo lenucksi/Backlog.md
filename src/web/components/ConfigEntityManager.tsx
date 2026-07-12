@@ -78,6 +78,7 @@ export default function ConfigEntityManager({
 									}
 								}}
 								title={`Change ${entityName} color`}
+								aria-label={`Change ${entityName} color`}
 							/>
 							{colorPickerIndex === index && (
 								<div
@@ -160,6 +161,7 @@ export default function ConfigEntityManager({
 							}
 						}}
 						title={`Toggle random color for new ${entityName}`}
+						aria-label={`Toggle random color for new ${entityName}`}
 					/>
 					<input
 						ref={inputRef}

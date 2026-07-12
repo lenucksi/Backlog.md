@@ -354,6 +354,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 										onClick={() => setCollapsedParents((prev) => ({ ...prev, [parentTask.id]: !isCollapsed }))}
 										className="absolute -left-1 top-3 z-10 size-5 flex items-center justify-center rounded-circle bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-xs"
 										title={isCollapsed ? "Show subtasks" : "Hide subtasks"}
+										aria-label={isCollapsed ? "Show subtasks" : "Hide subtasks"}
 									>
 										<svg
 											aria-hidden="true"

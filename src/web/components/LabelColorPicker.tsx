@@ -37,6 +37,7 @@ const LabelColorPicker: React.FC<LabelColorPickerProps> = ({ initialColor, onApp
 						}`}
 						style={{ backgroundColor: c }}
 						onClick={() => setLocalColor(c)}
+						aria-label={`Color ${c}`}
 					/>
 				))}
 			</div>

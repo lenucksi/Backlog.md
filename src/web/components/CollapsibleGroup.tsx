@@ -83,6 +83,7 @@ function CollapsibleGroup({
 							onClick={onCreate}
 							className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200"
 							title={`Create new ${title.toLowerCase()}`}
+							aria-label={`Create new ${title.toLowerCase()}`}
 						>
 							<svg aria-hidden="true" className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
