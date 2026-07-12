@@ -11,7 +11,6 @@ export interface ChecklistItem {
 export const CHECKBOX_PATTERNS = {
 	// Matches "- [ ] text" or "- [x] text" with optional leading whitespace
 	CHECKBOX_LINE: /^\s*-\s*\[([ x])\]\s*(.*)$/,
-	// Matches just the checkbox part
 	CHECKBOX_PREFIX: /^-\s*\[([ x])\]\s*/,
 } as const;
 
