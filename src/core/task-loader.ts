@@ -12,6 +12,7 @@ import { DEFAULT_DIRECTORIES } from "../constants/index.ts";
 import type { GitOperations } from "../git/operations.ts";
 import { parseTask } from "../markdown/parser.ts";
 import type { BacklogConfig, Task } from "../types/index.ts";
+import { getLogger } from "../utils/logger.ts";
 import { buildPathIdRegex, normalizeId } from "../utils/prefix-config.ts";
 import { normalizeTaskId, normalizeTaskIdentity } from "../utils/task-path.ts";
 import type { TaskDirectoryType } from "./cross-branch-tasks.ts";
@@ -223,7 +224,7 @@ async function hydrateTasks(
 					result.push(task);
 				}
 			} catch (error) {
-				console.error(
+				getLogger().error(
 					`Failed to hydrate task ${w.id} from ${w.ref}:${w.path}`,
 					error instanceof Error ? error.message : String(error),
 				);
@@ -376,7 +377,7 @@ export async function findTaskInRemoteBranches(
 		return hydrateTaskFromEntry(git, best, `origin/${best.branch}`, "remote");
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(
+			getLogger().error(
 				`Failed to find task ${taskId} in remote branches:`,
 				error instanceof Error ? error.message : String(error),
 			);
@@ -428,7 +429,7 @@ export async function findTaskInLocalBranches(
 		return hydrateTaskFromEntry(git, best, best.branch, "local-branch");
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(
+			getLogger().error(
 				`Failed to find task ${taskId} in local branches:`,
 				error instanceof Error ? error.message : String(error),
 			);
@@ -516,7 +517,7 @@ export async function loadRemoteTasks(
 		return hydratedTasks;
 	} catch (error) {
 		// If fetch fails, we can still work with local tasks
-		console.error("Failed to fetch remote tasks:", error instanceof Error ? error.message : String(error));
+		getLogger().error("Failed to fetch remote tasks:", error instanceof Error ? error.message : String(error));
 		return [];
 	}
 }
@@ -684,7 +685,7 @@ export async function loadLocalBranchTasks(
 		return hydratedTasks;
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error("Failed to load local branch tasks:", error instanceof Error ? error.message : String(error));
+			getLogger().error("Failed to load local branch tasks:", error instanceof Error ? error.message : String(error));
 		}
 		return [];
 	}

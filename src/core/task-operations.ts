@@ -2,6 +2,7 @@ import { DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
 import type { BacklogConfig, Task, TaskCreateInput, TaskListFilter, TaskUpdateInput } from "../types/index.ts";
 import { EntityType } from "../types/index.ts";
 import { normalizeAssignee } from "../utils/assignee.ts";
+import { getLogger } from "../utils/logger.ts";
 import { executeStatusCallback } from "../utils/status-callback.ts";
 import {
 	buildDefinitionOfDoneItems,
@@ -552,15 +553,15 @@ async function executeStatusChangeCallback(
 		});
 
 		if (!result.success) {
-			console.error(`Status change callback failed for ${task.id}: ${result.error ?? "Unknown error"}`);
+			getLogger().error(`Status change callback failed for ${task.id}: ${result.error ?? "Unknown error"}`);
 			if (result.output) {
-				console.error(`Callback output: ${result.output}`);
+				getLogger().error(`Callback output: ${result.output}`);
 			}
 		} else if (process.env.DEBUG && result.output) {
-			console.log(`Status change callback output for ${task.id}: ${result.output}`);
+			getLogger().debug(`Status change callback output for ${task.id}: ${result.output}`);
 		}
 	} catch (error) {
-		console.error(
+		getLogger().error(
 			`Failed to execute status change callback for ${task.id}:`,
 			error instanceof Error ? error.message : String(error),
 		);

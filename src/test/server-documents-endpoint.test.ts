@@ -1,7 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { FileSystem } from "../file-system/operations.ts";
 import { BacklogServer } from "../server/index.ts";
 import type { Document } from "../types/index.ts";
+import { getLogger, resetLogger } from "../utils/logger.ts";
 import { createUniqueTestDir, retry, safeCleanup } from "./test-utils.ts";
 
 let TEST_DIR: string;
@@ -180,7 +181,8 @@ describe("BacklogServer document endpoints", () => {
 		if (!server) {
 			throw new Error("Expected server to be started");
 		}
-		const consoleErrorSpy = spyOn(console, "error").mockImplementation(() => {});
+		resetLogger();
+		getLogger().level = 0; // suppress all logging for expected-error test
 		try {
 			const core = (
 				server as unknown as {
@@ -220,7 +222,7 @@ describe("BacklogServer document endpoints", () => {
 			expect(updateResponse.status).toBe(500);
 			expect(await updateResponse.text()).toContain("Failed to update document");
 		} finally {
-			consoleErrorSpy.mockRestore();
+			getLogger().level = 3;
 		}
 	});
 });

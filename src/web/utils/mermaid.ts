@@ -1,3 +1,7 @@
+import { createConsola } from "consola";
+
+const logger = createConsola({ level: 4 });
+
 // Type definitions for Mermaid API
 interface MermaidAPI {
 	initialize: (config: MermaidConfig) => void;
@@ -126,12 +130,12 @@ export async function renderMermaidIn(element: HTMLElement): Promise<void> {
 				}
 
 				// If none of the above worked, log warning
-				console.warn("mermaid: no compatible render method found, leaving raw code block");
+				logger.warn("mermaid: no compatible render method found, leaving raw code block");
 			} catch (err) {
-				console.warn("mermaid render failed", err);
+				logger.warn("mermaid render failed", err);
 			}
 		}
 	} catch (err) {
-		console.warn("Failed to load mermaid", err);
+		logger.warn("Failed to load mermaid", err);
 	}
 }

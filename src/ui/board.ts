@@ -10,6 +10,7 @@ import { Core } from "../core/backlog.ts";
 import type { Milestone, Task } from "../types/index.ts";
 import { copyToClipboard } from "../utils/clipboard.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
+import { getLogger } from "../utils/logger.ts";
 import { NO_MILESTONE_FILTER_LABEL, NO_MILESTONE_FILTER_VALUE } from "../utils/milestone-filter.ts";
 import { applySharedTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { compareTaskIds } from "../utils/task-sorting.ts";
@@ -1442,7 +1443,7 @@ export async function renderBoardTui(
 			} catch (error) {
 				// On error, cancel the move and restore original position
 				if (process.env.DEBUG) {
-					console.error("Move failed:", error instanceof Error ? error.message : String(error));
+					getLogger().error("Move failed:", error instanceof Error ? error.message : String(error));
 				}
 				moveOp = null;
 				renderView();

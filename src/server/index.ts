@@ -8,6 +8,7 @@ import { AppError } from "../utils/app-error.ts";
 import { openUrlInBrowser } from "../utils/browser-opener.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { getLogger } from "../utils/logger.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
 import { createBacklinkHandlers } from "./handlers/backlinks.ts";
 import { createConfigHandlers } from "./handlers/config.ts";
@@ -148,7 +149,7 @@ export class BacklogServer {
 
 	async start(port?: number, openBrowser = true): Promise<void> {
 		if (this.server) {
-			console.log("Server already running");
+			getLogger().info("Server already running");
 			return;
 		}
 
@@ -256,26 +257,26 @@ export class BacklogServer {
 			});
 
 			const url = `http://localhost:${finalPort}`;
-			console.log(`🚀 Backlog.md browser interface running at ${url}`);
-			console.log(`📊 Project: ${this.projectName}`);
+			getLogger().info(`Backlog.md browser interface running at ${url}`);
+			getLogger().info(`Project: ${this.projectName}`);
 			const stopKey = process.platform === "darwin" ? "Cmd+C" : "Ctrl+C";
-			console.log(`⏹️  Press ${stopKey} to stop the server`);
+			getLogger().info(`Press ${stopKey} to stop the server`);
 
 			if (shouldOpenBrowser) {
-				console.log("🌐 Opening browser...");
+				getLogger().info("Opening browser...");
 				await openUrlInBrowser(url);
 			} else {
-				console.log("💡 Open your browser and navigate to the URL above");
+				getLogger().info("Open your browser and navigate to the URL above");
 			}
 		} catch (error) {
 			const errorCode = (error as { code?: string })?.code;
 			const errorMessage = (error as Error)?.message;
 			if (errorCode === "EADDRINUSE" || errorMessage?.includes("address already in use")) {
-				console.error(`\n❌ Error: Port ${finalPort} is already in use. Use --port to specify a different port.\n`);
+				getLogger().error(`Port ${finalPort} is already in use. Use --port to specify a different port.`);
 				process.exit(EXIT.ERROR);
 			}
 
-			console.error("❌ Failed to start server:", errorMessage || error);
+			getLogger().error("Failed to start server:", errorMessage || error);
 			process.exit(EXIT.ERROR);
 		}
 	}
@@ -327,7 +328,7 @@ export class BacklogServer {
 			const timeout = new Promise<void>((resolve) => setTimeout(resolve, 1500));
 			await Promise.race([stopPromise, timeout]);
 			this.server = null;
-			console.log("Server stopped");
+			getLogger().info("Server stopped");
 		}
 
 		this._stopping = false;
@@ -385,7 +386,7 @@ export class BacklogServer {
 		if (error instanceof AppError) {
 			return error.formatForServer();
 		}
-		console.error("Server Error:", error instanceof Error ? error.message : String(error));
+		getLogger().error("Server Error:", error instanceof Error ? error.message : String(error));
 		return new Response("Internal Server Error", { status: 500 });
 	}
 }

@@ -1,4 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { getLogger } from "./logger.ts";
 
 export const AppErrorCode = {
 	NOT_FOUND: "NOT_FOUND",
@@ -62,7 +63,7 @@ export class AppError extends Error {
 	formatForServer(): Response {
 		const statusCode = this.getStatusCode();
 		if (statusCode === 500) {
-			console.error(`${this.code}:`, this.message, this.details ?? "");
+			getLogger().error(`${this.code}:`, this.message, this.details ?? "");
 		}
 		return Response.json({ error: this.message }, { status: statusCode });
 	}

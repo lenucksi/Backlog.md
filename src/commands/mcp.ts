@@ -1,4 +1,5 @@
 import { EXIT } from "../utils/exit-codes.ts";
+import { getLogger, setLogLevel } from "../utils/logger.ts";
 /**
  * MCP Command Group - Model Context Protocol CLI commands.
  *
@@ -40,6 +41,7 @@ function registerStartCommand(mcpCmd: Command): void {
 		.option("--path <path>", "Explicit Backlog.md project root (takes precedence over --cwd)")
 		.action(async (options: StartOptions) => {
 			try {
+				if (options.debug) setLogLevel("debug");
 				const rootPath = options.path || getExplicitProjectPath();
 				let projectRoot: string;
 				if (rootPath) {
@@ -55,8 +57,8 @@ function registerStartCommand(mcpCmd: Command): void {
 				await server.start();
 
 				if (options.debug) {
-					console.error(`Backlog root: ${projectRoot}`);
-					console.error("Backlog.md MCP server started (stdio transport)");
+					getLogger().debug(`Backlog root: ${projectRoot}`);
+					getLogger().debug("Backlog.md MCP server started (stdio transport)");
 				}
 
 				let shutdownTriggered = false;
@@ -66,14 +68,17 @@ function registerStartCommand(mcpCmd: Command): void {
 					}
 					shutdownTriggered = true;
 					if (options.debug) {
-						console.error(`Received ${signal}, shutting down MCP server...`);
+						getLogger().debug(`Received ${signal}, shutting down MCP server...`);
 					}
 
 					try {
 						await server.stop();
 						process.exit(EXIT.SUCCESS);
 					} catch (error) {
-						console.error("Error during MCP server shutdown:", error instanceof Error ? error.message : String(error));
+						getLogger().error(
+							"Error during MCP server shutdown:",
+							error instanceof Error ? error.message : String(error),
+						);
 						process.exit(EXIT.ERROR);
 					}
 				};
@@ -105,7 +110,7 @@ function registerStartCommand(mcpCmd: Command): void {
 				}
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				console.error(`Failed to start MCP server: ${message}`);
+				getLogger().error(`Failed to start MCP server: ${message}`);
 				process.exit(EXIT.ERROR);
 			}
 		});

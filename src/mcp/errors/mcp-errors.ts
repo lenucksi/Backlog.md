@@ -1,4 +1,5 @@
 import { AppError } from "../../utils/app-error.ts";
+import { getLogger } from "../../utils/logger.ts";
 import type { CallToolResult } from "../types.ts";
 
 export { AppError };
@@ -8,7 +9,7 @@ export function handleBacklogToolError(error: unknown): CallToolResult {
 		return error.formatForMCP();
 	}
 
-	console.error("Unexpected MCP error:", error instanceof Error ? error.message : String(error));
+	getLogger().error("Unexpected MCP error:", error instanceof Error ? error.message : String(error));
 
 	return {
 		content: [

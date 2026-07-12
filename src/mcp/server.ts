@@ -22,6 +22,7 @@ import {
 import { Core } from "../core/backlog.ts";
 import { getPackageName } from "../utils/app-info.ts";
 import { resolveBacklogDirectory } from "../utils/backlog-directory.ts";
+import { getLogger } from "../utils/logger.ts";
 import { getVersionSync } from "../utils/version.ts";
 import { registerInitRequiredResource } from "./resources/init-required/index.ts";
 import { registerWorkflowResources } from "./resources/workflow/index.ts";
@@ -130,7 +131,7 @@ export class McpServer extends Core {
 	private log(message: string, options?: { debug?: boolean }): void {
 		this.debugLog.push(message);
 		if (options?.debug) {
-			console.error(message);
+			getLogger().debug(message);
 		}
 		// Also send via MCP logging protocol when transport is connected
 		this.server.sendLoggingMessage({ level: "info", logger: "backlog", data: message }).catch(() => {});
@@ -517,7 +518,7 @@ export async function createMcpServer(projectRoot: string, options: ServerInitOp
 		server.enableRootsDiscovery({ debug: options.debug });
 
 		if (options.debug) {
-			console.error("MCP server initialised in fallback mode (roots discovery enabled).");
+			getLogger().debug("MCP server initialised in fallback mode (roots discovery enabled).");
 		}
 
 		return server;
@@ -537,7 +538,7 @@ export async function createMcpServer(projectRoot: string, options: ServerInitOp
 	registerOpenTools(server, config);
 
 	if (options.debug) {
-		console.error("MCP server initialised (stdio transport only).");
+		getLogger().debug("MCP server initialised (stdio transport only).");
 	}
 
 	return server;

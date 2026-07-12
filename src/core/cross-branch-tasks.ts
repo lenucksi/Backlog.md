@@ -6,6 +6,7 @@
 import type { FileSystem } from "../file-system/operations.ts";
 import type { GitOperations as GitOps } from "../git/operations.ts";
 import type { Task } from "../types/index.ts";
+import { getLogger } from "../utils/logger.ts";
 import { buildPathIdRegex, normalizeId } from "../utils/prefix-config.ts";
 
 /** Default prefix for tasks */
@@ -207,7 +208,7 @@ export async function getLatestTaskStatesForIds(
 
 		onProgress?.(`Checked ${taskIds.length} tasks`);
 	} catch (error) {
-		console.error(
+		getLogger().error(
 			"Failed to get task directory locations for IDs:",
 			error instanceof Error ? error.message : String(error),
 		);
