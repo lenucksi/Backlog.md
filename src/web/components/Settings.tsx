@@ -2,22 +2,9 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type { BacklogConfig } from "../../types";
 import { apiClient } from "../lib/api";
+import LabelColorPicker, { PRESET_COLORS } from "./LabelColorPicker";
+import StatusSelector from "./StatusSelector";
 import { SuccessToast } from "./SuccessToast";
-
-const PRESET_COLORS = [
-	"#f9c4c4",
-	"#fad0b4",
-	"#f9e6b4",
-	"#c4e6c4",
-	"#b4e0d0",
-	"#b8d4f0",
-	"#d4b8e6",
-	"#f4b4c4",
-	"#b4e0e6",
-	"#c4e6b4",
-	"#f4d0b4",
-	"#c4c4d0",
-];
 
 function getLabelColor(label: string | { name: string; color?: string }): string | undefined {
 	return typeof label === "string" ? undefined : label.color;
@@ -37,7 +24,6 @@ const Settings: React.FC = () => {
 	const [statuses, setStatuses] = useState<string[]>([]);
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 	const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
-	const [colorPickerColor, setColorPickerColor] = useState("");
 	const [newLabelColor, setNewLabelColor] = useState("");
 	const [newAuthorColor, setNewAuthorColor] = useState("");
 	const colorPickerRef = useRef<HTMLDivElement>(null);
@@ -150,6 +136,43 @@ const Settings: React.FC = () => {
 	};
 
 	const hasUnsavedChanges = JSON.stringify(config) !== JSON.stringify(originalConfig);
+
+	const handleRename = async (
+		oldName: string,
+		entityType: string,
+		renameApi: (oldName: string, newName: string) => Promise<unknown>,
+		fetchApi: () => Promise<Array<string | { name: string; color?: string }>>,
+		configKey: "labels" | "authors",
+	) => {
+		const newName = prompt(`Rename ${entityType} to:`, oldName);
+		if (newName?.trim() && newName.trim() !== oldName) {
+			try {
+				await renameApi(oldName, newName.trim());
+				const updated = await fetchApi();
+				setConfig((prev) => (prev ? { ...prev, [configKey]: updated } : null));
+			} catch (err) {
+				setError(err instanceof Error ? err.message : `Failed to rename ${entityType}`);
+			}
+		}
+	};
+
+	const handleDelete = async (
+		name: string,
+		entityType: string,
+		removeApi: (name: string) => Promise<unknown>,
+		fetchApi: () => Promise<Array<string | { name: string; color?: string }>>,
+		configKey: "labels" | "authors",
+	) => {
+		if (confirm(`Remove ${entityType} "${name}" from config?`)) {
+			try {
+				await removeApi(name);
+				const updated = await fetchApi();
+				setConfig((prev) => (prev ? { ...prev, [configKey]: updated } : null));
+			} catch (err) {
+				setError(err instanceof Error ? err.message : `Failed to remove ${entityType}`);
+			}
+		}
+	};
 
 	if (loading) {
 		return (
@@ -316,79 +339,23 @@ const Settings: React.FC = () => {
 								<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Default status for new tasks</p>
 							</div>
 
-							<div>
-								<label
-									htmlFor="terminalStatuses"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Terminal Statuses
-								</label>
-								<div className="flex flex-wrap gap-1.5 mb-1">
-									{statuses.map((status) => {
-										const checked = (config.terminalStatuses ?? []).includes(status);
-										return (
-											<button
-												key={status}
-												type="button"
-												onClick={() => {
-													const current = config.terminalStatuses ?? [];
-													handleInputChange(
-														"terminalStatuses",
-														checked ? current.filter((s) => s !== status) : [...current, status],
-													);
-												}}
-												className={`px-2.5 py-1 text-xs rounded-md border transition-colors duration-150 ${
-													checked
-														? "bg-stone-100 dark:bg-stone-700 border-stone-400 dark:border-stone-500 font-medium"
-														: "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400"
-												}`}
-											>
-												{status}
-											</button>
-										);
-									})}
-								</div>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Tasks in these statuses are considered complete (terminal)
-								</p>
-							</div>
+							<StatusSelector
+								configKey="terminalStatuses"
+								label="Terminal Statuses"
+								statuses={statuses}
+								value={config.terminalStatuses ?? []}
+								onChange={(key, value) => handleInputChange(key as keyof BacklogConfig, value)}
+								description="Tasks in these statuses are considered complete (terminal)"
+							/>
 
-							<div>
-								<label
-									htmlFor="blockedStatuses"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Blocked Statuses
-								</label>
-								<div className="flex flex-wrap gap-1.5 mb-1">
-									{statuses.map((status) => {
-										const checked = (config.blockedStatuses ?? []).includes(status);
-										return (
-											<button
-												key={status}
-												type="button"
-												onClick={() => {
-													const current = config.blockedStatuses ?? [];
-													handleInputChange(
-														"blockedStatuses",
-														checked ? current.filter((s) => s !== status) : [...current, status],
-													);
-												}}
-												className={`px-2.5 py-1 text-xs rounded-md border transition-colors duration-150 ${
-													checked
-														? "bg-stone-100 dark:bg-stone-700 border-stone-400 dark:border-stone-500 font-medium"
-														: "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400"
-												}`}
-											>
-												{status}
-											</button>
-										);
-									})}
-								</div>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Tasks in these statuses are considered blocked
-								</p>
-							</div>
+							<StatusSelector
+								configKey="blockedStatuses"
+								label="Blocked Statuses"
+								statuses={statuses}
+								value={config.blockedStatuses ?? []}
+								onChange={(key, value) => handleInputChange(key as keyof BacklogConfig, value)}
+								description="Tasks in these statuses are considered blocked"
+							/>
 
 							<div>
 								<label
@@ -428,64 +395,31 @@ const Settings: React.FC = () => {
 											onClick={(e) => {
 												e.stopPropagation();
 												setColorPickerIndex(index);
-												setColorPickerColor(labelColor || "");
 											}}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" || e.key === " ") {
 													e.preventDefault();
 													setColorPickerIndex(index);
-													setColorPickerColor(labelColor || "");
 												}
 											}}
 											title="Change label color"
 										/>
 										{colorPickerIndex === index && (
-											<div
-												ref={colorPickerRef}
-												className="absolute left-0 top-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 w-56"
-											>
-												<div className="grid grid-cols-6 gap-1.5 mb-2">
-													{PRESET_COLORS.map((c) => (
-														<button
-															key={c}
-															type="button"
-															className={`size-6 rounded-circle border-2 transition-all ${
-																colorPickerColor === c
-																	? "border-blue-500 scale-110"
-																	: "border-transparent hover:scale-110"
-															}`}
-															style={{ backgroundColor: c }}
-															onClick={() => setColorPickerColor(c)}
-														/>
-													))}
-												</div>
-												<div className="flex items-center gap-2">
-													<input
-														type="text"
-														value={colorPickerColor}
-														onChange={(e) => setColorPickerColor(e.target.value)}
-														placeholder="#ff0000"
-														className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-stone-500"
-													/>
-													<button
-														type="button"
-														onClick={async () => {
-															const name = labelName;
-															const color = colorPickerColor.startsWith("#") ? colorPickerColor : "";
-															try {
-																await apiClient.setLabelColor(name, color);
-																const updated = await apiClient.fetchLabels();
-																setConfig({ ...config, labels: updated });
-																setColorPickerIndex(null);
-															} catch (err) {
-																setError(err instanceof Error ? err.message : "Failed to set label color");
-															}
-														}}
-														className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-													>
-														Apply
-													</button>
-												</div>
+											<div ref={colorPickerRef}>
+												<LabelColorPicker
+													initialColor={labelColor || ""}
+													onApply={async (color) => {
+														try {
+															await apiClient.setLabelColor(labelName, color);
+															const updated = await apiClient.fetchLabels();
+															setConfig({ ...config, labels: updated });
+														} catch (err) {
+															setError(err instanceof Error ? err.message : "Failed to set label color");
+															throw err;
+														}
+													}}
+													onClose={() => setColorPickerIndex(null)}
+												/>
 											</div>
 										)}
 										<span className="flex-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded text-sm">
@@ -493,35 +427,18 @@ const Settings: React.FC = () => {
 										</span>
 										<button
 											type="button"
-											onClick={async () => {
-												const newName = prompt("Rename label to:", labelName);
-												if (newName?.trim() && newName.trim() !== labelName) {
-													try {
-														await apiClient.renameLabel(labelName, newName.trim());
-														const updated = await apiClient.fetchLabels();
-														setConfig({ ...config, labels: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to rename label");
-													}
-												}
-											}}
+											onClick={() =>
+												handleRename(labelName, "label", apiClient.renameLabel, apiClient.fetchLabels, "labels")
+											}
 											className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
 										>
 											Rename
 										</button>
 										<button
 											type="button"
-											onClick={async () => {
-												if (confirm(`Remove label "${labelName}" from config?`)) {
-													try {
-														await apiClient.removeLabel(labelName);
-														const updated = await apiClient.fetchLabels();
-														setConfig({ ...config, labels: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to remove label");
-													}
-												}
-											}}
+											onClick={() =>
+												handleDelete(labelName, "label", apiClient.removeLabel, apiClient.fetchLabels, "labels")
+											}
 											className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
 										>
 											Delete
@@ -595,56 +512,25 @@ const Settings: React.FC = () => {
 											onClick={(e) => {
 												e.stopPropagation();
 												setColorPickerIndex(-(index + 1));
-												setColorPickerColor(authorColor || "");
 											}}
 											title="Change author color"
 										/>
 										{colorPickerIndex === -(index + 1) && (
-											<div
-												ref={colorPickerRef}
-												className="absolute left-0 top-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 w-56"
-											>
-												<div className="grid grid-cols-6 gap-1.5 mb-2">
-													{PRESET_COLORS.map((c) => (
-														<button
-															key={c}
-															type="button"
-															className={`size-6 rounded-circle border-2 transition-all ${
-																colorPickerColor === c
-																	? "border-blue-500 scale-110"
-																	: "border-transparent hover:scale-110"
-															}`}
-															style={{ backgroundColor: c }}
-															onClick={() => setColorPickerColor(c)}
-														/>
-													))}
-												</div>
-												<div className="flex items-center gap-2">
-													<input
-														type="text"
-														value={colorPickerColor}
-														onChange={(e) => setColorPickerColor(e.target.value)}
-														placeholder="#ff0000"
-														className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-stone-500"
-													/>
-													<button
-														type="button"
-														onClick={async () => {
-															const color = colorPickerColor.startsWith("#") ? colorPickerColor : "";
-															try {
-																await apiClient.setAuthorColor(authorName, color);
-																const updated = await apiClient.fetchAuthors();
-																setConfig({ ...config, authors: updated });
-																setColorPickerIndex(null);
-															} catch (err) {
-																setError(err instanceof Error ? err.message : "Failed to set author color");
-															}
-														}}
-														className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-													>
-														Apply
-													</button>
-												</div>
+											<div ref={colorPickerRef}>
+												<LabelColorPicker
+													initialColor={authorColor || ""}
+													onApply={async (color) => {
+														try {
+															await apiClient.setAuthorColor(authorName, color);
+															const updated = await apiClient.fetchAuthors();
+															setConfig({ ...config, authors: updated });
+														} catch (err) {
+															setError(err instanceof Error ? err.message : "Failed to set author color");
+															throw err;
+														}
+													}}
+													onClose={() => setColorPickerIndex(null)}
+												/>
 											</div>
 										)}
 										<span className="flex-1 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 rounded text-sm">
@@ -652,35 +538,18 @@ const Settings: React.FC = () => {
 										</span>
 										<button
 											type="button"
-											onClick={async () => {
-												const newName = prompt("Rename author to:", authorName);
-												if (newName?.trim() && newName.trim() !== authorName) {
-													try {
-														await apiClient.renameAuthor(authorName, newName.trim());
-														const updated = await apiClient.fetchAuthors();
-														setConfig({ ...config, authors: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to rename author");
-													}
-												}
-											}}
+											onClick={() =>
+												handleRename(authorName, "author", apiClient.renameAuthor, apiClient.fetchAuthors, "authors")
+											}
 											className="px-2 py-1 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 rounded transition-colors"
 										>
 											Rename
 										</button>
 										<button
 											type="button"
-											onClick={async () => {
-												if (confirm(`Remove author "${authorName}" from config?`)) {
-													try {
-														await apiClient.removeAuthor(authorName);
-														const updated = await apiClient.fetchAuthors();
-														setConfig({ ...config, authors: updated });
-													} catch (err) {
-														setError(err instanceof Error ? err.message : "Failed to remove author");
-													}
-												}
-											}}
+											onClick={() =>
+												handleDelete(authorName, "author", apiClient.removeAuthor, apiClient.fetchAuthors, "authors")
+											}
 											className="px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
 										>
 											Delete
