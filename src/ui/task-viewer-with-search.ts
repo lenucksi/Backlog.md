@@ -721,18 +721,7 @@ export async function viewTaskEnhanced(
 			statusStyleOptions,
 			listCallbacks,
 		);
-	detailWidgets = renderDetailPane(
-		detailPane,
-		screen,
-		currentSelectedTask,
-		noResultsMessage,
-		currentFocus,
-		statusStyleOptions,
-		resolveMilestoneLabel,
-		availableLabels,
-		{ title: options.title },
-		detailCallbacks,
-	);
+	refreshDetail();
 	if (options.startWithSearchFocus) filterHeader.focusSearch();
 	else if (options.startWithDetailFocus) {
 		if (detailWidgets.descriptionBox) focusDetailPane();

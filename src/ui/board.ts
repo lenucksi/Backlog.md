@@ -1225,6 +1225,26 @@ export async function renderBoardTui(
 			}
 		};
 
+		const handleArchiveResult = async (
+			t: Task,
+			core: Core,
+			config: { autoCommit?: boolean } | null,
+			closeFn: () => void,
+			successMsg: string,
+			failMsg: string,
+		) => {
+			const success = await core.archiveTask(t.id, config?.autoCommit ?? false);
+			if (success) {
+				currentTasks = currentTasks.filter((task) => task.id !== t.id);
+				showTransientFooter(` {green-fg}${successMsg}{/}`);
+				closeFn();
+				popupOpen = false;
+				renderView();
+			} else {
+				showTransientFooter(` {red-fg}${failMsg}{/}`);
+			}
+		};
+
 		const handleContentAreaComplete = (t: Task, closeFn: () => void) => {
 			return async () => {
 				if (t.branch) {
@@ -1245,16 +1265,7 @@ export async function renderBoardTui(
 					}
 					const confirmed = await runWithModalGuard(() => doConfirmComplete(t));
 					if (confirmed) {
-						const success = await core.archiveTask(t.id, config?.autoCommit ?? false);
-						if (success) {
-							currentTasks = currentTasks.filter((task) => task.id !== t.id);
-							showTransientFooter(` {green-fg}Completed ${t.id}{/}`);
-							closeFn();
-							popupOpen = false;
-							renderView();
-						} else {
-							showTransientFooter(` {red-fg}Failed to complete ${t.id}{/}`);
-						}
+						await handleArchiveResult(t, core, config, closeFn, `Completed ${t.id}`, `Failed to complete ${t.id}`);
 					}
 				} catch (error) {
 					showTransientFooter(
@@ -1275,16 +1286,7 @@ export async function renderBoardTui(
 					try {
 						const core = new Core(process.cwd(), { enableWatchers: true });
 						const config = await core.filesystem.loadConfig();
-						const success = await core.archiveTask(t.id, config?.autoCommit ?? false);
-						if (success) {
-							currentTasks = currentTasks.filter((task) => task.id !== t.id);
-							showTransientFooter(` {green-fg}Archived ${t.id}{/}`);
-							closeFn();
-							popupOpen = false;
-							renderView();
-						} else {
-							showTransientFooter(` {red-fg}Failed to archive ${t.id}{/}`);
-						}
+						await handleArchiveResult(t, core, config, closeFn, `Archived ${t.id}`, `Failed to archive ${t.id}`);
 					} catch (error) {
 						showTransientFooter(
 							` {red-fg}Error archiving task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,

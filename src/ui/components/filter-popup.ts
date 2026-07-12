@@ -1,5 +1,17 @@
 import type { BoxInterface, ScreenInterface } from "neo-neo-bblessed";
 import { box, list } from "neo-neo-bblessed";
+
+function createContentBox(popup: BoxInterface): BoxInterface {
+	return box({
+		parent: popup,
+		top: 1,
+		left: 1,
+		width: "100%-4",
+		height: "100%-3",
+		style: { bg: "default" },
+	});
+}
+
 import { createGenericList } from "./generic-list.ts";
 
 export interface FilterPopupChoice {
@@ -137,14 +149,7 @@ export async function openSingleSelectFilterPopup(options: {
 			width: "48%",
 			height: "60%",
 		});
-		const contentBox = box({
-			parent: popup,
-			top: 1,
-			left: 1,
-			width: "100%-4",
-			height: "100%-3",
-			style: { bg: "default" },
-		});
+		const contentBox = createContentBox(popup);
 
 		const selectedIndex = Math.max(
 			0,
@@ -234,14 +239,7 @@ export async function openMultiSelectFilterPopup(options: {
 			width: "52%",
 			height: "72%",
 		});
-		const contentBox = box({
-			parent: popup,
-			top: 1,
-			left: 1,
-			width: "100%-4",
-			height: "100%-3",
-			style: { bg: "default" },
-		});
+		const contentBox = createContentBox(popup);
 
 		const selectedSet = new Set(options.selectedItems.map((item) => item.toLowerCase()));
 		const selectableItems = options.items.map((label) => ({ id: label, title: label }));
