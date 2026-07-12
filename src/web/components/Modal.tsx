@@ -46,6 +46,7 @@ const Modal: React.FC<ModalProps> = ({
 
 	return (
 		// aislop-ignore-next-line no-noninteractive-element-interactions — backdrop overlay, role=presentation intentional
+		{/* aislop-ignore-next-line no-noninteractive-element-interactions — backdrop overlay, role=presentation */}
 		<div
 			className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 p-4"
 			onClick={disableEscapeClose ? undefined : onClose}

@@ -263,6 +263,10 @@ export class ContentStore {
 			}
 		}
 
+		this.tryInitConfigWatcher("Failed to initialize config watcher");
+	}
+
+	private tryInitConfigWatcher(errorMsg: string): void {
 		try {
 			const configWatcher = this.createConfigWatcher();
 			if (configWatcher) {
@@ -272,7 +276,7 @@ export class ContentStore {
 		} catch (error) {
 			if (process.env.DEBUG) {
 				getLogger().error(
-					"Failed to initialize config watcher",
+					errorMsg,
 					error instanceof Error ? error.message : String(error),
 				);
 			}
@@ -351,23 +355,8 @@ export class ContentStore {
 	 * Called when the config file is created after the server started.
 	 */
 	ensureConfigWatcher(): void {
-		if (this.configWatcherActive) {
-			return;
-		}
-		try {
-			const configWatcher = this.createConfigWatcher();
-			if (configWatcher) {
-				this.watchers.push(configWatcher);
-				this.configWatcherActive = true;
-			}
-		} catch (error) {
-			if (process.env.DEBUG) {
-				getLogger().error(
-					"Failed to setup config watcher after init",
-					error instanceof Error ? error.message : String(error),
-				);
-			}
-		}
+		if (this.configWatcherActive) return;
+		this.tryInitConfigWatcher("Failed to setup config watcher after init");
 	}
 
 	private createConfigWatcher(): WatchHandle | null {
