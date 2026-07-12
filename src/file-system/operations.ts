@@ -1662,7 +1662,7 @@ ${description || `Milestone: ${title}`}`,
 		// Remove path-unsafe characters, then strip noisy punctuation before normalizing whitespace
 		return filename
 			.replace(/[<>:"/\\|?*]/g, "-")
-			.replace(/['(),!@#$%^&+=[]{};]/g, "")
+			.replace(/['(),!@#$%^&+=[\]{};]/g, "")
 			.replace(/\s+/g, "-")
 			.replace(/-+/g, "-")
 			.replace(/^-|-$/g, "");
