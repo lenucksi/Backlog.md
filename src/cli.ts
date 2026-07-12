@@ -51,10 +51,7 @@ if (process.env.BUN_OPTIONS) {
 
 const version = await getVersion();
 
-// Config migration hook - runs via Commander before each command action.
-// This replaces the old top-level migration block that ran before program.parseAsync().
-// Skipped for the init command (project doesn't exist yet) and for the
-// program's own default action (splash screen).
+// Config migration hook — runs via Commander, skipped for init/default action
 async function runConfigMigration(thisCommand: Command, actionCommand: Command): Promise<void> {
 	if (thisCommand === actionCommand || actionCommand.name() === "init") {
 		return;

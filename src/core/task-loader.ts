@@ -90,10 +90,7 @@ function normalizeLocalBranch(branch: string, currentBranch: string): string | n
 	return br;
 }
 
-/**
- * Shared worker for indexing tasks across branches
- * Used by both buildRemoteTaskIndex and buildLocalBranchTaskIndex
- */
+// Shared worker for indexing tasks across branches
 async function runIndexWorkers(
 	git: GitOperations,
 	branches: string[],

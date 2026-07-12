@@ -6,9 +6,7 @@
 export const CODE_PATH_PATTERNS = {
 	// Matches `src/cli.ts`, `package.json`, `/full/path/file.ts`
 	BACKTICKED_PATH: /`([^`]+)`/g,
-	// Matches file extensions
 	FILE_EXTENSION: /\.[a-zA-Z0-9]+$/,
-	// Matches path separators
 	PATH_SEPARATOR: /[/\\]/,
 } as const;
 

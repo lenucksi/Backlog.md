@@ -152,7 +152,7 @@ function validatePriority(raw?: string): "high" | "medium" | "low" | undefined {
 export function parseTask(content: string): Task {
 	const { frontmatter, content: rawContent } = parseMarkdown(content);
 
-	const validatedPriority = validatePriority(frontmatter.priority as unknown as string | undefined);
+	const validatedPriority = validatePriority(frontmatter.priority as string | undefined);
 
 	// Parse structured acceptance criteria (checked/text/index) from all sections
 	const structuredCriteria: AcceptanceCriterion[] = AcceptanceCriteriaManager.parseAllCriteria(rawContent);
