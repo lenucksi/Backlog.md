@@ -7,6 +7,7 @@ import { AppError } from "../utils/app-error.ts";
 import { getExplicitProjectPath } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
+import { stdout } from "../utils/output.ts";
 import type { RuntimeCwdResolution } from "../utils/runtime-cwd.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 
@@ -67,9 +68,9 @@ export function registerAgentsCommand(program: Command): void {
 					const config = await core.filesystem.loadConfig();
 					const shouldAutoCommit = config?.autoCommit ?? false;
 					await addAgentInstructions(cwd, core.gitOps, files, shouldAutoCommit);
-					console.log(`Updated ${files.length} agent instruction file(s): ${files.join(", ")}`);
+					stdout(`Updated ${files.length} agent instruction file(s): ${files.join(", ")}`);
 				} else {
-					console.log("No files selected for update.");
+					stdout("No files selected for update.");
 				}
 			} catch (err) {
 				console.error("Failed to update agent instructions", err instanceof Error ? err.message : String(err));

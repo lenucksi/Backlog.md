@@ -5,6 +5,7 @@ import { AppError } from "../utils/app-error.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { CONFIG_SCHEMA_ENTRIES, CONFIG_SCHEMA_MAP, type ConfigSchemaEntry } from "../utils/config-schema.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import type { CompletionInstallResult } from "./completion.ts";
 import { installCompletion } from "./completion.ts";
 import { configureAdvancedSettings } from "./configure-advanced-settings.ts";
@@ -234,21 +235,21 @@ export function registerConfigCommand(program: Command): void {
 					}
 				}
 
-				console.log("\nAdvanced configuration updated.");
-				console.log(`  Check active branches: ${mergedConfig.checkActiveBranches ?? true}`);
-				console.log(`  Remote operations: ${mergedConfig.remoteOperations ?? true}`);
-				console.log(
+				stdout("\nAdvanced configuration updated.");
+				stdout(`  Check active branches: ${mergedConfig.checkActiveBranches ?? true}`);
+				stdout(`  Remote operations: ${mergedConfig.remoteOperations ?? true}`);
+				stdout(
 					`  Zero-padded IDs: ${
 						typeof mergedConfig.zeroPaddedIds === "number" ? `${mergedConfig.zeroPaddedIds} digits` : "disabled"
 					}`,
 				);
-				console.log(`  Web UI port: ${mergedConfig.defaultPort ?? 6420}`);
-				console.log(`  Auto open browser: ${mergedConfig.autoOpenBrowser ?? true}`);
-				console.log(`  Bypass git hooks: ${mergedConfig.bypassGitHooks ?? false}`);
-				console.log(`  Auto commit: ${mergedConfig.autoCommit ?? false}`);
-				console.log(`  Definition of Done defaults: ${(mergedConfig.definitionOfDone ?? []).join(" | ") || "(none)"}`);
+				stdout(`  Web UI port: ${mergedConfig.defaultPort ?? 6420}`);
+				stdout(`  Auto open browser: ${mergedConfig.autoOpenBrowser ?? true}`);
+				stdout(`  Bypass git hooks: ${mergedConfig.bypassGitHooks ?? false}`);
+				stdout(`  Auto commit: ${mergedConfig.autoCommit ?? false}`);
+				stdout(`  Definition of Done defaults: ${(mergedConfig.definitionOfDone ?? []).join(" | ") || "(none)"}`);
 				if (completionResult) {
-					console.log(
+					stdout(
 						[
 							"",
 							`Shell completion script installed for ${completionResult.shell}.`,
@@ -267,13 +268,13 @@ export function registerConfigCommand(program: Command): void {
 					);
 				}
 				if (mergedConfig.defaultEditor) {
-					console.log(`  Default editor: ${mergedConfig.defaultEditor}`);
+					stdout(`  Default editor: ${mergedConfig.defaultEditor}`);
 				}
 				if (shouldInstallClaude) {
 					await installClaudeAgent(cwd);
-					console.log("✓ Claude Code Backlog.md agent installed to .claude/agents/");
+					stdout("✓ Claude Code Backlog.md agent installed to .claude/agents/");
 				}
-				console.log("\nUse `backlog config list` to review all configuration values.");
+				stdout("\nUse `backlog config list` to review all configuration values.");
 			} catch (err) {
 				console.error("Failed to update configuration", err instanceof Error ? err.message : String(err));
 				process.exitCode = 1;
@@ -285,6 +286,7 @@ export function registerConfigCommand(program: Command): void {
 		.description("get a configuration value")
 		.option("--json", "output as JSON")
 		.action(async (key: string | undefined, options) => {
+			applyOutputOptions(options);
 			if (!key) {
 				configCmd.help();
 				return;
@@ -297,10 +299,10 @@ export function registerConfigCommand(program: Command): void {
 				// Special key: milestones (derived from milestone files, not config)
 				if (key === "milestones") {
 					const milestones = await core.filesystem.listMilestones();
-					if (options.json) {
-						console.log(JSON.stringify(milestones.map((m) => m.id)));
+					if (getOutputMode() === "json") {
+						stdout(milestones.map((m) => m.id));
 					} else {
-						console.log(milestones.map((m) => m.id).join(", "));
+						stdout(milestones.map((m) => m.id).join(", "));
 					}
 					return;
 				}
@@ -319,10 +321,10 @@ export function registerConfigCommand(program: Command): void {
 
 				const value = getConfigValue(config as unknown as Record<string, unknown>, entry);
 
-				if (options.json) {
-					console.log(formatValueJson(value));
+				if (getOutputMode() === "json") {
+					stdout(formatValueJson(value));
 				} else {
-					console.log(formatValueShort(entry, value));
+					stdout(formatValueShort(entry, value));
 				}
 			} catch (err) {
 				console.error("Failed to get config value", err instanceof Error ? err.message : String(err));
@@ -342,12 +344,13 @@ export function registerConfigCommand(program: Command): void {
 		.description("list all configuration values")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
+			applyOutputOptions(options);
 			try {
 				const cwd = await requireProjectRoot();
 				const core = await loadConfigWithCheck(cwd);
 				const config = await core.filesystem.loadConfig();
 
-				if (options.json) {
+				if (getOutputMode() === "json") {
 					const raw = await core.filesystem.loadRawConfig();
 					const milestones = await core.filesystem.listMilestones();
 					const data: Record<string, unknown> = {};
@@ -357,7 +360,7 @@ export function registerConfigCommand(program: Command): void {
 						}
 					}
 					data.milestones = milestones.map((m) => m.id);
-					console.log(JSON.stringify(data, null, 2));
+					stdout(data);
 					return;
 				}
 
@@ -368,29 +371,29 @@ export function registerConfigCommand(program: Command): void {
 					const formatted = formatValuePretty(entry, value);
 					const readOnlyTag = entry.readOnly ? " (read-only)" : "";
 					if (formatted.startsWith("  - ")) {
-						console.log(`${entry.key}:`);
-						console.log(formatted);
+						stdout(`${entry.key}:`);
+						stdout(formatted);
 					} else {
-						console.log(`${entry.key}: ${formatted}${readOnlyTag}`);
+						stdout(`${entry.key}: ${formatted}${readOnlyTag}`);
 					}
 				}
 
 				// Milestones: derived from files, not config
 				const milestones = await core.filesystem.listMilestones();
 				if (milestones.length <= 5) {
-					console.log(`milestones: [${milestones.map((m) => m.id).join(", ")}]`);
+					stdout(`milestones: [${milestones.map((m) => m.id).join(", ")}]`);
 				} else {
-					console.log("milestones:");
-					for (const m of milestones) console.log(`  - ${m.id}`);
+					stdout("milestones:");
+					for (const m of milestones) stdout(`  - ${m.id}`);
 				}
 
 				const raw = await core.filesystem.loadRawConfig();
 				if (raw) {
 					const unknownKeys = Object.keys(raw).filter((k) => !CONFIG_SCHEMA_MAP.has(k) && k !== "dod_defaults");
 					if (unknownKeys.length > 0) {
-						console.log("");
-						console.log(`⚠  Unknown YAML keys in config.yml: ${unknownKeys.join(", ")}`);
-						console.log("   These keys are preserved on save but not recognized by the internal model.");
+						stdout("");
+						stdout(`⚠  Unknown YAML keys in config.yml: ${unknownKeys.join(", ")}`);
+						stdout("   These keys are preserved on save but not recognized by the internal model.");
 					}
 				}
 			} catch (err) {
@@ -462,5 +465,5 @@ async function handleConfigSetCommand(key: string, value: string) {
 
 	await core.filesystem.saveConfig(config);
 	const displayValue = formatValue(entry, coerced.value);
-	console.log(`Set ${key} = ${displayValue}`);
+	stdout(`Set ${key} = ${displayValue}`);
 }

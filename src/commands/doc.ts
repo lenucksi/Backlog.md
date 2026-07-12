@@ -10,6 +10,7 @@ import {
 	requireProjectRoot,
 	shouldAutoPlain,
 } from "../utils/cli-context.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import { parseDelimitedStringList } from "../utils/task-builders.ts";
 
 async function loadDoc(docId: string) {
@@ -34,11 +35,11 @@ async function docAction(
 	const entry = await loadDoc(docId);
 	if (!entry) return;
 	if (!options.force) {
-		console.log(`${verbPresent} "${entry.doc.title}" (${docId})...`);
+		stdout(`${verbPresent} "${entry.doc.title}" (${docId})...`);
 	}
 	const success = await action(entry.core, docId);
 	if (success) {
-		console.log(`${verbPast} document ${docId} — ${entry.doc.title}`);
+		stdout(`${verbPast} document ${docId} — ${entry.doc.title}`);
 	} else {
 		console.error(`Failed to ${verbLower} document ${docId}.`);
 		process.exitCode = 1;
@@ -68,9 +69,9 @@ export function registerDocCommand(program: Command): void {
 					: undefined,
 				content: "",
 			});
-			console.log(`Created document ${document.id}`);
+			stdout(`Created document ${document.id}`);
 			if (document.path) {
-				console.log(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
+				stdout(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
 			}
 		});
 
@@ -101,9 +102,9 @@ export function registerDocCommand(program: Command): void {
 				...(options.labels !== undefined && { labels: parseDelimitedStringList(options.labels) ?? [] }),
 			});
 
-			console.log(`Updated document ${document.id}`);
+			stdout(`Updated document ${document.id}`);
 			if (document.path) {
-				console.log(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
+				stdout(`Path: ${core.filesystem.backlogDirName}/docs/${document.path}`);
 			}
 		});
 
@@ -113,6 +114,7 @@ export function registerDocCommand(program: Command): void {
 		.option("--json", "output as JSON")
 		.option("-l, --label <labels>", "filter by labels (comma-separated)")
 		.action(async (options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			let docs = await core.filesystem.listDocuments();
@@ -128,16 +130,12 @@ export function registerDocCommand(program: Command): void {
 					return labelFilters.every((filter: string) => docLabels.includes(filter));
 				});
 			}
-			if (docs.length === 0) {
-				if (options.json) {
-					console.log("[]");
-				} else {
-					console.log("No docs found.");
-				}
-				return;
-			}
 
-			if (options.json) {
+			if (getOutputMode() === "json") {
+				if (docs.length === 0) {
+					stdout("[]");
+					return;
+				}
 				const data = docs.map((d) => ({
 					id: d.id,
 					title: d.title,
@@ -148,16 +146,26 @@ export function registerDocCommand(program: Command): void {
 					updatedDate: d.updatedDate ?? null,
 					path: d.path ?? null,
 				}));
-				console.log(JSON.stringify(data, null, 2));
+				stdout(data);
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput =
+				getOutputMode() === "plain" || (getOutputMode() === "auto" && (isPlainRequested(options) || shouldAutoPlain()));
 			if (usePlainOutput) {
+				if (docs.length === 0) {
+					stdout("No docs found.");
+					return;
+				}
 				for (const d of docs) {
 					const labelStr = d.labels && d.labels.length > 0 ? ` [${d.labels.join(", ")}]` : "";
-					console.log(`${d.id} - ${d.title}${labelStr}`);
+					stdout(`${d.id} - ${d.title}${labelStr}`);
 				}
+				return;
+			}
+
+			if (docs.length === 0) {
+				stdout("No docs found.");
 				return;
 			}
 
@@ -182,6 +190,7 @@ export function registerDocCommand(program: Command): void {
 		.description("view a document")
 		.option("--json", "output as JSON")
 		.action(async (docId: string, options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			try {
@@ -190,8 +199,8 @@ export function registerDocCommand(program: Command): void {
 					console.error(`Document ${docId} not found.`);
 					return;
 				}
-				if (options.json) {
-					console.log(JSON.stringify(doc, null, 2));
+				if (getOutputMode() === "json") {
+					stdout(doc);
 					return;
 				}
 				const content = doc.rawContent || "";

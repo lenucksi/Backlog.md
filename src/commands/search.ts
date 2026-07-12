@@ -15,6 +15,7 @@ import {
 	requireProjectRoot,
 	shouldAutoPlain,
 } from "../utils/cli-context.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { parseDelimitedStringList } from "../utils/task-builders.ts";
 
@@ -54,7 +55,7 @@ function isTaskSearchResult(result: SearchResult): result is TaskSearchResult {
 
 function printSearchResults(results: SearchResult[]): void {
 	if (results.length === 0) {
-		console.log("No results found.");
+		stdout("No results found.");
 		return;
 	}
 
@@ -79,45 +80,45 @@ function printSearchResults(results: SearchResult[]): void {
 	let printed = false;
 
 	if (localTasks.length > 0) {
-		console.log("Tasks:");
+		stdout("Tasks:");
 		for (const taskResult of localTasks) {
 			const { task } = taskResult;
 			const scoreText = formatScore(taskResult.score);
 			const statusText = task.status ? ` (${task.status})` : "";
 			const priorityText = task.priority ? ` [${task.priority.toUpperCase()}]` : "";
-			console.log(`  ${task.id} - ${task.title}${statusText}${priorityText}${scoreText}`);
+			stdout(`  ${task.id} - ${task.title}${statusText}${priorityText}${scoreText}`);
 		}
 		printed = true;
 	}
 
 	if (documents.length > 0) {
 		if (printed) {
-			console.log("");
+			stdout("");
 		}
-		console.log("Documents:");
+		stdout("Documents:");
 		for (const documentResult of documents) {
 			const { document } = documentResult;
 			const scoreText = formatScore(documentResult.score);
-			console.log(`  ${document.id} - ${document.title}${scoreText}`);
+			stdout(`  ${document.id} - ${document.title}${scoreText}`);
 		}
 		printed = true;
 	}
 
 	if (decisions.length > 0) {
 		if (printed) {
-			console.log("");
+			stdout("");
 		}
-		console.log("Decisions:");
+		stdout("Decisions:");
 		for (const decisionResult of decisions) {
 			const { decision } = decisionResult;
 			const scoreText = formatScore(decisionResult.score);
-			console.log(`  ${decision.id} - ${decision.title}${scoreText}`);
+			stdout(`  ${decision.id} - ${decision.title}${scoreText}`);
 		}
 		printed = true;
 	}
 
 	if (!printed) {
-		console.log("No results found.");
+		stdout("No results found.");
 	}
 }
 
@@ -137,6 +138,7 @@ export function registerSearchCommand(program: Command): void {
 		.option("--plain", "print plain text output instead of interactive UI")
 		.option("--json", "output as JSON")
 		.action(async (query: string | undefined, options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const searchService = await core.getSearchService();
@@ -201,7 +203,7 @@ export function registerSearchCommand(program: Command): void {
 				filters,
 			});
 
-			if (options.json) {
+			if (getOutputMode() === "json") {
 				const data = searchResults.map((r) => ({
 					type: r.type,
 					score: r.score,
@@ -209,12 +211,13 @@ export function registerSearchCommand(program: Command): void {
 					...("document" in r ? { document: r.document } : {}),
 					...("decision" in r ? { decision: r.decision } : {}),
 				}));
-				console.log(JSON.stringify(data, null, 2));
+				stdout(data);
 				cleanup();
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput =
+				getOutputMode() === "plain" || (getOutputMode() === "auto" && (isPlainRequested(options) || shouldAutoPlain()));
 			if (usePlainOutput) {
 				printSearchResults(searchResults);
 				cleanup();

@@ -8,6 +8,7 @@ import {
 } from "../core/milestones.ts";
 import type { Milestone } from "../types/index.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 function findMilestoneByAlias(name: string, milestones: Milestone[]): Milestone | undefined {
 	const normalized = normalizeMilestoneName(name);
@@ -28,6 +29,7 @@ export function registerMilestoneCommand(program: Command): void {
 		.option("--json", "output as JSON")
 		.action(
 			async (options: { showCompleted?: boolean; showDescription?: boolean; plain?: boolean; json?: boolean }) => {
+				applyOutputOptions(options);
 				const cwd = await requireProjectRoot();
 				const core = new Core(cwd);
 				await core.ensureConfigLoaded();
@@ -49,7 +51,7 @@ export function registerMilestoneCommand(program: Command): void {
 				const active = buckets.filter((bucket) => !bucket.isNoMilestone && !bucket.isCompleted);
 				const completed = buckets.filter((bucket) => !bucket.isNoMilestone && bucket.isCompleted);
 
-				if (options.json) {
+				if (getOutputMode() === "json") {
 					const data = {
 						active: active.map((b) => ({
 							key: b.key,
@@ -70,7 +72,7 @@ export function registerMilestoneCommand(program: Command): void {
 							progress: b.progress,
 						})),
 					};
-					console.log(JSON.stringify(data, null, 2));
+					stdout(data);
 					return;
 				}
 
@@ -84,24 +86,24 @@ export function registerMilestoneCommand(program: Command): void {
 					return `  ${id}: ${label} (${bucket.doneCount}/${bucket.total} done)${desc}`;
 				};
 
-				console.log(`Active milestones (${active.length}):`);
+				stdout(`Active milestones (${active.length}):`);
 				if (active.length === 0) {
-					console.log("  (none)");
+					stdout("  (none)");
 				} else {
 					for (const bucket of active) {
-						console.log(formatBucket(bucket));
+						stdout(formatBucket(bucket));
 					}
 				}
 
-				console.log(`\nCompleted milestones (${completed.length}):`);
+				stdout(`\nCompleted milestones (${completed.length}):`);
 				if (completed.length === 0) {
-					console.log("  (none)");
+					stdout("  (none)");
 				} else if (options.showCompleted || process.argv.includes("--show-completed")) {
 					for (const bucket of completed) {
-						console.log(formatBucket(bucket));
+						stdout(formatBucket(bucket));
 					}
 				} else {
-					console.log("  (collapsed, use --show-completed to list)");
+					stdout("  (collapsed, use --show-completed to list)");
 				}
 			},
 		);
@@ -132,7 +134,7 @@ export function registerMilestoneCommand(program: Command): void {
 			}
 
 			const milestone = await core.filesystem.createMilestone(normalizedName, options.description);
-			console.log(`Created milestone "${milestone.title}" (${milestone.id}).`);
+			stdout(`Created milestone "${milestone.title}" (${milestone.id}).`);
 		});
 
 	milestoneCmd
@@ -200,11 +202,11 @@ export function registerMilestoneCommand(program: Command): void {
 				}
 			}
 
-			console.log(
+			stdout(
 				`Renamed milestone "${sourceMilestone.title}" (${sourceMilestone.id}) -> "${renamedMilestone.title}" (${renamedMilestone.id}).`,
 			);
 			if (updatedIds.length > 0) {
-				console.log(`Updated ${updatedIds.length} task(s): ${updatedIds.join(", ")}`);
+				stdout(`Updated ${updatedIds.length} task(s): ${updatedIds.join(", ")}`);
 			}
 		});
 
@@ -291,15 +293,15 @@ export function registerMilestoneCommand(program: Command): void {
 				return;
 			}
 
-			console.log(`Removed milestone "${sourceMilestone.title}" (${sourceMilestone.id}).`);
+			stdout(`Removed milestone "${sourceMilestone.title}" (${sourceMilestone.id}).`);
 			if (taskHandling === "keep") {
-				console.log("Kept task milestone values unchanged.");
+				stdout("Kept task milestone values unchanged.");
 			} else if (taskHandling === "reassign") {
-				console.log(
+				stdout(
 					`Reassigned ${updatedIds.length} task(s) to "${targetMilestone?.title}" (${targetMilestone?.id}): ${updatedIds.join(", ")}`,
 				);
 			} else {
-				console.log(`Cleared milestone from ${updatedIds.length} task(s): ${updatedIds.join(", ")}`);
+				stdout(`Cleared milestone from ${updatedIds.length} task(s): ${updatedIds.join(", ")}`);
 			}
 		});
 
@@ -319,6 +321,6 @@ export function registerMilestoneCommand(program: Command): void {
 
 			const label = result.milestone?.title ?? name;
 			const id = result.milestone?.id;
-			console.log(`Archived milestone "${label}"${id ? ` (${id})` : ""}.`);
+			stdout(`Archived milestone "${label}"${id ? ` (${id})` : ""}.`);
 		});
 }

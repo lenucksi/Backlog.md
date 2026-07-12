@@ -17,6 +17,7 @@ import { processAgentSelection } from "../utils/agent-selection.ts";
 import { AppError } from "../utils/app-error.ts";
 import { normalizeProjectBacklogDirectory } from "../utils/backlog-directory.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { stdout } from "../utils/output.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 import { runAdvancedConfigWizard } from "./advanced-config-wizard.ts";
 
@@ -78,7 +79,7 @@ async function openUrlInBrowser(url: string): Promise<void> {
 }
 
 async function runMcpClientCommand(label: string, command: string, args: string[]): Promise<string> {
-	console.log(`    Configuring ${label}...`);
+	stdout(`    Configuring ${label}...`);
 	try {
 		const child = spawn({
 			cmd: [command, ...args],
@@ -86,7 +87,7 @@ async function runMcpClientCommand(label: string, command: string, args: string[
 			stderr: "inherit",
 		});
 		await child.exited;
-		console.log(`    ✓ Added Backlog MCP server to ${label}`);
+		stdout(`    ✓ Added Backlog MCP server to ${label}`);
 		return label;
 	} catch (error) {
 		const message = AppError.formatCLIError(error);
@@ -361,7 +362,7 @@ async function resolveIntegrationModeState(
 
 			const selectedMode = integrationPrompt ? normalizeIntegrationOption(String(integrationPrompt)) : null;
 			integrationMode = selectedMode ?? "mcp";
-			console.log("");
+			stdout("");
 		}
 
 		if (integrationMode === "cli") {
@@ -434,7 +435,7 @@ async function resolveIntegrationModeState(
 					const selected = Array.isArray(response) ? (response as AgentSelection[]) : [];
 					const { files, needsRetry, skipped } = processAgentSelection({ selected });
 					if (needsRetry) {
-						console.log("Please select at least one agent instruction file before continuing.");
+						stdout("Please select at least one agent instruction file before continuing.");
 						continue;
 					}
 					agentFiles = files;
@@ -452,7 +453,7 @@ async function resolveIntegrationModeState(
 				break;
 			}
 
-			console.log(`  MCP server name: ${mcpServerName}`);
+			stdout(`  MCP server name: ${mcpServerName}`);
 			while (true) {
 				const clientResponse = await clack.multiselect({
 					message: "Which AI tools should we configure right now? (space toggles items; enter confirms)",
@@ -473,7 +474,7 @@ async function resolveIntegrationModeState(
 
 				const selectedClients = Array.isArray(clientResponse) ? clientResponse : [];
 				if (selectedClients.length === 0) {
-					console.log("Please select at least one AI tool before continuing.");
+					stdout("Please select at least one AI tool before continuing.");
 					continue;
 				}
 
@@ -533,7 +534,7 @@ async function resolveIntegrationModeState(
 
 				for (const client of selectedClients) {
 					if (client === "guide") {
-						console.log("    Opening MCP setup guide in your browser...");
+						stdout("    Opening MCP setup guide in your browser...");
 						await openUrlInBrowser(MCP_GUIDE_URL);
 						results.push("Setup guide opened");
 						await recordGuidelinesForClient(client);
@@ -555,10 +556,10 @@ async function resolveIntegrationModeState(
 						mcpGuidelineUpdates.filter((entry) => !entry.created).map((entry) => entry.fileName),
 					);
 					if (createdFiles.length > 0) {
-						console.log(`    Created MCP reminder file(s): ${createdFiles.join(", ")}`);
+						stdout(`    Created MCP reminder file(s): ${createdFiles.join(", ")}`);
 					}
 					if (updatedFiles.length > 0) {
-						console.log(`    Added MCP reminder to ${updatedFiles.join(", ")}`);
+						stdout(`    Added MCP reminder to ${updatedFiles.join(", ")}`);
 					}
 				}
 
@@ -751,7 +752,7 @@ async function handleInitCommand(projectName: string | undefined, options: InitC
 		const isReInitialization = !!existingConfig;
 
 		if (isReInitialization) {
-			console.log("Existing backlog project detected. Current configuration will be preserved where not specified.");
+			stdout("Existing backlog project detected. Current configuration will be preserved where not specified.");
 			if (options.backlogDir) {
 				console.error(
 					"The backlog directory is fixed after initialization. Re-run init without --backlog-dir for this project.",

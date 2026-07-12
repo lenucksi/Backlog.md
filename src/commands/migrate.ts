@@ -4,6 +4,7 @@ import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { stdout } from "../utils/output.ts";
 
 export function registerMigrateCommand(program: Command): void {
 	const migrateCommand = program.command("migrate").description("migrate backlog directory structure");
@@ -31,7 +32,7 @@ export function registerMigrateCommand(program: Command): void {
 			const oldTasks = await core.filesystem.listOldCompletedDirTasks();
 
 			if (oldTasks.length === 0) {
-				console.log("No tasks found in backlog/completed/. Nothing to migrate.");
+				stdout("No tasks found in backlog/completed/. Nothing to migrate.");
 				return;
 			}
 
@@ -60,36 +61,36 @@ export function registerMigrateCommand(program: Command): void {
 				}
 			}
 
-			console.log("");
-			console.log("  Archive Structure Migration");
-			console.log("  ─────────────────────────────");
-			console.log(`  Source:   backlog/completed/ (${oldTasks.length} task files)`);
-			console.log("  Target:   backlog/archive/tasks/");
-			console.log(`  Conflicts: ${inArchive.length}`);
-			console.log(`  To migrate: ${toMigrate.length}`);
-			console.log("");
+			stdout("");
+			stdout("  Archive Structure Migration");
+			stdout("  ─────────────────────────────");
+			stdout(`  Source:   backlog/completed/ (${oldTasks.length} task files)`);
+			stdout("  Target:   backlog/archive/tasks/");
+			stdout(`  Conflicts: ${inArchive.length}`);
+			stdout(`  To migrate: ${toMigrate.length}`);
+			stdout("");
 
 			if (toMigrate.length === 0 && inArchive.length === 0) {
-				console.log("Nothing to migrate.");
+				stdout("Nothing to migrate.");
 				return;
 			}
 
 			if (toMigrate.length > 0) {
-				console.log("  Tasks to migrate:");
+				stdout("  Tasks to migrate:");
 				const showCount = Math.min(toMigrate.length, 10);
 				for (let i = 0; i < showCount; i++) {
-					console.log(`    ${toMigrate[i]}`);
+					stdout(`    ${toMigrate[i]}`);
 				}
 				if (toMigrate.length > 10) {
-					console.log(`    ... and ${toMigrate.length - 10} more`);
+					stdout(`    ... and ${toMigrate.length - 10} more`);
 				}
 			}
 
 			if (inArchive.length > 0) {
-				console.log(`  ${inArchive.length} file(s) already exist in archive/tasks/ — will be skipped.`);
+				stdout(`  ${inArchive.length} file(s) already exist in archive/tasks/ — will be skipped.`);
 			}
 
-			console.log("");
+			stdout("");
 
 			// --- Execute phase ---
 			const shouldProceed =
@@ -100,25 +101,25 @@ export function registerMigrateCommand(program: Command): void {
 				})) === true;
 
 			if (!shouldProceed) {
-				console.log("Migration cancelled.");
+				stdout("Migration cancelled.");
 				return;
 			}
 
 			const result = await core.filesystem.migrateCompletedTasks();
 
-			console.log(`Successfully migrated ${result.migrated} of ${result.total} tasks.`);
+			stdout(`Successfully migrated ${result.migrated} of ${result.total} tasks.`);
 
 			if (result.migrated > 0) {
 				const hasGitRepository = await core.gitOps.isRepository();
 				const shouldAutoCommit = config.autoCommit ?? false;
 
 				if (hasGitRepository && options.git !== false && !shouldAutoCommit) {
-					console.log("Staging file moves for Git...");
+					stdout("Staging file moves for Git...");
 					try {
 						await core.gitOps.stageFileMove(completedDir, archiveDir);
-						console.log("Files staged.");
+						stdout("Files staged.");
 						if (!shouldAutoCommit) {
-							console.log("To commit: git commit -m 'backlog: migrate completed/ to archive/tasks/'");
+							stdout("To commit: git commit -m 'backlog: migrate completed/ to archive/tasks/'");
 						}
 					} catch (error) {
 						console.warn(`Warning: Could not stage Git moves: ${error}`);

@@ -1,9 +1,11 @@
 import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { formatTaskPlainText } from "../formatters/task-plain-text.ts";
+import type { Task } from "../types/index.ts";
 import { viewTaskEnhanced } from "../ui/task-viewer-with-search.ts";
 import { AppError } from "../utils/app-error.ts";
 import { isPlainRequested, requireProjectRoot, shouldAutoPlain } from "../utils/cli-context.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import { getDraftPath } from "../utils/task-path.ts";
 import { sortTasks } from "../utils/task-sorting.ts";
 
@@ -14,13 +16,14 @@ function registerDraftListCommand(draftCmd: Command): void {
 		.option("--sort <field>", "sort drafts by field (priority, id, ordinal)")
 		.option("--plain", "use plain text output")
 		.action(async (options: { plain?: boolean; sort?: string }) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			await core.ensureConfigLoaded();
 			const drafts = await core.filesystem.listDrafts();
 
 			if (!drafts || drafts.length === 0) {
-				console.log("No drafts found.");
+				stdout("No drafts found.");
 				return;
 			}
 
@@ -39,12 +42,13 @@ function registerDraftListCommand(draftCmd: Command): void {
 				sortedDrafts = sortTasks(drafts, "priority");
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput =
+				getOutputMode() === "plain" || (getOutputMode() === "auto" && (isPlainRequested(options) || shouldAutoPlain()));
 			if (usePlainOutput) {
-				console.log("Drafts:");
+				stdout("Drafts:");
 				for (const draft of sortedDrafts) {
 					const priorityIndicator = draft.priority ? `[${draft.priority.toUpperCase()}] ` : "";
-					console.log(`  ${priorityIndicator}${draft.id} - ${draft.title}`);
+					stdout(`  ${priorityIndicator}${draft.id} - ${draft.title}`);
 				}
 			} else {
 				const firstDraft = sortedDrafts[0];
@@ -90,8 +94,8 @@ function registerDraftCreateCommand(draftCmd: Command): void {
 								.filter(Boolean)
 						: undefined,
 				});
-				console.log(`Created draft ${task.id}`);
-				console.log(`File: ${filePath}`);
+				stdout(`Created draft ${task.id}`);
+				stdout(`File: ${filePath}`);
 			} catch (error) {
 				console.error(AppError.formatCLIError(error));
 				process.exitCode = 1;
@@ -108,7 +112,7 @@ function registerDraftArchiveCommand(draftCmd: Command): void {
 			const core = new Core(cwd);
 			const success = await core.archiveDraft(taskId);
 			if (success) {
-				console.log(`Archived draft ${taskId}`);
+				stdout(`Archived draft ${taskId}`);
 			} else {
 				console.error(`Draft ${taskId} not found.`);
 			}
@@ -125,7 +129,7 @@ function registerDraftPromoteCommand(draftCmd: Command): void {
 			try {
 				const success = await core.promoteDraft(taskId);
 				if (success) {
-					console.log(`Promoted draft ${taskId}`);
+					stdout(`Promoted draft ${taskId}`);
 				} else {
 					console.error(`Draft ${taskId} not found.`);
 				}
@@ -142,6 +146,7 @@ function registerDraftViewCommand(draftCmd: Command): void {
 		.description("display draft details")
 		.option("--plain", "use plain text output instead of interactive UI")
 		.action(async (taskId: string, options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const filePath = await getDraftPath(taskId, core);
@@ -157,9 +162,10 @@ function registerDraftViewCommand(draftCmd: Command): void {
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput =
+				getOutputMode() === "plain" || (getOutputMode() === "auto" && (isPlainRequested(options) || shouldAutoPlain()));
 			if (usePlainOutput) {
-				console.log(formatTaskPlainText(draft));
+				stdout(draft, (d) => formatTaskPlainText(d as Task));
 				return;
 			}
 
@@ -172,6 +178,7 @@ function registerDraftDefaultCommand(draftCmd: Command): void {
 		.argument("[taskId]")
 		.option("--plain", "use plain text output")
 		.action(async (taskId: string | undefined, options: { plain?: boolean }) => {
+			applyOutputOptions(options);
 			if (!taskId) {
 				draftCmd.help();
 				return;
@@ -192,9 +199,10 @@ function registerDraftDefaultCommand(draftCmd: Command): void {
 				return;
 			}
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput =
+				getOutputMode() === "plain" || (getOutputMode() === "auto" && (isPlainRequested(options) || shouldAutoPlain()));
 			if (usePlainOutput) {
-				console.log(formatTaskPlainText(draft, { filePathOverride: filePath }));
+				stdout(draft, (d) => formatTaskPlainText(d as Task, { filePathOverride: filePath }));
 				return;
 			}
 

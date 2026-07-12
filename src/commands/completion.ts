@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { getCompletions } from "../completions/helper.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { stdout } from "../utils/output.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -490,7 +491,7 @@ export function registerCompletionCommand(program: Command): void {
 
 				const completions = await getCompletions(program, line, pointNum);
 				for (const completion of completions) {
-					console.log(completion);
+					stdout(completion);
 				}
 				process.exit(EXIT.SUCCESS);
 			} catch (_error) {
@@ -507,9 +508,9 @@ export function registerCompletionCommand(program: Command): void {
 		.action(async (options: { shell?: string }) => {
 			try {
 				const result = await installCompletion(options.shell);
-				console.log(`📦 Installed ${result.shell} completion for backlog CLI.`);
-				console.log(`✅ Completion script written to ${result.installPath}`);
-				console.log(result.instructions.trimEnd());
+				stdout(`📦 Installed ${result.shell} completion for backlog CLI.`);
+				stdout(`✅ Completion script written to ${result.installPath}`);
+				stdout(result.instructions.trimEnd());
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				console.error(`❌ ${message}`);

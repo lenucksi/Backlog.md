@@ -18,6 +18,7 @@ import {
 } from "../utils/cli-context.ts";
 import { createMilestoneFilterValueResolver, resolveClosestMilestoneFilterValue } from "../utils/milestone-filter.ts";
 import { resolveMilestoneInputForStorage } from "../utils/milestone-storage.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import { formatValidStatuses, getCanonicalStatus, getValidStatuses } from "../utils/status.ts";
 import {
 	normalizeDependencies,
@@ -34,12 +35,12 @@ import { pickTaskForEditWizard, runTaskCreateWizard, runTaskEditWizard } from ".
 
 function renderChecklist(items: Array<{ text: string; checked: boolean }> | undefined, emptyMsg: string): void {
 	if (!items?.length) {
-		console.log(picocolors.dim(emptyMsg));
+		stdout(picocolors.dim(emptyMsg));
 		return;
 	}
 	for (const item of items) {
 		const prefix = item.checked ? picocolors.green("[x]") : picocolors.yellow("[ ]");
-		console.log(`  ${prefix} ${item.text}`);
+		stdout(`  ${prefix} ${item.text}`);
 	}
 }
 
@@ -116,6 +117,7 @@ async function resolveCliMilestoneInput(core: Core, milestone: string): Promise<
 }
 
 async function handleTaskCreateCommand(title: string | undefined, options: Record<string, unknown>) {
+	applyOutputOptions(options);
 	const shouldUseWizard = hasInteractiveTTY() && title === undefined && !hasCreateFieldFlags(options);
 	if (!shouldUseWizard && (title === undefined || title.trim().length === 0)) {
 		printMissingRequiredArgument("title");
@@ -135,9 +137,9 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 		}
 		try {
 			const { task, filePath } = await core.createTaskFromInput(wizardInput);
-			console.log(`Created task ${task.id}`);
+			stdout(`Created task ${task.id}`);
 			if (filePath) {
-				console.log(`File: ${filePath}`);
+				stdout(`File: ${filePath}`);
 			}
 		} catch (error) {
 			console.error(AppError.formatCLIError(error));
@@ -147,7 +149,6 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 	}
 
 	const createAsDraft = Boolean(options.draft);
-	const usePlainOutput = isPlainRequested(options);
 	let ordinalValue: number | undefined;
 
 	if (options.ordinal !== undefined) {
@@ -189,24 +190,19 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 			disableDefinitionOfDoneDefaults: options.dodDefaults === false,
 		});
 
-		if (options.json) {
-			console.log(JSON.stringify(task, null, 2));
-			return;
-		}
-
-		if (usePlainOutput) {
-			console.log(formatTaskPlainText(task, { filePathOverride: filePath }));
+		if (getOutputMode() === "plain") {
+			stdout(task, (d) => formatTaskPlainText(d as Task, { filePathOverride: filePath }));
 			return;
 		}
 
 		if (createAsDraft) {
-			console.log(`Created draft ${task.id}`);
-			console.log(`File: ${filePath}`);
+			stdout(`Created draft ${task.id}`);
+			if (filePath) stdout(`File: ${filePath}`);
 			return;
 		}
 
-		console.log(`Created task ${task.id}`);
-		console.log(`File: ${filePath}`);
+		stdout(`Created task ${task.id}`);
+		if (filePath) stdout(`File: ${filePath}`);
 	} catch (error) {
 		console.error(AppError.formatCLIError(error));
 		process.exitCode = 1;
@@ -214,6 +210,7 @@ async function handleTaskCreateCommand(title: string | undefined, options: Recor
 }
 
 async function handleTaskListCommand(options: Record<string, unknown>) {
+	applyOutputOptions(options);
 	const cwd = await requireProjectRoot();
 	const core = new Core(cwd);
 	const cleanup = () => {
@@ -282,21 +279,24 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		return filtered;
 	};
 
-	if (options.json) {
-		const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
+	const mode = getOutputMode();
+	const usePlainOutput =
+		mode === "plain" ||
+		(mode === "auto" && (shouldAutoPlain() || Boolean(options.overdue || options.dueSoon || options.deferred)));
+
+	const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
+
+	if (mode === "json") {
 		const filtered = applyDateFilters(tasks).filter((task) => {
 			if (parentId) return task.parentTaskId && taskIdsEqual(parentId, task.parentTaskId);
 			return true;
 		});
-		console.log(JSON.stringify(filtered, null, 2));
+		stdout(filtered);
 		cleanup();
 		return;
 	}
 
-	const usePlainOutput =
-		isPlainRequested(options) || shouldAutoPlain() || Boolean(options.overdue || options.dueSoon || options.deferred);
 	if (usePlainOutput) {
-		const tasks = await core.queryTasks({ filters: baseFilters, includeCrossBranch: false });
 		const config = await core.filesystem.loadConfig();
 
 		if (parentId) {
@@ -338,9 +338,9 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 		if (filtered.length === 0) {
 			if (options.parent) {
 				const canonicalParent = normalizeTaskId(String(options.parent));
-				console.log(`No child tasks found for parent task ${canonicalParent}.`);
+				stdout(`No child tasks found for parent task ${canonicalParent}.`);
 			} else {
-				console.log("No tasks found.");
+				stdout("No tasks found.");
 			}
 			cleanup();
 			return;
@@ -348,11 +348,11 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 
 		if (options.sort && String(options.sort).toLowerCase() === "priority") {
 			const sortedByPriority = sortTasks(filtered, "priority");
-			console.log("Tasks (sorted by priority):");
+			stdout("Tasks (sorted by priority):");
 			for (const t of sortedByPriority) {
 				const priorityIndicator = t.priority ? `[${t.priority.toUpperCase()}] ` : "";
 				const statusIndicator = t.status ? ` (${t.status})` : "";
-				console.log(`  ${priorityIndicator}${t.id} - ${t.title}${statusIndicator}`);
+				stdout(`  ${priorityIndicator}${t.id} - ${t.title}${statusIndicator}`);
 			}
 			cleanup();
 			return;
@@ -385,12 +385,12 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 			if (options.sort) {
 				sortedList = sortTasks(list, String(options.sort).toLowerCase());
 			}
-			console.log(`${status || "No Status"}:`);
+			stdout(`${status || "No Status"}:`);
 			sortedList.forEach((task) => {
 				const priorityIndicator = task.priority ? `[${task.priority.toUpperCase()}] ` : "";
-				console.log(`  ${priorityIndicator}${task.id} - ${task.title}`);
+				stdout(`  ${priorityIndicator}${task.id} - ${task.title}`);
 			});
-			console.log();
+			stdout("");
 		}
 		cleanup();
 		return;
@@ -514,6 +514,7 @@ async function handleTaskListCommand(options: Record<string, unknown>) {
 }
 
 async function handleTaskEditCommand(taskId: string | undefined, options: Record<string, unknown>) {
+	applyOutputOptions(options);
 	const shouldUseWizard = hasInteractiveTTY() && !hasEditFieldFlags(options);
 	if (!shouldUseWizard && !taskId) {
 		printMissingRequiredArgument("taskId");
@@ -532,7 +533,7 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 				title: candidate.title,
 			}));
 			if (taskOptions.length === 0) {
-				console.log("No tasks found.");
+				stdout("No tasks found.");
 				return;
 			}
 			selectedTaskId = await pickTaskForEditWizard({ tasks: taskOptions });
@@ -558,7 +559,7 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 
 		try {
 			const updatedTask = await core.editTask(existingTaskForWizard.id, wizardInput);
-			console.log(`Updated task ${updatedTask.id}`);
+			stdout(`Updated task ${updatedTask.id}`);
 		} catch (error) {
 			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
@@ -833,17 +834,15 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 			}
 		}
 		const msg = details.length > 0 ? `No changes: ${details.join("; ")}.` : "No changes.";
-		if (options.json) {
-			console.log(
-				JSON.stringify({ ...updatedTask, _labelChanges: { before: beforeLabels, after: afterLabels } }, null, 2),
-			);
+		if (getOutputMode() === "json") {
+			stdout({ ...updatedTask, _labelChanges: { before: beforeLabels, after: afterLabels } });
 			return;
 		}
-		console.log(picocolors.yellow(msg));
+		stdout(picocolors.yellow(msg));
 		return;
 	}
 
-	if (options.json) {
+	if (getOutputMode() === "json") {
 		const output = {
 			...updatedTask,
 			_labelChanges: {
@@ -853,20 +852,19 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 				removed: removed.length > 0 ? removed : undefined,
 			},
 		};
-		console.log(JSON.stringify(output, null, 2));
+		stdout(output);
 		return;
 	}
 
-	const usePlainOutput = isPlainRequested(options);
-	if (usePlainOutput) {
-		console.log(formatTaskPlainText(updatedTask));
+	if (getOutputMode() === "plain") {
+		stdout(updatedTask, (d) => formatTaskPlainText(d as Task));
 		return;
 	}
 
 	if (hadLabelFlags) {
 		if (editArgs.labels !== undefined) {
 			const labelsStr = afterLabels.map(fmtLabel).join(" ") || picocolors.dim("(none)");
-			console.log(`Updated task ${updatedTask.id}. ${picocolors.dim("Labels:")} ${labelsStr}`);
+			stdout(`Updated task ${updatedTask.id}. ${picocolors.dim("Labels:")} ${labelsStr}`);
 		} else if (added.length > 0 || removed.length > 0) {
 			const parts = [`Updated task ${updatedTask.id}.`];
 			if (removed.length > 0) {
@@ -876,14 +874,14 @@ async function handleTaskEditCommand(taskId: string | undefined, options: Record
 				parts.push(`${picocolors.green("Added:")} ${added.map(fmtLabel).join(" ")}`);
 			}
 			parts.push(`${picocolors.dim("Now:")} ${afterLabels.map(fmtLabel).join(" ") || picocolors.dim("(none)")}`);
-			console.log(parts.join(" "));
+			stdout(parts.join(" "));
 		} else {
-			console.log(`Updated task ${updatedTask.id}.`);
+			stdout(`Updated task ${updatedTask.id}.`);
 		}
 		return;
 	}
 
-	console.log(`Updated task ${updatedTask.id}`);
+	stdout(`Updated task ${updatedTask.id}`);
 }
 
 async function handleTaskReorderCommand(taskId: string, options: Record<string, unknown>) {
@@ -908,7 +906,7 @@ async function handleTaskReorderCommand(taskId: string, options: Record<string, 
 		}
 		try {
 			await core.editTask(canonicalId, { ordinal: explicitOrdinal });
-			console.log(`Reordered task ${canonicalId} to ordinal ${explicitOrdinal}`);
+			stdout(`Reordered task ${canonicalId} to ordinal ${explicitOrdinal}`);
 		} catch (error) {
 			console.error(AppError.formatCLIError(error));
 			process.exitCode = 1;
@@ -962,7 +960,7 @@ async function handleTaskReorderCommand(taskId: string, options: Record<string, 
 			targetStatus,
 			orderedTaskIds: orderedIds,
 		});
-		console.log(`Reordered task ${canonicalId} ${afterId ? "after" : "before"} ${refId}`);
+		stdout(`Reordered task ${canonicalId} ${afterId ? "after" : "before"} ${refId}`);
 	} catch (error) {
 		console.error(AppError.formatCLIError(error));
 		process.exitCode = 1;
@@ -1030,11 +1028,11 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 	}
 
 	if (options.json) {
-		console.log(JSON.stringify(data, null, 2));
+		stdout(data);
 		return;
 	}
 
-	const empty = (msg: string) => console.log(picocolors.dim(msg));
+	const empty = (msg: string) => stdout(picocolors.dim(msg));
 
 	switch (normalized) {
 		case "labels": {
@@ -1046,14 +1044,14 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 			for (const label of labels) {
 				const color = core.config ? resolveLabelColor(label, core.config) : null;
 				const indicator = color ? colorizeLabel(color, "\u25CF") : "";
-				console.log(`  ${indicator}${indicator ? " " : ""}${label}`);
+				stdout(`  ${indicator}${indicator ? " " : ""}${label}`);
 			}
 			return;
 		}
 		case "status": {
 			const d = data as { status: string; priority: string | null };
-			console.log(`  Status:   ${d.status}`);
-			if (d.priority) console.log(`  Priority: ${d.priority}`);
+			stdout(`  Status:   ${d.status}`);
+			if (d.priority) stdout(`  Priority: ${d.priority}`);
 			return;
 		}
 		case "assignee":
@@ -1063,7 +1061,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				empty("No assignees.");
 				return;
 			}
-			for (const a of list) console.log(`  ${a.startsWith("@") ? a : `@${a}`}`);
+			for (const a of list) stdout(`  ${a.startsWith("@") ? a : `@${a}`}`);
 			return;
 		}
 		case "milestone": {
@@ -1072,7 +1070,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				empty("No milestone.");
 				return;
 			}
-			console.log(`  ${ms}`);
+			stdout(`  ${ms}`);
 			return;
 		}
 		case "desc":
@@ -1082,7 +1080,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				empty("No description.");
 				return;
 			}
-			console.log(text);
+			stdout(text);
 			return;
 		}
 		case "plan":
@@ -1102,7 +1100,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				);
 				return;
 			}
-			console.log(text);
+			stdout(text);
 			return;
 		}
 		case "ac":
@@ -1120,7 +1118,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				empty("No references.");
 				return;
 			}
-			for (const ref of list) console.log(`  ${ref}`);
+			for (const ref of list) stdout(`  ${ref}`);
 			return;
 		}
 		case "deps":
@@ -1130,7 +1128,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				empty("No dependencies.");
 				return;
 			}
-			for (const dep of list) console.log(`  ${dep}`);
+			for (const dep of list) stdout(`  ${dep}`);
 			return;
 		}
 		case "files":
@@ -1140,7 +1138,7 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 				empty("No modified files.");
 				return;
 			}
-			for (const f of list) console.log(`  ${f}`);
+			for (const f of list) stdout(`  ${f}`);
 			return;
 		}
 	}
@@ -1328,6 +1326,7 @@ export function registerTaskCommand(program: Command): void {
 		.option("--plain", "use plain text output instead of interactive UI (ignored when section is specified)")
 		.option("--json", "output as JSON")
 		.action(async (taskId: string, section: string | undefined, options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			await core.ensureConfigLoaded();
@@ -1343,18 +1342,18 @@ export function registerTaskCommand(program: Command): void {
 				return;
 			}
 
-			if (options.json) {
-				console.log(JSON.stringify(task, null, 2));
-				return;
-			}
-
 			const allTasks = localTasks.some((candidate) => taskIdsEqual(task.id, candidate.id))
 				? localTasks
 				: [...localTasks, task];
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput = getOutputMode() === "plain" || (getOutputMode() === "auto" && shouldAutoPlain());
 			if (usePlainOutput) {
-				console.log(formatTaskPlainText(task));
+				stdout(task, (d) => formatTaskPlainText(d as Task));
+				return;
+			}
+
+			if (getOutputMode() === "json") {
+				stdout(task);
 				return;
 			}
 
@@ -1402,7 +1401,7 @@ export function registerTaskCommand(program: Command): void {
 			}
 			const success = await core.archiveTask(taskId);
 			if (success) {
-				console.log(`Archived task ${taskId}`);
+				stdout(`Archived task ${taskId}`);
 			} else {
 				console.error(`Task ${taskId} not found.`);
 			}
@@ -1417,7 +1416,7 @@ export function registerTaskCommand(program: Command): void {
 			try {
 				const success = await core.demoteTask(taskId);
 				if (success) {
-					console.log(`Demoted task ${taskId}`);
+					stdout(`Demoted task ${taskId}`);
 				} else {
 					console.error(`Task ${taskId} not found.`);
 				}
@@ -1441,6 +1440,7 @@ export function registerTaskCommand(program: Command): void {
 		.argument("[taskId]")
 		.option("--plain", "use plain text output")
 		.action(async (taskId: string | undefined, options: { plain?: boolean }) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 
@@ -1467,9 +1467,9 @@ export function registerTaskCommand(program: Command): void {
 				? localTasks
 				: [...localTasks, task];
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput = getOutputMode() === "plain" || (getOutputMode() === "auto" && shouldAutoPlain());
 			if (usePlainOutput) {
-				console.log(formatTaskPlainText(task));
+				stdout(task, (d) => formatTaskPlainText(d as Task));
 				return;
 			}
 

@@ -6,6 +6,7 @@ import { renderOverviewTui } from "../ui/overview-tui.ts";
 import { statusOptionsFromConfig } from "../ui/status-icon.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { stdout } from "../utils/output.ts";
 
 export function formatTime(ms: number): string {
 	if (ms < 1000) return `${Math.round(ms)}ms`;
@@ -39,7 +40,7 @@ async function runOverviewCommand(core: Core): Promise<void> {
 
 		// Display the TUI
 		const totalTime = Math.round(performance.now() - startTime);
-		console.log(`\nPerformance summary: Total time ${totalTime}ms (stats calculation: ${statsTime}ms)`);
+		stdout(`\nPerformance summary: Total time ${totalTime}ms (stats calculation: ${statsTime}ms)`);
 
 		const config = await core.filesystem.loadConfig();
 		await renderOverviewTui(statistics, config?.projectName || "Project", statusOptionsFromConfig(config ?? undefined));

@@ -3,6 +3,7 @@ import { DEFAULT_STATUSES } from "../constants/index.ts";
 import { Core } from "../core/backlog.ts";
 import { computeSequences } from "../core/sequences.ts";
 import { isPlainRequested, requireProjectRoot, shouldAutoPlain } from "../utils/cli-context.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
 
 export function registerSequenceCommand(program: Command): void {
@@ -14,6 +15,7 @@ export function registerSequenceCommand(program: Command): void {
 		.description("list sequences (interactive by default; use --plain for text output)")
 		.option("--plain", "use plain text output instead of interactive UI")
 		.action(async (options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const tasks = await core.queryTasks();
@@ -22,21 +24,22 @@ export function registerSequenceCommand(program: Command): void {
 			const activeTasks = tasks.filter((t) => !isTerminalStatus(t.status, statuses, config?.terminalStatuses));
 			const { unsequenced, sequences } = computeSequences(activeTasks);
 
-			const usePlainOutput = isPlainRequested(options) || shouldAutoPlain();
+			const usePlainOutput =
+				getOutputMode() === "plain" || (getOutputMode() === "auto" && (isPlainRequested(options) || shouldAutoPlain()));
 			if (usePlainOutput) {
 				if (unsequenced.length > 0) {
-					console.log("Unsequenced:");
+					stdout("Unsequenced:");
 					for (const t of unsequenced) {
-						console.log(`  ${t.id} - ${t.title}`);
+						stdout(`  ${t.id} - ${t.title}`);
 					}
-					console.log("");
+					stdout("");
 				}
 				for (const seq of sequences) {
-					console.log(`Sequence ${seq.index}:`);
+					stdout(`Sequence ${seq.index}:`);
 					for (const t of seq.tasks) {
-						console.log(`  ${t.id} - ${t.title}`);
+						stdout(`  ${t.id} - ${t.title}`);
 					}
-					console.log("");
+					stdout("");
 				}
 				return;
 			}

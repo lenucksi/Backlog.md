@@ -3,6 +3,7 @@ import type { Core } from "../core/backlog.ts";
 import { colorizeLabel } from "../utils/ansi.ts";
 import { ensureProjectConfig } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 async function ensureLabelsMigrated(core: Core): Promise<void> {
 	const config = await core.filesystem.loadConfig();
@@ -41,7 +42,7 @@ async function ensureLabelsMigrated(core: Core): Promise<void> {
 	if (knownLabels.size > 0) {
 		config.labels = Array.from(knownLabels).sort((a, b) => a.localeCompare(b));
 		await core.filesystem.saveConfig(config);
-		console.log(`Migrated ${knownLabels.size} existing label(s) into config.`);
+		stdout(`Migrated ${knownLabels.size} existing label(s) into config.`);
 	}
 }
 
@@ -127,22 +128,23 @@ export function registerLabelCommand(program: Command): void {
 		.description("list all labels from config")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
+			applyOutputOptions(options);
 			const { config } = await ensureProjectConfig();
 			const labels = config.labels ?? [];
-			if (options.json) {
-				console.log(JSON.stringify(labels, null, 2));
+			if (getOutputMode() === "json") {
+				stdout(labels);
 				return;
 			}
 			if (labels.length === 0) {
-				console.log("No labels configured.");
+				stdout("No labels configured.");
 				return;
 			}
 			for (const label of labels) {
 				if (typeof label === "string") {
-					console.log(`  ${label}`);
+					stdout(`  ${label}`);
 				} else {
 					const indicator = label.color ? colorizeLabel(label.color, "●") : "";
-					console.log(`  ${indicator}${indicator ? " " : ""}${label.name}${label.color ? ` (${label.color})` : ""}`);
+					stdout(`  ${indicator}${indicator ? " " : ""}${label.name}${label.color ? ` (${label.color})` : ""}`);
 				}
 			}
 		});
@@ -163,7 +165,7 @@ export function registerLabelCommand(program: Command): void {
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
 			await core.filesystem.saveConfig(reloaded);
-			console.log(`Added label: ${name}`);
+			stdout(`Added label: ${name}`);
 		});
 
 	labelCmd
@@ -200,7 +202,7 @@ export function registerLabelCommand(program: Command): void {
 
 			await updateLabelsOnEntities(core, oldName, newName);
 
-			console.log(`Renamed label "${oldName}" to "${newName}" in config and all entities.`);
+			stdout(`Renamed label "${oldName}" to "${newName}" in config and all entities.`);
 		});
 
 	labelCmd
@@ -212,7 +214,7 @@ export function registerLabelCommand(program: Command): void {
 			const idx = findLabelOrExit(reloaded.labels ?? [], name);
 			reloaded.labels = reloaded.labels.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(reloaded);
-			console.log(`Removed label: ${name}`);
+			stdout(`Removed label: ${name}`);
 		});
 
 	labelCmd
@@ -230,7 +232,7 @@ export function registerLabelCommand(program: Command): void {
 				reloaded.labels[idx] = { name: existing.name, color };
 			}
 			await core.filesystem.saveConfig(reloaded);
-			console.log(`Set color for label "${name}" to ${color}`);
+			stdout(`Set color for label "${name}" to ${color}`);
 		});
 
 	labelCmd
@@ -243,11 +245,11 @@ export function registerLabelCommand(program: Command): void {
 			const existing = reloaded.labels[idx];
 			if (!existing) return;
 			if (typeof existing === "string") {
-				console.log(`Label "${name}" has no color to remove.`);
+				stdout(`Label "${name}" has no color to remove.`);
 				return;
 			}
 			reloaded.labels[idx] = existing.name;
 			await core.filesystem.saveConfig(reloaded);
-			console.log(`Removed color from label "${name}".`);
+			stdout(`Removed color from label "${name}".`);
 		});
 }

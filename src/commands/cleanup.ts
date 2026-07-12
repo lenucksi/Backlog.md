@@ -5,6 +5,7 @@ import { DEFAULT_STATUSES } from "../constants/index.ts";
 import { Core } from "../core/backlog.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { stdout } from "../utils/output.ts";
 import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 
 export function registerCleanupCommand(program: Command): void {
@@ -25,7 +26,7 @@ export function registerCleanupCommand(program: Command): void {
 			const statuses = config.statuses ?? [...DEFAULT_STATUSES];
 			const terminalStatus = getTerminalStatus(statuses);
 			if (!terminalStatus) {
-				console.log("No terminal status configured for cleanup.");
+				stdout("No terminal status configured for cleanup.");
 				return;
 			}
 
@@ -33,11 +34,11 @@ export function registerCleanupCommand(program: Command): void {
 			const terminalStatusTasks = tasks.filter((task) => isTerminalStatus(task.status, statuses));
 
 			if (terminalStatusTasks.length === 0) {
-				console.log(`No ${terminalStatus} tasks found to clean up.`);
+				stdout(`No ${terminalStatus} tasks found to clean up.`);
 				return;
 			}
 
-			console.log(`Found ${terminalStatusTasks.length} tasks marked as ${terminalStatus}.`);
+			stdout(`Found ${terminalStatusTasks.length} tasks marked as ${terminalStatus}.`);
 
 			const ageOptions = [
 				{ title: "1 day", value: 1 },
@@ -56,26 +57,26 @@ export function registerCleanupCommand(program: Command): void {
 			const selectedAge = clack.isCancel(selectedAgePrompt) ? undefined : selectedAgePrompt;
 
 			if (selectedAge === undefined) {
-				console.log("Cleanup cancelled.");
+				stdout("Cleanup cancelled.");
 				return;
 			}
 
 			const tasksToMove = await core.getTerminalStatusTasksByAge(selectedAge);
 
 			if (tasksToMove.length === 0) {
-				console.log(`No tasks found that are older than ${ageOptions.find((o) => o.value === selectedAge)?.title}.`);
+				stdout(`No tasks found that are older than ${ageOptions.find((o) => o.value === selectedAge)?.title}.`);
 				return;
 			}
 
-			console.log(
+			stdout(
 				`\nFound ${tasksToMove.length} tasks older than ${ageOptions.find((o) => o.value === selectedAge)?.title}:`,
 			);
 			for (const task of tasksToMove.slice(0, 5)) {
 				const date = task.updatedDate || task.createdDate;
-				console.log(`  - ${task.id}: ${task.title} (${date})`);
+				stdout(`  - ${task.id}: ${task.title} (${date})`);
 			}
 			if (tasksToMove.length > 5) {
-				console.log(`  ... and ${tasksToMove.length - 5} more`);
+				stdout(`  ... and ${tasksToMove.length - 5} more`);
 			}
 
 			const confirmedPrompt = await clack.confirm({
@@ -85,14 +86,14 @@ export function registerCleanupCommand(program: Command): void {
 			const confirmed = clack.isCancel(confirmedPrompt) ? false : confirmedPrompt;
 
 			if (!confirmed) {
-				console.log("Cleanup cancelled.");
+				stdout("Cleanup cancelled.");
 				return;
 			}
 
 			let successCount = 0;
 			const shouldAutoCommit = config.autoCommit ?? false;
 
-			console.log("Moving tasks...");
+			stdout("Moving tasks...");
 			const movedTasks: Array<{ fromPath: string; toPath: string; taskId: string }> = [];
 
 			for (const task of tasksToMove) {
@@ -117,7 +118,7 @@ export function registerCleanupCommand(program: Command): void {
 
 			const hasGitRepository = await core.gitOps.isRepository();
 			if (successCount > 0 && !shouldAutoCommit && hasGitRepository) {
-				console.log("Staging file moves for Git...");
+				stdout("Staging file moves for Git...");
 				for (const { fromPath, toPath } of movedTasks) {
 					try {
 						await core.gitOps.stageFileMove(fromPath, toPath);
@@ -127,9 +128,9 @@ export function registerCleanupCommand(program: Command): void {
 				}
 			}
 
-			console.log(`Successfully moved ${successCount} of ${tasksToMove.length} tasks to completed folder.`);
+			stdout(`Successfully moved ${successCount} of ${tasksToMove.length} tasks to completed folder.`);
 			if (successCount > 0 && !shouldAutoCommit && hasGitRepository) {
-				console.log("Files have been staged. To commit: git commit -m 'cleanup: Move completed tasks'");
+				stdout("Files have been staged. To commit: git commit -m 'cleanup: Move completed tasks'");
 			}
 		});
 }

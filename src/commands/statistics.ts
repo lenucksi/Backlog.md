@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { Core } from "../core/backlog.ts";
 import { getTaskStatistics } from "../core/statistics.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 function renderTable(stats: ReturnType<typeof getTaskStatistics>, milestoneLabel?: string): string {
 	const lines: string[] = [];
@@ -53,6 +54,7 @@ function renderTable(stats: ReturnType<typeof getTaskStatistics>, milestoneLabel
 }
 
 async function handleStatsCommand(options: { json?: boolean; milestone?: string }) {
+	applyOutputOptions(options);
 	const cwd = await requireProjectRoot();
 	const core = new Core(cwd);
 	await core.ensureConfigLoaded();
@@ -72,7 +74,7 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 
 	const stats = getTaskStatistics(filteredTasks, drafts, statuses, terminalStatuses, archivedTasks, blockedStatuses);
 
-	if (options.json) {
+	if (getOutputMode() === "json") {
 		const data = {
 			totalTasks: stats.totalTasks,
 			completedTasks: stats.completedTasks,
@@ -87,11 +89,11 @@ async function handleStatsCommand(options: { json?: boolean; milestone?: string 
 			blockedByStatusCount: stats.projectHealth.blockedByStatus.length,
 			deadlockedTaskGroups: stats.projectHealth.deadlockedTaskGroups,
 		};
-		console.log(JSON.stringify(data, null, 2));
+		stdout(data);
 		return;
 	}
 
-	console.log(renderTable(stats, options.milestone));
+	stdout(renderTable(stats, options.milestone));
 }
 
 export function registerStatsCommand(program: Command): void {

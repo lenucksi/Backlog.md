@@ -1,4 +1,4 @@
-import { stdin as input, stdout as output } from "node:process";
+import { stdin as input, stdout as processStdout } from "node:process";
 import { createInterface } from "node:readline/promises";
 import * as clack from "@clack/prompts";
 import type { Command } from "commander";
@@ -6,6 +6,7 @@ import { Core } from "../core/backlog.ts";
 import { getExplicitProjectPath } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
 import { findBacklogRoot } from "../utils/find-backlog-root.ts";
+import { stdout as cliOutput } from "../utils/output.ts";
 import { resolveRuntimeCwd } from "../utils/runtime-cwd.ts";
 
 export function registerBrowserCommand(program: Command): void {
@@ -22,7 +23,7 @@ export function registerBrowserCommand(program: Command): void {
 				const startDir = explicitPath || runtimeCwd.cwd;
 				let cwd = await findBacklogRoot(startDir);
 				if (!cwd) {
-					console.log("\nNo Backlog.md project found in this directory.");
+					cliOutput("\nNo Backlog.md project found in this directory.");
 					const openWizard = await clack.confirm({
 						message: explicitPath ? `Initialize at ${explicitPath}?` : "Open web initialization wizard?",
 						initialValue: true,
@@ -30,7 +31,7 @@ export function registerBrowserCommand(program: Command): void {
 					if (openWizard) {
 						cwd = startDir;
 					} else {
-						console.log("Run `backlog init` to initialize.");
+						cliOutput("Run `backlog init` to initialize.");
 						process.exit(EXIT.SUCCESS);
 					}
 				}
@@ -50,10 +51,10 @@ export function registerBrowserCommand(program: Command): void {
 				if (!(await isPortAvailable(port))) {
 					const nextPort = await findNextAvailablePort(port + 1);
 					if (options.nonInteractive) {
-						console.log(`⚠️  Port ${port} is already in use. Using port ${nextPort} instead.`);
+						cliOutput(`⚠️  Port ${port} is already in use. Using port ${nextPort} instead.`);
 						port = nextPort;
 					} else {
-						const rl = createInterface({ input, output });
+						const rl = createInterface({ input, output: processStdout });
 						const answer = (
 							await rl.question(
 								`\n⚠️  Port ${port} is already in use.\n💡 Port ${nextPort} is available. Start on port ${nextPort}? [Y/n] `,
@@ -65,7 +66,7 @@ export function registerBrowserCommand(program: Command): void {
 						if (answer === "" || answer === "y") {
 							port = nextPort;
 						} else {
-							console.log("Aborted.");
+							cliOutput("Aborted.");
 							process.exit(EXIT.SUCCESS);
 						}
 					}
@@ -77,7 +78,7 @@ export function registerBrowserCommand(program: Command): void {
 				const shutdown = async (signal: string) => {
 					if (shuttingDown) return;
 					shuttingDown = true;
-					console.log(`\nReceived ${signal}. Shutting down server...`);
+					cliOutput(`\nReceived ${signal}. Shutting down server...`);
 					try {
 						const stopPromise = server.stop();
 						const timeout = new Promise<void>((resolve) => setTimeout(resolve, 1500));

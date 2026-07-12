@@ -3,6 +3,7 @@ import { Core } from "../core/backlog.ts";
 import { AppError } from "../utils/app-error.ts";
 import { openUrlInBrowser } from "../utils/browser-opener.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { stdout } from "../utils/output.ts";
 import { sanitizeUrlTitle, stripIdPrefix } from "../utils/url-helpers.ts";
 
 type EntityType = "task" | "document" | "decision";
@@ -90,8 +91,8 @@ export function registerOpenCommand(program: Command): void {
 
 				const url = buildUrl(`http://localhost:${port}`, entityType, id, title);
 
-				console.log(`Opening ${entityType} ${id}...`);
-				console.log(`  URL: ${url}`);
+				stdout(`Opening ${entityType} ${id}...`);
+				stdout(`  URL: ${url}`);
 				await openUrlInBrowser(url);
 			} catch (error) {
 				console.error(AppError.formatCLIError(error));

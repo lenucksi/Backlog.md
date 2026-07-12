@@ -7,6 +7,7 @@ import type { Decision } from "../types/index.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
 import { openInEditor } from "../utils/editor.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 export async function generateNextDecisionId(core: Core): Promise<string> {
 	const config = await core.filesystem.loadConfig();
@@ -18,7 +19,7 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 
 		if (config?.remoteOperations === false) {
 			if (process.env.DEBUG) {
-				console.log("Remote operations disabled - generating ID from local decisions only");
+				console.error("Remote operations disabled - generating ID from local decisions only");
 			}
 		} else {
 			await core.gitOps.fetch();
@@ -103,7 +104,7 @@ export function registerDecisionCommand(program: Command): void {
 				rawContent: "",
 			};
 			await core.createDecision(decision);
-			console.log(`Created decision ${id}`);
+			stdout(`Created decision ${id}`);
 		});
 
 	decisionCmd
@@ -114,6 +115,7 @@ export function registerDecisionCommand(program: Command): void {
 		.option("-l, --label <labels>", "Filter by labels (comma-separated)")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			let decisions = await core.filesystem.listDecisions();
@@ -130,13 +132,13 @@ export function registerDecisionCommand(program: Command): void {
 				decisions = decisions.filter((d) => d.supersededBy === val);
 			}
 
-			if (options.json) {
-				console.log(JSON.stringify(decisions, null, 2));
+			if (getOutputMode() === "json") {
+				stdout(decisions);
 				return;
 			}
 
 			if (decisions.length === 0) {
-				console.log("No decisions found.");
+				stdout("No decisions found.");
 				return;
 			}
 
@@ -148,13 +150,14 @@ export function registerDecisionCommand(program: Command): void {
 						: "";
 				return `${d.id.padEnd(16)} ${d.status.padEnd(12)} ${d.date.padEnd(14)} ${d.title}${supersedeTag}`;
 			});
-			console.log(rows.join("\n"));
+			stdout(rows.join("\n"));
 		});
 
 	decisionCmd
 		.command("view <id>")
 		.option("--json", "output as JSON")
 		.action(async (id: string, options) => {
+			applyOutputOptions(options);
 			const cwd = await requireProjectRoot();
 			const core = new Core(cwd);
 			const decision = await loadDecision(core, id);
@@ -163,36 +166,36 @@ export function registerDecisionCommand(program: Command): void {
 				process.exit(EXIT.ERROR);
 			}
 
-			if (options.json) {
-				console.log(JSON.stringify(decision, null, 2));
+			if (getOutputMode() === "json") {
+				stdout(decision);
 				return;
 			}
 
-			console.log(`ID:             ${decision.id}`);
-			console.log(`Title:          ${decision.title}`);
-			console.log(`Date:           ${decision.date}`);
-			console.log(`Status:         ${decision.status}`);
+			stdout(`ID:             ${decision.id}`);
+			stdout(`Title:          ${decision.title}`);
+			stdout(`Date:           ${decision.date}`);
+			stdout(`Status:         ${decision.status}`);
 			if (decision.supersedes) {
 				const ref = await loadDecision(core, decision.supersedes);
-				console.log(`Supersedes:     ${decision.supersedes}${ref ? ` (${ref.title})` : ""}`);
+				stdout(`Supersedes:     ${decision.supersedes}${ref ? ` (${ref.title})` : ""}`);
 			}
 			if (decision.supersededBy) {
 				const ref = await loadDecision(core, decision.supersededBy);
-				console.log(`Superseded by:  ${decision.supersededBy}${ref ? ` (${ref.title})` : ""}`);
+				stdout(`Superseded by:  ${decision.supersededBy}${ref ? ` (${ref.title})` : ""}`);
 			}
-			console.log("");
-			console.log("=== Context ===");
-			console.log(decision.context || "(empty)");
-			console.log("");
-			console.log("=== Decision ===");
-			console.log(decision.decision || "(empty)");
-			console.log("");
-			console.log("=== Consequences ===");
-			console.log(decision.consequences || "(empty)");
+			stdout("");
+			stdout("=== Context ===");
+			stdout(decision.context || "(empty)");
+			stdout("");
+			stdout("=== Decision ===");
+			stdout(decision.decision || "(empty)");
+			stdout("");
+			stdout("=== Consequences ===");
+			stdout(decision.consequences || "(empty)");
 			if (decision.alternatives) {
-				console.log("");
-				console.log("=== Alternatives ===");
-				console.log(decision.alternatives);
+				stdout("");
+				stdout("=== Alternatives ===");
+				stdout(decision.alternatives);
 			}
 		});
 
@@ -214,7 +217,7 @@ export function registerDecisionCommand(program: Command): void {
 			}
 
 			await core.resolveDecision(decision.id);
-			console.log(`Resolved ${decision.id} — status set to superseded`);
+			stdout(`Resolved ${decision.id} — status set to superseded`);
 		});
 
 	decisionCmd
@@ -294,7 +297,7 @@ export function registerDecisionCommand(program: Command): void {
 			oldDecision.supersededBy = newDecision.id;
 			await core.createDecision(oldDecision);
 
-			console.log(`Created decision ${newId} superseding ${oldDecision.id}`);
-			console.log(`Updated ${oldDecision.id} status to superseded`);
+			stdout(`Created decision ${newId} superseding ${oldDecision.id}`);
+			stdout(`Updated ${oldDecision.id} status to superseded`);
 		});
 }

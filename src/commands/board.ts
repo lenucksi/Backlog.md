@@ -8,6 +8,7 @@ import { exportKanbanBoardToFile, updateReadmeWithBoard } from "../index.ts";
 import type { Milestone, Task } from "../types/index.ts";
 import { createLoadingScreen } from "../ui/loading.ts";
 import { requireProjectRoot } from "../utils/cli-context.ts";
+import { stdout } from "../utils/output.ts";
 
 function addBoardOptions(cmd: Command) {
 	return cmd
@@ -174,7 +175,7 @@ export function registerBoardCommand(program: Command, version: string): void {
 				if (options.readme) {
 					const exportVersion = options.exportVersion || version;
 					await updateReadmeWithBoard(finalTasks, statuses, projectName, exportVersion);
-					console.log("Updated README.md with Kanban board.");
+					stdout("Updated README.md with Kanban board.");
 				} else {
 					const outputFile = filename || "Backlog.md";
 					const outputPath = join(cwd, outputFile as string);
@@ -185,7 +186,7 @@ export function registerBoardCommand(program: Command, version: string): void {
 						try {
 							const answer = await rl.question(`File "${outputPath}" already exists. Overwrite? (y/N): `);
 							if (!answer.toLowerCase().startsWith("y")) {
-								console.log("Export cancelled.");
+								stdout("Export cancelled.");
 								return;
 							}
 						} finally {
@@ -194,7 +195,7 @@ export function registerBoardCommand(program: Command, version: string): void {
 					}
 
 					await exportKanbanBoardToFile(finalTasks, statuses, outputPath, projectName, options.force || !fileExists);
-					console.log(`Exported board to ${outputPath}`);
+					stdout(`Exported board to ${outputPath}`);
 				}
 			} catch (error) {
 				loadingScreen?.close();

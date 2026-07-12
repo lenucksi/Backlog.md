@@ -6,6 +6,7 @@ import {
 	CLI_TASK_FINALIZATION_GUIDE,
 } from "../guidelines/cli/index.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { stdout } from "../utils/output.ts";
 
 type GuideKey = "overview" | "task-creation" | "task-execution" | "task-finalization";
 
@@ -19,8 +20,8 @@ const GUIDES: Record<GuideKey, string> = {
 const GUIDE_KEYS = Object.keys(GUIDES) as GuideKey[];
 
 function printList(): void {
-	console.log("Available workflow guides:");
-	console.log("");
+	stdout("Available workflow guides:");
+	stdout("");
 	for (const key of GUIDE_KEYS) {
 		const descriptions: Record<string, string> = {
 			overview: "When to use Backlog, workflow overview, CLI commands reference",
@@ -28,13 +29,13 @@ function printList(): void {
 			"task-execution": "Planning workflow, implementation discipline, handling scope changes",
 			"task-finalization": "Definition of Done, finalization checklist, next steps",
 		};
-		console.log(`  backlog instructions ${key}`);
-		console.log(`    ${descriptions[key]}`);
+		stdout(`  backlog instructions ${key}`);
+		stdout(`    ${descriptions[key]}`);
 	}
-	console.log("");
-	console.log("Example: backlog instructions task-creation");
-	console.log("");
-	console.log("LLM agents: start with 'backlog instructions overview' to learn the workflow.");
+	stdout("");
+	stdout("Example: backlog instructions task-creation");
+	stdout("");
+	stdout("LLM agents: start with 'backlog instructions overview' to learn the workflow.");
 }
 
 export function registerInstructionsCommand(program: Command): void {
@@ -53,6 +54,6 @@ export function registerInstructionsCommand(program: Command): void {
 				console.error(`Available guides: ${GUIDE_KEYS.join(", ")}`);
 				process.exit(EXIT.ERROR);
 			}
-			console.log(content);
+			stdout(content);
 		});
 }

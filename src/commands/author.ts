@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { colorizeLabel } from "../utils/ansi.ts";
 import { ensureProjectConfig } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 function ensureAuthors(config: {
 	authors?: Array<string | { name: string; color?: string }>;
@@ -33,22 +34,23 @@ export function registerAuthorCommand(program: Command): void {
 		.description("list all authors from config")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
+			applyOutputOptions(options);
 			const { config } = await ensureProjectConfig();
 			const authors = config.authors ?? [];
-			if (options.json) {
-				console.log(JSON.stringify(authors, null, 2));
+			if (getOutputMode() === "json") {
+				stdout(authors);
 				return;
 			}
 			if (authors.length === 0) {
-				console.log("No authors configured.");
+				stdout("No authors configured.");
 				return;
 			}
 			for (const author of authors) {
 				if (typeof author === "string") {
-					console.log(`  ${author}`);
+					stdout(`  ${author}`);
 				} else {
 					const indicator = author.color ? colorizeLabel(author.color, "●") : "";
-					console.log(`  ${indicator}${indicator ? " " : ""}${author.name}${author.color ? ` (${author.color})` : ""}`);
+					stdout(`  ${indicator}${indicator ? " " : ""}${author.name}${author.color ? ` (${author.color})` : ""}`);
 				}
 			}
 		});
@@ -69,7 +71,7 @@ export function registerAuthorCommand(program: Command): void {
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
 			await core.filesystem.saveConfig(config);
-			console.log(`Added author: ${name}`);
+			stdout(`Added author: ${name}`);
 		});
 
 	authorCmd
@@ -115,7 +117,7 @@ export function registerAuthorCommand(program: Command): void {
 				}
 			}
 
-			console.log(`Renamed author "${oldName}" to "${newName}" in config and all entities.`);
+			stdout(`Renamed author "${oldName}" to "${newName}" in config and all entities.`);
 		});
 
 	authorCmd
@@ -126,7 +128,7 @@ export function registerAuthorCommand(program: Command): void {
 			const { authors, idx } = findAuthorOrExit(config, name);
 			config.authors = authors.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(config);
-			console.log(`Removed author: ${name}`);
+			stdout(`Removed author: ${name}`);
 		});
 
 	authorCmd
@@ -144,7 +146,7 @@ export function registerAuthorCommand(program: Command): void {
 			}
 			config.authors = authors;
 			await core.filesystem.saveConfig(config);
-			console.log(`Set color for author "${name}" to ${color}`);
+			stdout(`Set color for author "${name}" to ${color}`);
 		});
 
 	authorCmd
@@ -156,12 +158,12 @@ export function registerAuthorCommand(program: Command): void {
 			const existing = authors[idx];
 			if (!existing) return;
 			if (typeof existing === "string") {
-				console.log(`Author "${name}" has no color to remove.`);
+				stdout(`Author "${name}" has no color to remove.`);
 				return;
 			}
 			authors[idx] = existing.name;
 			config.authors = authors;
 			await core.filesystem.saveConfig(config);
-			console.log(`Removed color from author "${name}".`);
+			stdout(`Removed color from author "${name}".`);
 		});
 }
