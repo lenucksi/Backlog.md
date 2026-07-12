@@ -144,7 +144,7 @@ export function buildElysiaApp(
 						},
 						license: {
 							name: "MIT",
-							// aislop-ignore-line hardcoded-url — canonical MIT license URL, intentional
+							// aislop-ignore-next-line hardcoded-url — canonical MIT license URL
 							url: "https://opensource.org/licenses/MIT",
 						},
 					},

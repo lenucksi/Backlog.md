@@ -517,12 +517,12 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		const isRemoving = removingMilestoneKey === bucket.key;
 
 		return (
-		// aislop-ignore-next-line no-noninteractive-element-interactions prefer-tag-over-role — landmark with explicit role for layout consistency
-		<div
-			key={bucket.key}
-			role="region"
-			aria-label={`${bucket.label} milestone card`}
-			className={`rounded-lg border-2 transition-all duration-200 ${
+			// aislop-ignore-next-line no-noninteractive-element-interactions prefer-tag-over-role — landmark with explicit role for layout consistency
+			<div
+				key={bucket.key}
+				role="region"
+				aria-label={`${bucket.label} milestone card`}
+				className={`rounded-lg border-2 transition-all duration-200 ${
 					isDropTarget
 						? "border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.01]"
 						: isDragging

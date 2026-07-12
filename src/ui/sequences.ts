@@ -263,30 +263,25 @@ export async function runSequencesView(
 	function refreshMoveIndicators() {
 		// Reset all to default
 		for (const blk of seqBlocks) {
-			// aislop-ignore-line unicorn/no-useless-fallback-in-spread — style can be undefined in blessed
-		// aislop-ignore-next-line unicorn/no-useless-fallback-in-spread — style can be undefined in blessed
-		blk.node.style = { ...(blk.node.style || {}), border: { fg: "cyan" } } as unknown;
+			blk.node.style = Object.assign(blk.node.style || {}, { border: { fg: "cyan" } });
 		}
 		// Reset overlays
-		for (const [, dz] of dropZoneBoxes) dz.style = { ...(dz.style || {}), fg: "gray" } as unknown;
+		for (const [, dz] of dropZoneBoxes) Object.assign(dz.style || {}, { fg: "gray" });
 		if (moveMode) {
 			const tgt = moveTargets[targetPos];
 			if (tgt?.kind === "sequence") {
 				for (const blk of seqBlocks) {
 					if (blk.index === tgt.seqIndex) {
-						// aislop-ignore-next-line unicorn/no-useless-fallback-in-spread — style can be undefined in blessed
-						blk.node.style = {
-							...(blk.node.style || {}),
+						Object.assign(blk.node.style || {}, {
 							border: { fg: "yellow", /* pseudo-thicker */ bold: true },
-						} as unknown;
+						});
 					}
 				}
 			} else if (tgt?.kind === "between") {
 				const k = tgt.k;
 				// Do not highlight adjacent sequences for drop-zones; only the drop-zone line itself
 				const dz = dropZoneBoxes.get(k);
-				// aislop-ignore-next-line unicorn/no-useless-fallback-in-spread — style can be undefined in blessed
-				if (dz) dz.style = { ...(dz.style || {}), fg: "yellow" } as unknown;
+				if (dz) Object.assign(dz.style || {}, { fg: "yellow" });
 			}
 		}
 		screen.render();

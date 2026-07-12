@@ -103,7 +103,7 @@ function findMatchingMilestone(name: string, milestones: Milestone[]): Milestone
 		return idMatch ?? uniqueTitleMatch;
 	}
 	return uniqueTitleMatch ?? idMatch;
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 }
 
 export function resolveMilestoneStorageValue(name: string, milestones: Milestone[]): string {
@@ -140,7 +140,7 @@ export function buildMilestoneMatchKeys(name: string, milestones: Milestone[]): 
 			keys.add(key);
 		}
 	}
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 
 	return keys;
 }

@@ -78,7 +78,7 @@ export function htmlToMarkdown(html: string): string {
 
 export function hasHtmlInClipboard(clipboardData: DataTransfer): boolean {
 	return clipboardData.types.some((t) => t === "text/html" || t === "text/rtf");
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 }
 
 export function extractHtmlFromClipboard(clipboardData: DataTransfer): string | null {
