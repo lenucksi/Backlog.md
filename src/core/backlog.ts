@@ -69,7 +69,6 @@ import {
 	getTaskLoadingMessage,
 	loadLocalBranchTasks,
 	loadRemoteTasks,
-	resolveTaskConflict,
 } from "./task-loader.ts";
 import * as taskOps from "./task-operations.ts";
 
@@ -434,10 +433,6 @@ export class Core {
 		}
 	}
 
-	/**
-	 * Re-point this Core instance to a different project root.
-	 * Disposes caches and re-creates FileSystem / GitOperations.
-	 */
 	reinitializeProjectRoot(projectRoot: string): void {
 		this.disposeSearchService();
 		this.disposeContentStore();
@@ -463,7 +458,6 @@ export class Core {
 	get filesystem() {
 		return this._filesystem;
 	}
-
 	get gitOps() {
 		return this.git;
 	}
@@ -487,6 +481,19 @@ export class Core {
 
 	private async getBacklogDirectoryName(): Promise<string> {
 		return this._filesystem.backlogDirName;
+	}
+
+	private async stageAndCommit(message: string, autoCommit?: boolean): Promise<void> {
+		if (!(await this.shouldAutoCommit(autoCommit))) return;
+		const backlogDir = await this.getBacklogDirectoryName();
+		const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
+		await this.git.commitChanges(message, repoRoot);
+	}
+
+	private async requireTask(taskId: string): Promise<Task> {
+		const task = await this._filesystem.loadTask(taskId);
+		if (!task) throw new Error(`Task not found: ${taskId}`);
+		return task;
 	}
 
 	async shouldAutoCommit(overrideValue?: boolean): Promise<boolean> {
@@ -857,11 +864,7 @@ export class Core {
 			this.contentStore.upsertTask(savedTask);
 		}
 
-		if (await this.shouldAutoCommit(autoCommit)) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Promote draft ${normalizeId(draft.id, "draft")}`, repoRoot);
-		}
+		await this.stageAndCommit(`backlog: Promote draft ${normalizeId(draft.id, "draft")}`, autoCommit);
 
 		return savedTask ?? { ...promotedTask, filePath: savedPath };
 	}
@@ -896,11 +899,7 @@ export class Core {
 			return { demotedDraft, savedPath };
 		});
 
-		if (await this.shouldAutoCommit(autoCommit)) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Demote task ${normalizeTaskId(task.id)}`, repoRoot);
-		}
+		await this.stageAndCommit(`backlog: Demote task ${normalizeTaskId(task.id)}`, autoCommit);
 
 		return (await this._filesystem.loadDraft(demotedDraft.id)) ?? { ...demotedDraft, filePath: savedPath };
 	}
@@ -915,12 +914,7 @@ export class Core {
 			await this.updateTask(task, false); // Don't auto-commit each one
 		}
 
-		// Commit all changes at once if auto-commit is enabled
-		if (await this.shouldAutoCommit(autoCommit)) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(commitMessage || `Update ${tasks.length} tasks`, repoRoot);
-		}
+		await this.stageAndCommit(commitMessage || `Update ${tasks.length} tasks`, autoCommit);
 	}
 
 	async reorderTask(params: {
@@ -1298,11 +1292,9 @@ export class Core {
 			}
 		}
 
-		if (succeeded.length > 0 && (await this.shouldAutoCommit(undefined))) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
+		if (succeeded.length > 0) {
 			const taskWord = succeeded.length === 1 ? "task" : "tasks";
-			await this.git.commitChanges(`backlog: Archive ${succeeded.length} ${taskWord}`, repoRoot);
+			await this.stageAndCommit(`backlog: Archive ${succeeded.length} ${taskWord}`, undefined);
 		}
 
 		return { succeeded, failed };
@@ -1378,10 +1370,8 @@ export class Core {
 	async archiveDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
 		const success = await this._filesystem.archiveDraft(draftId);
 
-		if (success && (await this.shouldAutoCommit(autoCommit))) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Archive draft ${normalizeId(draftId, "draft")}`, repoRoot);
+		if (success) {
+			await this.stageAndCommit(`backlog: Archive draft ${normalizeId(draftId, "draft")}`, autoCommit);
 		}
 
 		return success;
@@ -1390,10 +1380,8 @@ export class Core {
 	async promoteDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
 		const success = await this._filesystem.promoteDraft(draftId);
 
-		if (success && (await this.shouldAutoCommit(autoCommit))) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Promote draft ${normalizeId(draftId, "draft")}`, repoRoot);
+		if (success) {
+			await this.stageAndCommit(`backlog: Promote draft ${normalizeId(draftId, "draft")}`, autoCommit);
 		}
 
 		return success;
@@ -1402,24 +1390,15 @@ export class Core {
 	async demoteTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
 		const success = await this._filesystem.demoteTask(taskId);
 
-		if (success && (await this.shouldAutoCommit(autoCommit))) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Demote task ${normalizeTaskId(taskId)}`, repoRoot);
+		if (success) {
+			await this.stageAndCommit(`backlog: Demote task ${normalizeTaskId(taskId)}`, autoCommit);
 		}
 
 		return success;
 	}
 
-	/**
-	 * Add acceptance criteria to a task
-	 */
 	async addAcceptanceCriteria(taskId: string, criteria: string[], autoCommit?: boolean): Promise<void> {
-		const task = await this._filesystem.loadTask(taskId);
-		if (!task) {
-			throw new Error(`Task not found: ${taskId}`);
-		}
-
+		const task = await this.requireTask(taskId);
 		// Get existing criteria or initialize empty array
 		const current = Array.isArray(task.acceptanceCriteriaItems) ? [...task.acceptanceCriteriaItems] : [];
 
@@ -1434,16 +1413,8 @@ export class Core {
 		await this.updateTask(task, autoCommit);
 	}
 
-	/**
-	 * Remove acceptance criteria by indices (supports batch operations)
-	 * @returns Array of removed indices
-	 */
 	async removeAcceptanceCriteria(taskId: string, indices: number[], autoCommit?: boolean): Promise<number[]> {
-		const task = await this._filesystem.loadTask(taskId);
-		if (!task) {
-			throw new Error(`Task not found: ${taskId}`);
-		}
-
+		const task = await this.requireTask(taskId);
 		let list = Array.isArray(task.acceptanceCriteriaItems) ? [...task.acceptanceCriteriaItems] : [];
 		const removed: number[] = [];
 
@@ -1472,22 +1443,14 @@ export class Core {
 		return removed.sort((a, b) => a - b); // Return in ascending order
 	}
 
-	/**
-	 * Check or uncheck acceptance criteria by indices (supports batch operations)
-	 * Silently ignores invalid indices and only updates valid ones.
-	 * @returns Array of updated indices
-	 */
+	// Silently ignores invalid indices; returns updated indices.
 	async checkAcceptanceCriteria(
 		taskId: string,
 		indices: number[],
 		checked: boolean,
 		autoCommit?: boolean,
 	): Promise<number[]> {
-		const task = await this._filesystem.loadTask(taskId);
-		if (!task) {
-			throw new Error(`Task not found: ${taskId}`);
-		}
-
+		const task = await this.requireTask(taskId);
 		let list = Array.isArray(task.acceptanceCriteriaItems) ? [...task.acceptanceCriteriaItems] : [];
 		const updated: number[] = [];
 
@@ -1516,26 +1479,15 @@ export class Core {
 		return updated.sort((a, b) => a - b);
 	}
 
-	/**
-	 * List all acceptance criteria for a task
-	 */
 	async listAcceptanceCriteria(taskId: string): Promise<AcceptanceCriterion[]> {
-		const task = await this._filesystem.loadTask(taskId);
-		if (!task) {
-			throw new Error(`Task not found: ${taskId}`);
-		}
-
+		const task = await this.requireTask(taskId);
 		return task.acceptanceCriteriaItems || [];
 	}
 
 	async createDecision(decision: Decision, autoCommit?: boolean): Promise<void> {
 		await this._filesystem.saveDecision(decision);
 
-		if (await this.shouldAutoCommit(autoCommit)) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Add decision ${decision.id}`, repoRoot);
-		}
+		await this.stageAndCommit(`backlog: Add decision ${decision.id}`, autoCommit);
 	}
 
 	async editDecision(id: string, updates: { labels?: string[] }): Promise<void> {
@@ -1622,11 +1574,7 @@ export class Core {
 		const relativePath = await this._filesystem.saveDocument(doc, normalizeDocumentSubPath(subPath));
 		doc.path = relativePath;
 
-		if (await this.shouldAutoCommit(autoCommit)) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			const repoRoot = await this.git.stageBacklogDirectory(backlogDir);
-			await this.git.commitChanges(`backlog: Add document ${doc.id}`, repoRoot);
-		}
+		await this.stageAndCommit(`backlog: Add document ${doc.id}`, autoCommit);
 	}
 
 	async updateDocument(existingDoc: Document, content: string, autoCommit?: boolean): Promise<void> {
@@ -1854,128 +1802,33 @@ export class Core {
 		}
 	}
 
-	/**
-	 * Load and process all tasks with the same logic as CLI overview
-	 * This method extracts the common task loading logic for reuse
-	 */
-	async loadAllTasksForStatistics(progressCallback?: (msg: string) => void): Promise<{
-		tasks: Task[];
-		drafts: Task[];
+	private async loadTaskData(
+		progressCallback?: (msg: string) => void,
+		options?: { abortSignal?: AbortSignal; includeCompleted?: boolean },
+	): Promise<{
+		config: BacklogConfig | null;
 		statuses: string[];
-		terminalStatuses?: string[];
-		blockedStatuses?: string[];
+		localTasks: Task[];
+		completedTasks: Task[];
+		allTasks: Task[];
+		branchStateEntries?: BranchTaskStateEntry[];
 	}> {
 		const config = await this._filesystem.loadConfig();
 		const statuses = (config?.statuses || DEFAULT_STATUSES) as string[];
 		const resolutionStrategy = config?.taskResolutionStrategy || "most_progressed";
-
-		// Load local and completed tasks first
-		progressCallback?.("Loading local tasks...");
-		const [localTasks, completedTasks] = await Promise.all([
-			this.listTasksWithMetadata(),
-			this._filesystem.listCompletedTasks(),
-		]);
-
-		// Load remote tasks and local branch tasks in parallel
-		// Skip entirely when cross-branch scanning is disabled
-		let remoteTasks: Task[] = [];
-		let localBranchTasks: Task[] = [];
-		let branchStateEntries: BranchTaskStateEntry[] | undefined;
-
-		if (config?.checkActiveBranches !== false) {
-			const backlogDir = await this.getBacklogDirectoryName();
-			branchStateEntries = [];
-			[remoteTasks, localBranchTasks] = await Promise.all([
-				loadRemoteTasks(this.git, config, progressCallback, localTasks, branchStateEntries, false, backlogDir),
-				loadLocalBranchTasks(this.git, config, progressCallback, localTasks, branchStateEntries, false, backlogDir),
-			]);
-		}
-		progressCallback?.("Loaded tasks");
-
-		// Create map with local tasks
-		const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
-
-		// Add completed tasks to the map
-		for (const completedTask of completedTasks) {
-			if (!tasksById.has(completedTask.id)) {
-				tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
-			}
-		}
-
-		// Merge tasks from other local branches
-		progressCallback?.("Merging tasks...");
-		for (const branchTask of localBranchTasks) {
-			const existing = tasksById.get(branchTask.id);
-			if (!existing) {
-				tasksById.set(branchTask.id, branchTask);
-			} else {
-				const resolved = resolveTaskConflict(existing, branchTask, statuses, resolutionStrategy);
-				tasksById.set(branchTask.id, resolved);
-			}
-		}
-
-		// Merge remote tasks with local tasks
-		for (const remoteTask of remoteTasks) {
-			const existing = tasksById.get(remoteTask.id);
-			if (!existing) {
-				tasksById.set(remoteTask.id, remoteTask);
-			} else {
-				const resolved = resolveTaskConflict(existing, remoteTask, statuses, resolutionStrategy);
-				tasksById.set(remoteTask.id, resolved);
-			}
-		}
-
-		// Get all tasks as array
-		const tasks = Array.from(tasksById.values());
-		let activeTasks: Task[];
-
-		if (config?.checkActiveBranches === false) {
-			activeTasks = tasks;
-		} else {
-			progressCallback?.("Applying latest task states from branch scans...");
-			activeTasks = filterTasksByStateSnapshots(tasks, buildLatestStateMap(branchStateEntries || [], localTasks));
-		}
-
-		// Load drafts
-		progressCallback?.("Loading drafts...");
-		const drafts = await this._filesystem.listDrafts();
-
-		return {
-			tasks: activeTasks,
-			drafts,
-			statuses: statuses as string[],
-			terminalStatuses: config?.terminalStatuses,
-			blockedStatuses: config?.blockedStatuses,
-		};
-	}
-
-	/**
-	 * Load all tasks with cross-branch support
-	 * This is the single entry point for loading tasks across all interfaces
-	 */
-	async loadTasks(
-		progressCallback?: (msg: string) => void,
-		abortSignal?: AbortSignal,
-		options?: { includeCompleted?: boolean },
-	): Promise<Task[]> {
-		const config = await this._filesystem.loadConfig();
-		const statuses = config?.statuses || [...DEFAULT_STATUSES];
-		const resolutionStrategy: "most_recent" | "most_progressed" =
-			(config?.taskResolutionStrategy as "most_recent" | "most_progressed") || "most_progressed";
 		const includeCompleted = options?.includeCompleted ?? false;
 
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
+		const checkAborted = () => {
+			if (options?.abortSignal?.aborted) throw new Error("Loading cancelled");
+		};
+		checkAborted();
 
+		progressCallback?.("Loading local tasks...");
 		const [localTasks, completedTasks] = await Promise.all([
 			this.listTasksWithMetadata(),
 			includeCompleted ? this._filesystem.listCompletedTasks() : Promise.resolve([]),
 		]);
-
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
+		checkAborted();
 
 		let remoteTasks: Task[] = [];
 		let localBranchTasks: Task[] = [];
@@ -2006,48 +1859,82 @@ export class Core {
 				),
 			]);
 		}
-
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
+		checkAborted();
 
 		const tasksById = new Map<string, Task>(localTasks.map((t) => [t.id, { ...t, source: "local" }]));
 
 		if (includeCompleted) {
 			for (const completedTask of completedTasks) {
-				tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
+				if (!tasksById.has(completedTask.id)) {
+					tasksById.set(completedTask.id, { ...completedTask, source: "completed" });
+				}
 			}
 		}
 
-		mergeTaskArray(tasksById, localBranchTasks, abortSignal, statuses, resolutionStrategy);
-		mergeTaskArray(tasksById, remoteTasks, abortSignal, statuses, resolutionStrategy);
+		progressCallback?.("Merging tasks...");
+		mergeTaskArray(tasksById, localBranchTasks, options?.abortSignal, statuses, resolutionStrategy);
+		mergeTaskArray(tasksById, remoteTasks, options?.abortSignal, statuses, resolutionStrategy);
+		checkAborted();
 
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
+		const allTasks = Array.from(tasksById.values());
+		checkAborted();
 
-		const tasks = Array.from(tasksById.values());
+		return { config, statuses, localTasks, completedTasks, allTasks, branchStateEntries };
+	}
 
-		if (abortSignal?.aborted) {
-			throw new Error("Loading cancelled");
-		}
+	async loadAllTasksForStatistics(progressCallback?: (msg: string) => void): Promise<{
+		tasks: Task[];
+		drafts: Task[];
+		statuses: string[];
+		terminalStatuses?: string[];
+		blockedStatuses?: string[];
+	}> {
+		const { config, statuses, localTasks, allTasks, branchStateEntries } = await this.loadTaskData(progressCallback, {
+			includeCompleted: true,
+		});
 
-		let filteredTasks: Task[];
-
+		let activeTasks: Task[];
 		if (config?.checkActiveBranches === false) {
-			filteredTasks = tasks;
+			activeTasks = allTasks;
 		} else {
 			progressCallback?.("Applying latest task states from branch scans...");
-			filteredTasks = filterTasksWithCompleted(
-				tasks,
-				branchStateEntries,
-				localTasks,
-				completedTasks,
-				abortSignal,
-				includeCompleted,
-			);
+			activeTasks = filterTasksByStateSnapshots(allTasks, buildLatestStateMap(branchStateEntries || [], localTasks));
 		}
 
-		return filteredTasks;
+		progressCallback?.("Loading drafts...");
+		const drafts = await this._filesystem.listDrafts();
+
+		return {
+			tasks: activeTasks,
+			drafts,
+			statuses: statuses as string[],
+			terminalStatuses: config?.terminalStatuses,
+			blockedStatuses: config?.blockedStatuses,
+		};
+	}
+
+	async loadTasks(
+		progressCallback?: (msg: string) => void,
+		abortSignal?: AbortSignal,
+		options?: { includeCompleted?: boolean },
+	): Promise<Task[]> {
+		const includeCompleted = options?.includeCompleted ?? false;
+		const { config, branchStateEntries, localTasks, completedTasks, allTasks } = await this.loadTaskData(
+			progressCallback,
+			{ abortSignal, includeCompleted },
+		);
+
+		if (config?.checkActiveBranches === false) {
+			return allTasks;
+		}
+		progressCallback?.("Applying latest task states from branch scans...");
+		return filterTasksWithCompleted(
+			allTasks,
+			branchStateEntries,
+			localTasks,
+			completedTasks,
+			abortSignal,
+			includeCompleted,
+		);
 	}
 }

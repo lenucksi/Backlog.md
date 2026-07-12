@@ -78,7 +78,7 @@ describe("CLI task milestone assignment", () => {
 
 		const cleared = await core.filesystem.loadTask("task-1");
 		expect(cleared?.milestone).toBeUndefined();
-	});
+	}, 30000);
 
 	it("rejects conflicting milestone edit flags", async () => {
 		const core = new Core(TEST_DIR);

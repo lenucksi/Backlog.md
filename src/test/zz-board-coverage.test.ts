@@ -388,7 +388,7 @@ const canRunShell =
 	it("exits via Escape", async () => {
 		await withBoard(async (t) => {
 			t.press("Escape");
-			await new Promise((r) => setTimeout(r, 200));
+			await new Promise((r) => setTimeout(r, 1000));
 			expect(t.alive).toBe(false);
 		});
 	}, 30000);

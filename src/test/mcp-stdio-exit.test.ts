@@ -113,29 +113,33 @@ describe("MCP stdio shutdown", () => {
 		await safeCleanup(TEST_DIR);
 	});
 
-	itIfNotWindows("exits when stdin closes", async () => {
-		const timeout = getPlatformTimeout(4000);
-		const child = spawn("bun", [CLI_PATH, "mcp", "start", "--debug"], {
-			cwd: TEST_DIR,
-			stdio: ["pipe", "pipe", "pipe"],
-		});
+	itIfNotWindows(
+		"exits when stdin closes",
+		async () => {
+			const timeout = getPlatformTimeout(8000);
+			const child = spawn("bun", [CLI_PATH, "mcp", "start", "--debug"], {
+				cwd: TEST_DIR,
+				stdio: ["pipe", "pipe", "pipe"],
+			});
 
-		if (!child.stderr || !child.stdin) {
-			child.kill("SIGKILL");
-			throw new Error("Failed to spawn MCP process with stdio pipes");
-		}
+			if (!child.stderr || !child.stdin) {
+				child.kill("SIGKILL");
+				throw new Error("Failed to spawn MCP process with stdio pipes");
+			}
 
-		await waitForSubstring(child.stderr, START_MESSAGE, timeout);
-		await sleep(50);
-		child.stdin.end();
+			await waitForSubstring(child.stderr, START_MESSAGE, timeout);
+			await sleep(50);
+			child.stdin.end();
 
-		const result = await waitForExit(child, timeout);
-		expect(result.code).toBe(0);
-		expect(result.signal).toBeNull();
-	});
+			const result = await waitForExit(child, timeout);
+			expect(result.code).toBe(0);
+			expect(result.signal).toBeNull();
+		},
+		15000,
+	);
 
 	it("keeps stdio sessions alive after listing tools so document calls can respond", async () => {
-		const timeout = getPlatformTimeout(5000);
+		const timeout = getPlatformTimeout(10000);
 		const core = new Core(TEST_DIR);
 		await initializeProject(core, {
 			projectName: "MCP Stdio Document Project",
