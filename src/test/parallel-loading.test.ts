@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { loadRemoteTasks, resolveTaskConflict } from "../core/task-loader.ts";
 import type { GitOperations } from "../git/operations.ts";
 import type { Task } from "../types/index.ts";
+import { getLogger, resetLogger } from "../utils/logger.ts";
 
 // Mock GitOperations for testing
 class MockGitOperations implements Partial<GitOperations> {
@@ -86,14 +87,15 @@ dependencies: []
 }
 
 describe("Parallel remote task loading", () => {
-	let consoleErrorSpy: ReturnType<typeof spyOn>;
+	let loggerSpy: ReturnType<typeof spyOn>;
 
 	beforeEach(() => {
-		consoleErrorSpy = spyOn(console, "error");
+		resetLogger();
+		loggerSpy = spyOn(getLogger(), "error");
 	});
 
 	afterEach(() => {
-		consoleErrorSpy?.mockRestore();
+		loggerSpy?.mockRestore();
 	});
 
 	it("should load tasks from multiple branches in parallel", async () => {
@@ -140,8 +142,8 @@ describe("Parallel remote task loading", () => {
 		expect(remoteTasks).toEqual([]);
 
 		// Verify error was logged
-		expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-		expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", "Network error");
+		expect(loggerSpy).toHaveBeenCalledTimes(1);
+		expect(loggerSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", "Network error");
 	});
 
 	it("should resolve task conflicts correctly", async () => {

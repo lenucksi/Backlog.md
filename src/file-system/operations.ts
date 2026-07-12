@@ -21,6 +21,7 @@ import { normalizeDocumentRelativePath, normalizeDocumentSubPath } from "../util
 import { lockDirectory } from "../utils/file-lock.ts";
 import { parseFrontmatter, stringifyFrontmatter } from "../utils/frontmatter.ts";
 import { tryWarn } from "../utils/log-error.ts";
+import { getLogger } from "../utils/logger.ts";
 import {
 	buildGlobPattern,
 	extractAnyPrefix,
@@ -362,7 +363,7 @@ export class FileSystem {
 			return { migrated, total: taskFiles.length };
 		} catch (_error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to migrate completed tasks:", _error);
+				getLogger().error("Failed to migrate completed tasks:", _error);
 			}
 			return { migrated: 0, total: 0 };
 		}
@@ -533,7 +534,7 @@ export class FileSystem {
 				tasks.push({ ...task, filePath: filepath });
 			} catch (error) {
 				if (process.env.DEBUG) {
-					console.error(
+					getLogger().error(
 						`Failed to parse task file ${filepath}`,
 						error instanceof Error ? error.message : String(error),
 					);
@@ -564,7 +565,7 @@ export class FileSystem {
 				tasks.push({ ...task, filePath: filepath });
 			} catch (error) {
 				if (process.env.DEBUG) {
-					console.error(
+					getLogger().error(
 						`Failed to parse ${label} task file ${filepath}`,
 						error instanceof Error ? error.message : String(error),
 					);

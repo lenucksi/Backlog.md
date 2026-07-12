@@ -6,6 +6,7 @@ import { parseDecision, parseDocument, parseTask } from "../markdown/parser.ts";
 import type { Decision, Document, Task, TaskListFilter } from "../types/index.ts";
 import { AsyncInitializer } from "../utils/async-initializer.ts";
 import { normalizeDocumentRelativePath } from "../utils/document-path.ts";
+import { getLogger } from "../utils/logger.ts";
 import { normalizeTaskId, normalizeTaskIdentity, taskIdsEqual } from "../utils/task-path.ts";
 import { sortByTaskId } from "../utils/task-sorting.ts";
 
@@ -235,7 +236,7 @@ export class ContentStore {
 			this.watchers.push(this.createTaskWatcher());
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize task watcher", error instanceof Error ? error.message : String(error));
+				getLogger().error("Failed to initialize task watcher", error instanceof Error ? error.message : String(error));
 			}
 		}
 
@@ -243,7 +244,10 @@ export class ContentStore {
 			this.watchers.push(this.createDecisionWatcher());
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize decision watcher", error instanceof Error ? error.message : String(error));
+				getLogger().error(
+					"Failed to initialize decision watcher",
+					error instanceof Error ? error.message : String(error),
+				);
 			}
 		}
 
@@ -252,7 +256,10 @@ export class ContentStore {
 			this.watchers.push(docWatcher);
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize document watcher", error instanceof Error ? error.message : String(error));
+				getLogger().error(
+					"Failed to initialize document watcher",
+					error instanceof Error ? error.message : String(error),
+				);
 			}
 		}
 
@@ -264,7 +271,10 @@ export class ContentStore {
 			}
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to initialize config watcher", error instanceof Error ? error.message : String(error));
+				getLogger().error(
+					"Failed to initialize config watcher",
+					error instanceof Error ? error.message : String(error),
+				);
 			}
 		}
 	}
@@ -352,7 +362,7 @@ export class ContentStore {
 			}
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error(
+				getLogger().error(
 					"Failed to setup config watcher after init",
 					error instanceof Error ? error.message : String(error),
 				);
@@ -381,7 +391,7 @@ export class ContentStore {
 			};
 		} catch (error) {
 			if (process.env.DEBUG) {
-				console.error("Failed to watch config file", error instanceof Error ? error.message : String(error));
+				getLogger().error("Failed to watch config file", error instanceof Error ? error.message : String(error));
 			}
 			return null;
 		}
@@ -954,7 +964,7 @@ export class ContentStore {
 		}
 
 		if (lastError && process.env.DEBUG) {
-			console.error("ContentStore retryRead exhausted attempts", lastError);
+			getLogger().error("ContentStore retryRead exhausted attempts", lastError);
 		}
 		return null;
 	}
@@ -968,7 +978,7 @@ export class ContentStore {
 			.then(() => fn())
 			.catch((error) => {
 				if (process.env.DEBUG) {
-					console.error("ContentStore update failed", error instanceof Error ? error.message : String(error));
+					getLogger().error("ContentStore update failed", error instanceof Error ? error.message : String(error));
 				}
 			});
 	}

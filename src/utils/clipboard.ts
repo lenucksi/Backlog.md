@@ -1,3 +1,5 @@
+import { getLogger } from "./logger.ts";
+
 /**
  * Lightweight clipboard utility for copying text to the system clipboard.
  * Supports macOS (pbcopy), Windows (clip.exe), and Linux (xclip/wl-copy/xsel).
@@ -45,7 +47,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 		return false;
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error("Clipboard copy failed:", error instanceof Error ? error.message : String(error));
+			getLogger().error("Clipboard copy failed:", error instanceof Error ? error.message : String(error));
 		}
 		return false;
 	}

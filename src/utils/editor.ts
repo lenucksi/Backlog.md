@@ -1,6 +1,7 @@
 import { platform } from "node:os";
 import { $ } from "bun";
 import type { BacklogConfig } from "../types/index.ts";
+import { getLogger } from "./logger.ts";
 
 /**
  * Get the default editor based on the operating system
@@ -93,7 +94,7 @@ export async function openInEditor(filePath: string, config?: BacklogConfig | nu
 		const exitCode = await subprocess.exited;
 		return exitCode === 0;
 	} catch (error) {
-		console.error(`Failed to open editor: ${error}`);
+		getLogger().error(`Failed to open editor: ${error}`);
 		return false;
 	}
 }

@@ -7,6 +7,7 @@ import type { Milestone, Task } from "../types/index.ts";
 import { watchConfig } from "../utils/config-watcher.ts";
 import { formatDuplicateWarning, scanForDuplicateIds } from "../utils/duplicate-detection.ts";
 import { collectAvailableLabels } from "../utils/label-filter.ts";
+import { getLogger } from "../utils/logger.ts";
 import { hasAnyPrefix } from "../utils/prefix-config.ts";
 import { applySharedTaskFilters, createTaskSearchIndex } from "../utils/task-search.ts";
 import { watchTasks } from "../utils/task-watcher.ts";
@@ -182,7 +183,7 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 		const duplicates = scanForDuplicateIds(loadedTasks ?? []);
 		const warning = formatDuplicateWarning(duplicates);
 		if (warning) {
-			console.error(warning);
+			getLogger().warn(warning);
 		}
 
 		const baseTasks = (loadedTasks || []).filter((t) => t.id && t.id.trim() !== "" && hasAnyPrefix(t.id));
@@ -447,7 +448,7 @@ export async function runUnifiedView(options: UnifiedViewOptions): Promise<void>
 			}
 		}
 	} catch (error) {
-		console.error(error instanceof Error ? error.message : error);
+		getLogger().error(error instanceof Error ? error.message : error);
 		process.exit(1);
 	}
 }

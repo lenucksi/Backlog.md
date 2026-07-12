@@ -1,4 +1,5 @@
 import type { Core } from "../index.ts";
+import { getLogger } from "./logger.ts";
 
 /**
  * Generate the next available document ID by checking all branches and local documents
@@ -41,7 +42,7 @@ export async function generateNextDocId(core: Core): Promise<string> {
 	} catch (error) {
 		// Suppress errors for offline mode or other git issues
 		if (process.env.DEBUG) {
-			console.error("Could not fetch remote document IDs:", error instanceof Error ? error.message : String(error));
+			getLogger().error("Could not fetch remote document IDs:", error instanceof Error ? error.message : String(error));
 		}
 	}
 

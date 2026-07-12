@@ -12,6 +12,7 @@ import {
 	README_GUIDELINES,
 } from "./constants/index.ts";
 import type { GitOperations } from "./git/operations.ts";
+import { getLogger } from "./utils/logger.ts";
 
 export type AgentInstructionFile =
 	| "AGENTS.md"
@@ -167,7 +168,7 @@ export async function addAgentInstructions(
 				if (!existing.endsWith("\n")) existing += "\n";
 				finalContent = existing + wrapWithMarkers(content, name);
 			} catch (error) {
-				console.error(
+				getLogger().error(
 					`Error reading existing file ${filePath}:`,
 					error instanceof Error ? error.message : String(error),
 				);
@@ -231,7 +232,10 @@ export async function ensureMcpGuidelines(
 			}
 			existing = mcpStripped.content;
 		} catch (error) {
-			console.error(`Error reading existing file ${filePath}:`, error instanceof Error ? error.message : String(error));
+			getLogger().error(
+				`Error reading existing file ${filePath}:`,
+				error instanceof Error ? error.message : String(error),
+			);
 			existing = "";
 		}
 	}

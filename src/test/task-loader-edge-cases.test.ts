@@ -10,6 +10,7 @@ import {
 } from "../core/task-loader.ts";
 import type { GitOperations } from "../git/operations.ts";
 import type { BacklogConfig, Task } from "../types/index.ts";
+import { getLogger, resetLogger } from "../utils/logger.ts";
 
 describe("getTaskLoadingMessage", () => {
 	it("returns local-only message when remoteOperations is false", () => {
@@ -63,6 +64,7 @@ describe("findTaskInRemoteBranches - error handling", () => {
 
 	beforeEach(() => {
 		debugEnv = process.env.DEBUG;
+		resetLogger();
 	});
 
 	afterEach(() => {
@@ -75,7 +77,8 @@ describe("findTaskInRemoteBranches - error handling", () => {
 
 	it("returns null and logs debug when error occurs and DEBUG is set", async () => {
 		process.env.DEBUG = "1";
-		const consoleErrorSpy = spyOn(console, "error");
+		const logger = getLogger();
+		const loggerSpy = spyOn(logger, "error");
 
 		const mockGit = {
 			hasAnyRemote: async () => {
@@ -85,14 +88,15 @@ describe("findTaskInRemoteBranches - error handling", () => {
 
 		const result = await findTaskInRemoteBranches(mockGit as GitOperations, "task-999");
 		expect(result).toBeNull();
-		expect(consoleErrorSpy).toHaveBeenCalled();
+		expect(loggerSpy).toHaveBeenCalled();
 
-		consoleErrorSpy.mockRestore();
+		loggerSpy.mockRestore();
 	});
 
 	it("returns null silently when error occurs and DEBUG is not set", async () => {
 		delete process.env.DEBUG;
-		const consoleErrorSpy = spyOn(console, "error");
+		const logger = getLogger();
+		const loggerSpy = spyOn(logger, "error");
 
 		const mockGit = {
 			hasAnyRemote: async () => {
@@ -102,9 +106,9 @@ describe("findTaskInRemoteBranches - error handling", () => {
 
 		const result = await findTaskInRemoteBranches(mockGit as GitOperations, "task-999");
 		expect(result).toBeNull();
-		expect(consoleErrorSpy).not.toHaveBeenCalled();
+		expect(loggerSpy).not.toHaveBeenCalled();
 
-		consoleErrorSpy.mockRestore();
+		loggerSpy.mockRestore();
 	});
 });
 
@@ -113,6 +117,7 @@ describe("findTaskInLocalBranches - error handling", () => {
 
 	beforeEach(() => {
 		debugEnv = process.env.DEBUG;
+		resetLogger();
 	});
 
 	afterEach(() => {
@@ -125,7 +130,8 @@ describe("findTaskInLocalBranches - error handling", () => {
 
 	it("returns null and logs debug when error occurs and DEBUG is set", async () => {
 		process.env.DEBUG = "1";
-		const consoleErrorSpy = spyOn(console, "error");
+		const logger = getLogger();
+		const loggerSpy = spyOn(logger, "error");
 
 		const mockGit = {
 			getCurrentBranch: async () => {
@@ -135,14 +141,15 @@ describe("findTaskInLocalBranches - error handling", () => {
 
 		const result = await findTaskInLocalBranches(mockGit as GitOperations, "task-999");
 		expect(result).toBeNull();
-		expect(consoleErrorSpy).toHaveBeenCalled();
+		expect(loggerSpy).toHaveBeenCalled();
 
-		consoleErrorSpy.mockRestore();
+		loggerSpy.mockRestore();
 	});
 
 	it("returns null silently when error occurs and DEBUG is not set", async () => {
 		delete process.env.DEBUG;
-		const consoleErrorSpy = spyOn(console, "error");
+		const logger = getLogger();
+		const loggerSpy = spyOn(logger, "error");
 
 		const mockGit = {
 			getCurrentBranch: async () => {
@@ -152,9 +159,9 @@ describe("findTaskInLocalBranches - error handling", () => {
 
 		const result = await findTaskInLocalBranches(mockGit as GitOperations, "task-999");
 		expect(result).toBeNull();
-		expect(consoleErrorSpy).not.toHaveBeenCalled();
+		expect(loggerSpy).not.toHaveBeenCalled();
 
-		consoleErrorSpy.mockRestore();
+		loggerSpy.mockRestore();
 	});
 });
 
@@ -309,14 +316,15 @@ describe("resolveTaskConflict - edge cases", () => {
 });
 
 describe("loadRemoteTasks - edge cases", () => {
-	let consoleErrorSpy: ReturnType<typeof spyOn>;
+	let loggerSpy: ReturnType<typeof spyOn>;
 
 	beforeEach(() => {
-		consoleErrorSpy = spyOn(console, "error");
+		resetLogger();
+		loggerSpy = spyOn(getLogger(), "error");
 	});
 
 	afterEach(() => {
-		consoleErrorSpy?.mockRestore();
+		loggerSpy?.mockRestore();
 	});
 
 	it("handles error during fetch gracefully", async () => {
@@ -331,7 +339,7 @@ describe("loadRemoteTasks - edge cases", () => {
 
 		const tasks = await loadRemoteTasks(errorMock);
 		expect(tasks).toEqual([]);
-		expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", "Fetch error");
+		expect(loggerSpy).toHaveBeenCalledWith("Failed to fetch remote tasks:", "Fetch error");
 	});
 
 	it("reports when no recent remote branches are found", async () => {
@@ -523,17 +531,15 @@ dependencies: []
 });
 
 describe("loadLocalBranchTasks - edge cases", () => {
-	let consoleDebugSpy: ReturnType<typeof spyOn>;
-	let consoleErrorSpy: ReturnType<typeof spyOn>;
+	let loggerSpy: ReturnType<typeof spyOn>;
 
 	beforeEach(() => {
-		consoleDebugSpy = spyOn(console, "debug");
-		consoleErrorSpy = spyOn(console, "error");
+		resetLogger();
+		loggerSpy = spyOn(getLogger(), "error");
 	});
 
 	afterEach(() => {
-		consoleDebugSpy?.mockRestore();
-		consoleErrorSpy?.mockRestore();
+		loggerSpy?.mockRestore();
 	});
 
 	it("handles errors gracefully without DEBUG", async () => {
@@ -546,7 +552,7 @@ describe("loadLocalBranchTasks - edge cases", () => {
 
 		const tasks = await loadLocalBranchTasks(mockGit);
 		expect(tasks).toEqual([]);
-		expect(consoleErrorSpy).not.toHaveBeenCalled();
+		expect(loggerSpy).not.toHaveBeenCalled();
 	});
 
 	it("handles errors gracefully with DEBUG", async () => {
@@ -559,7 +565,7 @@ describe("loadLocalBranchTasks - edge cases", () => {
 
 		const tasks = await loadLocalBranchTasks(mockGit);
 		expect(tasks).toEqual([]);
-		expect(consoleErrorSpy).toHaveBeenCalled();
+		expect(loggerSpy).toHaveBeenCalled();
 
 		delete process.env.DEBUG;
 	});
