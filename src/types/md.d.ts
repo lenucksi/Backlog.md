@@ -1,5 +1,5 @@
 declare module "*.md" {
-	declare const content: string;
+	const content: string;
 	export default content;
 }
 
@@ -8,17 +8,17 @@ declare module "upng-js";
 declare module "gifenc";
 
 declare module "*.html" {
-	declare const content: string;
+	const content: string;
 	export default content;
 }
 
 declare module "*.js" {
-	declare const content: string;
+	const content: string;
 	export default content;
 }
 
 declare module "*.css" {
-	declare const content: string;
+	const content: string;
 	export default content;
 }
 

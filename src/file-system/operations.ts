@@ -1712,11 +1712,7 @@ ${description || `Milestone: ${title}`}`,
 	}
 
 	private async ensureDirectoryExists(dirPath: string): Promise<void> {
-		try {
-			await mkdir(dirPath, { recursive: true });
-		} catch (_error) {
-			// Directory creation failed, ignore
-		}
+		await mkdir(dirPath, { recursive: true });
 	}
 
 	private snakeToCamel: Record<string, keyof BacklogConfig | "prefixesTask"> = {

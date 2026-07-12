@@ -114,7 +114,7 @@ export async function renderMermaidIn(element: HTMLElement): Promise<void> {
 					const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
 					try {
 						const result = await m.default.render(id, diagramText);
-						wrapper.innerHTML = result.svg;
+						wrapper.insertAdjacentHTML("beforeend", result.svg);
 
 						// Bind interactive functions if available (for click events, etc.)
 						if (result.bindFunctions) {

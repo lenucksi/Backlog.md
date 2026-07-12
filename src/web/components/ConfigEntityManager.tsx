@@ -171,14 +171,15 @@ export default function ConfigEntityManager({
 					<button
 						type="button"
 						onClick={async () => {
-							const input = inputRef.current;
-							const name = input?.value?.trim();
+							const el = inputRef.current;
+							if (!el) return;
+							const name = el.value.trim();
 							if (!name) return;
 							try {
 								await api.add(name, newItemColor || undefined);
 								const updated = await api.fetch();
 								onItemsChange(updated);
-								input.value = "";
+								el.value = "";
 								setNewItemColor("");
 							} catch (err) {
 								onError(err instanceof Error ? err.message : `Failed to add ${entityName}`);
