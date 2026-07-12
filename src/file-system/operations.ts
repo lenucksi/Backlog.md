@@ -555,6 +555,26 @@ export class FileSystem {
 		return sortByTaskId(tasks);
 	}
 
+	private async parseTaskFilesFromDir(dir: string, files: string[], label: string): Promise<Task[]> {
+		const tasks: Task[] = [];
+		for (const file of files) {
+			const filepath = join(dir, file);
+			try {
+				const content = await Bun.file(filepath).text();
+				const task = parseTask(content);
+				tasks.push({ ...task, filePath: filepath });
+			} catch (error) {
+				if (process.env.DEBUG) {
+					console.error(
+						`Failed to parse ${label} task file ${filepath}`,
+						error instanceof Error ? error.message : String(error),
+					);
+				}
+			}
+		}
+		return sortByTaskId(tasks);
+	}
+
 	async listCompletedTasks(): Promise<Task[]> {
 		let archiveTasksDir: string;
 		try {
@@ -575,24 +595,7 @@ export class FileSystem {
 			return [];
 		}
 
-		const tasks: Task[] = [];
-		for (const file of taskFiles) {
-			const filepath = join(archiveTasksDir, file);
-			try {
-				const content = await Bun.file(filepath).text();
-				const task = parseTask(content);
-				tasks.push({ ...task, filePath: filepath });
-			} catch (error) {
-				if (process.env.DEBUG) {
-					console.error(
-						`Failed to parse completed task file ${filepath}`,
-						error instanceof Error ? error.message : String(error),
-					);
-				}
-			}
-		}
-
-		return sortByTaskId(tasks);
+		return await this.parseTaskFilesFromDir(archiveTasksDir, taskFiles, "completed");
 	}
 
 	async listArchivedTasks(): Promise<Task[]> {
@@ -615,24 +618,7 @@ export class FileSystem {
 			return [];
 		}
 
-		const tasks: Task[] = [];
-		for (const file of taskFiles) {
-			const filepath = join(archiveTasksDir, file);
-			try {
-				const content = await Bun.file(filepath).text();
-				const task = parseTask(content);
-				tasks.push({ ...task, filePath: filepath });
-			} catch (error) {
-				if (process.env.DEBUG) {
-					console.error(
-						`Failed to parse archived task file ${filepath}`,
-						error instanceof Error ? error.message : String(error),
-					);
-				}
-			}
-		}
-
-		return sortByTaskId(tasks);
+		return await this.parseTaskFilesFromDir(archiveTasksDir, taskFiles, "archived");
 	}
 
 	async listOldCompletedDirTasks(): Promise<Task[]> {

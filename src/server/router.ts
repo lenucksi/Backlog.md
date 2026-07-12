@@ -1,6 +1,6 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 // @ts-expect-error
 import favicon from "../web/favicon.png" with { type: "file" };
 import { applyNoStoreHeaders } from "./middleware.ts";
@@ -96,13 +96,21 @@ export interface AssetHelpers {
 	getContentType: (path: string) => string;
 }
 
-function detail(
-	summary: string,
-	description: string,
-	tags: string[],
-	responses: Record<string, { description: string }>,
-) {
-	return { detail: { summary, description, tags, responses } };
+function actionRoute(
+	app: Elysia<any>,
+	path: string,
+	handler: (id: string) => Promise<Response>,
+	meta: {
+		summary: string;
+		description: string;
+		tags: string[];
+		responses: Record<string, { description: string }>;
+	},
+): Elysia<any> {
+	return app.post(path, ({ params: { id } }) => handler(id), {
+		params: IdParam,
+		detail: { summary: meta.summary, description: meta.description, tags: meta.tags, responses: meta.responses },
+	});
 }
 
 export function buildElysiaApp(
@@ -364,39 +372,34 @@ export function buildElysiaApp(
 		},
 	);
 
-	app = app
-		.get("/api/docs/archived", () => documents.handleListArchivedDocs(), {
-			detail: {
-				summary: "List archived documents",
-				description: "Returns all archived documents from the docs/archive/ directory",
-				tags: ["Documents"],
-				responses: { 200: { description: "Array of Document objects" } },
-			},
-		})
-		.post("/api/docs/:id/restore", ({ params: { id } }) => documents.handleRestoreDocument(id), {
-			params: IdParam,
-			detail: {
-				summary: "Restore archived document",
-				description: "Restores an archived document from docs/archive/ back to docs/",
-				tags: ["Documents"],
-				responses: {
-					200: { description: "Confirmation { success: true }" },
-					404: { description: "Archived document not found" },
-				},
-			},
-		})
-		.post("/api/docs/:id/archive", ({ params: { id } }) => documents.handleDocumentArchive(id), {
-			params: IdParam,
-			detail: {
-				summary: "Archive a document",
-				description: "Moves a document to the docs/archive/ directory",
-				tags: ["Documents"],
-				responses: {
-					200: { description: "Confirmation { success: true }" },
-					404: { description: "Document not found" },
-				},
-			},
-		});
+	app = app.get("/api/docs/archived", () => documents.handleListArchivedDocs(), {
+		detail: {
+			summary: "List archived documents",
+			description: "Returns all archived documents from the docs/archive/ directory",
+			tags: ["Documents"],
+			responses: { 200: { description: "Array of Document objects" } },
+		},
+	});
+
+	app = actionRoute(app, "/api/docs/:id/restore", (id) => documents.handleRestoreDocument(id), {
+		summary: "Restore archived document",
+		description: "Restores an archived document from docs/archive/ back to docs/",
+		tags: ["Documents"],
+		responses: {
+			200: { description: "Confirmation { success: true }" },
+			404: { description: "Archived document not found" },
+		},
+	});
+
+	app = actionRoute(app, "/api/docs/:id/archive", (id) => documents.handleDocumentArchive(id), {
+		summary: "Archive a document",
+		description: "Moves a document to the docs/archive/ directory",
+		tags: ["Documents"],
+		responses: {
+			200: { description: "Confirmation { success: true }" },
+			404: { description: "Document not found" },
+		},
+	});
 
 	// --- Decisions ---
 	app = registerEntityRoutes(
@@ -437,43 +440,37 @@ export function buildElysiaApp(
 		},
 	);
 
-	app = app.post("/api/decisions/:id/resolve", ({ params: { id } }) => decisions.handleResolveDecision(id), {
-		params: IdParam,
-		detail: {
-			summary: "Resolve a decision",
-			description: "Sets a decision to 'accepted' status. Fails if already resolved or superseded.",
-			tags: ["Decisions"],
-			responses: {
-				200: { description: "Confirmation with updated decision" },
-				404: { description: "Decision not found" },
-				409: { description: "Decision already resolved or superseded" },
-			},
+	app = actionRoute(app, "/api/decisions/:id/resolve", (id) => decisions.handleResolveDecision(id), {
+		summary: "Resolve a decision",
+		description: "Sets a decision to 'accepted' status. Fails if already resolved or superseded.",
+		tags: ["Decisions"],
+		responses: {
+			200: { description: "Confirmation with updated decision" },
+			404: { description: "Decision not found" },
+			409: { description: "Decision already resolved or superseded" },
 		},
 	});
 
 	// --- Drafts ---
-	app = app
-		.get("/api/drafts", () => drafts.handleListDrafts(), {
-			detail: {
-				summary: "List drafts",
-				description: "Returns all drafts from the drafts/ directory",
-				tags: ["Drafts"],
-				responses: { 200: { description: "Array of Draft objects" } },
-			},
-		})
-		.post("/api/drafts/:id/promote", ({ params: { id } }) => drafts.handlePromoteDraft(id), {
-			params: IdParam,
-			detail: {
-				summary: "Promote draft to task",
-				description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
-				tags: ["Drafts"],
-				responses: {
-					200: { description: "Confirmation { success: true }" },
-					404: { description: "Draft not found" },
-					409: { description: "Conflict: draft cannot be promoted" },
-				},
-			},
-		});
+	app = app.get("/api/drafts", () => drafts.handleListDrafts(), {
+		detail: {
+			summary: "List drafts",
+			description: "Returns all drafts from the drafts/ directory",
+			tags: ["Drafts"],
+			responses: { 200: { description: "Array of Draft objects" } },
+		},
+	});
+
+	app = actionRoute(app, "/api/drafts/:id/promote", (id) => drafts.handlePromoteDraft(id), {
+		summary: "Promote draft to task",
+		description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
+		tags: ["Drafts"],
+		responses: {
+			200: { description: "Confirmation { success: true }" },
+			404: { description: "Draft not found" },
+			409: { description: "Conflict: draft cannot be promoted" },
+		},
+	});
 
 	// --- Milestones ---
 	app = registerEntityRoutes(
@@ -542,19 +539,17 @@ export function buildElysiaApp(
 				tags: ["Milestones"],
 				responses: { 200: { description: "Array of Milestone objects" } },
 			},
-		})
-		.post("/api/milestones/:id/archive", ({ params: { id } }) => milestones.handleArchiveMilestone(id), {
-			params: IdParam,
-			detail: {
-				summary: "Archive a milestone",
-				description: "Archives a milestone (moves it from milestones/ to the archive)",
-				tags: ["Milestones"],
-				responses: {
-					200: { description: "Object with success and milestone" },
-					404: { description: "Milestone not found" },
-				},
-			},
 		});
+
+	app = actionRoute(app, "/api/milestones/:id/archive", (id) => milestones.handleArchiveMilestone(id), {
+		summary: "Archive a milestone",
+		description: "Archives a milestone (moves it from milestones/ to the archive)",
+		tags: ["Milestones"],
+		responses: {
+			200: { description: "Object with success and milestone" },
+			404: { description: "Milestone not found" },
+		},
+	});
 
 	// --- Config ---
 	app = app
