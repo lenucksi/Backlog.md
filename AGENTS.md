@@ -255,6 +255,36 @@ Vor Task-Finalisierung in dieser Reihenfolge:
 
 Implementation Plan (für LLMs) und Description (für Menschen) sind getrennte Felder — nicht vermischen.
 
+## Lessons Learned — Duplicate Code Blocks & Code Quality
+
+### Duplicate Code Prevention
+
+From the aislop deduplication campaign (108→1 duplicate blocks):
+
+1. **Extract on sight**: When a pattern appears in 2+ locations, extract it immediately — not in a follow-up task. Every kept duplicate doubles future change cost.
+2. **Same-file extraction first**: Before creating a new file/module, check if the helper fits in the same file. Only extract to a shared module when reused across files.
+3. **Factory functions for boilerplate**: For route registration, schema definitions, and CRUD operations, prefer factory functions over copy-paste. A 10-line factory that eliminates 5×15-line blocks is always worth it.
+4. **Icon/SVG deduplication**: Before inlining an `<svg>`, check `src/web/components/icons.tsx`. If the path exists, use the icon component. If it appears in 2+ files but not in icons.tsx, extract it immediately.
+5. **CLI command bootstrap**: Every CLI command in `src/commands/` starts with `requireProjectRoot()` + `new Core()` + `loadConfig()` — use `ensureProjectConfig()` from `src/utils/cli-context.ts` instead of repeating the pattern.
+6. **Run aislop scan before finalizing**: Run `npx aislop scan` before marking a task Done. Address `code-quality/duplicate-block` findings — they're the cheapest debt to fix.
+
+### Code Quality Rules
+
+1. **console.log in CLI is output, not debug**: This project is a CLI tool — `console.log()` in command handlers IS the intended stdout output mechanism, not debug logging. Do NOT flag these as "leftover debug logs". Use `console.error()` for errors (stderr). If you need debug logging during development, remove it before committing.
+2. **as unknown as X is sometimes necessary**: TypeScript sometimes needs `as unknown as TargetType` for JSON.parse results, Elysia builder chains, and test fixtures. Prefer proper type guards or interfaces, but don't contort code to avoid the pattern entirely.
+3. **Trivial comments breed**: A comment like `// Load config` above `const config = loadConfig()` adds noise, not value. If the code is self-explanatory, don't comment it. Reserve comments for WHY (not WHAT).
+4. **React exhaustive deps**: Missing `useEffect`/`useMemo`/`useCallback` deps are runtime bugs waiting to happen. Always run `bun run check src/web/ --write` which catches these via lint rules. Never suppress with `// eslint-disable-next-line`.
+5. **Narrative comment blocks**: Decorative section separators (`// --- Tasks ---`) are acceptable navigation aids in long files. Multi-line explanatory preambles should be converted to concise single-line comments or removed if the code is self-explanatory.
+
+### Session-End Checklist Additions
+
+Before marking a task Done, in addition to the existing checklist:
+
+- [ ] `npx aislop scan` — review `code-quality/duplicate-block` findings for the changed files
+- [ ] No trivial restating comments added in new/changed code
+- [ ] No console.log/debug left from development (distinguish from intended CLI output)
+- [ ] `react-hooks/exhaustive-deps` clean for any changed React components
+
 ## Commands
 
 ### Development
