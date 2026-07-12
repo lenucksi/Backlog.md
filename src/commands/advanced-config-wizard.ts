@@ -58,6 +58,17 @@ function normalizeDefinitionOfDoneItems(items: string[] | undefined): string[] {
 	return (items ?? []).map((item) => item.trim()).filter((item) => item.length > 0);
 }
 
+function mapChoices(
+	choices: PromptChoice[],
+): Array<{ label: string; value: string | number | boolean; hint?: string; disabled?: boolean }> {
+	return (choices ?? []).map((choice) => ({
+		label: choice.title,
+		value: choice.value,
+		hint: choice.description,
+		disabled: choice.disabled,
+	}));
+}
+
 function renderDefinitionOfDonePreview(items: string[]): string {
 	if (items.length === 0) {
 		return "Current defaults:\n  (none)";
@@ -138,12 +149,7 @@ async function runSinglePrompt(question: PromptQuestion, options?: PromptOptions
 		const result = await clack.select({
 			message,
 			initialValue: question.initial,
-			options: (question.choices ?? []).map((choice) => ({
-				label: choice.title,
-				value: choice.value,
-				hint: choice.description,
-				disabled: choice.disabled,
-			})),
+			options: mapChoices(question.choices ?? []),
 		});
 		if (clack.isCancel(result)) {
 			onCancel?.();
@@ -156,12 +162,7 @@ async function runSinglePrompt(question: PromptQuestion, options?: PromptOptions
 		const result = await clack.multiselect({
 			message,
 			required: false,
-			options: (question.choices ?? []).map((choice) => ({
-				label: choice.title,
-				value: choice.value,
-				hint: choice.description,
-				disabled: choice.disabled,
-			})),
+			options: mapChoices(question.choices ?? []),
 		});
 		if (clack.isCancel(result)) {
 			onCancel?.();

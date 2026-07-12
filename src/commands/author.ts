@@ -1,7 +1,6 @@
 import type { Command } from "commander";
-import { Core } from "../core/backlog.ts";
 import { colorizeLabel } from "../utils/ansi.ts";
-import { requireProjectRoot } from "../utils/cli-context.ts";
+import { ensureProjectConfig } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
 
 function ensureAuthors(config: {
@@ -19,13 +18,7 @@ export function registerAuthorCommand(program: Command): void {
 		.description("list all authors from config")
 		.option("--json", "output as JSON")
 		.action(async (options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { config } = await ensureProjectConfig();
 			const authors = config.authors ?? [];
 			if (options.json) {
 				console.log(JSON.stringify(authors, null, 2));
@@ -50,13 +43,7 @@ export function registerAuthorCommand(program: Command): void {
 		.description("add a new author")
 		.option("--color <hex>", "hex color for the author (e.g. #ff0000)")
 		.action(async (name: string, options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core, config } = await ensureProjectConfig();
 			const authors = ensureAuthors(config);
 			if (authors.some((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase())) {
 				console.error(`Author already exists: ${name}`);
@@ -74,13 +61,7 @@ export function registerAuthorCommand(program: Command): void {
 		.command("rename <old> <new>")
 		.description("rename an author and update all task frontmatter")
 		.action(async (oldName: string, newName: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core, config } = await ensureProjectConfig();
 			const authors = ensureAuthors(config);
 			const authorIndex = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === oldName.toLowerCase());
 			if (authorIndex === -1) {
@@ -126,13 +107,7 @@ export function registerAuthorCommand(program: Command): void {
 		.command("remove <name>")
 		.description("remove an author from config (does not remove from existing tasks)")
 		.action(async (name: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core, config } = await ensureProjectConfig();
 			const authors = ensureAuthors(config);
 			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
 			if (idx === -1) {
@@ -148,13 +123,7 @@ export function registerAuthorCommand(program: Command): void {
 		.command("set-color <name> <color>")
 		.description("set or update an author's color")
 		.action(async (name: string, color: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core, config } = await ensureProjectConfig();
 			const authors = ensureAuthors(config);
 			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
 			if (idx === -1) {
@@ -177,13 +146,7 @@ export function registerAuthorCommand(program: Command): void {
 		.command("remove-color <name>")
 		.description("remove an author's color")
 		.action(async (name: string) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const config = await core.filesystem.loadConfig();
-			if (!config) {
-				console.error("No backlog project found. Initialize one first with: backlog init");
-				process.exit(EXIT.ERROR);
-			}
+			const { core, config } = await ensureProjectConfig();
 			const authors = ensureAuthors(config);
 			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
 			if (idx === -1) {

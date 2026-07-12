@@ -351,6 +351,11 @@ async function runTaskWizardValues(params: {
 	const prompt = params.promptImpl ?? clackPromptRunner;
 	const statuses = params.statuses;
 	const initial = params.initialValues;
+	const textQ = (name: keyof TaskWizardValues, createMsg: string, editSuffix?: string): TaskWizardValueQuestion => ({
+		type: "text",
+		name,
+		message: params.mode === "create" ? createMsg : editSuffix ? `${createMsg}; ${editSuffix}` : createMsg,
+	});
 	const statusPrompt = buildStatusPromptValues({
 		statuses,
 		mode: params.mode,
@@ -394,20 +399,8 @@ async function runTaskWizardValues(params: {
 				message: "Priority",
 				options: priorityPrompt.options,
 			},
-			{
-				type: "text",
-				name: "assignee",
-				message:
-					params.mode === "create"
-						? "Assignee (comma-separated)"
-						: "Assignee (comma-separated; blank keeps current value)",
-			},
-			{
-				type: "text",
-				name: "labels",
-				message:
-					params.mode === "create" ? "Labels (comma-separated)" : "Labels (comma-separated; blank keeps current value)",
-			},
+			textQ("assignee", "Assignee (comma-separated)", "blank keeps current value"),
+			textQ("labels", "Labels (comma-separated)", "blank keeps current value"),
 			{
 				type: "text",
 				name: "acceptanceCriteria",
@@ -419,46 +412,15 @@ async function runTaskWizardValues(params: {
 				message:
 					"Task Definition of Done (per-task; project-level DoD configured elsewhere; comma/newline-separated; optional [x]/[ ] prefix per item)",
 			},
-			{
-				type: "text",
-				name: "implementationPlan",
-				message:
-					params.mode === "create"
-						? `Implementation Plan (${SINGLE_LINE_PROMPT_GUIDANCE})`
-						: `Implementation Plan (${SINGLE_LINE_PROMPT_GUIDANCE}; blank keeps current value)`,
-			},
-			{
-				type: "text",
-				name: "implementationNotes",
-				message:
-					params.mode === "create"
-						? `Implementation Notes (${SINGLE_LINE_PROMPT_GUIDANCE})`
-						: `Implementation Notes (${SINGLE_LINE_PROMPT_GUIDANCE}; blank keeps current value)`,
-			},
-			{
-				type: "text",
-				name: "references",
-				message:
-					params.mode === "create"
-						? "References (comma-separated)"
-						: "References (comma-separated; blank keeps current value)",
-			},
-			{
-				type: "text",
-				name: "documentation",
-				message:
-					params.mode === "create"
-						? "Documentation (comma-separated)"
-						: "Documentation (comma-separated; blank keeps current value)",
-			},
-			{
-				type: "text",
-				name: "dependencies",
-				message:
-					params.mode === "create"
-						? "Dependencies (comma-separated task IDs)"
-						: "Dependencies (comma-separated task IDs; blank keeps current value)",
-			},
+			textQ("implementationPlan", `Implementation Plan (${SINGLE_LINE_PROMPT_GUIDANCE})`, "blank keeps current value"),
+			textQ(
+				"implementationNotes",
+				`Implementation Notes (${SINGLE_LINE_PROMPT_GUIDANCE})`,
+				"blank keeps current value",
+			),
+			textQ("references", "References (comma-separated)", "blank keeps current value"),
+			textQ("documentation", "Documentation (comma-separated)", "blank keeps current value"),
+			textQ("dependencies", "Dependencies (comma-separated task IDs)", "blank keeps current value"),
 		];
 
 		let questionIndex = 0;

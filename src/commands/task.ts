@@ -32,6 +32,17 @@ import { sortTasks } from "../utils/task-sorting.ts";
 import { getTerminalStatus, isTerminalStatus } from "../utils/terminal-status.ts";
 import { pickTaskForEditWizard, runTaskCreateWizard, runTaskEditWizard } from "./task-wizard.ts";
 
+function renderChecklist(items: Array<{ text: string; checked: boolean }> | undefined, emptyMsg: string): void {
+	if (!items?.length) {
+		console.log(picocolors.dim(emptyMsg));
+		return;
+	}
+	for (const item of items) {
+		const prefix = item.checked ? picocolors.green("[x]") : picocolors.yellow("[ ]");
+		console.log(`  ${prefix} ${item.text}`);
+	}
+}
+
 function hasCreateFieldFlags(options: Record<string, unknown>): boolean {
 	return Boolean(
 		options.description !== undefined ||
@@ -1095,31 +1106,13 @@ async function viewTaskSection(task: Task, section: string, core: Core, options:
 			return;
 		}
 		case "ac":
-		case "acceptancecriteria": {
-			const items = data as Task["acceptanceCriteriaItems"];
-			if (!items?.length) {
-				empty("No acceptance criteria.");
-				return;
-			}
-			for (const item of items) {
-				const prefix = item.checked ? picocolors.green("[x]") : picocolors.yellow("[ ]");
-				console.log(`  ${prefix} ${item.text}`);
-			}
+		case "acceptancecriteria":
+			renderChecklist(data as Task["acceptanceCriteriaItems"], "No acceptance criteria.");
 			return;
-		}
 		case "dod":
-		case "definitionofdone": {
-			const items = data as Task["definitionOfDoneItems"];
-			if (!items?.length) {
-				empty("No Definition of Done items.");
-				return;
-			}
-			for (const item of items) {
-				const prefix = item.checked ? picocolors.green("[x]") : picocolors.yellow("[ ]");
-				console.log(`  ${prefix} ${item.text}`);
-			}
+		case "definitionofdone":
+			renderChecklist(data as Task["definitionOfDoneItems"], "No Definition of Done items.");
 			return;
-		}
 		case "refs":
 		case "references": {
 			const list = data as string[];

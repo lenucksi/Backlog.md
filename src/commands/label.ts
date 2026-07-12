@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import { Core } from "../core/backlog.ts";
+import type { Core } from "../core/backlog.ts";
 import { colorizeLabel } from "../utils/ansi.ts";
-import { requireProjectRoot } from "../utils/cli-context.ts";
+import { ensureProjectConfig } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
 
 async function ensureLabelsMigrated(core: Core): Promise<void> {
@@ -55,15 +55,11 @@ function preserveLabelColor(
 	return newName;
 }
 
-async function ensureProjectConfig() {
-	const cwd = await requireProjectRoot();
-	const core = new Core(cwd);
-	const config = await core.filesystem.loadConfig();
-	if (!config) {
-		console.error("No backlog project found. Initialize one first with: backlog init");
-		process.exit(EXIT.ERROR);
-	}
-	return { core, config };
+async function loadConfigAfterMigration(core: Core) {
+	await ensureLabelsMigrated(core);
+	const reloaded = await core.filesystem.loadConfig();
+	if (!reloaded) process.exit(EXIT.ERROR);
+	return reloaded;
 }
 
 async function updateLabelsOnEntities(core: Core, oldName: string, newName: string): Promise<void> {
@@ -148,9 +144,7 @@ export function registerLabelCommand(program: Command): void {
 		.option("--color <hex>", "hex color for the label (e.g. #ff0000)")
 		.action(async (name: string, options) => {
 			const { core } = await ensureProjectConfig();
-			await ensureLabelsMigrated(core);
-			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(EXIT.ERROR);
+			const reloaded = await loadConfigAfterMigration(core);
 			if ((reloaded.labels ?? []).some((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase())) {
 				console.error(`Label already exists: ${name}`);
 				process.exit(EXIT.ERROR);
@@ -168,9 +162,7 @@ export function registerLabelCommand(program: Command): void {
 		.description("rename a label and update all frontmatter")
 		.action(async (oldName: string, newName: string) => {
 			const { core } = await ensureProjectConfig();
-			await ensureLabelsMigrated(core);
-			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(EXIT.ERROR);
+			const reloaded = await loadConfigAfterMigration(core);
 			const labelIndex = (reloaded.labels ?? []).findIndex(
 				(l) => (typeof l === "string" ? l : l.name) === oldName.toLowerCase(),
 			);
@@ -207,9 +199,7 @@ export function registerLabelCommand(program: Command): void {
 		.description("remove a label from config (does not remove from existing tasks/docs/decisions)")
 		.action(async (name: string) => {
 			const { core } = await ensureProjectConfig();
-			await ensureLabelsMigrated(core);
-			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(EXIT.ERROR);
+			const reloaded = await loadConfigAfterMigration(core);
 			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Label not found: ${name}`);
@@ -225,9 +215,7 @@ export function registerLabelCommand(program: Command): void {
 		.description("set or update a label's color")
 		.action(async (name: string, color: string) => {
 			const { core } = await ensureProjectConfig();
-			await ensureLabelsMigrated(core);
-			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(EXIT.ERROR);
+			const reloaded = await loadConfigAfterMigration(core);
 			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Label not found: ${name}`);
@@ -249,9 +237,7 @@ export function registerLabelCommand(program: Command): void {
 		.description("remove a label's color")
 		.action(async (name: string) => {
 			const { core } = await ensureProjectConfig();
-			await ensureLabelsMigrated(core);
-			const reloaded = await core.filesystem.loadConfig();
-			if (!reloaded) process.exit(EXIT.ERROR);
+			const reloaded = await loadConfigAfterMigration(core);
 			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
 			if (idx === -1) {
 				console.error(`Label not found: ${name}`);

@@ -496,55 +496,26 @@ async function resolveIntegrationModeState(
 						mcpGuidelineUpdates.push(nudgeResult);
 					}
 				};
-				const uniq = (values: string[]) => [...new Set(values)];
-
-				for (const client of selectedClients) {
-					if (client === "claude") {
-						const result = await runMcpClientCommand("Claude Code", "claude", [
-							"mcp",
-							"add",
-							"-s",
-							"user",
-							mcpServerName,
-							"--",
-							"backlog",
-							"mcp",
-							"start",
-						]);
-						results.push(result);
-						await recordGuidelinesForClient(client);
-						continue;
-					}
-					if (client === "codex") {
-						const result = await runMcpClientCommand("OpenAI Codex", "codex", [
-							"mcp",
-							"add",
-							mcpServerName,
-							"backlog",
-							"mcp",
-							"start",
-						]);
-						results.push(result);
-						await recordGuidelinesForClient(client);
-						continue;
-					}
-					if (client === "gemini") {
-						const result = await runMcpClientCommand("Gemini CLI", "gemini", [
-							"mcp",
-							"add",
-							"-s",
-							"user",
-							mcpServerName,
-							"backlog",
-							"mcp",
-							"start",
-						]);
-						results.push(result);
-						await recordGuidelinesForClient(client);
-						continue;
-					}
-					if (client === "kiro") {
-						const result = await runMcpClientCommand("Kiro", "kiro-cli", [
+				const MCP_CLIENT_CONFIG: Record<string, { label: string; command: string; args: string[] }> = {
+					claude: {
+						label: "Claude Code",
+						command: "claude",
+						args: ["mcp", "add", "-s", "user", mcpServerName, "--", "backlog", "mcp", "start"],
+					},
+					codex: {
+						label: "OpenAI Codex",
+						command: "codex",
+						args: ["mcp", "add", mcpServerName, "backlog", "mcp", "start"],
+					},
+					gemini: {
+						label: "Gemini CLI",
+						command: "gemini",
+						args: ["mcp", "add", "-s", "user", mcpServerName, "backlog", "mcp", "start"],
+					},
+					kiro: {
+						label: "Kiro",
+						command: "kiro-cli",
+						args: [
 							"mcp",
 							"add",
 							"--scope",
@@ -555,15 +526,23 @@ async function resolveIntegrationModeState(
 							"backlog",
 							"--args",
 							"mcp,start",
-						]);
-						results.push(result);
-						await recordGuidelinesForClient(client);
-						continue;
-					}
+						],
+					},
+				};
+				const uniq = (values: string[]) => [...new Set(values)];
+
+				for (const client of selectedClients) {
 					if (client === "guide") {
 						console.log("    Opening MCP setup guide in your browser...");
 						await openUrlInBrowser(MCP_GUIDE_URL);
 						results.push("Setup guide opened");
+						await recordGuidelinesForClient(client);
+						continue;
+					}
+					const cfg = MCP_CLIENT_CONFIG[client];
+					if (cfg) {
+						const result = await runMcpClientCommand(cfg.label, cfg.command, cfg.args);
+						results.push(result);
 						await recordGuidelinesForClient(client);
 					}
 				}

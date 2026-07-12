@@ -12,6 +12,17 @@ import {
 } from "../utils/cli-context.ts";
 import { parseDelimitedStringList } from "../utils/task-builders.ts";
 
+async function loadDoc(docId: string) {
+	const cwd = await requireProjectRoot();
+	const core = new Core(cwd);
+	const doc = await core.filesystem.loadDocument(docId).catch(() => null);
+	if (!doc) {
+		console.error(`Document ${docId} not found.`);
+		return null;
+	}
+	return { core, doc };
+}
+
 export function registerDocCommand(program: Command): void {
 	const docCmd = program.command("doc");
 
@@ -173,19 +184,14 @@ export function registerDocCommand(program: Command): void {
 		.description("archive a document")
 		.option("--force", "skip confirmation")
 		.action(async (docId: string, options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const doc = await core.filesystem.loadDocument(docId).catch(() => null);
-			if (!doc) {
-				console.error(`Document ${docId} not found.`);
-				return;
-			}
+			const entry = await loadDoc(docId);
+			if (!entry) return;
 			if (!options.force) {
-				console.log(`Archiving document "${doc.title}" (${doc.id})...`);
+				console.log(`Archiving document "${entry.doc.title}" (${docId})...`);
 			}
-			const success = await core.filesystem.archiveDocument(docId);
+			const success = await entry.core.filesystem.archiveDocument(docId);
 			if (success) {
-				console.log(`Archived document ${docId} — ${doc.title}`);
+				console.log(`Archived document ${docId} — ${entry.doc.title}`);
 			} else {
 				console.error(`Failed to archive document ${docId}.`);
 				process.exitCode = 1;
@@ -197,19 +203,14 @@ export function registerDocCommand(program: Command): void {
 		.description("permanently delete a document")
 		.option("--force", "skip confirmation")
 		.action(async (docId: string, options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			const doc = await core.filesystem.loadDocument(docId).catch(() => null);
-			if (!doc) {
-				console.error(`Document ${docId} not found.`);
-				return;
-			}
+			const entry = await loadDoc(docId);
+			if (!entry) return;
 			if (!options.force) {
-				console.log(`Deleting document "${doc.title}" (${doc.id})...`);
+				console.log(`Deleting document "${entry.doc.title}" (${docId})...`);
 			}
-			const success = await core.filesystem.deleteDocument(docId);
+			const success = await entry.core.filesystem.deleteDocument(docId);
 			if (success) {
-				console.log(`Deleted document ${docId} — ${doc.title}`);
+				console.log(`Deleted document ${docId} — ${entry.doc.title}`);
 			} else {
 				console.error(`Failed to delete document ${docId}.`);
 				process.exitCode = 1;

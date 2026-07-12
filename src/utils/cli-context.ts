@@ -1,3 +1,4 @@
+import { Core } from "../core/backlog.ts";
 import { AppError } from "./app-error.ts";
 import { EXIT } from "./exit-codes.ts";
 import { findBacklogRoot } from "./find-backlog-root.ts";
@@ -40,6 +41,17 @@ export function setExplicitProjectPath(path: string | undefined): void {
 
 export function getExplicitProjectPath(): string | undefined {
 	return _explicitProjectPath;
+}
+
+export async function ensureProjectConfig() {
+	const cwd = await requireProjectRoot();
+	const core = new Core(cwd);
+	const config = await core.filesystem.loadConfig();
+	if (!config) {
+		console.error("No backlog project found. Initialize one first with: backlog init");
+		process.exit(EXIT.ERROR);
+	}
+	return { core, config };
 }
 
 export async function requireProjectRoot(): Promise<string> {
