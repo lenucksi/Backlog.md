@@ -23,6 +23,41 @@ function buildFileToIdMap(files: string[], idRegex: RegExp, prefix: string): Map
 	return fileToId;
 }
 
+async function processDirectoryForTasks(
+	gitOps: GitOps,
+	branch: string,
+	path: string,
+	type: TaskDirectoryType,
+	idRegex: RegExp,
+	prefix: string,
+	taskIds: string[],
+	taskDirectories: Map<string, TaskDirectoryInfo>,
+): Promise<void> {
+	const files = await gitOps.listFilesInTree(branch, path);
+	if (files.length === 0) return;
+	const modTimes = await gitOps.getBranchLastModifiedMap(branch, path);
+	const fileToId = buildFileToIdMap(files, idRegex, prefix);
+	for (const taskId of taskIds) {
+		const normalizedTaskId = normalizeId(taskId, prefix);
+		const taskFile = fileToId.get(normalizedTaskId);
+		if (taskFile) {
+			const lastModified = modTimes.get(taskFile);
+			if (lastModified) {
+				const existing = taskDirectories.get(taskId);
+				if (!existing || lastModified > existing.lastModified) {
+					taskDirectories.set(taskId, {
+						taskId,
+						type,
+						lastModified,
+						branch,
+						path: taskFile,
+					});
+				}
+			}
+		}
+	}
+}
+
 export type TaskDirectoryType = "task" | "draft" | "archived" | "completed";
 
 export interface TaskDirectoryInfo {
@@ -118,34 +153,7 @@ export async function getLatestTaskStatesForIds(
 			// Quick check for all tasks in this branch
 			for (const { path, type } of directoryChecks) {
 				try {
-					const files = await gitOps.listFilesInTree(branch, path);
-					if (files.length === 0) continue;
-
-					// Get all modification times in one pass
-					const modTimes = await gitOps.getBranchLastModifiedMap(branch, path);
-
-					const fileToId = buildFileToIdMap(files, idRegex, prefix);
-
-					for (const taskId of taskIds) {
-						const normalizedTaskId = normalizeId(taskId, prefix);
-						const taskFile = fileToId.get(normalizedTaskId);
-
-						if (taskFile) {
-							const lastModified = modTimes.get(taskFile);
-							if (lastModified) {
-								const existing = taskDirectories.get(taskId);
-								if (!existing || lastModified > existing.lastModified) {
-									taskDirectories.set(taskId, {
-										taskId,
-										type,
-										lastModified,
-										branch,
-										path: taskFile,
-									});
-								}
-							}
-						}
-					}
+					await processDirectoryForTasks(gitOps, branch, path, type, idRegex, prefix, taskIds, taskDirectories);
 				} catch {
 					// Skip directories that don't exist
 				}
@@ -176,37 +184,16 @@ export async function getLatestTaskStatesForIds(
 				branchBatch.map(async (branch) => {
 					for (const { path, type } of directoryChecks) {
 						try {
-							const files = await gitOps.listFilesInTree(branch, path);
-
-							if (files.length === 0) continue;
-
-							// Get all modification times in one pass
-							const modTimes = await gitOps.getBranchLastModifiedMap(branch, path);
-
-							const fileToId = buildFileToIdMap(files, idRegex, prefix);
-
-							for (const taskId of remainingTaskIds) {
-								const normalizedTaskId = normalizeId(taskId, prefix);
-								if (taskDirectories.has(normalizedTaskId)) continue;
-
-								const taskFile = fileToId.get(normalizedTaskId);
-
-								if (taskFile) {
-									const lastModified = modTimes.get(taskFile);
-									if (lastModified) {
-										const existing = taskDirectories.get(taskId);
-										if (!existing || lastModified > existing.lastModified) {
-											taskDirectories.set(taskId, {
-												taskId,
-												type,
-												lastModified,
-												branch,
-												path: taskFile,
-											});
-										}
-									}
-								}
-							}
+							await processDirectoryForTasks(
+								gitOps,
+								branch,
+								path,
+								type,
+								idRegex,
+								prefix,
+								remainingTaskIds,
+								taskDirectories,
+							);
 						} catch {
 							// Skip directories that don't exist
 						}

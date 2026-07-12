@@ -78,6 +78,23 @@ export class DocumentHandlers {
 		return document;
 	}
 
+	private async execDocumentAction(
+		action: () => Promise<Document>,
+		label: string,
+	): Promise<CallToolResult> {
+		try {
+			const document = await action();
+			return await formatDocumentCallResult(document, {
+				summaryLines: [`Document ${label} successfully.`],
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				throw AppError.internal(`Failed to ${label} document: ${error.message}`);
+			}
+			throw AppError.internal(`Failed to ${label} document.`);
+		}
+	}
+
 	async listDocuments(args: DocumentListArgs = {}): Promise<CallToolResult> {
 		const search = args.search?.toLowerCase();
 		const documents = await this.core.filesystem.listDocuments();
@@ -122,46 +139,33 @@ export class DocumentHandlers {
 	}
 
 	async createDocument(args: DocumentCreateArgs): Promise<CallToolResult> {
-		try {
-			const document = await this.core.createDocumentFromInput({
-				title: args.title,
-				content: args.content,
-				type: args.type,
-				path: args.path,
-				tags: args.tags,
-			});
-			return await formatDocumentCallResult(document, {
-				summaryLines: ["Document created successfully."],
-			});
-		} catch (error) {
-			if (error instanceof Error) {
-				throw AppError.internal(`Failed to create document: ${error.message}`);
-			}
-			throw AppError.internal("Failed to create document.");
-		}
+		return await this.execDocumentAction(
+			() =>
+				this.core.createDocumentFromInput({
+					title: args.title,
+					content: args.content,
+					type: args.type,
+					path: args.path,
+					tags: args.tags,
+				}),
+			"created",
+		);
 	}
 
 	async updateDocument(args: DocumentUpdateArgs): Promise<CallToolResult> {
 		await this.loadDocumentOrThrow(args.id);
-
-		try {
-			const document = await this.core.updateDocumentFromInput({
-				id: args.id,
-				content: args.content,
-				title: args.title,
-				type: args.type,
-				path: args.path,
-				tags: args.tags,
-			});
-			return await formatDocumentCallResult(document, {
-				summaryLines: ["Document updated successfully."],
-			});
-		} catch (error) {
-			if (error instanceof Error) {
-				throw AppError.internal(`Failed to update document: ${error.message}`);
-			}
-			throw AppError.internal("Failed to update document.");
-		}
+		return await this.execDocumentAction(
+			() =>
+				this.core.updateDocumentFromInput({
+					id: args.id,
+					content: args.content,
+					title: args.title,
+					type: args.type,
+					path: args.path,
+					tags: args.tags,
+				}),
+			"updated",
+		);
 	}
 
 	async archiveDocument(args: DocumentArchiveArgs): Promise<CallToolResult> {

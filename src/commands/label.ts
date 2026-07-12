@@ -110,6 +110,15 @@ async function updateLabelsOnEntities(core: Core, oldName: string, newName: stri
 	}
 }
 
+function findLabelOrExit(labels: Array<string | { name: string; color?: string }>, name: string): number {
+	const idx = labels.findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
+	if (idx === -1) {
+		console.error(`Label not found: ${name}`);
+		process.exit(EXIT.ERROR);
+	}
+	return idx;
+}
+
 export function registerLabelCommand(program: Command): void {
 	const labelCmd = program.command("label").description("manage backlog labels");
 
@@ -200,11 +209,7 @@ export function registerLabelCommand(program: Command): void {
 		.action(async (name: string) => {
 			const { core } = await ensureProjectConfig();
 			const reloaded = await loadConfigAfterMigration(core);
-			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
-			if (idx === -1) {
-				console.error(`Label not found: ${name}`);
-				process.exit(EXIT.ERROR);
-			}
+			const idx = findLabelOrExit(reloaded.labels ?? [], name);
 			reloaded.labels = reloaded.labels.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(reloaded);
 			console.log(`Removed label: ${name}`);
@@ -216,11 +221,7 @@ export function registerLabelCommand(program: Command): void {
 		.action(async (name: string, color: string) => {
 			const { core } = await ensureProjectConfig();
 			const reloaded = await loadConfigAfterMigration(core);
-			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
-			if (idx === -1) {
-				console.error(`Label not found: ${name}`);
-				process.exit(EXIT.ERROR);
-			}
+			const idx = findLabelOrExit(reloaded.labels ?? [], name);
 			const existing = reloaded.labels[idx];
 			if (!existing) return;
 			if (typeof existing === "string") {
@@ -238,11 +239,7 @@ export function registerLabelCommand(program: Command): void {
 		.action(async (name: string) => {
 			const { core } = await ensureProjectConfig();
 			const reloaded = await loadConfigAfterMigration(core);
-			const idx = (reloaded.labels ?? []).findIndex((l) => (typeof l === "string" ? l : l.name) === name.toLowerCase());
-			if (idx === -1) {
-				console.error(`Label not found: ${name}`);
-				process.exit(EXIT.ERROR);
-			}
+			const idx = findLabelOrExit(reloaded.labels ?? [], name);
 			const existing = reloaded.labels[idx];
 			if (!existing) return;
 			if (typeof existing === "string") {

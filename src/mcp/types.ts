@@ -1,29 +1,20 @@
 import type {
 	CallToolResult,
 	GetPromptResult,
-	ListPromptsResult,
-	ListResourcesResult,
-	ListResourceTemplatesResult,
-	ListToolsResult,
-	Prompt,
 	ReadResourceResult,
-	Resource,
-	Tool,
 	ToolAnnotations,
 } from "@modelcontextprotocol/sdk/types.js";
 
 export type {
-	CallToolResult,
-	GetPromptResult,
 	ListPromptsResult,
 	ListResourcesResult,
 	ListResourceTemplatesResult,
 	ListToolsResult,
 	Prompt,
-	ReadResourceResult,
 	Resource,
 	Tool,
-};
+} from "@modelcontextprotocol/sdk/types.js";
+export type { CallToolResult, GetPromptResult, ReadResourceResult };
 
 export interface McpToolHandler {
 	name: string;

@@ -3,6 +3,11 @@ import type { BacklogConfig } from "../../types/index.ts";
 import type { JsonSchema } from "../validation/validators.ts";
 
 const descriptionField = { type: "string", maxLength: 10000 } satisfies JsonSchema;
+const priorityField = { type: "string", enum: ["high", "medium", "low"] } satisfies JsonSchema;
+
+function stringArrayField(maxLength: number): JsonSchema {
+	return { type: "array", items: { type: "string", maxLength } };
+}
 
 /**
  * Generates a status field schema with dynamic enum values sourced from config.
@@ -40,10 +45,7 @@ export function generateTaskCreateSchema(config: BacklogConfig): JsonSchema {
 			},
 			description: descriptionField,
 			status: generateStatusFieldSchema(config),
-			priority: {
-				type: "string",
-				enum: ["high", "medium", "low"],
-			},
+			priority: priorityField,
 			ordinal: {
 				type: "number",
 				minimum: 0,
@@ -56,27 +58,9 @@ export function generateTaskCreateSchema(config: BacklogConfig): JsonSchema {
 				maxLength: 100,
 				description: "Optional milestone label (trimmed).",
 			},
-			labels: {
-				type: "array",
-				items: {
-					type: "string",
-					maxLength: 50,
-				},
-			},
-			assignee: {
-				type: "array",
-				items: {
-					type: "string",
-					maxLength: 100,
-				},
-			},
-			dependencies: {
-				type: "array",
-				items: {
-					type: "string",
-					maxLength: 50,
-				},
-			},
+			labels: stringArrayField(50),
+			assignee: stringArrayField(100),
+			dependencies: stringArrayField(50),
 			references: {
 				type: "array",
 				items: {
@@ -165,10 +149,7 @@ export function generateTaskEditSchema(config: BacklogConfig): JsonSchema {
 			},
 			description: descriptionField,
 			status: generateStatusFieldSchema(config),
-			priority: {
-				type: "string",
-				enum: ["high", "medium", "low"],
-			},
+			priority: priorityField,
 			ordinal: {
 				type: "number",
 				minimum: 0,
@@ -181,27 +162,9 @@ export function generateTaskEditSchema(config: BacklogConfig): JsonSchema {
 				maxLength: 100,
 				description: "Set milestone label (string) or clear it (null).",
 			},
-			labels: {
-				type: "array",
-				items: {
-					type: "string",
-					maxLength: 50,
-				},
-			},
-			assignee: {
-				type: "array",
-				items: {
-					type: "string",
-					maxLength: 100,
-				},
-			},
-			dependencies: {
-				type: "array",
-				items: {
-					type: "string",
-					maxLength: 50,
-				},
-			},
+			labels: stringArrayField(50),
+			assignee: stringArrayField(100),
+			dependencies: stringArrayField(50),
 			references: {
 				type: "array",
 				items: {

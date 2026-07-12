@@ -10,6 +10,21 @@ function ensureAuthors(config: {
 	return config.authors;
 }
 
+function findAuthorOrExit(
+	config: {
+		authors?: Array<string | { name: string; color?: string }>;
+	},
+	name: string,
+): { authors: Array<string | { name: string; color?: string }>; idx: number } {
+	const authors = ensureAuthors(config);
+	const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
+	if (idx === -1) {
+		console.error(`Author not found: ${name}`);
+		process.exit(EXIT.ERROR);
+	}
+	return { authors, idx };
+}
+
 export function registerAuthorCommand(program: Command): void {
 	const authorCmd = program.command("author").description("manage backlog authors");
 
@@ -108,12 +123,7 @@ export function registerAuthorCommand(program: Command): void {
 		.description("remove an author from config (does not remove from existing tasks)")
 		.action(async (name: string) => {
 			const { core, config } = await ensureProjectConfig();
-			const authors = ensureAuthors(config);
-			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
-			if (idx === -1) {
-				console.error(`Author not found: ${name}`);
-				process.exit(EXIT.ERROR);
-			}
+			const { authors, idx } = findAuthorOrExit(config, name);
 			config.authors = authors.filter((_, i) => i !== idx);
 			await core.filesystem.saveConfig(config);
 			console.log(`Removed author: ${name}`);
@@ -124,12 +134,7 @@ export function registerAuthorCommand(program: Command): void {
 		.description("set or update an author's color")
 		.action(async (name: string, color: string) => {
 			const { core, config } = await ensureProjectConfig();
-			const authors = ensureAuthors(config);
-			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
-			if (idx === -1) {
-				console.error(`Author not found: ${name}`);
-				process.exit(EXIT.ERROR);
-			}
+			const { authors, idx } = findAuthorOrExit(config, name);
 			const existing = authors[idx];
 			if (!existing) return;
 			if (typeof existing === "string") {
@@ -147,12 +152,7 @@ export function registerAuthorCommand(program: Command): void {
 		.description("remove an author's color")
 		.action(async (name: string) => {
 			const { core, config } = await ensureProjectConfig();
-			const authors = ensureAuthors(config);
-			const idx = authors.findIndex((a) => (typeof a === "string" ? a : a.name) === name.toLowerCase());
-			if (idx === -1) {
-				console.error(`Author not found: ${name}`);
-				process.exit(EXIT.ERROR);
-			}
+			const { authors, idx } = findAuthorOrExit(config, name);
 			const existing = authors[idx];
 			if (!existing) return;
 			if (typeof existing === "string") {

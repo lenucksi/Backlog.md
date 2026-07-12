@@ -23,6 +23,28 @@ async function loadDoc(docId: string) {
 	return { core, doc };
 }
 
+async function docAction(
+	docId: string,
+	options: { force?: boolean },
+	action: (core: Core, id: string) => Promise<boolean>,
+	verbPresent: string,
+	verbPast: string,
+	verbLower: string,
+): Promise<void> {
+	const entry = await loadDoc(docId);
+	if (!entry) return;
+	if (!options.force) {
+		console.log(`${verbPresent} "${entry.doc.title}" (${docId})...`);
+	}
+	const success = await action(entry.core, docId);
+	if (success) {
+		console.log(`${verbPast} document ${docId} — ${entry.doc.title}`);
+	} else {
+		console.error(`Failed to ${verbLower} document ${docId}.`);
+		process.exitCode = 1;
+	}
+}
+
 export function registerDocCommand(program: Command): void {
 	const docCmd = program.command("doc");
 
@@ -184,18 +206,14 @@ export function registerDocCommand(program: Command): void {
 		.description("archive a document")
 		.option("--force", "skip confirmation")
 		.action(async (docId: string, options) => {
-			const entry = await loadDoc(docId);
-			if (!entry) return;
-			if (!options.force) {
-				console.log(`Archiving document "${entry.doc.title}" (${docId})...`);
-			}
-			const success = await entry.core.filesystem.archiveDocument(docId);
-			if (success) {
-				console.log(`Archived document ${docId} — ${entry.doc.title}`);
-			} else {
-				console.error(`Failed to archive document ${docId}.`);
-				process.exitCode = 1;
-			}
+			await docAction(
+				docId,
+				options,
+				(core, id) => core.filesystem.archiveDocument(id),
+				"Archiving",
+				"Archived",
+				"archive",
+			);
 		});
 
 	docCmd
@@ -203,17 +221,13 @@ export function registerDocCommand(program: Command): void {
 		.description("permanently delete a document")
 		.option("--force", "skip confirmation")
 		.action(async (docId: string, options) => {
-			const entry = await loadDoc(docId);
-			if (!entry) return;
-			if (!options.force) {
-				console.log(`Deleting document "${entry.doc.title}" (${docId})...`);
-			}
-			const success = await entry.core.filesystem.deleteDocument(docId);
-			if (success) {
-				console.log(`Deleted document ${docId} — ${entry.doc.title}`);
-			} else {
-				console.error(`Failed to delete document ${docId}.`);
-				process.exitCode = 1;
-			}
+			await docAction(
+				docId,
+				options,
+				(core, id) => core.filesystem.deleteDocument(id),
+				"Deleting",
+				"Deleted",
+				"delete",
+			);
 		});
 }
