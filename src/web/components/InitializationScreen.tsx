@@ -124,6 +124,12 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 		void loadBacklogDirectoryDefaults();
 	}, []);
 
+	const getIntegrationStep = (mode: IntegrationMode, forward: boolean): WizardStep => {
+		if (mode === "mcp") return "mcpClients";
+		if (mode === "cli") return "agentFiles";
+		return forward ? "advancedConfig" : "integrationMode";
+	};
+
 	const handleNext = () => {
 		setError(null);
 		switch (currentStep) {
@@ -139,13 +145,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 					setError("Please select an integration mode");
 					return;
 				}
-				if (integrationMode === "mcp") {
-					setCurrentStep("mcpClients");
-				} else if (integrationMode === "cli") {
-					setCurrentStep("agentFiles");
-				} else {
-					setCurrentStep("advancedConfig");
-				}
+				setCurrentStep(getIntegrationStep(integrationMode, true));
 				break;
 			case "mcpClients":
 				setCurrentStep("advancedConfig");
@@ -172,13 +172,7 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				setCurrentStep("integrationMode");
 				break;
 			case "advancedConfig":
-				if (integrationMode === "mcp") {
-					setCurrentStep("mcpClients");
-				} else if (integrationMode === "cli") {
-					setCurrentStep("agentFiles");
-				} else {
-					setCurrentStep("integrationMode");
-				}
+				if (integrationMode) setCurrentStep(getIntegrationStep(integrationMode, false));
 				break;
 			case "summary":
 				setCurrentStep("advancedConfig");

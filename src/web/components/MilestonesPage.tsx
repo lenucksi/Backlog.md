@@ -488,6 +488,19 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		});
 	};
 
+	const renderMilestoneTaskRow = (task: Task) => (
+		<MilestoneTaskRow
+			key={task.id}
+			task={task}
+			isDone={isDoneStatus(task.status)}
+			statusBadgeClass={getStatusBadgeClass(task.status)}
+			priorityBadgeClass={getPriorityBadgeClass(task.priority)}
+			onEditTask={onEditTask}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
+		/>
+	);
+
 	const safeIdSegment = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, "-");
 
 	// Render a milestone card (drop target)
@@ -633,20 +646,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 					{isExpanded && !isEmpty && (
 						<div id={listId} className="mt-4 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
 							<div className="divide-y divide-gray-200 dark:divide-gray-700">
-								{sortedTasks.slice(0, 10).map((task) => {
-									return (
-										<MilestoneTaskRow
-											key={task.id}
-											task={task}
-											isDone={isDoneStatus(task.status)}
-											statusBadgeClass={getStatusBadgeClass(task.status)}
-											priorityBadgeClass={getPriorityBadgeClass(task.priority)}
-											onEditTask={onEditTask}
-											onDragStart={handleDragStart}
-											onDragEnd={handleDragEnd}
-										/>
-									);
-								})}
+								{sortedTasks.slice(0, 10).map((task) => renderMilestoneTaskRow(task))}
 							</div>
 							{sortedTasks.length > 10 && (
 								<div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
@@ -714,18 +714,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 
 										{/* Table rows */}
 										<div className="divide-y divide-gray-200 dark:divide-gray-700">
-											{displayTasks.map((task) => (
-												<MilestoneTaskRow
-													key={task.id}
-													task={task}
-													isDone={isDoneStatus(task.status)}
-													statusBadgeClass={getStatusBadgeClass(task.status)}
-													priorityBadgeClass={getPriorityBadgeClass(task.priority)}
-													onEditTask={onEditTask}
-													onDragStart={handleDragStart}
-													onDragEnd={handleDragEnd}
-												/>
-											))}
+											{displayTasks.map((task) => renderMilestoneTaskRow(task))}
 										</div>
 
 										{/* Footer with show more/less */}
