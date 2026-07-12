@@ -272,6 +272,22 @@ export async function buildLocalBranchTaskIndex(
 	return out;
 }
 
+async function hydrateTaskFromEntry(
+	git: GitOperations,
+	entry: RemoteIndexEntry,
+	refPrefix: string,
+	source: "remote" | "local-branch",
+): Promise<Task | null> {
+	const ref = entry.commit ?? refPrefix;
+	const content = await git.showFile(ref, entry.path);
+	const task = normalizeTaskIdentity(parseTask(content));
+	if (task) {
+		task.source = source;
+		task.branch = entry.branch;
+	}
+	return task;
+}
+
 /**
  * Choose which remote tasks need to be hydrated based on strategy
  * Returns only the tasks that are newer or more progressed than local versions
@@ -360,15 +376,7 @@ export async function findTaskInRemoteBranches(
 		// Get the newest version
 		const best = entries.reduce((a, b) => (a.lastModified >= b.lastModified ? a : b));
 
-		// Hydrate the task
-		const ref = best.commit ?? `origin/${best.branch}`;
-		const content = await git.showFile(ref, best.path);
-		const task = normalizeTaskIdentity(parseTask(content));
-		if (task) {
-			task.source = "remote";
-			task.branch = best.branch;
-		}
-		return task;
+		return hydrateTaskFromEntry(git, best, `origin/${best.branch}`, "remote");
 	} catch (error) {
 		if (process.env.DEBUG) {
 			console.error(
@@ -423,15 +431,7 @@ export async function findTaskInLocalBranches(
 		// Get the newest version
 		const best = entries.reduce((a, b) => (a.lastModified >= b.lastModified ? a : b));
 
-		// Hydrate the task
-		const ref = best.commit ?? best.branch;
-		const content = await git.showFile(ref, best.path);
-		const task = normalizeTaskIdentity(parseTask(content));
-		if (task) {
-			task.source = "local-branch";
-			task.branch = best.branch;
-		}
-		return task;
+		return hydrateTaskFromEntry(git, best, best.branch, "local-branch");
 	} catch (error) {
 		if (process.env.DEBUG) {
 			console.error(

@@ -330,22 +330,12 @@ export function buildMilestoneBuckets(
 	statuses: string[],
 	options?: { archivedMilestoneIds?: string[]; archivedMilestones?: Milestone[]; terminalStatuses?: string[] },
 ): MilestoneBucket[] {
-	const archivedKeys = new Set((options?.archivedMilestoneIds ?? []).map((id) => milestoneKey(id)));
-	const canonicalTasks = canonicalizeTaskMilestones(tasks, milestoneEntities, options?.archivedMilestones ?? []);
-	const normalizedTasks =
-		archivedKeys.size > 0
-			? canonicalTasks.map((task) => {
-					const key = milestoneKey(task.milestone);
-					if (!key || !archivedKeys.has(key)) {
-						return task;
-					}
-					return { ...task, milestone: undefined };
-				})
-			: canonicalTasks;
-	const filteredMilestones =
-		archivedKeys.size > 0
-			? milestoneEntities.filter((milestone) => !archivedKeys.has(milestoneKey(milestone.id)))
-			: milestoneEntities;
+	const { normalizedTasks, filteredMilestones } = prepareMilestoneData(
+		tasks,
+		milestoneEntities,
+		options?.archivedMilestoneIds,
+		options?.archivedMilestones,
+	);
 
 	const allMilestoneIds = collectMilestoneIds(normalizedTasks, filteredMilestones);
 
@@ -360,17 +350,17 @@ export function buildMilestoneBuckets(
 	return buckets;
 }
 
-/**
- * Build a complete milestone summary
- */
-export function buildMilestoneSummary(
+function prepareMilestoneData(
 	tasks: Task[],
 	milestoneEntities: Milestone[],
-	statuses: string[],
-	options?: { archivedMilestoneIds?: string[]; archivedMilestones?: Milestone[]; terminalStatuses?: string[] },
-): MilestoneSummary {
-	const archivedKeys = new Set((options?.archivedMilestoneIds ?? []).map((id) => milestoneKey(id)));
-	const canonicalTasks = canonicalizeTaskMilestones(tasks, milestoneEntities, options?.archivedMilestones ?? []);
+	archivedMilestoneIds?: string[],
+	archivedMilestones?: Milestone[],
+): {
+	normalizedTasks: Task[];
+	filteredMilestones: Milestone[];
+} {
+	const archivedKeys = new Set((archivedMilestoneIds ?? []).map((id) => milestoneKey(id)));
+	const canonicalTasks = canonicalizeTaskMilestones(tasks, milestoneEntities, archivedMilestones ?? []);
 	const normalizedTasks =
 		archivedKeys.size > 0
 			? canonicalTasks.map((task) => {
@@ -385,6 +375,24 @@ export function buildMilestoneSummary(
 		archivedKeys.size > 0
 			? milestoneEntities.filter((milestone) => !archivedKeys.has(milestoneKey(milestone.id)))
 			: milestoneEntities;
+	return { normalizedTasks, filteredMilestones };
+}
+
+/**
+ * Build a complete milestone summary
+ */
+export function buildMilestoneSummary(
+	tasks: Task[],
+	milestoneEntities: Milestone[],
+	statuses: string[],
+	options?: { archivedMilestoneIds?: string[]; archivedMilestones?: Milestone[]; terminalStatuses?: string[] },
+): MilestoneSummary {
+	const { normalizedTasks, filteredMilestones } = prepareMilestoneData(
+		tasks,
+		milestoneEntities,
+		options?.archivedMilestoneIds,
+		options?.archivedMilestones,
+	);
 	const milestones = collectMilestoneIds(normalizedTasks, filteredMilestones, options?.archivedMilestones ?? []);
 	const buckets = buildMilestoneBuckets(normalizedTasks, filteredMilestones, statuses, options);
 

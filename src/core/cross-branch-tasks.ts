@@ -11,6 +11,18 @@ import { buildPathIdRegex, normalizeId } from "../utils/prefix-config.ts";
 /** Default prefix for tasks */
 const DEFAULT_TASK_PREFIX = "task";
 
+function buildFileToIdMap(files: string[], idRegex: RegExp, prefix: string): Map<string, string> {
+	const fileToId = new Map<string, string>();
+	for (const f of files) {
+		const filename = f.substring(f.lastIndexOf("/") + 1);
+		const match = filename.match(idRegex);
+		if (match?.[1]) {
+			fileToId.set(normalizeId(match[1], prefix), f);
+		}
+	}
+	return fileToId;
+}
+
 export type TaskDirectoryType = "task" | "draft" | "archived" | "completed";
 
 export interface TaskDirectoryInfo {
@@ -112,19 +124,8 @@ export async function getLatestTaskStatesForIds(
 					// Get all modification times in one pass
 					const modTimes = await gitOps.getBranchLastModifiedMap(branch, path);
 
-					// Build file->id map for O(1) lookup
-					const fileToId = new Map<string, string>();
-					for (const f of files) {
-						const filename = f.substring(f.lastIndexOf("/") + 1);
-						const match = filename.match(idRegex);
-						if (match?.[1]) {
-							// Normalize the ID to canonical form for lookup
-							const normalizedFileId = normalizeId(match[1], prefix);
-							fileToId.set(normalizedFileId, f);
-						}
-					}
+					const fileToId = buildFileToIdMap(files, idRegex, prefix);
 
-					// Check each task ID (normalize for lookup)
 					for (const taskId of taskIds) {
 						const normalizedTaskId = normalizeId(taskId, prefix);
 						const taskFile = fileToId.get(normalizedTaskId);
@@ -182,20 +183,9 @@ export async function getLatestTaskStatesForIds(
 							// Get all modification times in one pass
 							const modTimes = await gitOps.getBranchLastModifiedMap(branch, path);
 
-							// Build file->id map for O(1) lookup
-							const fileToId = new Map<string, string>();
-							for (const f of files) {
-								const filename = f.substring(f.lastIndexOf("/") + 1);
-								const match = filename.match(idRegex);
-								if (match?.[1]) {
-									// Normalize the ID to canonical form for lookup
-									const normalizedFileId = normalizeId(match[1], prefix);
-									fileToId.set(normalizedFileId, f);
-								}
-							}
+							const fileToId = buildFileToIdMap(files, idRegex, prefix);
 
 							for (const taskId of remainingTaskIds) {
-								// Skip if we already found this task
 								const normalizedTaskId = normalizeId(taskId, prefix);
 								if (taskDirectories.has(normalizedTaskId)) continue;
 

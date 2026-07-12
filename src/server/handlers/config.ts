@@ -1,5 +1,14 @@
 import type { ServerHandlerContext } from "../types.ts";
 
+function resolveConfigList(
+	items: (string | { name: string; color?: string })[] | undefined,
+): Array<{ name: string; color?: string }> {
+	return (items ?? []).map((item) => {
+		if (typeof item === "string") return { name: item };
+		return { name: item.name, ...(item.color ? { color: item.color } : {}) };
+	});
+}
+
 export function createConfigHandlers(ctx: ServerHandlerContext) {
 	async function handleGetStatuses(): Promise<Response> {
 		const config = await ctx.core.filesystem.loadConfig();
@@ -87,11 +96,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
 			await ctx.core.filesystem.saveConfig(config);
-			const resolved = config.labels.map((label) => {
-				if (typeof label === "string") return { name: label };
-				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
-			});
-			return Response.json(resolved);
+			return Response.json(resolveConfigList(config.labels));
 		} catch (error) {
 			console.error("Error adding label:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to add label" }, { status: 500 });
@@ -120,11 +125,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 					return match ? { name: existingName, color: body.color } : l;
 				});
 				await ctx.core.filesystem.saveConfig(config);
-				const resolved = config.labels.map((label) => {
-					if (typeof label === "string") return { name: label };
-					return { name: label.name, ...(label.color ? { color: label.color } : {}) };
-				});
-				return Response.json(resolved);
+				return Response.json(resolveConfigList(config.labels));
 			}
 
 			// Rename operation
@@ -187,11 +188,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				}
 			}
 
-			const resolved = config.labels.map((label) => {
-				if (typeof label === "string") return { name: label };
-				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
-			});
-			return Response.json(resolved);
+			return Response.json(resolveConfigList(config.labels));
 		} catch (error) {
 			console.error("Error renaming label:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to rename label" }, { status: 500 });
@@ -213,11 +210,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			}
 			config.labels = config.labels.filter((_, i) => i !== idx);
 			await ctx.core.filesystem.saveConfig(config);
-			const resolved = config.labels.map((label) => {
-				if (typeof label === "string") return { name: label };
-				return { name: label.name, ...(label.color ? { color: label.color } : {}) };
-			});
-			return Response.json(resolved);
+			return Response.json(resolveConfigList(config.labels));
 		} catch (error) {
 			console.error("Error removing label:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to remove label" }, { status: 500 });
@@ -264,11 +257,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				(typeof a === "string" ? a : a.name).localeCompare(typeof b === "string" ? b : b.name),
 			);
 			await ctx.core.filesystem.saveConfig(config);
-			const resolved = (config.authors ?? []).map((author) => {
-				if (typeof author === "string") return { name: author };
-				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
-			});
-			return Response.json(resolved);
+			return Response.json(resolveConfigList(config.authors));
 		} catch (error) {
 			console.error("Error adding author:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to add author" }, { status: 500 });
@@ -299,11 +288,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 					return match ? { name: existingName, color: body.color } : a;
 				});
 				await ctx.core.filesystem.saveConfig(config);
-				const resolved = (config.authors ?? []).map((author) => {
-					if (typeof author === "string") return { name: author };
-					return { name: author.name, ...(author.color ? { color: author.color } : {}) };
-				});
-				return Response.json(resolved);
+				return Response.json(resolveConfigList(config.authors));
 			}
 
 			// Rename operation
@@ -346,11 +331,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 				}
 			}
 
-			const resolved = (config.authors ?? []).map((author) => {
-				if (typeof author === "string") return { name: author };
-				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
-			});
-			return Response.json(resolved);
+			return Response.json(resolveConfigList(config.authors));
 		} catch (error) {
 			console.error("Error renaming author:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to rename author" }, { status: 500 });
@@ -372,11 +353,7 @@ export function createConfigHandlers(ctx: ServerHandlerContext) {
 			}
 			config.authors = config.authors?.filter((_, i) => i !== idx);
 			await ctx.core.filesystem.saveConfig(config);
-			const resolved = (config.authors ?? []).map((author) => {
-				if (typeof author === "string") return { name: author };
-				return { name: author.name, ...(author.color ? { color: author.color } : {}) };
-			});
-			return Response.json(resolved);
+			return Response.json(resolveConfigList(config.authors));
 		} catch (error) {
 			console.error("Error removing author:", error instanceof Error ? error.message : String(error));
 			return Response.json({ error: "Failed to remove author" }, { status: 500 });
