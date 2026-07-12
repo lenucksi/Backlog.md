@@ -1143,13 +1143,21 @@ export async function renderBoardTui(
 			}
 		});
 
-		screen.key(["up", "k"], () => {
+		const handleVerticalNavigation = (direction: "up" | "down") => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters") return;
 
 			if (moveOp) {
-				if (moveOp.targetIndex > 0) {
-					moveOp.targetIndex--;
-					renderView();
+				if (direction === "up") {
+					if (moveOp.targetIndex > 0) {
+						moveOp.targetIndex--;
+						renderView();
+					}
+				} else {
+					const column = columns[currentCol];
+					if (column && moveOp.targetIndex < column.tasks.length - 1) {
+						moveOp.targetIndex++;
+						renderView();
+					}
 				}
 			} else {
 				const column = columns[currentCol];
@@ -1164,55 +1172,21 @@ export async function renderBoardTui(
 					screen.render();
 					return;
 				}
-				if (shouldMoveFromListBoundaryToSearch("up", selected, total)) {
-					pendingSearchWrap = "to-last";
+				if (shouldMoveFromListBoundaryToSearch(direction, selected, total)) {
+					pendingSearchWrap = direction === "up" ? "to-last" : "to-first";
 					focusFilterControl("search");
 					updateFooter();
 					screen.render();
 					return;
 				}
-				const nextIndex = selected - 1;
+				const nextIndex = direction === "up" ? selected - 1 : selected + 1;
 				selectColumnRow(column, nextIndex, true);
 				screen.render();
 			}
-		});
+		};
 
-		screen.key(["down", "j"], () => {
-			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters") return;
-
-			if (moveOp) {
-				const column = columns[currentCol];
-				// We need to check the projected length to know if we can move down
-				// The current rendered column has the correct length including the ghost task
-				if (column && moveOp.targetIndex < column.tasks.length - 1) {
-					moveOp.targetIndex++;
-					renderView();
-				}
-			} else {
-				const column = columns[currentCol];
-				if (!column) return;
-				const listWidget = column.list;
-				const selected = listWidget.selected ?? 0;
-				const total = column.tasks.length;
-				if (total === 0) {
-					pendingSearchWrap = null;
-					focusFilterControl("search");
-					updateFooter();
-					screen.render();
-					return;
-				}
-				if (shouldMoveFromListBoundaryToSearch("down", selected, total)) {
-					pendingSearchWrap = "to-first";
-					focusFilterControl("search");
-					updateFooter();
-					screen.render();
-					return;
-				}
-				const nextIndex = selected + 1;
-				selectColumnRow(column, nextIndex, true);
-				screen.render();
-			}
-		});
+		screen.key(["up", "k"], () => handleVerticalNavigation("up"));
+		screen.key(["down", "j"], () => handleVerticalNavigation("down"));
 
 		const openTaskEditor = async (task: Task) => {
 			try {
@@ -1612,7 +1586,7 @@ export async function renderBoardTui(
 			}
 		});
 
-		const handleGlobalComplete = async () => {
+		const handleTaskAction = async (action: "complete" | "archive") => {
 			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
 			const column = columns[currentCol];
 			if (!column) return;
@@ -1620,12 +1594,16 @@ export async function renderBoardTui(
 			const task = column.tasks[idx];
 			if (!task) return;
 
+			const verb = action === "complete" ? "complete" : "archive";
+			const pastTense = action === "complete" ? "Completed" : "Archived";
+
 			if (task.branch) {
-				showTransientFooter(` {red-fg}Cannot complete task from branch "${task.branch}".{/}`);
+				showTransientFooter(` {red-fg}Cannot ${verb} task from branch "${task.branch}".{/}`);
 				return;
 			}
 
-			const confirmed = await runWithModalGuard(() => doConfirmComplete(task));
+			const confirmFn = action === "complete" ? doConfirmComplete : doConfirmArchive;
+			const confirmed = await runWithModalGuard(() => confirmFn(task));
 
 			if (confirmed) {
 				try {
@@ -1635,64 +1613,28 @@ export async function renderBoardTui(
 
 					if (success) {
 						currentTasks = currentTasks.filter((t) => t.id !== task.id);
-						showTransientFooter(` {green-fg}Completed ${task.id}{/}`);
+						showTransientFooter(` {green-fg}${pastTense} ${task.id}{/}`);
 						renderView();
 					} else {
-						showTransientFooter(` {red-fg}Failed to complete ${task.id}{/}`);
+						showTransientFooter(` {red-fg}Failed to ${verb} ${task.id}{/}`);
 					}
 				} catch (error) {
 					showTransientFooter(
-						` {red-fg}Error completing task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
-					);
-				}
-			}
-		};
-
-		const handleGlobalArchive = async () => {
-			if (popupOpen || filterPopupOpen || modalOpen || currentFocus === "filters" || moveOp) return;
-			const column = columns[currentCol];
-			if (!column) return;
-			const idx = column.list.selected ?? 0;
-			const task = column.tasks[idx];
-			if (!task) return;
-
-			if (task.branch) {
-				showTransientFooter(` {red-fg}Cannot archive task from branch "${task.branch}".{/}`);
-				return;
-			}
-
-			const confirmed = await runWithModalGuard(() => doConfirmArchive(task));
-
-			if (confirmed) {
-				try {
-					const core = new Core(process.cwd(), { enableWatchers: true });
-					const config = await core.filesystem.loadConfig();
-					const success = await core.archiveTask(task.id, config?.autoCommit ?? false);
-
-					if (success) {
-						currentTasks = currentTasks.filter((t) => t.id !== task.id);
-						showTransientFooter(` {green-fg}Archived ${task.id}{/}`);
-						renderView();
-					} else {
-						showTransientFooter(` {red-fg}Failed to archive ${task.id}{/}`);
-					}
-				} catch (error) {
-					showTransientFooter(
-						` {red-fg}Error archiving task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
+						` {red-fg}Error ${verb}ing task: ${error instanceof Error ? error.message : "Unknown error"}{/}`,
 					);
 				}
 			}
 		};
 
 		screen.key(["c", "C"], () => {
-			void handleGlobalComplete();
+			void handleTaskAction("complete");
 		});
 		screen.key(["a", "A"], () => {
 			if (selectedTaskIds.size > 0) {
 				void executeBoardBulkAction("archive");
 				return;
 			}
-			void handleGlobalArchive();
+			void handleTaskAction("archive");
 		});
 
 		screen.key(["q", "C-c"], () => {
