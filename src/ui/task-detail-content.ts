@@ -11,6 +11,23 @@ import { transformCodePaths } from "./code-path.ts";
 import { formatHeading } from "./heading.ts";
 import { formatStatusWithIcon, getStatusColor, type StatusStyleOptions } from "./status-icon.ts";
 
+function formatChecklistSection(items: Array<{ text: string; checked: boolean }>, bodyContent: string[]): void {
+	const formatted = items.map((item) =>
+		formatChecklistItem(
+			{
+				text: transformCodePaths(item.text),
+				checked: item.checked,
+			},
+			{
+				padding: " ",
+				checkedSymbol: "{green-fg}✓{/}",
+				uncheckedSymbol: "{gray-fg}○{/}",
+			},
+		),
+	);
+	bodyContent.push(formatted.join("\n"));
+}
+
 export interface GenerateDetailContentOptions {
 	statusStyleOptions: StatusStyleOptions;
 	resolveMilestoneLabel: (m: string) => string;
@@ -129,20 +146,7 @@ export function generateDetailContent(
 	bodyContent.push(formatHeading("Acceptance Criteria", 2));
 	const checklistItems = buildAcceptanceCriteriaItems(task);
 	if (checklistItems.length > 0) {
-		const formattedCriteria = checklistItems.map((item) =>
-			formatChecklistItem(
-				{
-					text: transformCodePaths(item.text),
-					checked: item.checked,
-				},
-				{
-					padding: " ",
-					checkedSymbol: "{green-fg}✓{/}",
-					uncheckedSymbol: "{gray-fg}○{/}",
-				},
-			),
-		);
-		bodyContent.push(formattedCriteria.join("\n"));
+		formatChecklistSection(checklistItems, bodyContent);
 	} else {
 		bodyContent.push("{gray-fg}No acceptance criteria defined{/}");
 	}
@@ -151,20 +155,7 @@ export function generateDetailContent(
 	bodyContent.push(formatHeading("Definition of Done", 2));
 	const definitionItems = buildDefinitionOfDoneItems(task);
 	if (definitionItems.length > 0) {
-		const formattedDefinition = definitionItems.map((item) =>
-			formatChecklistItem(
-				{
-					text: transformCodePaths(item.text),
-					checked: item.checked,
-				},
-				{
-					padding: " ",
-					checkedSymbol: "{green-fg}✓{/}",
-					uncheckedSymbol: "{gray-fg}○{/}",
-				},
-			),
-		);
-		bodyContent.push(formattedDefinition.join("\n"));
+		formatChecklistSection(definitionItems, bodyContent);
 	} else {
 		bodyContent.push("{gray-fg}No Definition of Done items defined{/}");
 	}

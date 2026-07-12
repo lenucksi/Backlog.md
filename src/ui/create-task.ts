@@ -1,5 +1,20 @@
-import type { ScreenInterface } from "neo-neo-bblessed";
+import type { BoxInterface, ScreenInterface } from "neo-neo-bblessed";
 import { box, textbox } from "neo-neo-bblessed";
+
+function createTextField(parent: BoxInterface, top: number): ReturnType<typeof textbox> {
+	return textbox({
+		parent,
+		top,
+		left: 2,
+		width: "100%-4",
+		height: 1,
+		inputOnFocus: false,
+		keys: true,
+		mouse: true,
+		style: { fg: "white", bg: "default", focus: { bg: "blue", fg: "white", bold: true } },
+	});
+}
+
 import type { Core } from "../core/backlog.ts";
 import type { Task } from "../types/index.ts";
 import { createPopupChrome } from "./components/filter-popup.ts";
@@ -37,30 +52,10 @@ export async function openCreateTaskPopup(
 		});
 
 		box({ parent: popup, top: 1, left: 2, height: 1, content: "Title:", tags: true });
-		const titleInput = textbox({
-			parent: popup,
-			top: 2,
-			left: 2,
-			width: "100%-4",
-			height: 1,
-			inputOnFocus: false,
-			keys: true,
-			mouse: true,
-			style: { fg: "white", bg: "default", focus: { bg: "blue", fg: "white", bold: true } },
-		});
+		const titleInput = createTextField(popup, 2);
 
 		box({ parent: popup, top: 3, left: 2, height: 1, content: "Description:", tags: true });
-		const descInput = textbox({
-			parent: popup,
-			top: 4,
-			left: 2,
-			width: "100%-4",
-			height: 1,
-			inputOnFocus: false,
-			keys: true,
-			mouse: true,
-			style: { fg: "white", bg: "default", focus: { bg: "blue", fg: "white", bold: true } },
-		});
+		const descInput = createTextField(popup, 4);
 
 		box({ parent: popup, top: 5, left: 2, height: 1, content: "Status:", tags: true });
 		const statusBox = box({

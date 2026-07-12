@@ -62,6 +62,30 @@ export async function runSequencesView(
 		},
 	});
 
+	const createBlock = (label: string, height: number, top: number) =>
+		box({
+			parent: container,
+			top,
+			left: 0,
+			right: 0,
+			height,
+			border: { type: "line" },
+			label,
+			tags: false,
+			style: { border: { fg: "cyan" } },
+		});
+
+	const createTaskLine = (block: BoxInterface, lineTop: number, task: Task) =>
+		box({
+			parent: block,
+			top: lineTop,
+			left: 1,
+			right: 1,
+			height: 1,
+			tags: true,
+			content: `  ${task.id} - ${task.title}`,
+		});
+
 	// Build bordered blocks for unsequenced and sequences, and individual task lines (for selection)
 	let y = 0;
 	type TaskLine = {
@@ -78,32 +102,14 @@ export async function runSequencesView(
 	// Unsequenced block first
 	if (data.unsequenced.length > 0) {
 		const h = Math.max(4, data.unsequenced.length + 4);
-		const block = box({
-			parent: container,
-			top: y,
-			left: 0,
-			right: 0,
-			height: h,
-			border: { type: "line" },
-			label: " Unsequenced ",
-			tags: false,
-			style: { border: { fg: "cyan" } },
-		});
+		const block = createBlock(" Unsequenced ", h, y);
 		// Track for move target highlighting using index -1
 		seqBlocks.push({ node: block, index: -1, top: y, height: h });
 		for (let t = 0; t < data.unsequenced.length; t++) {
 			const lineTop = t + 1;
 			const task = data.unsequenced[t];
 			if (!task) continue;
-			const node = box({
-				parent: block,
-				top: lineTop,
-				left: 1,
-				right: 1,
-				height: 1,
-				tags: true,
-				content: `  ${task.id} - ${task.title}`,
-			});
+			const node = createTaskLine(block, lineTop, task);
 			taskLines.push({ node, globalIndex: global++, seqIdx: -1, taskIdx: t, absTop: y + lineTop });
 		}
 		y += h + 1;
@@ -122,34 +128,15 @@ export async function runSequencesView(
 		// - 2 lines for border
 		// - +1 top padding line, +1 bottom padding line so content doesn't overlap borders
 		const h = Math.max(4, tasksSorted.length + 4);
-		const block = box({
-			parent: container,
-			top: y,
-			left: 0,
-			right: 0,
-			height: h,
-			border: { type: "line" },
-			label: ` Sequence ${seq.index} `,
-			tags: false,
-			style: { border: { fg: "cyan" } },
-		});
+		const block = createBlock(` Sequence ${seq.index} `, h, y);
 
 		seqBlocks.push({ node: block, index: seq.index, top: y, height: h });
 
 		for (let t = 0; t < tasksSorted.length; t++) {
-			// Render inside bordered content area
 			const lineTop = t + 1;
 			const task = tasksSorted[t];
 			if (!task) continue;
-			const node = box({
-				parent: block,
-				top: lineTop,
-				left: 1,
-				right: 1,
-				height: 1,
-				tags: true,
-				content: `  ${task.id} - ${task.title}`,
-			});
+			const node = createTaskLine(block, lineTop, task);
 			taskLines.push({ node, globalIndex: global++, seqIdx: s, taskIdx: t, absTop: y + lineTop });
 		}
 
