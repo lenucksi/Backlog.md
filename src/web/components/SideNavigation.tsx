@@ -41,6 +41,7 @@ interface NavItemProps {
 	icon: React.ReactNode;
 	label: string;
 	isCollapsed?: boolean;
+	rightContent?: React.ReactNode;
 }
 
 const navItemClass = (isActive: boolean, isCollapsed?: boolean) =>
@@ -56,7 +57,7 @@ const navItemClass = (isActive: boolean, isCollapsed?: boolean) =>
 					: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
 			}`;
 
-function NavItem({ to, icon, label, isCollapsed }: NavItemProps) {
+function NavItem({ to, icon, label, isCollapsed, rightContent }: NavItemProps) {
 	return (
 		<NavLink
 			to={to}
@@ -74,9 +75,64 @@ function NavItem({ to, icon, label, isCollapsed }: NavItemProps) {
 				<>
 					{icon}
 					<span className="ml-3 text-sm font-medium">{label}</span>
+					{rightContent}
 				</>
 			)}
 		</NavLink>
+	);
+}
+
+interface DocDecisionNavLinkProps {
+	id: string;
+	title: string;
+	icon: React.ReactNode;
+	pathPrefix: string;
+}
+
+function DocDecisionNavLink({ id, title, icon, pathPrefix }: DocDecisionNavLinkProps) {
+	return (
+		<NavLink
+			to={`${pathPrefix}/${stripIdPrefix(id)}/${sanitizeUrlTitle(title)}`}
+			className={({ isActive }) =>
+				`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+					isActive
+						? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
+						: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+				}`
+			}
+		>
+			<span className="text-gray-400 dark:text-gray-500">{icon}</span>
+			<span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-7 text-right shrink-0">
+				{stripIdPrefix(id)}
+			</span>
+			<span className="truncate">{title}</span>
+		</NavLink>
+	);
+}
+
+interface CollapsedSectionButtonProps {
+	pathPrefix: string;
+	icon: React.ReactNode;
+	label: string;
+	onExpand: () => void;
+}
+
+function CollapsedSectionButton({ pathPrefix, icon, label, onExpand }: CollapsedSectionButtonProps) {
+	const sectionLocation = useLocation();
+	return (
+		<button
+			type="button"
+			onClick={onExpand}
+			data-tooltip-id="sidebar-tooltip"
+			data-tooltip-content={label}
+			className={`flex items-center justify-center p-3 rounded-md transition-colors duration-200 w-full ${
+				sectionLocation.pathname.startsWith(pathPrefix)
+					? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
+					: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+			}`}
+		>
+			<div className="size-6 flex items-center justify-center">{icon}</div>
+		</button>
 	);
 }
 
@@ -129,7 +185,6 @@ const SideNavigation = memo(function SideNavigation({
 	const [docSortDir, setDocSortDir] = useState<"asc" | "desc">("asc");
 	const [decisionSortField, setDecisionSortField] = useState<"id" | "title" | "date">("title");
 	const [decisionSortDir, setDecisionSortDir] = useState<"asc" | "desc">("asc");
-	const location = useLocation();
 	const navigate = useNavigate();
 
 	// Create handlers - just navigate to new pages
@@ -176,9 +231,6 @@ const SideNavigation = memo(function SideNavigation({
 			return () => clearTimeout(timer);
 		}
 	}, [isCollapsed, searchInputRef]);
-
-	location.pathname.startsWith("/documentation");
-	location.pathname.startsWith("/decisions");
 
 	// Perform unified search via centralized API (debounced)
 	useEffect(() => {
@@ -556,25 +608,13 @@ const SideNavigation = memo(function SideNavigation({
 								}
 							>
 								{sortedDocs.map((doc) => (
-									<NavLink
+									<DocDecisionNavLink
 										key={doc.id}
-										to={`/documentation/${stripIdPrefix(doc.id)}/${sanitizeUrlTitle(doc.title)}`}
-										className={({ isActive }) =>
-											`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-												isActive
-													? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-													: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-											}`
-										}
-									>
-										<span className="text-gray-400 dark:text-gray-500">
-											<Icons.DocumentPage />
-										</span>
-										<span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-7 text-right shrink-0">
-											{stripIdPrefix(doc.id)}
-										</span>
-										<span className="truncate">{doc.title}</span>
-									</NavLink>
+										id={doc.id}
+										title={doc.title}
+										icon={<Icons.DocumentPage />}
+										pathPrefix="/documentation"
+									/>
 								))}
 
 								{/* Archived Docs toggle inside Documents section */}
@@ -649,25 +689,13 @@ const SideNavigation = memo(function SideNavigation({
 								}
 							>
 								{sortedDecisions.map((decision) => (
-									<NavLink
+									<DocDecisionNavLink
 										key={decision.id}
-										to={`/decisions/${stripIdPrefix(decision.id)}/${sanitizeUrlTitle(decision.title)}`}
-										className={({ isActive }) =>
-											`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-												isActive
-													? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-													: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-											}`
-										}
-									>
-										<span className="text-gray-400 dark:text-gray-500">
-											<Icons.DecisionPage />
-										</span>
-										<span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-7 text-right shrink-0">
-											{stripIdPrefix(decision.id)}
-										</span>
-										<span className="truncate">{decision.title}</span>
-									</NavLink>
+										id={decision.id}
+										title={decision.title}
+										icon={<Icons.DecisionPage />}
+										pathPrefix="/decisions"
+									/>
 								))}
 								{/* Superseded toggle inside Decisions section */}
 								<div className="pt-1 mt-1 border-t border-gray-100 dark:border-gray-700/50">
@@ -730,36 +758,18 @@ const SideNavigation = memo(function SideNavigation({
 							<NavItem to="/drafts" icon={<Icons.Draft />} label="Drafts" isCollapsed />
 							<NavItem to="/milestones" icon={<Icons.Milestone />} label="Milestones" isCollapsed />
 							<NavItem to="/statistics" icon={<Icons.Statistics />} label="Statistics" isCollapsed />
-							<button
-								type="button"
-								onClick={() => setIsCollapsed(false)}
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="Documentation"
-								className={`flex items-center justify-center p-3 rounded-md transition-colors duration-200 w-full ${
-									location.pathname.startsWith("/documentation")
-										? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-										: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-								}`}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.Document />
-								</div>
-							</button>
-							<button
-								type="button"
-								onClick={() => setIsCollapsed(false)}
-								data-tooltip-id="sidebar-tooltip"
-								data-tooltip-content="Decisions"
-								className={`flex items-center justify-center p-3 rounded-md transition-colors duration-200 w-full ${
-									location.pathname.startsWith("/decisions")
-										? "bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
-										: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-								}`}
-							>
-								<div className="size-6 flex items-center justify-center">
-									<Icons.Decision />
-								</div>
-							</button>
+							<CollapsedSectionButton
+								pathPrefix="/documentation"
+								icon={<Icons.Document />}
+								label="Documentation"
+								onExpand={() => setIsCollapsed(false)}
+							/>
+							<CollapsedSectionButton
+								pathPrefix="/decisions"
+								icon={<Icons.Decision />}
+								label="Decisions"
+								onExpand={() => setIsCollapsed(false)}
+							/>
 						</div>
 					)}
 				</nav>
@@ -767,22 +777,16 @@ const SideNavigation = memo(function SideNavigation({
 				{/* Settings Button - Bottom Left */}
 				<div className={`border-t border-gray-200 dark:border-gray-700 ${isCollapsed ? "px-2 py-2" : "px-4 py-4"}`}>
 					{!isCollapsed ? (
-						<NavLink
+						<NavItem
 							to="/settings"
-							className={({ isActive }) =>
-								`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-									isActive
-										? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-medium"
-										: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
-								}`
+							icon={<Icons.DocumentSettings />}
+							label="Settings"
+							rightContent={
+								version ? (
+									<span className="ml-auto text-xs text-gray-500 dark:text-gray-400">Backlog.md - v{version}</span>
+								) : undefined
 							}
-						>
-							<Icons.DocumentSettings />
-							<span className="ml-3 text-sm font-medium">Settings</span>
-							{version && (
-								<span className="ml-auto text-xs text-gray-500 dark:text-gray-400">Backlog.md - v{version}</span>
-							)}
-						</NavLink>
+						/>
 					) : (
 						<NavLink
 							to="/settings"
