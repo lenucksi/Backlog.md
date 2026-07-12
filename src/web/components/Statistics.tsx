@@ -6,6 +6,125 @@ import { apiClient } from "../lib/api";
 import { Icons } from "./icons";
 import LoadingSpinner from "./LoadingSpinner";
 
+interface MetricCardProps {
+	icon: React.ReactNode;
+	iconBgColor: string;
+	value: string | number;
+	label: string;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ icon, iconBgColor, value, label }) => (
+	<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+		<div className="flex items-center">
+			<div className={`p-3 ${iconBgColor} rounded-lg`}>{icon}</div>
+			<div className="ml-4">
+				<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+				<p className="text-gray-600 dark:text-gray-400 text-sm">{label}</p>
+			</div>
+		</div>
+	</div>
+);
+
+interface DistributionListProps {
+	entries: Record<string, number>;
+	iconFn: (key: string) => React.ReactNode;
+	colorFn: (key: string) => string;
+	total: number;
+	barColor: string;
+	formatLabel?: (label: string) => string;
+}
+
+const DistributionList: React.FC<DistributionListProps> = ({
+	entries,
+	iconFn,
+	colorFn,
+	total,
+	barColor,
+	formatLabel,
+}) => (
+	<div className="space-y-4">
+		{Object.entries(entries)
+			.filter(([, count]) => count > 0)
+			.map(([key, count]) => (
+				<div key={key} className="flex items-center justify-between">
+					<div className="flex items-center gap-3">
+						{iconFn(key)}
+						<span className={`px-3 py-1 rounded-circle text-sm font-medium ${colorFn(key)}`}>
+							{formatLabel ? formatLabel(key) : key}
+						</span>
+					</div>
+					<div className="flex items-center gap-3">
+						<div className="text-right">
+							<div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{count}</div>
+							<div className="text-xs text-gray-500 dark:text-gray-400">{Math.round((count / total) * 100)}%</div>
+						</div>
+						<div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-circle h-2">
+							<div
+								className={`${barColor} h-2 rounded-circle transition-all duration-300`}
+								style={{ width: `${(count / total) * 100}%` }}
+							/>
+						</div>
+					</div>
+				</div>
+			))}
+	</div>
+);
+
+const STAR_PATH = "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+
+const PRIORITY_STYLES: Record<string, string> = {
+	high: "text-red-500",
+	medium: "text-yellow-500",
+	low: "text-blue-500",
+};
+
+const STATUS_ICON_MAP: Record<string, React.ReactNode> = {
+	"to do": <Icons.CheckmarkCircle />,
+	"in progress": (
+		<svg aria-hidden="true" className="size-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+			/>
+		</svg>
+	),
+	done: (
+		<svg aria-hidden="true" className="size-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+			<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+		</svg>
+	),
+};
+
+const StatusIcon = ({ status }: { status: string }) =>
+	STATUS_ICON_MAP[status.toLowerCase()] ?? (
+		<svg aria-hidden="true" className="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+			/>
+		</svg>
+	);
+
+const PriorityIcon = ({ priority }: { priority: string }) => {
+	const color = PRIORITY_STYLES[priority.toLowerCase()];
+	if (color) {
+		return (
+			<svg aria-hidden="true" className={`size-4 ${color}`} fill="currentColor" viewBox="0 0 24 24">
+				<path d={STAR_PATH} />
+			</svg>
+		);
+	}
+	return (
+		<svg aria-hidden="true" className="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+		</svg>
+	);
+};
+
 interface StatisticsData extends Omit<TaskStatistics, "statusCounts" | "priorityCounts" | "archivedTasks"> {
 	archivedTasks: Task[];
 	statusCounts: Record<string, number>;
@@ -217,103 +336,6 @@ const Statistics: React.FC<StatisticsProps> = ({
 		);
 	};
 
-	const StatusIcon = ({ status }: { status: string }) => {
-		switch (status.toLowerCase()) {
-			case "to do":
-				return (
-					<svg
-						aria-hidden="true"
-						className="size-4 text-gray-500"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-						/>
-					</svg>
-				);
-			case "in progress":
-				return (
-					<svg
-						aria-hidden="true"
-						className="size-4 text-blue-500"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-						/>
-					</svg>
-				);
-			case "done":
-				return (
-					<svg aria-hidden="true" className="size-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-					</svg>
-				);
-			default:
-				return (
-					<svg
-						aria-hidden="true"
-						className="size-4 text-gray-400"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-						/>
-					</svg>
-				);
-		}
-	};
-
-	const PriorityIcon = ({ priority }: { priority: string }) => {
-		switch (priority.toLowerCase()) {
-			case "high":
-				return (
-					<svg aria-hidden="true" className="size-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-					</svg>
-				);
-			case "medium":
-				return (
-					<svg aria-hidden="true" className="size-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-					</svg>
-				);
-			case "low":
-				return (
-					<svg aria-hidden="true" className="size-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-					</svg>
-				);
-			default:
-				return (
-					<svg
-						aria-hidden="true"
-						className="size-4 text-gray-400"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-					</svg>
-				);
-		}
-	};
-
 	const getStatusColor = (status: string) => {
 		const lower = status.toLowerCase();
 		if (blockedStatuses?.some((s) => s.toLowerCase() === lower))
@@ -362,77 +384,54 @@ const Statistics: React.FC<StatisticsProps> = ({
 
 			{/* Key Metrics Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-				{/* Total Tasks */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-					<div className="flex items-center">
-						<div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-							<Icons.Tasks />
-						</div>
-						<div className="ml-4">
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{statistics.totalTasks}</p>
-							<p className="text-gray-600 dark:text-gray-400 text-sm">Total Tasks</p>
-						</div>
-					</div>
-				</div>
-
-				{/* Completed Tasks */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-					<div className="flex items-center">
-						<div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-							<svg
-								aria-hidden="true"
-								className="size-6 text-green-600 dark:text-green-400"
-								fill="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
-						</div>
-						<div className="ml-4">
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{statistics.completedTasks}</p>
-							<p className="text-gray-600 dark:text-gray-400 text-sm">Completed</p>
-						</div>
-					</div>
-				</div>
-
-				{/* Completion Percentage */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-					<div className="flex items-center">
-						<div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-							<Icons.DocumentChart />
-						</div>
-						<div className="ml-4">
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{statistics.completionPercentage}%</p>
-							<p className="text-gray-600 dark:text-gray-400 text-sm">Completion</p>
-						</div>
-					</div>
-				</div>
-
-				{/* Drafts */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-					<div className="flex items-center">
-						<div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-							<svg
-								aria-hidden="true"
-								className="size-6 text-orange-600 dark:text-orange-400"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-								/>
-							</svg>
-						</div>
-						<div className="ml-4">
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{statistics.draftCount}</p>
-							<p className="text-gray-600 dark:text-gray-400 text-sm">Drafts</p>
-						</div>
-					</div>
-				</div>
+				<MetricCard
+					icon={<Icons.Tasks />}
+					iconBgColor="bg-blue-100 dark:bg-blue-900/30"
+					value={statistics.totalTasks}
+					label="Total Tasks"
+				/>
+				<MetricCard
+					icon={
+						<svg
+							aria-hidden="true"
+							className="size-6 text-green-600 dark:text-green-400"
+							fill="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+					}
+					iconBgColor="bg-green-100 dark:bg-green-900/30"
+					value={statistics.completedTasks}
+					label="Completed"
+				/>
+				<MetricCard
+					icon={<Icons.DocumentChart />}
+					iconBgColor="bg-purple-100 dark:bg-purple-900/30"
+					value={`${statistics.completionPercentage}%`}
+					label="Completion"
+				/>
+				<MetricCard
+					icon={
+						<svg
+							aria-hidden="true"
+							className="size-6 text-orange-600 dark:text-orange-400"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+							/>
+						</svg>
+					}
+					iconBgColor="bg-orange-100 dark:bg-orange-900/30"
+					value={statistics.draftCount}
+					label="Drafts"
+				/>
 			</div>
 
 			{/* Progress Bar */}
@@ -482,67 +481,26 @@ const Statistics: React.FC<StatisticsProps> = ({
 				{/* Status Distribution */}
 				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 					<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Status Distribution</h3>
-					<div className="space-y-4">
-						{Object.entries(statistics.statusCounts)
-							.filter(([, count]) => count > 0)
-							.map(([status, count]) => (
-								<div key={status} className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										<StatusIcon status={status} />
-										<span className={`px-3 py-1 rounded-circle text-sm font-medium ${getStatusColor(status)}`}>
-											{status}
-										</span>
-									</div>
-									<div className="flex items-center gap-3">
-										<div className="text-right">
-											<div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{count}</div>
-											<div className="text-xs text-gray-500 dark:text-gray-400">
-												{Math.round((count / statistics.totalTasks) * 100)}%
-											</div>
-										</div>
-										<div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-circle h-2">
-											<div
-												className="bg-blue-500 h-2 rounded-circle transition-all duration-300"
-												style={{ width: `${(count / statistics.totalTasks) * 100}%` }}
-											/>
-										</div>
-									</div>
-								</div>
-							))}
-					</div>
+					<DistributionList
+						entries={statistics.statusCounts}
+						iconFn={(s) => <StatusIcon status={s} />}
+						colorFn={getStatusColor}
+						total={statistics.totalTasks}
+						barColor="bg-blue-500"
+					/>
 				</div>
 
 				{/* Priority Distribution */}
 				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
 					<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Priority Distribution</h3>
-					<div className="space-y-4">
-						{Object.entries(statistics.priorityCounts)
-							.filter(([, count]) => count > 0)
-							.map(([priority, count]) => (
-								<div key={priority} className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										<PriorityIcon priority={priority} />
-										<span className={`px-3 py-1 rounded-circle text-sm font-medium ${getPriorityColor(priority)}`}>
-											{priority === "none" ? "No Priority" : priority.charAt(0).toUpperCase() + priority.slice(1)}
-										</span>
-									</div>
-									<div className="flex items-center gap-3">
-										<div className="text-right">
-											<div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{count}</div>
-											<div className="text-xs text-gray-500 dark:text-gray-400">
-												{Math.round((count / statistics.totalTasks) * 100)}%
-											</div>
-										</div>
-										<div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-circle h-2">
-											<div
-												className="bg-yellow-500 h-2 rounded-circle transition-all duration-300"
-												style={{ width: `${(count / statistics.totalTasks) * 100}%` }}
-											/>
-										</div>
-									</div>
-								</div>
-							))}
-					</div>
+					<DistributionList
+						entries={statistics.priorityCounts}
+						iconFn={(p) => <PriorityIcon priority={p} />}
+						colorFn={getPriorityColor}
+						total={statistics.totalTasks}
+						barColor="bg-yellow-500"
+						formatLabel={(p) => (p === "none" ? "No Priority" : p.charAt(0).toUpperCase() + p.slice(1))}
+					/>
 				</div>
 			</div>
 
