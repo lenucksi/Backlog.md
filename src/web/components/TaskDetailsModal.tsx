@@ -9,6 +9,7 @@ import AcceptanceCriteriaEditor from "./AcceptanceCriteriaEditor";
 import ChipInput from "./ChipInput";
 import DependencyInput from "./DependencyInput";
 import FilePreviewModal from "./FilePreviewModal";
+import { Icons } from "./icons";
 import MermaidMarkdown from "./MermaidMarkdown";
 import Modal from "./Modal";
 import PasteAwareMDEditor from "./PasteAwareMDEditor";
@@ -665,22 +666,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			{task && (task.status === "Archived" || task.status === "archived") && (
 				<InfoBanner
 					color="red"
-					icon={
-						<svg
-							aria-hidden="true"
-							className="size-5 flex-shrink-0 text-red-600 dark:text-red-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-							/>
-						</svg>
-					}
+					icon={<Icons.Archive className="size-5 flex-shrink-0 text-red-600 dark:text-red-400" />}
 				>
 					<span className="font-medium">ARCHIVED — This task has been archived</span>
 				</InfoBanner>
@@ -689,22 +675,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 			{isFromOtherBranch && (
 				<InfoBanner
 					color="amber"
-					icon={
-						<svg
-							aria-hidden="true"
-							className="size-5 flex-shrink-0 text-amber-600 dark:text-amber-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-							/>
-						</svg>
-					}
+					icon={<Icons.Link className="size-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />}
 				>
 					<span className="font-medium">Read-only:</span> This task exists in the{" "}
 					<span className="font-semibold">{task?.branch}</span> branch. Switch to that branch to edit it.
@@ -831,20 +802,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 													className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all flex-shrink-0"
 													title="Remove reference"
 												>
-													<svg
-														aria-hidden="true"
-														className="size-4"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M6 18L18 6M6 6l12 12"
-														/>
-													</svg>
+													<Icons.Close />
 												</button>
 											)}
 										</li>
@@ -1263,16 +1221,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 						<SidebarActionButton
 							variant="warning"
 							onClick={handleDemote}
-							icon={
-								<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-									/>
-								</svg>
-							}
+							icon={<Icons.Refresh className="size-4 mr-2" />}
 						>
 							Demote to Draft
 						</SidebarActionButton>
@@ -1282,16 +1231,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 						<SidebarActionButton
 							variant="danger"
 							onClick={handleArchive}
-							icon={
-								<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-									/>
-								</svg>
-							}
+							icon={<Icons.Archive className="size-4 mr-2" />}
 						>
 							Archive Task
 						</SidebarActionButton>
