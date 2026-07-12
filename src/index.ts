@@ -10,19 +10,19 @@ export {
 	installClaudeAgent,
 } from "./agent-instructions.ts";
 // Kanban board utilities
-export { exportKanbanBoardToFile, generateKanbanBoardWithMetadata } from "./board.ts";
+export { exportKanbanBoardToFile, generateKanbanBoardWithMetadata } from "./board.ts"; // aislop-ignore-line knip/exports — public API
 // Constants
 export * from "./constants/index.ts";
 // Core entry point
 export { Core } from "./core/backlog.ts";
-export { SearchService } from "./core/search-service.ts";
+export { SearchService } from "./core/search-service.ts"; // aislop-ignore-line knip/exports — public API
 
 // File system operations
-export { FileSystem } from "./file-system/operations.ts";
+export { FileSystem } from "./file-system/operations.ts"; // aislop-ignore-line knip/exports — public API
 
 // Git operations
 export {
-	GitOperations,
+	GitOperations, // aislop-ignore-line knip/exports — public API
 	initializeGitRepository,
 	isGitRepository,
 } from "./git/operations.ts";

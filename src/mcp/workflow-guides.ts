@@ -56,6 +56,7 @@ export const WORKFLOW_GUIDES: WorkflowGuideDefinition[] = [
 	},
 ];
 
+// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 export function getWorkflowGuideByKey(key: WorkflowGuideKey): WorkflowGuideDefinition | undefined {
 	return WORKFLOW_GUIDES.find((guide) => guide.key === key);
 }

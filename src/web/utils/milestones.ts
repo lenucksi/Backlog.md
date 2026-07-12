@@ -4,8 +4,10 @@
  */
 export {
 	buildMilestoneBuckets,
+	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 	collectArchivedMilestoneKeys,
 	collectMilestoneIds,
+	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 	getMilestoneLabel,
 	isDoneStatus,
 	milestoneKey,

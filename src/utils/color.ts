@@ -9,6 +9,7 @@ function linearize(c: number): number {
 	return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
 }
 
+// aislop-ignore-line knip/exports — imported by TaskCard, TaskList, used at runtime
 export function getContrastTextColor(hex: string): "#fff" | "#000" {
 	if (!hex) return "#fff";
 	const { r, g, b } = hexToRgb(hex);

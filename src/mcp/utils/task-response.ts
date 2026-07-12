@@ -2,6 +2,7 @@ import { formatTaskPlainText } from "../../formatters/task-plain-text.ts";
 import type { Task } from "../../types/index.ts";
 import type { CallToolResult } from "../types.ts";
 
+// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 export async function formatTaskCallResult(
 	task: Task,
 	summaryLines: string[] = [],

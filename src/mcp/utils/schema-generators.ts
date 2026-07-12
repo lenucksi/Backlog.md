@@ -94,6 +94,7 @@ function baseTaskProperties(config: BacklogConfig, titleMinLength?: number): Rec
 /**
  * Generates the task_create input schema with dynamic status enum
  */
+// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 export function generateTaskCreateSchema(config: BacklogConfig): JsonSchema {
 	return {
 		type: "object",
@@ -133,6 +134,7 @@ const editDeferDateDesc = "Defer/show after date (YYYY-MM-DD or YYYY-MM-DD HH:mm
 
 /**
  * Generates the task_edit input schema with dynamic status enum and MCP-specific operations.
+ // aislop-ignore-line knip/exports -- used at runtime, not statically detectable
  */
 export function generateTaskEditSchema(config: BacklogConfig): JsonSchema {
 	return {
