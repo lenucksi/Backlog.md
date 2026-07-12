@@ -24,26 +24,6 @@ const DEFINITION_OF_DONE_ADD_FIELD = {
 		"Task-specific Definition of Done items to append for this task only. Do not copy project defaults here.",
 } as const satisfies JsonSchema;
 
-function stringProp(maxLength: number, minLength?: number): JsonSchema {
-	return minLength ? { type: "string", minLength, maxLength } : { type: "string", maxLength };
-}
-
-function stringArrayFieldWithDesc(maxLength: number, description: string): JsonSchema {
-	return { type: "array", items: { type: "string", maxLength }, description };
-}
-
-const ordinalField = (description: string): JsonSchema => ({
-	type: "number",
-	minimum: 0,
-	description,
-});
-
-const dueDateField = (description: string): JsonSchema => ({
-	type: "string",
-	maxLength: 100,
-	description,
-});
-
 /**
  * Generates a status field schema with dynamic enum values sourced from config.
  */

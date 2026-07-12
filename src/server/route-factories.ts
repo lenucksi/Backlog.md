@@ -1,6 +1,9 @@
 import { type Elysia, type TSchema, t } from "elysia";
 import { IdParam } from "./schemas";
 
+// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its generic builder pattern
+export type ElysiaApp = Elysia<any>;
+
 // ===== Bulk Routes =====
 
 export type BulkRouteDef = {
@@ -10,7 +13,7 @@ export type BulkRouteDef = {
 	description: string;
 };
 
-export function registerBulkRoutes(app: Elysia<any>, routes: BulkRouteDef[]): Elysia<any> {
+export function registerBulkRoutes(app: ElysiaApp, routes: BulkRouteDef[]): ElysiaApp {
 	let current = app;
 	for (const { path, handler, summary, description } of routes) {
 		current = current.post(path, ({ request }) => handler(request), {
@@ -73,16 +76,16 @@ function getParamSchema(useNameParam: boolean | undefined, entity: string) {
 	return IdParam;
 }
 
-function handlerArity(fn: Function): number {
+function handlerArity(fn: (...args: never[]) => unknown): number {
 	return fn.length;
 }
 
 export function registerEntityRoutes(
-	app: Elysia<any>,
+	app: ElysiaApp,
 	prefix: string,
 	handlers: EntityCRUDHandlers,
 	opts: EntityCRUDMeta,
-): Elysia<any> {
+): ElysiaApp {
 	const base = `/api/${prefix}`;
 	const idKey: "id" | "name" = opts.useNameParam ? "name" : "id";
 	const paramSchema = getParamSchema(opts.useNameParam, opts.entity);
@@ -90,7 +93,7 @@ export function registerEntityRoutes(
 	let current = app;
 
 	if (handlers.list) {
-		const handler = handlers.list as (...args: any[]) => Promise<Response>;
+		const handler = handlers.list as (...args: unknown[]) => Promise<Response>;
 		const needsRequest = handlerArity(handler) > 0;
 		current = current.get(
 			base,
@@ -121,8 +124,10 @@ export function registerEntityRoutes(
 	if (handlers.get) {
 		current = current.get(
 			`${base}/:${idKey}`,
-			({ params }: { params: Record<string, string> }) =>
-				(handlers.get as (id: string) => Promise<Response>)(params[idKey]!),
+			({ params }: { params: Record<string, string> }) => {
+				const paramVal = params[idKey] ?? "";
+				return (handlers.get as (id: string) => Promise<Response>)(paramVal);
+			},
 			{
 				params: paramSchema,
 				detail: {
@@ -139,13 +144,17 @@ export function registerEntityRoutes(
 
 	if (handlers.update) {
 		const updateHandler = opts.useNameParam
-			? ({ request, params }: { request: Request; params: Record<string, string> }) =>
-					(handlers.update as (req: Request & { params: { name: string } }) => Promise<Response>)({
+			? ({ request, params }: { request: Request; params: Record<string, string> }) => {
+					const paramVal = params[idKey] ?? "";
+					return (handlers.update as (req: Request & { params: { name: string } }) => Promise<Response>)({
 						...request,
-						params: { name: params[idKey]! },
-					})
-			: ({ request, params }: { request: Request; params: Record<string, string> }) =>
-					(handlers.update as (req: Request, id: string) => Promise<Response>)(request, params[idKey]!);
+						params: { name: paramVal },
+					});
+				}
+			: ({ request, params }: { request: Request; params: Record<string, string> }) => {
+					const paramVal = params[idKey] ?? "";
+					return (handlers.update as (req: Request, id: string) => Promise<Response>)(request, paramVal);
+				};
 
 		current = current.put(`${base}/:${idKey}`, updateHandler, {
 			params: paramSchema,
@@ -162,13 +171,17 @@ export function registerEntityRoutes(
 
 	if (handlers.delete && desc.delete) {
 		const deleteHandler = opts.useNameParam
-			? ({ request, params }: { request: Request; params: Record<string, string> }) =>
-					(handlers.delete as (req: Request & { params: { name: string } }) => Promise<Response>)({
+			? ({ request, params }: { request: Request; params: Record<string, string> }) => {
+					const paramVal = params[idKey] ?? "";
+					return (handlers.delete as (req: Request & { params: { name: string } }) => Promise<Response>)({
 						...request,
-						params: { name: params[idKey]! },
-					})
-			: ({ params }: { params: Record<string, string> }) =>
-					(handlers.delete as (id: string) => Promise<Response>)(params[idKey]!);
+						params: { name: paramVal },
+					});
+				}
+			: ({ params }: { params: Record<string, string> }) => {
+					const paramVal = params[idKey] ?? "";
+					return (handlers.delete as (id: string) => Promise<Response>)(paramVal);
+				};
 
 		current = current.delete(`${base}/:${idKey}`, deleteHandler, {
 			params: paramSchema,

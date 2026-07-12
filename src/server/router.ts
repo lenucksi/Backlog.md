@@ -97,6 +97,7 @@ export interface AssetHelpers {
 }
 
 function actionRoute(
+	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
 	app: Elysia<any>,
 	path: string,
 	handler: (id: string) => Promise<Response>,
@@ -106,6 +107,7 @@ function actionRoute(
 		tags: string[];
 		responses: Record<string, { description: string }>;
 	},
+	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
 ): Elysia<any> {
 	return app.post(path, ({ params: { id } }) => handler(id), {
 		params: IdParam,
@@ -117,9 +119,11 @@ export function buildElysiaApp(
 	handlers: RouteHandlers,
 	spaHandler: () => Promise<Response>,
 	assetHelpers?: AssetHelpers,
+	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
 ): Elysia<any> {
 	const { tasks, documents, decisions, drafts, milestones, config, system, files, backlinks } = handlers;
 
+	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
 	let app: Elysia<any> = (new Elysia() as unknown as Elysia<any>)
 		.use(cors())
 		.use(
