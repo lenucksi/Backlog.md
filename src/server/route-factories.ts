@@ -1,8 +1,5 @@
-import { type Elysia, type TSchema, t } from "elysia";
+import { Elysia, type TSchema, t } from "elysia";
 import { IdParam } from "./schemas";
-
-// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its generic builder pattern
-export type ElysiaApp = Elysia<any>;
 
 // ===== Bulk Routes =====
 
@@ -13,10 +10,10 @@ export type BulkRouteDef = {
 	description: string;
 };
 
-export function registerBulkRoutes(app: ElysiaApp, routes: BulkRouteDef[]): ElysiaApp {
-	let current = app;
+export function createBulkRoutes(routes: BulkRouteDef[]) {
+	const app = new Elysia({ name: "bulk-routes" });
 	for (const { path, handler, summary, description } of routes) {
-		current = current.post(path, ({ request }) => handler(request), {
+		app.post(path, ({ request }) => handler(request), {
 			detail: {
 				summary,
 				description,
@@ -29,7 +26,7 @@ export function registerBulkRoutes(app: ElysiaApp, routes: BulkRouteDef[]): Elys
 			},
 		});
 	}
-	return current;
+	return app;
 }
 
 // ===== Entity CRUD Routes =====
@@ -80,33 +77,24 @@ function handlerArity(fn: (...args: never[]) => unknown): number {
 	return fn.length;
 }
 
-export function registerEntityRoutes(
-	app: ElysiaApp,
-	prefix: string,
-	handlers: EntityCRUDHandlers,
-	opts: EntityCRUDMeta,
-): ElysiaApp {
+export function createEntityRoutes(prefix: string, handlers: EntityCRUDHandlers, opts: EntityCRUDMeta) {
+	const app = new Elysia({ name: `entity-${prefix}` });
 	const base = `/api/${prefix}`;
 	const idKey: "id" | "name" = opts.useNameParam ? "name" : "id";
 	const paramSchema = getParamSchema(opts.useNameParam, opts.entity);
 	const desc = opts.descriptions;
-	let current = app;
 
 	if (handlers.list) {
 		const handler = handlers.list as (...args: unknown[]) => Promise<Response>;
 		const needsRequest = handlerArity(handler) > 0;
-		current = current.get(
-			base,
-			needsRequest ? ({ request }: { request: Request }) => handler(request) : () => handler(),
-			{
-				...(opts.listQuery ? { query: opts.listQuery } : {}),
-				detail: desc.list,
-			},
-		);
+		app.get(base, needsRequest ? ({ request }: { request: Request }) => handler(request) : () => handler(), {
+			...(opts.listQuery ? { query: opts.listQuery } : {}),
+			detail: desc.list,
+		});
 	}
 
 	if (handlers.create) {
-		current = current.post(
+		app.post(
 			base,
 			({ request }: { request: Request }) => (handlers.create as (req: Request) => Promise<Response>)(request),
 			{
@@ -122,7 +110,7 @@ export function registerEntityRoutes(
 	}
 
 	if (handlers.get) {
-		current = current.get(
+		app.get(
 			`${base}/:${idKey}`,
 			({ params }: { params: Record<string, string> }) => {
 				const paramVal = params[idKey] ?? "";
@@ -156,7 +144,7 @@ export function registerEntityRoutes(
 					return (handlers.update as (req: Request, id: string) => Promise<Response>)(request, paramVal);
 				};
 
-		current = current.put(`${base}/:${idKey}`, updateHandler, {
+		app.put(`${base}/:${idKey}`, updateHandler, {
 			params: paramSchema,
 			detail: {
 				...desc.update,
@@ -183,7 +171,7 @@ export function registerEntityRoutes(
 					return (handlers.delete as (id: string) => Promise<Response>)(paramVal);
 				};
 
-		current = current.delete(`${base}/:${idKey}`, deleteHandler, {
+		app.delete(`${base}/:${idKey}`, deleteHandler, {
 			params: paramSchema,
 			detail: {
 				...desc.delete,
@@ -196,5 +184,5 @@ export function registerEntityRoutes(
 		});
 	}
 
-	return current;
+	return app;
 }

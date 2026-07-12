@@ -4,8 +4,10 @@ import { Elysia } from "elysia";
 // @ts-expect-error
 import favicon from "../web/favicon.png" with { type: "file" };
 import { applyNoStoreHeaders } from "./middleware.ts";
-import { registerBulkRoutes, registerEntityRoutes } from "./route-factories.ts";
+import { createBulkRoutes, createEntityRoutes } from "./route-factories.ts";
 import { CleanupPreviewQuery, FileContentQuery, IdParam, SearchQuery, TaskListFilterQuery } from "./schemas";
+
+// --- Types ---
 
 export type RouteHandlers = {
 	tasks: {
@@ -96,9 +98,9 @@ export interface AssetHelpers {
 	getContentType: (path: string) => string;
 }
 
+// ===== Action Route Plugin =====
+
 function actionRoute(
-	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
-	app: Elysia<any>,
 	path: string,
 	handler: (id: string) => Promise<Response>,
 	meta: {
@@ -107,24 +109,23 @@ function actionRoute(
 		tags: string[];
 		responses: Record<string, { description: string }>;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
-): Elysia<any> {
-	return app.post(path, ({ params: { id } }) => handler(id), {
+) {
+	return new Elysia({ name: "action-route" }).post(path, ({ params: { id } }) => handler(id), {
 		params: IdParam,
 		detail: { summary: meta.summary, description: meta.description, tags: meta.tags, responses: meta.responses },
 	});
 }
 
+// ===== App Builder =====
+
 export function buildElysiaApp(
 	handlers: RouteHandlers,
 	spaHandler: () => Promise<Response>,
 	assetHelpers?: AssetHelpers,
-	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
-): Elysia<any> {
+) {
 	const { tasks, documents, decisions, drafts, milestones, config, system, files, backlinks } = handlers;
 
-	// biome-ignore lint/suspicious/noExplicitAny: Elysia requires <any> for its builder pattern
-	let app: Elysia<any> = (new Elysia() as unknown as Elysia<any>)
+	const app = new Elysia()
 		.use(cors())
 		.use(
 			swagger({
@@ -164,7 +165,6 @@ export function buildElysiaApp(
 				},
 			}),
 		)
-		// --- Asset Routes (previously in Bun.serve.fetch) ---
 		.get("/", async () => {
 			const result = await (assetHelpers?.resolveHtml?.() ?? spaHandler());
 			if (result instanceof Response) return result;
@@ -176,58 +176,56 @@ export function buildElysiaApp(
 			return new Response(Bun.file(favicon), {
 				headers: { "Content-Type": "image/png" },
 			});
-		});
-
-	// --- Tasks ---
-	app = registerEntityRoutes(
-		app,
-		"tasks",
-		{
-			list: (req: Request) => tasks.handleListTasks(req),
-			create: (req: Request) => tasks.handleCreateTask(req),
-			get: (id: string) => tasks.handleGetTask(id),
-			update: (req: Request, id: string) => tasks.handleUpdateTask(req, id),
-			delete: (id: string) => tasks.handleDeleteTask(id),
-		},
-		{
-			tag: "Tasks",
-			entity: "task",
-			listQuery: TaskListFilterQuery,
-			descriptions: {
-				list: {
-					summary: "List all tasks",
-					description: "Returns all tasks, optionally filtered by status, assignee, priority, milestone, or label",
+		})
+		// --- Tasks ---
+		.use(
+			createEntityRoutes(
+				"tasks",
+				{
+					list: (req: Request) => tasks.handleListTasks(req),
+					create: (req: Request) => tasks.handleCreateTask(req),
+					get: (id: string) => tasks.handleGetTask(id),
+					update: (req: Request, id: string) => tasks.handleUpdateTask(req, id),
+					delete: (id: string) => tasks.handleDeleteTask(id),
 				},
-				create: {
-					summary: "Create a task",
-					description:
-						"Creates a new task with title, status, priority, labels, assignees, and optional fields. The task ID is auto-generated.",
-					responseDesc: "Created Task object",
+				{
+					tag: "Tasks",
+					entity: "task",
+					listQuery: TaskListFilterQuery,
+					descriptions: {
+						list: {
+							summary: "List all tasks",
+							description: "Returns all tasks, optionally filtered by status, assignee, priority, milestone, or label",
+						},
+						create: {
+							summary: "Create a task",
+							description:
+								"Creates a new task with title, status, priority, labels, assignees, and optional fields. The task ID is auto-generated.",
+							responseDesc: "Created Task object",
+						},
+						get: {
+							summary: "Get task by ID",
+							description: "Returns a single task by its ID (e.g. BACK-123). Includes subtask summaries.",
+							responseDesc: "Task object with subtaskSummaries",
+							notFoundDesc: "Task not found",
+						},
+						update: {
+							summary: "Update a task",
+							description:
+								"Updates title, status, description, priority, labels, assignee, milestone, dependencies, implementation plan, acceptance criteria, due date, and other fields of an existing task",
+							responseDesc: "Updated Task object",
+							notFoundDesc: "Task not found",
+						},
+						delete: {
+							summary: "Delete a task",
+							description: "Permanently deletes a task. The task file is removed from disk.",
+							responseDesc: "Confirmation { success: true }",
+							notFoundDesc: "Task not found",
+						},
+					},
 				},
-				get: {
-					summary: "Get task by ID",
-					description: "Returns a single task by its ID (e.g. BACK-123). Includes subtask summaries.",
-					responseDesc: "Task object with subtaskSummaries",
-					notFoundDesc: "Task not found",
-				},
-				update: {
-					summary: "Update a task",
-					description:
-						"Updates title, status, description, priority, labels, assignee, milestone, dependencies, implementation plan, acceptance criteria, due date, and other fields of an existing task",
-					responseDesc: "Updated Task object",
-					notFoundDesc: "Task not found",
-				},
-				delete: {
-					summary: "Delete a task",
-					description: "Permanently deletes a task. The task file is removed from disk.",
-					responseDesc: "Confirmation { success: true }",
-					notFoundDesc: "Task not found",
-				},
-			},
-		},
-	);
-
-	app = app
+			),
+		)
 		.get("/api/tasks/completed", () => tasks.handleListCompletedTasks(), {
 			detail: {
 				summary: "List completed tasks",
@@ -253,54 +251,53 @@ export function buildElysiaApp(
 				tags: ["Tasks"],
 				responses: { 200: { description: "Confirmation { success: true }" } },
 			},
-		});
-
-	app = registerBulkRoutes(app, [
-		{
-			path: "/api/tasks/bulk/archive",
-			handler: tasks.handleBulkArchive,
-			summary: "Bulk archive tasks",
-			description: "Archives multiple tasks at once by their IDs",
-		},
-		{
-			path: "/api/tasks/bulk/status",
-			handler: tasks.handleBulkStatus,
-			summary: "Bulk update status",
-			description: "Updates the status for multiple tasks at once",
-		},
-		{
-			path: "/api/tasks/bulk/priority",
-			handler: tasks.handleBulkPriority,
-			summary: "Bulk update priority",
-			description: "Updates the priority (high/medium/low) for multiple tasks at once",
-		},
-		{
-			path: "/api/tasks/bulk/assignee",
-			handler: tasks.handleBulkAssignee,
-			summary: "Bulk update assignee",
-			description: "Updates the assignees for multiple tasks at once",
-		},
-		{
-			path: "/api/tasks/bulk/labels",
-			handler: tasks.handleBulkLabels,
-			summary: "Bulk update labels",
-			description: "Updates the labels for multiple tasks at once",
-		},
-		{
-			path: "/api/tasks/bulk/milestone",
-			handler: tasks.handleBulkMilestone,
-			summary: "Bulk update milestone",
-			description: "Sets or removes the milestone for multiple tasks at once",
-		},
-		{
-			path: "/api/tasks/bulk/due-date",
-			handler: tasks.handleBulkDueDate,
-			summary: "Bulk update due date",
-			description: "Sets or removes the due date for multiple tasks at once",
-		},
-	]);
-
-	app = app
+		})
+		.use(
+			createBulkRoutes([
+				{
+					path: "/api/tasks/bulk/archive",
+					handler: tasks.handleBulkArchive,
+					summary: "Bulk archive tasks",
+					description: "Archives multiple tasks at once by their IDs",
+				},
+				{
+					path: "/api/tasks/bulk/status",
+					handler: tasks.handleBulkStatus,
+					summary: "Bulk update status",
+					description: "Updates the status for multiple tasks at once",
+				},
+				{
+					path: "/api/tasks/bulk/priority",
+					handler: tasks.handleBulkPriority,
+					summary: "Bulk update priority",
+					description: "Updates the priority (high/medium/low) for multiple tasks at once",
+				},
+				{
+					path: "/api/tasks/bulk/assignee",
+					handler: tasks.handleBulkAssignee,
+					summary: "Bulk update assignee",
+					description: "Updates the assignees for multiple tasks at once",
+				},
+				{
+					path: "/api/tasks/bulk/labels",
+					handler: tasks.handleBulkLabels,
+					summary: "Bulk update labels",
+					description: "Updates the labels for multiple tasks at once",
+				},
+				{
+					path: "/api/tasks/bulk/milestone",
+					handler: tasks.handleBulkMilestone,
+					summary: "Bulk update milestone",
+					description: "Sets or removes the milestone for multiple tasks at once",
+				},
+				{
+					path: "/api/tasks/bulk/due-date",
+					handler: tasks.handleBulkDueDate,
+					summary: "Bulk update due date",
+					description: "Sets or removes the due date for multiple tasks at once",
+				},
+			]),
+		)
 		.post("/api/tasks/reorder", ({ request }) => tasks.handleReorderTask(request), {
 			detail: {
 				summary: "Reorder tasks",
@@ -328,201 +325,202 @@ export function buildElysiaApp(
 				tags: ["Tasks"],
 				responses: { 200: { description: "Object with success, movedCount, totalCount" } },
 			},
-		});
-
-	// --- Documents ---
-	app = registerEntityRoutes(
-		app,
-		"docs",
-		{
-			list: () => documents.handleListDocs(),
-			create: (req: Request) => documents.handleCreateDoc(req),
-			get: (id: string) => documents.handleGetDoc(id),
-			update: (req: Request, id: string) => documents.handleUpdateDoc(req, id),
-			delete: (id: string) => documents.handleDocumentDelete(id),
-		},
-		{
-			tag: "Documents",
-			entity: "document",
-			descriptions: {
-				list: {
-					summary: "List documents",
-					description: "Returns all documents from the docs/ directory",
+		})
+		// --- Documents ---
+		.use(
+			createEntityRoutes(
+				"docs",
+				{
+					list: () => documents.handleListDocs(),
+					create: (req: Request) => documents.handleCreateDoc(req),
+					get: (id: string) => documents.handleGetDoc(id),
+					update: (req: Request, id: string) => documents.handleUpdateDoc(req, id),
+					delete: (id: string) => documents.handleDocumentDelete(id),
 				},
-				create: {
-					summary: "Create a document",
-					description: "Creates a new document in the docs/ directory. Type: readme, guide, specification, or other.",
-					responseDesc: "Created Document object",
+				{
+					tag: "Documents",
+					entity: "document",
+					descriptions: {
+						list: {
+							summary: "List documents",
+							description: "Returns all documents from the docs/ directory",
+						},
+						create: {
+							summary: "Create a document",
+							description:
+								"Creates a new document in the docs/ directory. Type: readme, guide, specification, or other.",
+							responseDesc: "Created Document object",
+						},
+						get: {
+							summary: "Get document by ID",
+							description: "Returns a single document with its full markdown content",
+							responseDesc: "Document object with rawContent",
+							notFoundDesc: "Document not found",
+						},
+						update: {
+							summary: "Update a document",
+							description: "Updates content, title, type, path, labels, or tags of a document",
+							responseDesc: "Updated Document object",
+							notFoundDesc: "Document not found",
+						},
+						delete: {
+							summary: "Delete a document",
+							description: "Permanently deletes a document. Non-archived documents are archived first, then deleted.",
+							responseDesc: "Confirmation { success: true }",
+							notFoundDesc: "Document not found",
+						},
+					},
 				},
-				get: {
-					summary: "Get document by ID",
-					description: "Returns a single document with its full markdown content",
-					responseDesc: "Document object with rawContent",
-					notFoundDesc: "Document not found",
-				},
-				update: {
-					summary: "Update a document",
-					description: "Updates content, title, type, path, labels, or tags of a document",
-					responseDesc: "Updated Document object",
-					notFoundDesc: "Document not found",
-				},
-				delete: {
-					summary: "Delete a document",
-					description: "Permanently deletes a document. Non-archived documents are archived first, then deleted.",
-					responseDesc: "Confirmation { success: true }",
-					notFoundDesc: "Document not found",
-				},
+			),
+		)
+		.get("/api/docs/archived", () => documents.handleListArchivedDocs(), {
+			detail: {
+				summary: "List archived documents",
+				description: "Returns all archived documents from the docs/archive/ directory",
+				tags: ["Documents"],
+				responses: { 200: { description: "Array of Document objects" } },
 			},
-		},
-	);
-
-	app = app.get("/api/docs/archived", () => documents.handleListArchivedDocs(), {
-		detail: {
-			summary: "List archived documents",
-			description: "Returns all archived documents from the docs/archive/ directory",
-			tags: ["Documents"],
-			responses: { 200: { description: "Array of Document objects" } },
-		},
-	});
-
-	app = actionRoute(app, "/api/docs/:id/restore", (id) => documents.handleRestoreDocument(id), {
-		summary: "Restore archived document",
-		description: "Restores an archived document from docs/archive/ back to docs/",
-		tags: ["Documents"],
-		responses: {
-			200: { description: "Confirmation { success: true }" },
-			404: { description: "Archived document not found" },
-		},
-	});
-
-	app = actionRoute(app, "/api/docs/:id/archive", (id) => documents.handleDocumentArchive(id), {
-		summary: "Archive a document",
-		description: "Moves a document to the docs/archive/ directory",
-		tags: ["Documents"],
-		responses: {
-			200: { description: "Confirmation { success: true }" },
-			404: { description: "Document not found" },
-		},
-	});
-
-	// --- Decisions ---
-	app = registerEntityRoutes(
-		app,
-		"decisions",
-		{
-			list: () => decisions.handleListDecisions(),
-			create: (req: Request) => decisions.handleCreateDecision(req),
-			get: (id: string) => decisions.handleGetDecision(id),
-			update: (req: Request, id: string) => decisions.handleUpdateDecision(req, id),
-		},
-		{
-			tag: "Decisions",
-			entity: "decision",
-			descriptions: {
-				list: {
-					summary: "List decisions",
-					description: "Returns all Architectural Decision Records (ADRs)",
+		})
+		.use(
+			actionRoute("/api/docs/:id/restore", (id) => documents.handleRestoreDocument(id), {
+				summary: "Restore archived document",
+				description: "Restores an archived document from docs/archive/ back to docs/",
+				tags: ["Documents"],
+				responses: {
+					200: { description: "Confirmation { success: true }" },
+					404: { description: "Archived document not found" },
 				},
-				create: {
-					summary: "Create a decision",
-					description: "Creates a new Architectural Decision Record in the decisions/ directory",
-					responseDesc: "Created Decision object",
+			}),
+		)
+		.use(
+			actionRoute("/api/docs/:id/archive", (id) => documents.handleDocumentArchive(id), {
+				summary: "Archive a document",
+				description: "Moves a document to the docs/archive/ directory",
+				tags: ["Documents"],
+				responses: {
+					200: { description: "Confirmation { success: true }" },
+					404: { description: "Document not found" },
 				},
-				get: {
-					summary: "Get decision by ID",
-					description: "Returns a single Architectural Decision Record",
-					responseDesc: "Decision object",
-					notFoundDesc: "Decision not found",
+			}),
+		)
+		// --- Decisions ---
+		.use(
+			createEntityRoutes(
+				"decisions",
+				{
+					list: () => decisions.handleListDecisions(),
+					create: (req: Request) => decisions.handleCreateDecision(req),
+					get: (id: string) => decisions.handleGetDecision(id),
+					update: (req: Request, id: string) => decisions.handleUpdateDecision(req, id),
 				},
-				update: {
-					summary: "Update a decision",
-					description: "Updates the content (raw text) of an Architectural Decision Record",
-					responseDesc: "Confirmation { success: true }",
-					notFoundDesc: "Decision not found",
+				{
+					tag: "Decisions",
+					entity: "decision",
+					descriptions: {
+						list: {
+							summary: "List decisions",
+							description: "Returns all Architectural Decision Records (ADRs)",
+						},
+						create: {
+							summary: "Create a decision",
+							description: "Creates a new Architectural Decision Record in the decisions/ directory",
+							responseDesc: "Created Decision object",
+						},
+						get: {
+							summary: "Get decision by ID",
+							description: "Returns a single Architectural Decision Record",
+							responseDesc: "Decision object",
+							notFoundDesc: "Decision not found",
+						},
+						update: {
+							summary: "Update a decision",
+							description: "Updates the content (raw text) of an Architectural Decision Record",
+							responseDesc: "Confirmation { success: true }",
+							notFoundDesc: "Decision not found",
+						},
+					},
 				},
+			),
+		)
+		.use(
+			actionRoute("/api/decisions/:id/resolve", (id) => decisions.handleResolveDecision(id), {
+				summary: "Resolve a decision",
+				description: "Sets a decision to 'accepted' status. Fails if already resolved or superseded.",
+				tags: ["Decisions"],
+				responses: {
+					200: { description: "Confirmation with updated decision" },
+					404: { description: "Decision not found" },
+					409: { description: "Decision already resolved or superseded" },
+				},
+			}),
+		)
+		// --- Drafts ---
+		.get("/api/drafts", () => drafts.handleListDrafts(), {
+			detail: {
+				summary: "List drafts",
+				description: "Returns all drafts from the drafts/ directory",
+				tags: ["Drafts"],
+				responses: { 200: { description: "Array of Draft objects" } },
 			},
-		},
-	);
-
-	app = actionRoute(app, "/api/decisions/:id/resolve", (id) => decisions.handleResolveDecision(id), {
-		summary: "Resolve a decision",
-		description: "Sets a decision to 'accepted' status. Fails if already resolved or superseded.",
-		tags: ["Decisions"],
-		responses: {
-			200: { description: "Confirmation with updated decision" },
-			404: { description: "Decision not found" },
-			409: { description: "Decision already resolved or superseded" },
-		},
-	});
-
-	// --- Drafts ---
-	app = app.get("/api/drafts", () => drafts.handleListDrafts(), {
-		detail: {
-			summary: "List drafts",
-			description: "Returns all drafts from the drafts/ directory",
-			tags: ["Drafts"],
-			responses: { 200: { description: "Array of Draft objects" } },
-		},
-	});
-
-	app = actionRoute(app, "/api/drafts/:id/promote", (id) => drafts.handlePromoteDraft(id), {
-		summary: "Promote draft to task",
-		description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
-		tags: ["Drafts"],
-		responses: {
-			200: { description: "Confirmation { success: true }" },
-			404: { description: "Draft not found" },
-			409: { description: "Conflict: draft cannot be promoted" },
-		},
-	});
-
-	// --- Milestones ---
-	app = registerEntityRoutes(
-		app,
-		"milestones",
-		{
-			list: () => milestones.handleListMilestones(),
-			create: (req: Request) => milestones.handleCreateMilestone(req),
-			get: (id: string) => milestones.handleGetMilestone(id),
-			update: (req: Request, id: string) => milestones.handleUpdateMilestone(req, id),
-		},
-		{
-			tag: "Milestones",
-			entity: "milestone",
-			descriptions: {
-				list: {
-					summary: "List milestones",
-					description: "Returns all milestones from the milestones/ directory",
+		})
+		.use(
+			actionRoute("/api/drafts/:id/promote", (id) => drafts.handlePromoteDraft(id), {
+				summary: "Promote draft to task",
+				description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
+				tags: ["Drafts"],
+				responses: {
+					200: { description: "Confirmation { success: true }" },
+					404: { description: "Draft not found" },
+					409: { description: "Conflict: draft cannot be promoted" },
 				},
-				create: {
-					summary: "Create a milestone",
-					description: "Creates a new milestone in the milestones/ directory",
-					responseDesc: "Created Milestone object",
+			}),
+		)
+		// --- Milestones ---
+		.use(
+			createEntityRoutes(
+				"milestones",
+				{
+					list: () => milestones.handleListMilestones(),
+					create: (req: Request) => milestones.handleCreateMilestone(req),
+					get: (id: string) => milestones.handleGetMilestone(id),
+					update: (req: Request, id: string) => milestones.handleUpdateMilestone(req, id),
 				},
-				get: {
-					summary: "Get milestone by ID",
-					description: "Returns a single milestone",
-					responseDesc: "Milestone object",
-					notFoundDesc: "Milestone not found",
+				{
+					tag: "Milestones",
+					entity: "milestone",
+					descriptions: {
+						list: {
+							summary: "List milestones",
+							description: "Returns all milestones from the milestones/ directory",
+						},
+						create: {
+							summary: "Create a milestone",
+							description: "Creates a new milestone in the milestones/ directory",
+							responseDesc: "Created Milestone object",
+						},
+						get: {
+							summary: "Get milestone by ID",
+							description: "Returns a single milestone",
+							responseDesc: "Milestone object",
+							notFoundDesc: "Milestone not found",
+						},
+						update: {
+							summary: "Update a milestone",
+							description: "Updates the title and description of a milestone. Optionally renames linked tasks.",
+							responseDesc: "Object with success, milestone, and message",
+							notFoundDesc: "Milestone not found",
+						},
+						delete: {
+							summary: "Delete a milestone",
+							description:
+								"Deletes a milestone. Options for handling associated tasks: clear (removes milestone), keep (keeps reference), reassign (moves to another milestone).",
+							responseDesc: "Object with success and message",
+							notFoundDesc: "Milestone not found",
+						},
+					},
 				},
-				update: {
-					summary: "Update a milestone",
-					description: "Updates the title and description of a milestone. Optionally renames linked tasks.",
-					responseDesc: "Object with success, milestone, and message",
-					notFoundDesc: "Milestone not found",
-				},
-				delete: {
-					summary: "Delete a milestone",
-					description:
-						"Deletes a milestone. Options for handling associated tasks: clear (removes milestone), keep (keeps reference), reassign (moves to another milestone).",
-					responseDesc: "Object with success and message",
-					notFoundDesc: "Milestone not found",
-				},
-			},
-		},
-	);
-
-	app = app
+			),
+		)
 		.delete("/api/milestones/:id", ({ request, params: { id } }) => milestones.handleRemoveMilestone(request, id), {
 			params: IdParam,
 			detail: {
@@ -543,20 +541,19 @@ export function buildElysiaApp(
 				tags: ["Milestones"],
 				responses: { 200: { description: "Array of Milestone objects" } },
 			},
-		});
-
-	app = actionRoute(app, "/api/milestones/:id/archive", (id) => milestones.handleArchiveMilestone(id), {
-		summary: "Archive a milestone",
-		description: "Archives a milestone (moves it from milestones/ to the archive)",
-		tags: ["Milestones"],
-		responses: {
-			200: { description: "Object with success and milestone" },
-			404: { description: "Milestone not found" },
-		},
-	});
-
-	// --- Config ---
-	app = app
+		})
+		.use(
+			actionRoute("/api/milestones/:id/archive", (id) => milestones.handleArchiveMilestone(id), {
+				summary: "Archive a milestone",
+				description: "Archives a milestone (moves it from milestones/ to the archive)",
+				tags: ["Milestones"],
+				responses: {
+					200: { description: "Object with success and milestone" },
+					404: { description: "Milestone not found" },
+				},
+			}),
+		)
+		// --- Config ---
 		.get("/api/statuses", () => config.handleGetStatuses(), {
 			detail: {
 				summary: "Get status list",
@@ -580,100 +577,98 @@ export function buildElysiaApp(
 				tags: ["Config"],
 				responses: { 200: { description: "Updated BacklogConfig object" } },
 			},
-		});
-
-	app = registerEntityRoutes(
-		app,
-		"config/labels",
-		{
-			list: () => config.handleListLabels(),
-			create: (req: Request) => config.handleAddLabel(req),
-			update: (req: Request & { params: { name: string } }) => config.handleRenameLabel(req),
-			delete: (req: Request & { params: { name: string } }) => config.handleRemoveLabel(req),
-		},
-		{
-			tag: "Config",
-			entity: "label",
-			useNameParam: true,
-			descriptions: {
-				list: {
-					summary: "List labels",
-					description: "Returns all configured labels (name + optional color)",
+		})
+		.use(
+			createEntityRoutes(
+				"config/labels",
+				{
+					list: () => config.handleListLabels(),
+					create: (req: Request) => config.handleAddLabel(req),
+					update: (req: Request & { params: { name: string } }) => config.handleRenameLabel(req),
+					delete: (req: Request & { params: { name: string } }) => config.handleRemoveLabel(req),
 				},
-				create: {
-					summary: "Add a label",
-					description: "Adds a new label with name and optional color (hex code)",
-					responseDesc: "Updated array of LabelConfig objects",
+				{
+					tag: "Config",
+					entity: "label",
+					useNameParam: true,
+					descriptions: {
+						list: {
+							summary: "List labels",
+							description: "Returns all configured labels (name + optional color)",
+						},
+						create: {
+							summary: "Add a label",
+							description: "Adds a new label with name and optional color (hex code)",
+							responseDesc: "Updated array of LabelConfig objects",
+						},
+						get: {
+							summary: "Get label by name",
+							description: "Returns a single label configuration",
+							responseDesc: "LabelConfig object",
+							notFoundDesc: "Label not found",
+						},
+						update: {
+							summary: "Rename a label",
+							description: "Changes the name and/or color of an existing label",
+							responseDesc: "Updated array of LabelConfig objects",
+							notFoundDesc: "Label not found",
+						},
+						delete: {
+							summary: "Remove a label",
+							description: "Removes a label from the configuration",
+							responseDesc: "Updated array of LabelConfig objects",
+							notFoundDesc: "Label not found",
+						},
+					},
 				},
-				get: {
-					summary: "Get label by name",
-					description: "Returns a single label configuration",
-					responseDesc: "LabelConfig object",
-					notFoundDesc: "Label not found",
+			),
+		)
+		.use(
+			createEntityRoutes(
+				"config/authors",
+				{
+					list: () => config.handleListAuthors(),
+					create: (req: Request) => config.handleAddAuthor(req),
+					update: (req: Request & { params: { name: string } }) => config.handleRenameAuthor(req),
+					delete: (req: Request & { params: { name: string } }) => config.handleRemoveAuthor(req),
 				},
-				update: {
-					summary: "Rename a label",
-					description: "Changes the name and/or color of an existing label",
-					responseDesc: "Updated array of LabelConfig objects",
-					notFoundDesc: "Label not found",
+				{
+					tag: "Config",
+					entity: "author",
+					useNameParam: true,
+					descriptions: {
+						list: {
+							summary: "List authors",
+							description: "Returns all configured authors (name + optional color)",
+						},
+						create: {
+							summary: "Add an author",
+							description: "Adds a new author with name and optional color (hex code)",
+							responseDesc: "Updated array of AuthorConfig objects",
+						},
+						get: {
+							summary: "Get author by name",
+							description: "Returns a single author configuration",
+							responseDesc: "AuthorConfig object",
+							notFoundDesc: "Author not found",
+						},
+						update: {
+							summary: "Rename an author",
+							description: "Changes the name and/or color of an existing author",
+							responseDesc: "Updated array of AuthorConfig objects",
+							notFoundDesc: "Author not found",
+						},
+						delete: {
+							summary: "Remove an author",
+							description: "Removes an author from the configuration",
+							responseDesc: "Updated array of AuthorConfig objects",
+							notFoundDesc: "Author not found",
+						},
+					},
 				},
-				delete: {
-					summary: "Remove a label",
-					description: "Removes a label from the configuration",
-					responseDesc: "Updated array of LabelConfig objects",
-					notFoundDesc: "Label not found",
-				},
-			},
-		},
-	);
-
-	app = registerEntityRoutes(
-		app,
-		"config/authors",
-		{
-			list: () => config.handleListAuthors(),
-			create: (req: Request) => config.handleAddAuthor(req),
-			update: (req: Request & { params: { name: string } }) => config.handleRenameAuthor(req),
-			delete: (req: Request & { params: { name: string } }) => config.handleRemoveAuthor(req),
-		},
-		{
-			tag: "Config",
-			entity: "author",
-			useNameParam: true,
-			descriptions: {
-				list: {
-					summary: "List authors",
-					description: "Returns all configured authors (name + optional color)",
-				},
-				create: {
-					summary: "Add an author",
-					description: "Adds a new author with name and optional color (hex code)",
-					responseDesc: "Updated array of AuthorConfig objects",
-				},
-				get: {
-					summary: "Get author by name",
-					description: "Returns a single author configuration",
-					responseDesc: "AuthorConfig object",
-					notFoundDesc: "Author not found",
-				},
-				update: {
-					summary: "Rename an author",
-					description: "Changes the name and/or color of an existing author",
-					responseDesc: "Updated array of AuthorConfig objects",
-					notFoundDesc: "Author not found",
-				},
-				delete: {
-					summary: "Remove an author",
-					description: "Removes an author from the configuration",
-					responseDesc: "Updated array of AuthorConfig objects",
-					notFoundDesc: "Author not found",
-				},
-			},
-		},
-	);
-
-	// --- System ---
-	app = app
+			),
+		)
+		// --- System ---
 		.get("/api/version", () => system.handleGetVersion(), {
 			detail: {
 				summary: "Get API version",
@@ -713,10 +708,8 @@ export function buildElysiaApp(
 				tags: ["System"],
 				responses: { 200: { description: "Object with success, projectName, and mcpResults" } },
 			},
-		});
-
-	// --- Search ---
-	app = app
+		})
+		// --- Search ---
 		.get("/api/search", ({ request }) => tasks.handleSearch(request), {
 			query: SearchQuery,
 			detail: {
