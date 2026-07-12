@@ -135,6 +135,10 @@ export class ApiClient {
 		return response.json();
 	}
 
+	private configEntityUrl(entity: string, name?: string): string {
+		return `${API_BASE}/config/${entity}${name ? `/${encodeURIComponent(name)}` : ""}`;
+	}
+
 	private async sendJson<T>(url: string, method: string, body: unknown, errorMessage: string): Promise<T> {
 		const response = await fetch(url, {
 			method,
@@ -304,12 +308,15 @@ export class ApiClient {
 	}
 
 	async fetchLabels(): Promise<Array<{ name: string; color?: string }>> {
-		return this.getJson<Array<{ name: string; color?: string }>>(`${API_BASE}/config/labels`, "Failed to fetch labels");
+		return this.getJson<Array<{ name: string; color?: string }>>(
+			this.configEntityUrl("labels"),
+			"Failed to fetch labels",
+		);
 	}
 
 	async addLabel(name: string, color?: string): Promise<Array<{ name: string; color?: string }>> {
 		return this.sendJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/labels`,
+			this.configEntityUrl("labels"),
 			"POST",
 			{ name, ...(color ? { color } : {}) },
 			"Failed to add label",
@@ -322,7 +329,7 @@ export class ApiClient {
 		color?: string,
 	): Promise<Array<{ name: string; color?: string }>> {
 		return this.sendJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/labels/${encodeURIComponent(oldName)}`,
+			this.configEntityUrl("labels", oldName),
 			"PUT",
 			{ name: newName, ...(color ? { color } : {}) },
 			"Failed to rename label",
@@ -330,17 +337,14 @@ export class ApiClient {
 	}
 
 	async removeLabel(name: string): Promise<Array<{ name: string; color?: string }>> {
-		return this.fetchJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/labels/${encodeURIComponent(name)}`,
-			{
-				method: "DELETE",
-			},
-		);
+		return this.fetchJson<Array<{ name: string; color?: string }>>(this.configEntityUrl("labels", name), {
+			method: "DELETE",
+		});
 	}
 
 	async setLabelColor(name: string, color: string): Promise<Array<{ name: string; color?: string }>> {
 		return this.sendJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/labels/${encodeURIComponent(name)}`,
+			this.configEntityUrl("labels", name),
 			"PUT",
 			{ color },
 			"Failed to set label color",
@@ -349,14 +353,14 @@ export class ApiClient {
 
 	async fetchAuthors(): Promise<Array<{ name: string; color?: string }>> {
 		return this.getJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/authors`,
+			this.configEntityUrl("authors"),
 			"Failed to fetch authors",
 		);
 	}
 
 	async addAuthor(name: string, color?: string): Promise<Array<{ name: string; color?: string }>> {
 		return this.sendJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/authors`,
+			this.configEntityUrl("authors"),
 			"POST",
 			{ name, ...(color ? { color } : {}) },
 			"Failed to add author",
@@ -369,7 +373,7 @@ export class ApiClient {
 		color?: string,
 	): Promise<Array<{ name: string; color?: string }>> {
 		return this.sendJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/authors/${encodeURIComponent(oldName)}`,
+			this.configEntityUrl("authors", oldName),
 			"PUT",
 			{ name: newName, ...(color ? { color } : {}) },
 			"Failed to rename author",
@@ -377,17 +381,14 @@ export class ApiClient {
 	}
 
 	async removeAuthor(name: string): Promise<Array<{ name: string; color?: string }>> {
-		return this.fetchJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/authors/${encodeURIComponent(name)}`,
-			{
-				method: "DELETE",
-			},
-		);
+		return this.fetchJson<Array<{ name: string; color?: string }>>(this.configEntityUrl("authors", name), {
+			method: "DELETE",
+		});
 	}
 
 	async setAuthorColor(name: string, color: string): Promise<Array<{ name: string; color?: string }>> {
 		return this.sendJson<Array<{ name: string; color?: string }>>(
-			`${API_BASE}/config/authors/${encodeURIComponent(name)}`,
+			this.configEntityUrl("authors", name),
 			"PUT",
 			{ color },
 			"Failed to set author color",

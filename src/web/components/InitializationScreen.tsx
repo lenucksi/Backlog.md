@@ -4,6 +4,34 @@ import { getSchemaDefaults } from "../../utils/config-schema.ts";
 import { Icons } from "../components/icons";
 import { apiClient } from "../lib/api";
 
+interface SelectableCardProps {
+	selected: boolean;
+	type: "radio" | "checkbox";
+	name?: string;
+	value?: string;
+	onChange: () => void;
+	label: string;
+	description: string;
+}
+
+function SelectableCard({ selected, type, name, value, onChange, label, description }: SelectableCardProps) {
+	return (
+		<label
+			className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
+				selected
+					? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+					: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+			}`}
+		>
+			<input type={type} name={name} value={value} checked={selected} onChange={onChange} className="mt-1 mr-3" />
+			<div>
+				<div className="font-medium text-gray-900 dark:text-gray-100">{label}</div>
+				<div className="text-sm text-gray-500 dark:text-gray-400">{description}</div>
+			</div>
+		</label>
+	);
+}
+
 type IntegrationMode = "mcp" | "cli" | "none";
 type McpClient = "claude" | "codex" | "gemini" | "guide";
 type AgentFile = "CLAUDE.md" | "AGENTS.md" | "GEMINI.md" | ".github/copilot-instructions.md";
@@ -281,76 +309,33 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 				How would you like your AI tools to connect to Backlog.md?
 			</p>
 			<div className="space-y-3">
-				<label
-					className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-						integrationMode === "mcp"
-							? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-							: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-					}`}
-				>
-					<input
-						type="radio"
-						name="integrationMode"
-						value="mcp"
-						checked={integrationMode === "mcp"}
-						onChange={() => setIntegrationMode("mcp")}
-						className="mt-1 mr-3"
-					/>
-					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">MCP Connector (Recommended)</div>
-						<div className="text-sm text-gray-500 dark:text-gray-400">
-							For Claude Code, Codex, Gemini CLI, Kiro, Cursor, etc. Agents learn the Backlog.md workflow through MCP
-							tools, resources, and prompts.
-						</div>
-					</div>
-				</label>
-
-				<label
-					className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-						integrationMode === "cli"
-							? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-							: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-					}`}
-				>
-					<input
-						type="radio"
-						name="integrationMode"
-						value="cli"
-						checked={integrationMode === "cli"}
-						onChange={() => setIntegrationMode("cli")}
-						className="mt-1 mr-3"
-					/>
-					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">CLI Commands (Broader Compatibility)</div>
-						<div className="text-sm text-gray-500 dark:text-gray-400">
-							Agents will use Backlog.md by invoking CLI commands directly. Creates instruction files for various AI
-							tools.
-						</div>
-					</div>
-				</label>
-
-				<label
-					className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-						integrationMode === "none"
-							? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-							: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-					}`}
-				>
-					<input
-						type="radio"
-						name="integrationMode"
-						value="none"
-						checked={integrationMode === "none"}
-						onChange={() => setIntegrationMode("none")}
-						className="mt-1 mr-3"
-					/>
-					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">Skip for Now</div>
-						<div className="text-sm text-gray-500 dark:text-gray-400">
-							Continue without setting up AI integration. You can configure this later.
-						</div>
-					</div>
-				</label>
+				<SelectableCard
+					selected={integrationMode === "mcp"}
+					type="radio"
+					name="integrationMode"
+					value="mcp"
+					onChange={() => setIntegrationMode("mcp")}
+					label="MCP Connector (Recommended)"
+					description="For Claude Code, Codex, Gemini CLI, Kiro, Cursor, etc. Agents learn the Backlog.md workflow through MCP tools, resources, and prompts."
+				/>
+				<SelectableCard
+					selected={integrationMode === "cli"}
+					type="radio"
+					name="integrationMode"
+					value="cli"
+					onChange={() => setIntegrationMode("cli")}
+					label="CLI Commands (Broader Compatibility)"
+					description="Agents will use Backlog.md by invoking CLI commands directly. Creates instruction files for various AI tools."
+				/>
+				<SelectableCard
+					selected={integrationMode === "none"}
+					type="radio"
+					name="integrationMode"
+					value="none"
+					onChange={() => setIntegrationMode("none")}
+					label="Skip for Now"
+					description="Continue without setting up AI integration. You can configure this later."
+				/>
 			</div>
 		</div>
 	);
@@ -372,25 +357,14 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						description: "Opens documentation for manual configuration",
 					},
 				].map((client) => (
-					<label
+					<SelectableCard
 						key={client.id}
-						className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-							selectedMcpClients.includes(client.id)
-								? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-								: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-						}`}
-					>
-						<input
-							type="checkbox"
-							checked={selectedMcpClients.includes(client.id)}
-							onChange={() => toggleMcpClient(client.id)}
-							className="mt-1 mr-3"
-						/>
-						<div>
-							<div className="font-medium text-gray-900 dark:text-gray-100">{client.label}</div>
-							<div className="text-sm text-gray-500 dark:text-gray-400">{client.description}</div>
-						</div>
-					</label>
+						selected={selectedMcpClients.includes(client.id)}
+						type="checkbox"
+						onChange={() => toggleMcpClient(client.id)}
+						label={client.label}
+						description={client.description}
+					/>
 				))}
 			</div>
 			{selectedMcpClients.length === 0 && (
@@ -422,25 +396,14 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 						description: "GitHub Copilot",
 					},
 				].map((file) => (
-					<label
+					<SelectableCard
 						key={file.id}
-						className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-							selectedAgentFiles.includes(file.id)
-								? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-								: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-						}`}
-					>
-						<input
-							type="checkbox"
-							checked={selectedAgentFiles.includes(file.id)}
-							onChange={() => toggleAgentFile(file.id)}
-							className="mt-1 mr-3"
-						/>
-						<div>
-							<div className="font-medium text-gray-900 dark:text-gray-100">{file.label}</div>
-							<div className="text-sm text-gray-500 dark:text-gray-400">{file.description}</div>
-						</div>
-					</label>
+						selected={selectedAgentFiles.includes(file.id)}
+						type="checkbox"
+						onChange={() => toggleAgentFile(file.id)}
+						label={file.label}
+						description={file.description}
+					/>
 				))}
 			</div>
 
@@ -487,35 +450,24 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 							description: `Use ${rootConfigPath ?? "backlog.config.yml"} as the project-root pointer file`,
 						},
 					].map((option) => (
-						<label
+						<SelectableCard
 							key={option.id}
-							className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-								backlogDirectorySource === option.id
-									? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-									: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-							}`}
-						>
-							<input
-								type="radio"
-								name="backlogDirectorySource"
-								value={option.id}
-								checked={backlogDirectorySource === option.id}
-								onChange={() => {
-									setBacklogDirectorySource(option.id);
-									if (option.id !== "custom") {
-										setBacklogDirectory(option.id);
-									}
-									if (option.id === "custom") {
-										setConfigLocation("root");
-									}
-								}}
-								className="mt-1 mr-3"
-							/>
-							<div>
-								<div className="font-medium text-gray-900 dark:text-gray-100">{option.label}</div>
-								<div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
-							</div>
-						</label>
+							selected={backlogDirectorySource === option.id}
+							type="radio"
+							name="backlogDirectorySource"
+							value={option.id}
+							onChange={() => {
+								setBacklogDirectorySource(option.id);
+								if (option.id !== "custom") {
+									setBacklogDirectory(option.id);
+								}
+								if (option.id === "custom") {
+									setConfigLocation("root");
+								}
+							}}
+							label={option.label}
+							description={option.description}
+						/>
 					))}
 				</div>
 				{backlogDirectorySource === "custom" && (
@@ -552,27 +504,16 @@ const InitializationScreen: React.FC<InitializationScreenProps> = ({ onInitializ
 									description: "Store config in the project root and point to the backlog folder there",
 								},
 							].map((option) => (
-								<label
+								<SelectableCard
 									key={option.id}
-									className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-										configLocation === option.id
-											? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-											: "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-									}`}
-								>
-									<input
-										type="radio"
-										name="configLocation"
-										value={option.id}
-										checked={configLocation === option.id}
-										onChange={() => setConfigLocation(option.id)}
-										className="mt-1 mr-3"
-									/>
-									<div>
-										<div className="font-medium text-gray-900 dark:text-gray-100">{option.label}</div>
-										<div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
-									</div>
-								</label>
+									selected={configLocation === option.id}
+									type="radio"
+									name="configLocation"
+									value={option.id}
+									onChange={() => setConfigLocation(option.id)}
+									label={option.label}
+									description={option.description}
+								/>
 							))}
 						</div>
 					</div>

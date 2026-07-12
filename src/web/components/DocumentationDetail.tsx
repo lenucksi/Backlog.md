@@ -1,7 +1,8 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, type ReactNode, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type { Document } from "../../types";
 import ErrorBoundary from "../components/ErrorBoundary";
+import { Icons } from "../components/icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { apiClient } from "../lib/api";
 import { sanitizeUrlTitle } from "../utils/urlHelpers";
@@ -73,6 +74,39 @@ const getDocumentDirectory = (path?: string): string => {
 		.slice(0, -1)
 		.join("/");
 };
+
+interface ActionButtonProps {
+	variant?: "default" | "danger" | "primary";
+	onClick: () => void;
+	children: ReactNode;
+	icon?: ReactNode;
+	disabled?: boolean;
+}
+
+const btnBase =
+	"inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200";
+const variantClasses: Record<NonNullable<ActionButtonProps["variant"]>, string> = {
+	default:
+		"border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-blue-500 dark:focus:ring-blue-400",
+	danger:
+		"border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:ring-red-500 dark:focus:ring-red-400",
+	primary:
+		"bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700 focus:ring-blue-500 dark:focus:ring-blue-400",
+};
+
+function ActionButton({ variant = "default", onClick, children, icon, disabled }: ActionButtonProps) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			disabled={disabled}
+			className={`${btnBase} ${variantClasses[variant]} ${disabled ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400" : ""}`}
+		>
+			{icon && <span className="mr-2">{icon}</span>}
+			{children}
+		</button>
+	);
+}
 
 interface DocumentationDetailProps {
 	docs: Document[];
@@ -316,20 +350,9 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 		return (
 			<div className="flex-1 flex items-center justify-center p-8">
 				<div className="text-center">
-					<svg
-						className="mx-auto h-12 w-12 text-gray-400"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-						aria-hidden="true"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-						/>
-					</svg>
+					<span className="mx-auto h-12 w-12 text-gray-400">
+						<Icons.DocumentPage />
+					</span>
 					<h3 className="mt-2 text-sm font-medium text-gray-900">No document selected</h3>
 					<p className="mt-1 text-sm text-gray-500">Select a document from the sidebar to view its content.</p>
 				</div>
@@ -377,50 +400,22 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 								)}
 								<div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
 									<div className="flex items-center gap-2">
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-												d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z"
-											/>
-										</svg>
+										<Icons.Tag />
 										<span>ID: {document?.id || `doc-${id}`}</span>
 									</div>
 									<div className="flex items-center gap-2">
-										<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-												d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-											/>
-										</svg>
+										<Icons.Document />
 										<span>Documentation</span>
 									</div>
 									{document?.path && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M3 7h5l2 2h11v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-												/>
-											</svg>
+											<Icons.Folder />
 											<span>{document.path}</span>
 										</div>
 									)}
 									{document?.createdDate && (
 										<div className="flex items-center gap-2">
-											<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-												/>
-											</svg>
+											<Icons.Calendar />
 											<span>Created: {document.createdDate}</span>
 										</div>
 									)}
@@ -431,102 +426,33 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 									<>
 										{!isNewDocument && (
 											<>
-												<button
-													type="button"
-													onClick={() => setConfirmAction("archive")}
-													className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-												>
-													<svg
-														className="size-4 mr-2"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-														aria-hidden="true"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-														/>
-													</svg>
+												<ActionButton onClick={() => setConfirmAction("archive")} icon={<Icons.Archive />}>
 													Archive
-												</button>
-												<button
-													type="button"
+												</ActionButton>
+												<ActionButton
+													variant="danger"
 													onClick={() => setConfirmAction("delete")}
-													className="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
+													icon={<Icons.Trash />}
 												>
-													<svg
-														className="size-4 mr-2"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-														aria-hidden="true"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-														/>
-													</svg>
 													Delete
-												</button>
+												</ActionButton>
 											</>
 										)}
-										<button
-											type="button"
-											onClick={handleEdit}
-											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-										>
-											<svg
-												className="size-4 mr-2"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-												aria-hidden="true"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-												/>
-											</svg>
+										<ActionButton onClick={handleEdit} icon={<Icons.Edit />}>
 											Edit
-										</button>
+										</ActionButton>
 									</>
 								) : (
 									<div className="flex items-center gap-2">
-										<button
-											type="button"
-											onClick={handleCancelEdit}
-											className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-										>
-											Cancel
-										</button>
-										<button
-											type="button"
+										<ActionButton onClick={handleCancelEdit}>Cancel</ActionButton>
+										<ActionButton
+											variant="primary"
 											onClick={handleSave}
 											disabled={!hasChanges || isSaving}
-											className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
-												hasChanges && !isSaving
-													? "bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700 focus:ring-blue-500 dark:focus:ring-blue-400"
-													: "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-											}`}
+											icon={<Icons.Checkmark />}
 										>
-											<svg
-												className="size-4 mr-2"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-												aria-hidden="true"
-											>
-												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-											</svg>
 											{isSaving ? "Saving..." : "Save"}
-										</button>
+										</ActionButton>
 									</div>
 								)}
 							</div>
@@ -567,29 +493,16 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 				{saveError && (
 					<div className="border-t border-red-200 bg-red-50 px-8 py-3">
 						<div className="flex items-center gap-3">
-							<svg
-								className="size-5 text-red-500"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								aria-hidden="true"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
-								/>
-							</svg>
+							<span className="text-red-500">
+								<Icons.Warning />
+							</span>
 							<span className="text-sm text-red-700">Failed to save: {saveError.message}</span>
 							<button
 								type="button"
 								onClick={() => setSaveError(null)}
 								className="ml-auto text-red-700 hover:text-red-900"
 							>
-								<svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-								</svg>
+								<Icons.Close />
 							</button>
 						</div>
 					</div>
@@ -605,35 +518,13 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 								className={`p-2 rounded-circle ${confirmAction === "delete" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-100 dark:bg-blue-900/30"}`}
 							>
 								{confirmAction === "delete" ? (
-									<svg
-										className="size-6 text-red-600 dark:text-red-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										aria-hidden="true"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
-										/>
-									</svg>
+									<span className="size-6 text-red-600 dark:text-red-400">
+										<Icons.Warning />
+									</span>
 								) : (
-									<svg
-										className="size-6 text-blue-600 dark:text-blue-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										aria-hidden="true"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-										/>
-									</svg>
+									<span className="size-6 text-blue-600 dark:text-blue-400">
+										<Icons.Archive />
+									</span>
 								)}
 							</div>
 							<div className="flex-1">
@@ -648,24 +539,13 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 							</div>
 						</div>
 						<div className="mt-6 flex justify-end gap-3">
-							<button
-								type="button"
-								onClick={() => setConfirmAction(null)}
-								className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200"
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
+							<ActionButton onClick={() => setConfirmAction(null)}>Cancel</ActionButton>
+							<ActionButton
+								variant={confirmAction === "delete" ? "danger" : "primary"}
 								onClick={confirmAction === "delete" ? handleDelete : handleArchive}
-								className={`px-4 py-2 rounded-lg text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors duration-200 ${
-									confirmAction === "delete"
-										? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
-										: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-								}`}
 							>
 								{confirmAction === "delete" ? "Delete" : "Archive"}
-							</button>
+							</ActionButton>
 						</div>
 					</div>
 				</div>
@@ -677,14 +557,9 @@ export default function DocumentationDetail({ docs, onRefreshData }: Documentati
 					message={`Document "${docTitle}" saved successfully!`}
 					onDismiss={() => setShowSaveSuccess(false)}
 					icon={
-						<svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
+						<span className="size-5">
+							<Icons.CheckmarkCircle />
+						</span>
 					}
 				/>
 			)}
