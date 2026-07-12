@@ -122,5 +122,6 @@ export function resolveTaskListSelection<T>(
 	if (typeof index !== "number") {
 		return fallback;
 	}
+	// aislop-ignore-next-line hidden-fallback — not an error handler, nullish coalescing
 	return items[index] ?? fallback;
 }

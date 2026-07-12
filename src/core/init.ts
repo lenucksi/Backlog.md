@@ -140,6 +140,7 @@ function resolveOverrideValue<T>(
 	existing: T | undefined,
 	fallback: T,
 ): T {
+	// aislop-ignore-next-line hidden-fallback — not an error handler, nullish coalescing chain
 	return (advanced[key] as T | undefined) ?? existing ?? fallback;
 }
 

@@ -420,6 +420,7 @@ export class GitOperations {
 			);
 		} catch (e) {
 			getLogger().debug(`Failed to list branches: ${e instanceof Error ? e.message : String(e)}`);
+			// aislop-ignore-next-line hidden-fallback — intentional: listBranches should never crash
 			return [];
 		}
 	}

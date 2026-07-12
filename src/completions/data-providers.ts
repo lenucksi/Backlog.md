@@ -20,6 +20,7 @@ async function withCore<T>(callback: CoreCallback<T>, fallback: T): Promise<T> {
 		return await callback(core);
 	} catch (e) {
 		getLogger().debug(`Completion provider failed: ${e instanceof Error ? e.message : String(e)}`);
+		// aislop-ignore-next-line hidden-fallback — intentional: completion must never crash the shell
 		return fallback;
 	}
 }
