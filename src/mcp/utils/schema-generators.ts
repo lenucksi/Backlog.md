@@ -2,6 +2,8 @@ import { DEFAULT_STATUSES } from "../../constants/index.ts";
 import type { BacklogConfig } from "../../types/index.ts";
 import type { JsonSchema } from "../validation/validators.ts";
 
+const descriptionField = { type: "string", maxLength: 10000 } satisfies JsonSchema;
+
 /**
  * Generates a status field schema with dynamic enum values sourced from config.
  */
@@ -36,10 +38,7 @@ export function generateTaskCreateSchema(config: BacklogConfig): JsonSchema {
 				minLength: 1,
 				maxLength: 200,
 			},
-			description: {
-				type: "string",
-				maxLength: 10000,
-			},
+			description: descriptionField,
 			status: generateStatusFieldSchema(config),
 			priority: {
 				type: "string",
@@ -164,10 +163,7 @@ export function generateTaskEditSchema(config: BacklogConfig): JsonSchema {
 				type: "string",
 				maxLength: 200,
 			},
-			description: {
-				type: "string",
-				maxLength: 10000,
-			},
+			description: descriptionField,
 			status: generateStatusFieldSchema(config),
 			priority: {
 				type: "string",
