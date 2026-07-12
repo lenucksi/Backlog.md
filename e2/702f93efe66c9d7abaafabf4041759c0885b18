@@ -1,0 +1,19 @@
+src/commands/decision.ts
+  s_622d5bf22dcbeb::t_2dcd71440ad30e 10,22,107,118,135-136,141,153,160,169-170,174-177,180,184,186-194,196-198,220,300-301
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e2702f93efe66c9d7abaafabf4041759c0885b18",
+  "prompts": {},
+  "sessions": {
+    "s_622d5bf22dcbeb": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a828f3f2ffeJdTA950oLd27QB",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
