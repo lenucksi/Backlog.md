@@ -1660,15 +1660,12 @@ ${description || `Milestone: ${title}`}`,
 
 	private sanitizeFilename(filename: string): string {
 		// Remove path-unsafe characters, then strip noisy punctuation before normalizing whitespace
-		return (
-			filename
-				.replace(/[<>:"/\\|?*]/g, "-")
-				// biome-ignore lint/complexity/noUselessEscapeInRegex: we need explicit escapes inside the character class
-				.replace(/['(),!@#$%^&+=\[\]{};]/g, "")
-				.replace(/\s+/g, "-")
-				.replace(/-+/g, "-")
-				.replace(/^-|-$/g, "")
-		);
+		return filename
+			.replace(/[<>:"/\\|?*]/g, "-")
+			.replace(/['(),!@#$%^&+=[]{};]/g, "")
+			.replace(/\s+/g, "-")
+			.replace(/-+/g, "-")
+			.replace(/^-|-$/g, "");
 	}
 
 	private async ensureDirectoryExists(dirPath: string): Promise<void> {
@@ -1717,7 +1714,6 @@ ${description || `Milestone: ${title}`}`,
 			}
 		}
 
-		// Handle dod_defaults as legacy alias for definition_of_done
 		if (raw.dod_defaults !== undefined && raw.definition_of_done === undefined) {
 			raw.definition_of_done = raw.dod_defaults;
 		}
@@ -1814,12 +1810,10 @@ ${description || `Milestone: ${title}`}`,
 
 		for (const [camelKey, snakeKey] of Object.entries(camelToSnake)) {
 			const value = (config as unknown as Record<string, unknown>)[camelKey];
-			// Skip undefined optional fields
 			if (value === undefined) continue;
 			raw[snakeKey] = value;
 		}
 
-		// Handle prefixes.task → task_prefix
 		if (config.prefixes?.task) {
 			raw.task_prefix = config.prefixes.task;
 		}

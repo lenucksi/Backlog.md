@@ -41,11 +41,11 @@ async function setup() {
 	await $`git config user.email test@example.com`.cwd(TEST_DIR).quiet();
 	await $`git config user.name Test`.cwd(TEST_DIR).quiet();
 
-	const _core = new Core(TEST_DIR);
-	await initializeTestProject(_core, "E2E Test Project");
+	const core = new Core(TEST_DIR);
+	await initializeTestProject(core, "E2E Test Project");
 
 	// Use the default task prefix ("task") so listTasks glob finds them
-	await createSeedTask(_core, { id: "task-1", title: "Implement login page", status: "To Do", priority: "high", assignee: ["alice"], labels: ["frontend", "auth"], createdDate: "2026-05-01", description: "Build a login page with email and password fields." });
+	await createSeedTask(core, { id: "task-1", title: "Implement login page", status: "To Do", priority: "high", assignee: ["alice"], labels: ["frontend", "auth"], createdDate: "2026-05-01", description: "Build a login page with email and password fields." });
 	await createSeedTask(_core, { id: "task-2", title: "Set up CI pipeline", status: "In Progress", priority: "high", assignee: ["bob"], labels: ["devops"], createdDate: "2026-05-05" });
 	await createSeedTask(_core, { id: "task-3", title: "Write API documentation", status: "To Do", priority: "medium", assignee: ["alice", "charlie"], labels: ["docs"], createdDate: "2026-05-10" });
 	await createSeedTask(_core, { id: "task-4", title: "Fix navigation bug on mobile", status: "Done", priority: "high", assignee: ["charlie"], labels: ["bug", "frontend"], createdDate: "2026-05-03" });
@@ -55,7 +55,7 @@ async function setup() {
 	await createSeedTask(_core, { id: "task-8", title: "Performance benchmark report", status: "Done", priority: "low", assignee: ["charlie"], labels: ["docs", "backend"], createdDate: "2026-04-28" });
 	await createSeedTask(_core, { id: "task-9", title: "Set up staging environment", status: "To Do", priority: "medium", assignee: [], labels: ["devops"], createdDate: "2026-05-20" });
 
-	return _core;
+	return core;
 }
 
 async function killExistingServer() {
@@ -66,12 +66,12 @@ async function killExistingServer() {
 			process.kill(Number(pid), "SIGTERM");
 			await new Promise((r) => setTimeout(r, 1000));
 		}
-	} catch {}
+	} catch { /* expected — no existing server on this port */ }
 }
 
 async function main() {
 	await killExistingServer();
-	const core = await setup();
+	await setup();
 
 	const server = new BacklogServer(TEST_DIR);
 	await server.start(PORT, false);

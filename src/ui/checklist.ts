@@ -61,7 +61,6 @@ export function alignAcceptanceCriteria(criteriaSection: string): string[] {
 			if (item) {
 				return formatChecklistItem(item);
 			}
-			// Return non-checkbox lines as-is with minimal padding
 			return ` ${line}`;
 		});
 }

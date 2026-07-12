@@ -14,7 +14,8 @@ interface SelectableCardProps {
 	description: string;
 }
 
-function SelectableCard({ selected, type, name, value, onChange, label, description }: SelectableCardProps) {
+function SelectableCard(props: SelectableCardProps) {
+	const { selected, type, name, value, onChange, label, description } = props;
 	return (
 		<label
 			className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${

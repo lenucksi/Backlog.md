@@ -288,7 +288,7 @@ const TaskList: React.FC<TaskListProps> = ({
 	const sortedBaseTasks = useMemo(() => sortTasksByIdDescending(tasks), [tasks]);
 	const mergedAvailableLabels = useMemo(() => collectAvailableLabels(tasks, availableLabels), [tasks, availableLabels]);
 	const milestoneOptions = useMemo(() => {
-		const uniqueMilestones = Array.from(new Set([...availableMilestones.map((m) => m.trim()).filter(Boolean)]));
+		const uniqueMilestones = Array.from(new Set(availableMilestones.map((m) => m.trim()).filter(Boolean)));
 		return uniqueMilestones;
 	}, [availableMilestones]);
 

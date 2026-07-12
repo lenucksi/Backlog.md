@@ -384,7 +384,6 @@ export class GenericList<T extends GenericListItem> implements GenericListContro
 		} else {
 			this.selectedIndices.add(index);
 		}
-		// Update just the current item's display without full refresh
 		const item = this.filteredItems[index];
 		if (item) {
 			const content = this.buildDisplayContent(item, index, Boolean(this.groupBy));

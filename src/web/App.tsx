@@ -652,8 +652,11 @@ function App() {
 						{ path: "decisions/:id", Component: DecisionDetail, props: { decisions } },
 						{ path: "decisions/:id/:title", Component: DecisionDetail, props: { decisions } },
 					].map(({ path, Component, props }) => (
-						// biome-ignore lint/suspicious/noExplicitAny: Component+props union can't be discriminated statically
-						<Route key={path} path={path} element={<Component {...(props as any)} onRefreshData={refreshData} />} />
+						<Route
+							key={path}
+							path={path}
+							element={<Component {...(props as Record<string, unknown>)} onRefreshData={refreshData} />}
+						/>
 					))}
 					<Route
 						path="statistics"

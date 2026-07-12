@@ -2,6 +2,7 @@ import { realpath, stat } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, relative } from "node:path";
 import { $ } from "bun";
 import type { BacklogConfig } from "../types/index.ts";
+import { getLogger } from "../utils/logger.ts";
 
 type GitPathContext = {
 	repoRoot: string;
@@ -417,7 +418,8 @@ export class GitOperations {
 					.filter((b): b is string => Boolean(b))
 					.filter((b) => b !== "HEAD" && b !== remote && b !== `${remote}`)
 			);
-		} catch {
+		} catch (e) {
+			getLogger().debug(`Failed to list branches: ${e instanceof Error ? e.message : String(e)}`);
 			return [];
 		}
 	}
@@ -427,12 +429,9 @@ export class GitOperations {
 			return [];
 		}
 		try {
-			// Get all branches with their last commit date
-			// Using for-each-ref which is more efficient than multiple branch commands
 			const since = new Date();
 			since.setDate(since.getDate() - daysAgo);
 
-			// Build refs to check based on remoteOperations config
 			const refs = ["refs/heads"];
 			if (this.config?.remoteOperations !== false) {
 				refs.push("refs/remotes/origin");
@@ -452,8 +451,6 @@ export class GitOperations {
 
 				const commitDate = new Date(dateStr);
 				if (commitDate >= since) {
-					// Keep the full branch name including origin/ prefix
-					// This allows cross-branch checking to distinguish local vs remote
 					if (!recentBranches.includes(branch)) {
 						recentBranches.push(branch);
 					}

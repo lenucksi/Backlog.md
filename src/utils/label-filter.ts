@@ -1,4 +1,4 @@
-import type { BacklogConfig, LabelConfig, Task } from "../types/index.ts";
+import type { LabelConfig, Task } from "../types/index.ts";
 
 function normalizeLabel(label: string): string {
 	return label.trim().toLowerCase();

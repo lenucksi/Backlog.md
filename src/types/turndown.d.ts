@@ -10,13 +10,6 @@ declare module "turndown" {
 		linkStyle?: "inlined" | "referenced";
 		linkReferenceStyle?: "full" | "collapsed" | "shortcut";
 	}
-	interface TurndownService {
-		addRule(key: string, rule: TurndownRule): void;
-		keep(filter: TurndownFilter): void;
-		remove(filter: TurndownFilter): void;
-		use(plugin: TurndownPlugin | TurndownPlugin[]): void;
-		turndown(html: string): string;
-	}
 	type TurndownFilter = string | string[];
 	type TurndownPlugin = (service: TurndownService) => void;
 	type TurndownRule = {
@@ -25,6 +18,11 @@ declare module "turndown" {
 	};
 	class TurndownService {
 		constructor(options?: TurndownOptions);
+		addRule(key: string, rule: TurndownRule): void;
+		keep(filter: TurndownFilter): void;
+		remove(filter: TurndownFilter): void;
+		use(plugin: TurndownPlugin | TurndownPlugin[]): void;
+		turndown(html: string): string;
 	}
 	export default TurndownService;
 }

@@ -87,17 +87,3 @@ export function extractHtmlFromClipboard(clipboardData: DataTransfer): string | 
 	}
 	return null;
 }
-
-function insertTextAtCursor(textarea: HTMLTextAreaElement, text: string): string {
-	const start = textarea.selectionStart;
-	const end = textarea.selectionEnd;
-	const before = textarea.value.slice(0, start);
-	const after = textarea.value.slice(end);
-	const newValue = `${before}${text}${after}`;
-	requestAnimationFrame(() => {
-		const newCursor = start + text.length;
-		textarea.setSelectionRange(newCursor, newCursor);
-		textarea.focus();
-	});
-	return newValue;
-}

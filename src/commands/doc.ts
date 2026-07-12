@@ -10,6 +10,7 @@ import {
 	requireProjectRoot,
 	shouldAutoPlain,
 } from "../utils/cli-context.ts";
+import { getLogger } from "../utils/logger.ts";
 import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 import { parseDelimitedStringList } from "../utils/task-builders.ts";
 
@@ -205,7 +206,8 @@ export function registerDocCommand(program: Command): void {
 				}
 				const content = doc.rawContent || "";
 				await scrollableViewer(content);
-			} catch {
+			} catch (e) {
+				getLogger().debug(`Failed to view document ${docId}: ${e instanceof Error ? e.message : String(e)}`);
 				console.error(`Document ${docId} not found.`);
 			}
 		});

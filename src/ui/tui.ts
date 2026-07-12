@@ -6,7 +6,7 @@ import { stdout } from "../utils/output.ts";
  * directly and only fall back to plain text when not running in a TTY.
  */
 
-import { stdin as input, stdout as output } from "node:process";
+import { stdout as output } from "node:process";
 import type { ProgramInterface, ScreenInterface, ScreenOptions } from "neo-neo-bblessed";
 import { screen as blessedScreen, box, program as createProgram } from "neo-neo-bblessed";
 

@@ -118,7 +118,6 @@ function createLoadingScreenBase(config: LoadingScreenConfig): {
 		loadingBox.setLabel?.(` ${SPINNER_CHARS[0]} Loading `);
 	}
 
-	// Handle escape/Ctrl+C to close AND exit process immediately
 	screen.key(["escape", "C-c", "q"], () => {
 		if (!closed) {
 			closed = true;
@@ -161,7 +160,7 @@ function createLoadingScreenBase(config: LoadingScreenConfig): {
  *   return await fetchDataFromAPI();
  * });
  */
-async function withLoadingScreen<T>(message: string, operation: () => Promise<T>): Promise<T> {
+async function _withLoadingScreen<T>(message: string, operation: () => Promise<T>): Promise<T> {
 	const base = createLoadingScreenBase({
 		message,
 		width: 60, // Larger width to prevent wrapping

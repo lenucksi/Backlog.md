@@ -36,9 +36,8 @@ function normalizeFlowList(prefix: string, rawValue: string): string | null {
 
 function preprocessFrontmatter(frontmatter: string): string {
 	return frontmatter
-		.split(/\r?\n/) // Handle both Windows (\r\n) and Unix (\n) line endings
+		.split(/\r?\n/)
 		.map((line) => {
-			// Handle both assignee and reporter fields that start with @
 			const match = line.match(/^(\s*(?:assignee|reporter):\s*)(.*)$/);
 			if (!match) return line;
 
@@ -144,7 +143,7 @@ export function parseMarkdown(content: string): ParsedMarkdown {
 }
 
 function validatePriority(raw?: string): "high" | "medium" | "low" | undefined {
-	const priority = raw ? String(raw).toLowerCase() : undefined;
+	const priority = raw ? raw.toLowerCase() : undefined;
 	if (priority && ["high", "medium", "low"].includes(priority)) return priority as "high" | "medium" | "low";
 	return undefined;
 }

@@ -3,6 +3,7 @@ import type { Core } from "../core/backlog.ts";
 import { colorizeLabel } from "../utils/ansi.ts";
 import { ensureProjectConfig } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { getLogger } from "../utils/logger.ts";
 import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 async function ensureLabelsMigrated(core: Core): Promise<void> {
@@ -76,7 +77,8 @@ async function updateLabelsOnEntities(core: Core, oldName: string, newName: stri
 		if (updatedLabels) {
 			try {
 				await core.editTask(task.id, { labels: updatedLabels }, false);
-			} catch {
+			} catch (e) {
+				getLogger().debug(`Skipping task ${task.id}: ${e instanceof Error ? e.message : String(e)}`);
 				console.warn(`  Skipping task ${task.id} (not found, maybe from another branch)`);
 			}
 		}
@@ -92,7 +94,8 @@ async function updateLabelsOnEntities(core: Core, oldName: string, newName: stri
 					labels: updatedLabels,
 					content: doc.rawContent,
 				});
-			} catch {
+			} catch (e) {
+				getLogger().debug(`Skipping document ${doc.id}: ${e instanceof Error ? e.message : String(e)}`);
 				console.warn(`  Skipping document ${doc.id} (not found)`);
 			}
 		}
@@ -104,7 +107,8 @@ async function updateLabelsOnEntities(core: Core, oldName: string, newName: stri
 		if (updatedLabels) {
 			try {
 				await core.editDecision(decision.id, { labels: updatedLabels });
-			} catch {
+			} catch (e) {
+				getLogger().debug(`Skipping decision ${decision.id}: ${e instanceof Error ? e.message : String(e)}`);
 				console.warn(`  Skipping decision ${decision.id} (not found)`);
 			}
 		}

@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { colorizeLabel } from "../utils/ansi.ts";
 import { ensureProjectConfig } from "../utils/cli-context.ts";
 import { EXIT } from "../utils/exit-codes.ts";
+import { getLogger } from "../utils/logger.ts";
 import { applyOutputOptions, getOutputMode, stdout } from "../utils/output.ts";
 
 function ensureAuthors(config: {
@@ -111,7 +112,8 @@ export function registerAuthorCommand(program: Command): void {
 				if (updatedAssignees) {
 					try {
 						await core.editTask(task.id, { assignee: updatedAssignees }, false);
-					} catch {
+					} catch (e) {
+						getLogger().debug(`Skipping task ${task.id}: ${e instanceof Error ? e.message : String(e)}`);
 						console.warn(`  Skipping task ${task.id} (not found, maybe from another branch)`);
 					}
 				}

@@ -235,7 +235,7 @@ export function sortTasksForStatus(
 	});
 }
 
-function normalizeMilestoneValue(value: string | null): string | undefined {
+function _normalizeMilestoneValue(value: string | null): string | undefined {
 	if (value === null) return undefined;
 	const trimmed = value.trim();
 	return trimmed.length > 0 ? trimmed : undefined;

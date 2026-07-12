@@ -212,10 +212,6 @@ function validateField(
  * Sanitizes string input to prevent various injection attacks
  */
 function sanitizeString(input: string): string {
-	if (typeof input !== "string") {
-		return String(input);
-	}
-
 	let sanitized = input.replace(/\0/g, "");
 
 	// Trim whitespace
@@ -228,9 +224,5 @@ function sanitizeString(input: string): string {
 }
 
 function sanitizeStringPreserveWhitespace(input: string): string {
-	if (typeof input !== "string") {
-		return String(input);
-	}
-
 	return input.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 }

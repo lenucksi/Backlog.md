@@ -11,7 +11,6 @@ import { AppError } from "../utils/app-error.ts";
 import {
 	createMultiValueAccumulator,
 	hasInteractiveTTY,
-	isPlainRequested,
 	printMissingRequiredArgument,
 	requireProjectRoot,
 	shouldAutoPlain,

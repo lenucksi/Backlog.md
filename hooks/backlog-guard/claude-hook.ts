@@ -6,7 +6,7 @@ const cmd = process.env.HOOK_CMD || ""
 let toolInput: Record<string, unknown> = {}
 try {
 	toolInput = JSON.parse(process.env.HOOK_INPUT || "{}")
-} catch {}
+} catch { /* expected — no tool input provided */ }
 
 const input: GuardInput = {
 	tool,
