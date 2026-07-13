@@ -1,0 +1,53 @@
+src/utils/backlog-directory.ts
+  s_8b93e04b016d43::t_11d2be788e818a 24,28,65-66
+src/utils/app-error.ts
+  s_8b93e04b016d43::t_11d2be788e818a 49
+package.json
+  s_8b93e04b016d43::t_11d2be788e818a 73
+src/commands/completion.ts
+  s_8b93e04b016d43::t_11d2be788e818a 75-76,79,92,118,423
+src/utils/ansi.ts
+  s_8b93e04b016d43::t_11d2be788e818a 20,22
+src/utils/version.ts
+  s_8b93e04b016d43::t_11d2be788e818a 1
+src/agent-instructions.ts
+  s_8b93e04b016d43::t_11d2be788e818a 143-144,148,195,212
+src/utils/clipboard.ts
+  s_8b93e04b016d43::t_11d2be788e818a 49
+src/utils/runtime-cwd.ts
+  s_8b93e04b016d43::t_11d2be788e818a 24
+hooks/backlog-guard/guard-core.ts
+  s_8b93e04b016d43::t_11d2be788e818a 50-51,62,83-84,86-87,206
+src/commands/decision.ts
+  s_8b93e04b016d43::t_11d2be788e818a 20,44,268,276
+src/utils/id-generators.ts
+  s_8b93e04b016d43::t_11d2be788e818a 19,44
+hooks/backlog-guard/claude-hook.js
+  s_8b93e04b016d43::t_11d2be788e818a 1,33-34,45,61-62,64-65,69,182,248,276,319,337-339,342-343
+hooks/backlog-guard/opencode-plugin.js
+  s_8b93e04b016d43::t_11d2be788e818a 1-7613
+src/server/index.ts
+  s_8b93e04b016d43::t_11d2be788e818a 206
+hooks/backlog-guard/guard-core.test.ts
+  s_8b93e04b016d43::t_11d2be788e818a 17,19,22-25,33,35,39,41,57,67-68,78-79,83,85-86,134-135,139,149,158-159,167,169-170,175-176,181-182,208,210,218,220,222,228,230,238,240,242,249,251,259,261,263,269,271,298
+hooks/backlog-guard/claude-hook.ts
+  s_8b93e04b016d43::t_11d2be788e818a 3-5,8
+src/utils/editor.ts
+  s_8b93e04b016d43::t_11d2be788e818a 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6c212ead52c7c98cda1e3103f6641f3340c4ee57",
+  "prompts": {},
+  "sessions": {
+    "s_8b93e04b016d43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a9f3f2f3ffeGIRo7a55YAOWhe",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
