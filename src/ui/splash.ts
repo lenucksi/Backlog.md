@@ -98,5 +98,5 @@ export async function printSplash(opts: SplashOptions): Promise<void> {
 	lines.push("");
 
 	// Print and return; do not start any UI loop
-	for (const l of lines) Bun.stdout.write(`${l}\n`);
+	for (const l of lines) process.stdout.write(`${l}\n`);
 }

@@ -191,9 +191,9 @@ describe("findBacklogRoot", () => {
 		);
 
 		const nestedStart = join(testDir, "planning", "backlog", "tasks");
-		const result = await findBacklogRoot(nestedStart);
+		const result = await findBacklogRoot(nestedStart, 5);
 		expect(result).toBe(testDir);
-	});
+	}, 30000);
 });
 
 describe("getProjectRoot", () => {

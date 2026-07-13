@@ -12,13 +12,13 @@ export function getOutputMode(): OutputMode {
 export function stdout(data: unknown, formatFn?: (d: unknown) => string) {
 	switch (outputMode) {
 		case "json":
-			Bun.stdout.write(`${JSON.stringify(data, null, 2)}\n`);
+			process.stdout.write(`${JSON.stringify(data, null, 2)}\n`);
 			break;
 		case "plain":
-			Bun.stdout.write(`${formatFn?.(data) ?? String(data)}\n`);
+			process.stdout.write(`${formatFn?.(data) ?? String(data)}\n`);
 			break;
 		default:
-			Bun.stdout.write(`${formatFn?.(data) ?? String(data)}\n`);
+			process.stdout.write(`${formatFn?.(data) ?? String(data)}\n`);
 	}
 }
 
