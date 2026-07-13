@@ -1,0 +1,50 @@
+src/web/components/Modal.tsx
+  s_54d3f1f386c57c::t_a5b1973a7e85c8 49
+  s_54d3f1f386c57c::t_5909d84dc39db3 48,50-53,57-80,94
+  s_54d3f1f386c57c::t_e7690c06dc2208 54-56
+  s_54d3f1f386c57c::t_59fb02847c3a0c 1
+src/web/components/MilestonesPage.tsx
+  s_54d3f1f386c57c::t_0e3d548498d560 521
+package.json
+  s_54d3f1f386c57c::t_08696a1f96017e 80-81
+src/commands/init.ts
+  s_54d3f1f386c57c::t_fd7b949aa79dfe 1024
+src/mcp/validation/tool-wrapper.ts
+  s_54d3f1f386c57c::t_eccfbaba7cc962 79
+src/web/utils/paste-as-markdown.ts
+  s_54d3f1f386c57c::t_8cf13730fa6432 72,78,83
+src/mcp/utils/task-response.ts
+  s_54d3f1f386c57c::t_67ecb0c78a2cd4 5
+src/tui2/components/task-list.tsx
+  s_54d3f1f386c57c::t_129b8b1749f181 1
+  s_54d3f1f386c57c::t_78cdcff2d815b3 99
+src/server/router.ts
+  s_54d3f1f386c57c::t_1abd55337deefa 566
+  s_54d3f1f386c57c::t_e845fd48aa65bc 769
+  s_54d3f1f386c57c::t_ab0df3c850e1d7 731
+  s_54d3f1f386c57c::t_e2dc13b96ea54b 390
+src/commands/task.ts
+  s_54d3f1f386c57c::t_9edd87fcfc8c48 1151,1213
+src/web/utils/version.ts
+  s_54d3f1f386c57c::t_dfc8ab570dc34b 2
+src/mcp/utils/schema-generators.ts
+  s_54d3f1f386c57c::t_5b63772b83d6ae 97,138
+src/web/utils/urlHelpers.ts
+  s_54d3f1f386c57c::t_1550279ef05c36 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ed351249a32aa8be7066b6e21e66153f54128b11",
+  "prompts": {},
+  "sessions": {
+    "s_54d3f1f386c57c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a963be86ffe932L4w9p42QDQT",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
