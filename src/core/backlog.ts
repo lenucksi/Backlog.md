@@ -22,14 +22,9 @@ import {
 	type TaskListFilter,
 	type TaskUpdateInput,
 } from "../types/index.ts";
-import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
-import {
-	getDocumentSubPathFromRelativePath,
-	normalizeDocumentRelativePath,
-	normalizeDocumentSubPath,
-} from "../utils/document-path.ts";
+import { documentIdsEqual } from "../utils/document-id.ts";
+import { normalizeDocumentRelativePath } from "../utils/document-path.ts";
 import { openInEditor } from "../utils/editor.ts";
-import { generateNextDocId } from "../utils/id-generators.ts";
 import {
 	createMilestoneFilterValueResolver,
 	normalizeMilestoneFilterValue,
@@ -41,7 +36,7 @@ import {
 	getCanonicalStatus as resolveCanonicalStatus,
 	getValidStatuses as resolveValidStatuses,
 } from "../utils/status.ts";
-import { normalizeStringList, stringArraysEqual } from "../utils/task-builders.ts";
+import { stringArraysEqual } from "../utils/task-builders.ts";
 import { getTaskFilename, getTaskPath, normalizeTaskId, taskIdsEqual } from "../utils/task-path.ts";
 import { attachSubtaskSummaries } from "../utils/task-subtasks.ts";
 import { upsertTaskUpdatedDate } from "../utils/task-updated-date.ts";
@@ -49,6 +44,7 @@ import { isTerminalStatus } from "../utils/terminal-status.ts";
 import { migrateConfig, needsMigration } from "./config-migration.ts";
 import { ContentStore } from "./content-store.ts";
 import * as draftOps from "./draft-operations.ts";
+import * as entityCrud from "./entity-crud.ts";
 import * as idGen from "./id-generator.ts";
 import { migrateDraftPrefixes, needsDraftPrefixMigration } from "./prefix-migration.ts";
 import { calculateNewOrdinal, DEFAULT_ORDINAL_STEP, resolveOrdinalConflicts } from "./reorder.ts";
@@ -60,7 +56,6 @@ import {
 	filterTasksWithCompleted,
 	getFilterValue,
 	mergeTaskArray,
-	normalizeDocumentTypeInput,
 } from "./task-input-resolvers.ts";
 import {
 	type BranchTaskStateEntry,
@@ -525,6 +520,16 @@ export class Core {
 
 	private buildDraftOpDeps(): draftOps.DraftOpDeps {
 		return this.buildTaskOpDeps() as unknown as draftOps.DraftOpDeps;
+	}
+
+	private buildEntityCrudDeps(): entityCrud.EntityCrudDeps {
+		return {
+			filesystem: this._filesystem,
+			stageAndCommit: (msg, auto) => this.stageAndCommit(msg, auto),
+			withCreateLock: <T>(fn: () => Promise<T>) => this.withCreateLock(fn),
+			getDocument: (id) => this.getDocument(id),
+			core: this,
+		};
 	}
 
 	async getGitOps() {
@@ -1341,175 +1346,43 @@ export class Core {
 	}
 
 	async createDecision(decision: Decision, autoCommit?: boolean): Promise<void> {
-		await this._filesystem.saveDecision(decision);
-
-		await this.stageAndCommit(`backlog: Add decision ${decision.id}`, autoCommit);
+		return entityCrud.createDecision(this.buildEntityCrudDeps(), decision, autoCommit);
 	}
 
 	async editDecision(id: string, updates: { labels?: string[] }): Promise<void> {
-		const existingDecision = await this._filesystem.loadDecision(id);
-		if (!existingDecision) {
-			throw new Error(`Decision ${id} not found`);
-		}
-
-		const updatedDecision: Decision = {
-			...existingDecision,
-			...(updates.labels !== undefined && { labels: updates.labels }),
-		};
-
-		await this.createDecision(updatedDecision);
+		return entityCrud.editDecision(this.buildEntityCrudDeps(), id, updates);
 	}
 
 	async resolveDecision(decisionId: string, autoCommit?: boolean): Promise<Decision> {
-		const existingDecision = await this._filesystem.loadDecision(decisionId);
-		if (!existingDecision) {
-			throw new Error(`Decision ${decisionId} not found`);
-		}
-		if (existingDecision.status === "superseded") {
-			throw new Error(`Decision ${decisionId} is already superseded`);
-		}
-
-		existingDecision.status = "superseded";
-		await this.createDecision(existingDecision, autoCommit);
-		return existingDecision;
+		return entityCrud.resolveDecision(this.buildEntityCrudDeps(), decisionId, autoCommit);
 	}
 
 	async updateDecisionFromContent(decisionId: string, content: string, autoCommit?: boolean): Promise<void> {
-		const existingDecision = await this._filesystem.loadDecision(decisionId);
-		if (!existingDecision) {
-			throw new Error(`Decision ${decisionId} not found`);
-		}
-
-		const { parseFrontmatter: parseFm } = await import("../utils/frontmatter.ts");
-		const { data } = parseFm(content);
-
-		const extractSection = (content: string, sectionName: string): string | undefined => {
-			const regex = new RegExp(`## ${sectionName}\\s*([\\s\\S]*?)(?=## |$)`, "i");
-			const match = content.match(regex);
-			return match ? match[1]?.trim() : undefined;
-		};
-
-		const updatedDecision = {
-			...existingDecision,
-			title: typeof data.title === "string" ? data.title : existingDecision.title,
-			status: typeof data.status === "string" ? data.status : existingDecision.status,
-			date: typeof data.date === "string" ? data.date : existingDecision.date,
-			context: extractSection(content, "Context") || existingDecision.context,
-			decision: extractSection(content, "Decision") || existingDecision.decision,
-			consequences: extractSection(content, "Consequences") || existingDecision.consequences,
-			alternatives: extractSection(content, "Alternatives") || existingDecision.alternatives,
-			supersedes: typeof data.supersedes === "string" ? data.supersedes : existingDecision.supersedes,
-			supersededBy: typeof data.supersededBy === "string" ? data.supersededBy : existingDecision.supersededBy,
-		};
-
-		await this.createDecision(updatedDecision as Decision, autoCommit);
+		return entityCrud.updateDecisionFromContent(this.buildEntityCrudDeps(), decisionId, content, autoCommit);
 	}
 
 	async createDecisionWithTitle(title: string, autoCommit?: boolean): Promise<Decision> {
-		const { generateNextDecisionId } = await import("../commands/decision.ts");
-		const id = await generateNextDecisionId(this);
-
-		const decision: Decision = {
-			id,
-			title,
-			date: taskOps.formatDateStamp(),
-			status: "proposed",
-			context: "[Describe the context and problem that needs to be addressed]",
-			decision: "[Describe the decision that was made]",
-			consequences: "[Describe the consequences of this decision]",
-			rawContent: "",
-		};
-
-		await this.createDecision(decision, autoCommit);
-		return decision;
+		return entityCrud.createDecisionWithTitle(this.buildEntityCrudDeps(), title, autoCommit);
 	}
 
 	async createDocument(doc: Document, autoCommit?: boolean, subPath = ""): Promise<void> {
-		const relativePath = await this._filesystem.saveDocument(doc, normalizeDocumentSubPath(subPath));
-		doc.path = relativePath;
-
-		await this.stageAndCommit(`backlog: Add document ${doc.id}`, autoCommit);
+		return entityCrud.createDocument(this.buildEntityCrudDeps(), doc, autoCommit, subPath);
 	}
 
 	async updateDocument(existingDoc: Document, content: string, autoCommit?: boolean): Promise<void> {
-		await this.updateDocumentFromInput(
-			{
-				id: existingDoc.id,
-				title: existingDoc.title,
-				type: existingDoc.type,
-				tags: existingDoc.tags,
-				labels: existingDoc.labels,
-				content,
-				...(existingDoc.path !== undefined && { path: getDocumentSubPathFromRelativePath(existingDoc.path) }),
-			},
-			autoCommit,
-		);
+		return entityCrud.updateDocument(this.buildEntityCrudDeps(), existingDoc, content, autoCommit);
 	}
 
 	async createDocumentWithId(title: string, content: string, autoCommit?: boolean): Promise<Document> {
-		return await this.createDocumentFromInput({ title, content }, autoCommit);
+		return entityCrud.createDocumentWithId(this.buildEntityCrudDeps(), title, content, autoCommit);
 	}
 
 	async createDocumentFromInput(input: DocumentCreateInput, autoCommit?: boolean): Promise<Document> {
-		const title = input.title.trim();
-		if (!title) {
-			throw new Error("Title is required to create a document.");
-		}
-
-		const subPath = normalizeDocumentSubPath(input.path);
-		const labels = normalizeStringList(input.labels);
-		const tags = normalizeStringList(input.tags);
-		const type = normalizeDocumentTypeInput(input.type) ?? "other";
-		const document = await this.withCreateLock(async () => {
-			const id = normalizeDocumentId(await generateNextDocId(this));
-			const document: Document = {
-				id,
-				title,
-				type,
-				createdDate: taskOps.formatDateStamp(),
-				rawContent: input.content ?? "",
-				...(labels && labels.length > 0 && { labels }),
-				...(tags && tags.length > 0 && { tags }),
-			};
-
-			await this.createDocument(document, autoCommit, subPath);
-			return document;
-		});
-
-		return (await this.getDocument(document.id)) ?? document;
+		return entityCrud.createDocumentFromInput(this.buildEntityCrudDeps(), input, autoCommit);
 	}
 
 	async updateDocumentFromInput(input: DocumentUpdateInput, autoCommit?: boolean): Promise<Document> {
-		const existingDoc = await this.getDocument(input.id);
-		if (!existingDoc) {
-			throw new Error(`Document not found: ${input.id}`);
-		}
-
-		const normalizedTitle = input.title?.trim();
-		if (input.title !== undefined && !normalizedTitle) {
-			throw new Error("Document title cannot be empty.");
-		}
-
-		const labels = input.labels !== undefined ? normalizeStringList(input.labels) : existingDoc.labels;
-		const tags = input.tags !== undefined ? normalizeStringList(input.tags) : existingDoc.tags;
-		const type = normalizeDocumentTypeInput(input.type) ?? existingDoc.type;
-		const subPath =
-			input.path === undefined
-				? getDocumentSubPathFromRelativePath(existingDoc.path)
-				: normalizeDocumentSubPath(input.path);
-		const updatedDoc: Document = {
-			...existingDoc,
-			id: normalizeDocumentId(existingDoc.id),
-			title: normalizedTitle ?? existingDoc.title,
-			type,
-			rawContent: input.content ?? existingDoc.rawContent,
-			updatedDate: taskOps.formatDateStamp(),
-			labels: labels && labels.length > 0 ? labels : undefined,
-			tags: tags && tags.length > 0 ? tags : undefined,
-		};
-
-		await this.createDocument(updatedDoc, autoCommit, subPath);
-		return (await this.getDocument(existingDoc.id)) ?? updatedDoc;
+		return entityCrud.updateDocumentFromInput(this.buildEntityCrudDeps(), input, autoCommit);
 	}
 
 	async listTasksWithMetadata(
