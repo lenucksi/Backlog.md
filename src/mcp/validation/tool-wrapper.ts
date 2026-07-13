@@ -76,7 +76,7 @@ function createSchemaValidator(schema: JsonSchema): (input: unknown) => Validati
 /**
  * Wrapper for tools that don't need custom validation beyond schema
  */
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function createSimpleValidatedTool<T extends Record<string, unknown>>(
 	toolDefinition: Omit<McpToolHandler, "handler">,
 	schema: JsonSchema,

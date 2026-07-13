@@ -77,6 +77,8 @@
 		"build": "bun run scripts/build.ts",
 		"cli": "bun run build:css && bun src/cli.ts",
 		"mcp": "bun src/cli.ts mcp start",
+		"aislop": "bun x aislop",
+		"aislop:scan": "bun x aislop scan",
 		"update-nix": "sh scripts/update-nix.sh",
 		"postinstall": "bash scripts/postinstall.sh"
 	},

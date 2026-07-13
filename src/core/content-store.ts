@@ -275,10 +275,7 @@ export class ContentStore {
 			}
 		} catch (error) {
 			if (process.env.DEBUG) {
-				getLogger().error(
-					errorMsg,
-					error instanceof Error ? error.message : String(error),
-				);
+				getLogger().error(errorMsg, error instanceof Error ? error.message : String(error));
 			}
 		}
 	}

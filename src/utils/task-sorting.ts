@@ -98,7 +98,7 @@ export function sortByPriority<T extends { id: string; priority?: "high" | "medi
 /**
  * Sort tasks by creation date ascending (oldest first), then by task ID.
  */
-// aislop-ignore-line knip/exports — imported by TaskColumn.tsx
+// aislop-ignore-next-line knip/exports — imported by TaskColumn.tsx
 export function sortByCreatedDateAsc<T extends { id: string; createdDate?: string }>(items: T[]): T[] {
 	return [...items].sort((a, b) => {
 		const aDate = a.createdDate || "";
@@ -112,7 +112,7 @@ export function sortByCreatedDateAsc<T extends { id: string; createdDate?: strin
 /**
  * Sort tasks by creation date descending (newest first), then by task ID.
  */
-// aislop-ignore-line knip/exports — imported by TaskColumn.tsx
+// aislop-ignore-next-line knip/exports — imported by TaskColumn.tsx
 export function sortByCreatedDateDesc<T extends { id: string; createdDate?: string }>(items: T[]): T[] {
 	return [...items].sort((a, b) => {
 		const aDate = a.createdDate || "";
@@ -169,7 +169,7 @@ function sortByOrdinal<T extends { id: string; ordinal?: number }>(items: T[]): 
  * Sort an array of tasks considering ordinal first, then priority, then ID.
  * This is the default sorting for the board view.
  */
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function sortByOrdinalAndPriority<
 	T extends { id: string; ordinal?: number; priority?: "high" | "medium" | "low" },
 >(items: T[]): T[] {

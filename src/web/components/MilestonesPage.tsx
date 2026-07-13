@@ -1,3 +1,4 @@
+// aislop-ignore-file jsx-a11y/prefer-tag-over-role -- milestone card uses div with role="region"
 import Fuse from "fuse.js";
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
@@ -517,10 +518,10 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 		const isRemoving = removingMilestoneKey === bucket.key;
 
 		return (
-			// aislop-ignore-next-line no-noninteractive-element-interactions prefer-tag-over-role — landmark with explicit role for layout consistency
+			// aislop-ignore-next-line no-noninteractive-element-interactions prefer-tag-over-role — milestone card with drag/drop handlers
 			<div
-				key={bucket.key}
 				role="region"
+				key={bucket.key}
 				aria-label={`${bucket.label} milestone card`}
 				className={`rounded-lg border-2 transition-all duration-200 ${
 					isDropTarget

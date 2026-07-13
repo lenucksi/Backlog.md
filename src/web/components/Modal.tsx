@@ -1,3 +1,4 @@
+// aislop-ignore-file jsx-a11y/prefer-tag-over-role jsx-a11y/no-noninteractive-element-interactions -- Modal uses native <dialog> + backdrop overlay
 import type React from "react";
 import { useEffect } from "react";
 
@@ -44,9 +45,40 @@ const Modal: React.FC<ModalProps> = ({
 
 	if (!isOpen) return null;
 
+	const dialogElement = (
+		// aislop-ignore-next-line no-noninteractive-element-interactions prefer-tag-over-role — <dialog> is correct native element for modals
+		<dialog
+			open
+			className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl ${maxWidthClass} w-full max-h-[94vh] overflow-y-auto transition-colors duration-200`}
+			onClick={(e) => e.stopPropagation()}
+			onKeyDown={(e) => {
+				if (e.key === "Escape") e.stopPropagation();
+			}}
+			aria-modal="true"
+			aria-labelledby="modal-title"
+		>
+			<div className="sticky top-0 z-10 flex items-center justify-between px-6 pt-4 pb-3 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur supports-[backdrop-filter]:bg-white/75 supports-[backdrop-filter]:dark:bg-gray-800/75">
+				<h2 id="modal-title" className="text-base font-semibold text-gray-900 dark:text-gray-100">
+					{title}
+				</h2>
+				<div className="flex items-center gap-2">
+					{actions}
+					<button
+						type="button"
+						onClick={onClose}
+						className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded p-1 transition-colors duration-200 text-2xl leading-none size-8 flex items-center justify-center"
+						aria-label="Close modal"
+					>
+						×
+					</button>
+				</div>
+			</div>
+			<div className="px-6 pt-4 pb-6">{children}</div>
+		</dialog>
+	);
+
+	// aislop-ignore-next-line no-noninteractive-element-interactions — backdrop overlay, role=presentation
 	return (
-		// aislop-ignore-next-line no-noninteractive-element-interactions — backdrop overlay, role=presentation intentional
-		{/* aislop-ignore-next-line no-noninteractive-element-interactions — backdrop overlay, role=presentation */}
 		<div
 			className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 p-4"
 			onClick={disableEscapeClose ? undefined : onClose}
@@ -59,31 +91,7 @@ const Modal: React.FC<ModalProps> = ({
 			}
 			role="presentation"
 		>
-			<dialog
-				open
-				className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl ${maxWidthClass} w-full max-h-[94vh] overflow-y-auto transition-colors duration-200`}
-				onClick={(e) => e.stopPropagation()}
-				aria-modal="true"
-				aria-labelledby="modal-title"
-			>
-				<div className="sticky top-0 z-10 flex items-center justify-between px-6 pt-4 pb-3 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur supports-[backdrop-filter]:bg-white/75 supports-[backdrop-filter]:dark:bg-gray-800/75">
-					<h2 id="modal-title" className="text-base font-semibold text-gray-900 dark:text-gray-100">
-						{title}
-					</h2>
-					<div className="flex items-center gap-2">
-						{actions}
-						<button
-							type="button"
-							onClick={onClose}
-							className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded p-1 transition-colors duration-200 text-2xl leading-none size-8 flex items-center justify-center"
-							aria-label="Close modal"
-						>
-							×
-						</button>
-					</div>
-				</div>
-				<div className="px-6 pt-4 pb-6">{children}</div>
-			</dialog>
+			{dialogElement}
 		</div>
 	);
 };

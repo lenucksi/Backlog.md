@@ -69,18 +69,18 @@ function cleanHtml(html: string): string {
 	return body.innerHTML;
 }
 
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function htmlToMarkdown(html: string): string {
 	const cleaned = cleanHtml(html);
 	return turndownService.turndown(cleaned);
 }
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function hasHtmlInClipboard(clipboardData: DataTransfer): boolean {
 	return clipboardData.types.some((t) => t === "text/html" || t === "text/rtf");
-	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 }
 
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function extractHtmlFromClipboard(clipboardData: DataTransfer): string | null {
 	for (const type of ["text/html", "text/rtf"]) {
 		const data = clipboardData.getData(type);

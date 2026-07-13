@@ -1021,6 +1021,7 @@ export function registerInitCommand(program: Command): void {
 			"--agent-instructions <instructions>",
 			"comma-separated agent instructions to create. Valid: claude, agents, gemini, copilot, cursor (alias of agents), none. Use 'none' to skip; when combined with others, 'none' is ignored.",
 		)
+		// aislop-ignore-next-line repeated-chained-call — bespoke .option() chain for readability
 		.option("--check-branches <boolean>", "check task states across active branches (default: true)")
 		.option("--include-remote <boolean>", "include remote branches when checking (default: true)")
 		.option("--branch-days <number>", "days to consider branch active (default: 30)")

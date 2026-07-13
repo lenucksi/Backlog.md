@@ -2,8 +2,6 @@
 import { Elysia, type TSchema, t } from "elysia";
 import { IdParam } from "./schemas";
 
-// ===== Bulk Routes =====
-
 export type BulkRouteDef = {
 	path: string;
 	handler: (req: Request) => Promise<Response>;
@@ -29,8 +27,6 @@ export function createBulkRoutes(routes: BulkRouteDef[]) {
 	}
 	return app;
 }
-
-// ===== Entity CRUD Routes =====
 
 export type EntityCRUDHandlers = {
 	list?: (() => Promise<Response>) | ((req: Request) => Promise<Response>);

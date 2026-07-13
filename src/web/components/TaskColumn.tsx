@@ -265,6 +265,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 	}, [tasks]);
 
 	return (
+		// aislop-ignore-next-line no-noninteractive-element-interactions — <section> needs drag/drop handlers for kanban board
 		<section
 			aria-label={`${title} column`}
 			className={`rounded-lg p-4 transition-colors duration-200 h-full ${isEmpty ? "min-h-24" : "min-h-96"} ${

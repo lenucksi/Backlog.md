@@ -26,7 +26,6 @@ export function registerMigrateCommand(program: Command): void {
 			core.gitOps.setConfig(config);
 
 			// aislop-ignore-next-line narrative-comment -- section separator
-			// --- Prepare phase ---
 			const completedDir = core.filesystem.completedDir;
 			const archiveDir = core.filesystem.archiveTasksDir;
 
@@ -94,7 +93,6 @@ export function registerMigrateCommand(program: Command): void {
 			stdout("");
 
 			// aislop-ignore-next-line narrative-comment -- section separator
-			// --- Execute phase ---
 			const shouldProceed =
 				options.force ??
 				(await clack.confirm({

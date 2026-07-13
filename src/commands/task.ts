@@ -1148,6 +1148,7 @@ export function registerTaskCommand(program: Command): void {
 
 	taskCmd
 		.command("create [title]")
+		// aislop-ignore-next-line repeated-chained-call — bespoke .option() chain for readability
 		.option("-d, --description <text>", "task description (multi-line: include real newlines inside the quoted string)")
 		.option("--desc <text>", "alias for --description")
 		.option("-a, --assignee <assignee>")
@@ -1209,6 +1210,7 @@ export function registerTaskCommand(program: Command): void {
 	taskCmd
 		.command("list")
 		.description("list tasks grouped by status")
+		// aislop-ignore-next-line repeated-chained-call — bespoke .option() chain for readability
 		.option("-s, --status <status>", "filter tasks by status (case-insensitive)")
 		.option("-a, --assignee <assignee>", "filter tasks by assignee")
 		.option("-m, --milestone <milestone>", "filter tasks by milestone (closest match, case-insensitive)")

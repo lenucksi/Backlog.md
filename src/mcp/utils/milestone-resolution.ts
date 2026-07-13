@@ -1,11 +1,10 @@
 import type { Milestone } from "../../types/index.ts";
 
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function normalizeMilestoneName(name: string): string {
 	return name.trim();
 }
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
-
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function milestoneKey(name: string): string {
 	return normalizeMilestoneName(name).toLowerCase();
 }
@@ -103,18 +102,18 @@ function findMatchingMilestone(name: string, milestones: Milestone[]): Milestone
 		return idMatch ?? uniqueTitleMatch;
 	}
 	return uniqueTitleMatch ?? idMatch;
-	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 }
 
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function resolveMilestoneStorageValue(name: string, milestones: Milestone[]): string {
 	const normalized = normalizeMilestoneName(name);
 	if (!normalized) {
 		return normalized;
 	}
-	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 	return findMatchingMilestone(normalized, milestones)?.id ?? normalized;
 }
 
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function buildMilestoneMatchKeys(name: string, milestones: Milestone[]): Set<string> {
 	const normalized = normalizeMilestoneName(name);
 	const keys = new Set<string>();
@@ -140,11 +139,11 @@ export function buildMilestoneMatchKeys(name: string, milestones: Milestone[]): 
 			keys.add(key);
 		}
 	}
-	// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
 
 	return keys;
 }
 
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function keySetsIntersect(left: Set<string>, right: Set<string>): boolean {
 	for (const key of left) {
 		if (right.has(key)) {

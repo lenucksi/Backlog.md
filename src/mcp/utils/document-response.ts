@@ -30,7 +30,7 @@ function buildDocumentText(document: Document, options?: { includeContent?: bool
 	return lines.join("\n");
 }
 
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export async function formatDocumentCallResult(
 	document: Document,
 	options: { includeContent?: boolean; summaryLines?: string[] } = {},

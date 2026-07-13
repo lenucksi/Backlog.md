@@ -70,37 +70,39 @@ function registerDraftListCommand(draftCmd: Command): void {
 }
 
 function registerDraftCreateCommand(draftCmd: Command): void {
-	draftCmd
-		.command("create <title>")
-		.option("-d, --description <text>", "task description (multi-line: include real newlines inside the quoted string)")
-		.option("--desc <text>", "alias for --description")
-		.option("-a, --assignee <assignee>", "set draft assignee (comma-separated)")
-		.option("-s, --status <status>", "set draft status")
-		.option("-l, --labels <labels>", "set draft labels (comma-separated)")
-		.action(async (title: string, options) => {
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			await core.ensureConfigLoaded();
-			try {
-				const { task, filePath } = await core.createTaskFromInput({
-					title,
-					description: options.description || options.desc ? String(options.description || options.desc) : undefined,
-					status: "Draft",
-					assignee: options.assignee ? [String(options.assignee)] : undefined,
-					labels: options.labels
-						? String(options.labels)
-								.split(",")
-								.map((label: string) => label.trim())
-								.filter(Boolean)
-						: undefined,
-				});
-				stdout(`Created draft ${task.id}`);
-				stdout(`File: ${filePath}`);
-			} catch (error) {
-				console.error(AppError.formatCLIError(error));
-				process.exitCode = 1;
-			}
-		});
+	const draftCreateFlags = [
+		["-d, --description <text>", "task description (multi-line: include real newlines)"],
+		["--desc <text>", "alias for --description"],
+		["-a, --assignee <assignee>", "set draft assignee (comma-separated)"],
+		["-s, --status <status>", "set draft status"],
+		["-l, --labels <labels>", "set draft labels (comma-separated)"],
+	] as const;
+	let cmd = draftCmd.command("create <title>");
+	for (const [flag, desc] of draftCreateFlags) cmd = cmd.option(flag, desc);
+	cmd.action(async (title: string, options) => {
+		const cwd = await requireProjectRoot();
+		const core = new Core(cwd);
+		await core.ensureConfigLoaded();
+		try {
+			const { task, filePath } = await core.createTaskFromInput({
+				title,
+				description: options.description || options.desc ? String(options.description || options.desc) : undefined,
+				status: "Draft",
+				assignee: options.assignee ? [String(options.assignee)] : undefined,
+				labels: options.labels
+					? String(options.labels)
+							.split(",")
+							.map((label: string) => label.trim())
+							.filter(Boolean)
+					: undefined,
+			});
+			stdout(`Created draft ${task.id}`);
+			stdout(`File: ${filePath}`);
+		} catch (error) {
+			console.error(AppError.formatCLIError(error));
+			process.exitCode = 1;
+		}
+	});
 }
 
 function registerDraftArchiveCommand(draftCmd: Command): void {

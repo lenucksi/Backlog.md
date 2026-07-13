@@ -1,3 +1,4 @@
+// aislop-ignore-file jsx-a11y/click-events-have-key-events jsx-a11y/prefer-tag-over-role -- opentui box has native keyboard handling
 // @ts-nocheck
 // @jsxImportSource @opentui/solid
 
@@ -95,13 +96,14 @@ function TaskRow(props: { task: Task; selected: boolean; onSelect: () => void })
 	return (
 		// biome-ignore lint/a11y/useSemanticElements: opentui has no button element
 		// biome-ignore lint/a11y/preferTagOverRole: opentui has no native button element
-		<box
-			role="button"
-			tabIndex={0}
+		<box role="button" tabIndex={0}
 			height={3}
 			paddingLeft={2}
 			backgroundColor={bg()}
 			flexDirection="column"
+			onKeyDown={(evt: { key: string }) => {
+				if (evt.key === "Enter" || evt.key === " ") props.onSelect();
+			}}
 			onMouseDown={(evt: { button: number }) => {
 				if (evt.button === 0) props.onSelect();
 			}}

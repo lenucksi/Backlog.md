@@ -107,51 +107,53 @@ export function registerDecisionCommand(program: Command): void {
 			stdout(`Created decision ${id}`);
 		});
 
-	decisionCmd
-		.command("list")
-		.option("--status <status>", "Filter by status")
-		.option("--supersedes <id>", "Filter by supersedes field")
-		.option("--superseded-by <id>", "Filter by supersededBy field")
-		.option("-l, --label <labels>", "Filter by labels (comma-separated)")
-		.option("--json", "output as JSON")
-		.action(async (options) => {
-			applyOutputOptions(options);
-			const cwd = await requireProjectRoot();
-			const core = new Core(cwd);
-			let decisions = await core.filesystem.listDecisions();
+	const decisionListFlags = [
+		["--status <status>", "Filter by status"],
+		["--supersedes <id>", "Filter by supersedes field"],
+		["--superseded-by <id>", "Filter by supersededBy field"],
+		["-l, --label <labels>", "Filter by labels (comma-separated)"],
+		["--json", "output as JSON"],
+	] as const;
+	let cmd = decisionCmd.command("list");
+	for (const [flag, desc] of decisionListFlags) cmd = cmd.option(flag, desc);
+	cmd.action(async (options) => {
+		applyOutputOptions(options);
+		const cwd = await requireProjectRoot();
+		const core = new Core(cwd);
+		let decisions = await core.filesystem.listDecisions();
 
-			if (options.status) {
-				decisions = decisions.filter((d) => d.status === options.status);
-			}
-			if (options.supersedes) {
-				const val = String(options.supersedes);
-				decisions = decisions.filter((d) => d.supersedes === val);
-			}
-			if (options.supersededBy) {
-				const val = String(options.supersededBy);
-				decisions = decisions.filter((d) => d.supersededBy === val);
-			}
+		if (options.status) {
+			decisions = decisions.filter((d) => d.status === options.status);
+		}
+		if (options.supersedes) {
+			const val = String(options.supersedes);
+			decisions = decisions.filter((d) => d.supersedes === val);
+		}
+		if (options.supersededBy) {
+			const val = String(options.supersededBy);
+			decisions = decisions.filter((d) => d.supersededBy === val);
+		}
 
-			if (getOutputMode() === "json") {
-				stdout(decisions);
-				return;
-			}
+		if (getOutputMode() === "json") {
+			stdout(decisions);
+			return;
+		}
 
-			if (decisions.length === 0) {
-				stdout("No decisions found.");
-				return;
-			}
+		if (decisions.length === 0) {
+			stdout("No decisions found.");
+			return;
+		}
 
-			const rows = decisions.map((d) => {
-				const supersedeTag = d.supersedes
-					? ` supersedes:${d.supersedes}`
-					: d.supersededBy
-						? ` superseded-by:${d.supersededBy}`
-						: "";
-				return `${d.id.padEnd(16)} ${d.status.padEnd(12)} ${d.date.padEnd(14)} ${d.title}${supersedeTag}`;
-			});
-			stdout(rows.join("\n"));
+		const rows = decisions.map((d) => {
+			const supersedeTag = d.supersedes
+				? ` supersedes:${d.supersedes}`
+				: d.supersededBy
+					? ` superseded-by:${d.supersededBy}`
+					: "";
+			return `${d.id.padEnd(16)} ${d.status.padEnd(12)} ${d.date.padEnd(14)} ${d.title}${supersedeTag}`;
 		});
+		stdout(rows.join("\n"));
+	});
 
 	decisionCmd
 		.command("view <id>")

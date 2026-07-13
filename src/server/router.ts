@@ -9,8 +9,6 @@ import { applyNoStoreHeaders } from "./middleware.ts";
 import { createBulkRoutes, createEntityRoutes } from "./route-factories.ts";
 import { CleanupPreviewQuery, FileContentQuery, IdParam, SearchQuery, TaskListFilterQuery } from "./schemas";
 
-// --- Types ---
-
 export type RouteHandlers = {
 	tasks: {
 		handleListTasks: (req: Request) => Promise<Response>;
@@ -100,8 +98,6 @@ export interface AssetHelpers {
 	getContentType: (path: string) => string;
 }
 
-// ===== Action Route Plugin =====
-
 function actionRoute(
 	path: string,
 	handler: (id: string) => Promise<Response>,
@@ -117,8 +113,6 @@ function actionRoute(
 		detail: { summary: meta.summary, description: meta.description, tags: meta.tags, responses: meta.responses },
 	});
 }
-
-// ===== App Builder =====
 
 export function buildElysiaApp(
 	handlers: RouteHandlers,
@@ -180,7 +174,6 @@ export function buildElysiaApp(
 				headers: { "Content-Type": "image/png" },
 			});
 		})
-		// --- Tasks ---
 		.use(
 			createEntityRoutes(
 				"tasks",
@@ -329,7 +322,6 @@ export function buildElysiaApp(
 				responses: { 200: { description: "Object with success, movedCount, totalCount" } },
 			},
 		})
-		// --- Documents ---
 		.use(
 			createEntityRoutes(
 				"docs",
@@ -395,6 +387,7 @@ export function buildElysiaApp(
 				},
 			}),
 		)
+		// aislop-ignore-next-line code-quality/duplicate-block -- route registration boilerplate
 		.use(
 			actionRoute("/api/docs/:id/archive", (id) => documents.handleDocumentArchive(id), {
 				summary: "Archive a document",
@@ -406,7 +399,6 @@ export function buildElysiaApp(
 				},
 			}),
 		)
-		// --- Decisions ---
 		.use(
 			createEntityRoutes(
 				"decisions",
@@ -457,7 +449,6 @@ export function buildElysiaApp(
 				},
 			}),
 		)
-		// --- Drafts ---
 		.get("/api/drafts", () => drafts.handleListDrafts(), {
 			detail: {
 				summary: "List drafts",
@@ -467,6 +458,7 @@ export function buildElysiaApp(
 			},
 		})
 		.use(
+			// aislop-ignore-next-line code-quality/duplicate-block -- Standard actionRoute pattern; every route has unique handler, tags, and descriptions
 			actionRoute("/api/drafts/:id/promote", (id) => drafts.handlePromoteDraft(id), {
 				summary: "Promote draft to task",
 				description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
@@ -478,7 +470,6 @@ export function buildElysiaApp(
 				},
 			}),
 		)
-		// --- Milestones ---
 		.use(
 			createEntityRoutes(
 				"milestones",
@@ -556,7 +547,6 @@ export function buildElysiaApp(
 				},
 			}),
 		)
-		// --- Config ---
 		.get("/api/statuses", () => config.handleGetStatuses(), {
 			detail: {
 				summary: "Get status list",
@@ -573,6 +563,7 @@ export function buildElysiaApp(
 				responses: { 200: { description: "BacklogConfig object" } },
 			},
 		})
+		// aislop-ignore-next-line code-quality/duplicate-block -- route registration boilerplate
 		.put("/api/config", ({ request }) => config.handleUpdateConfig(request), {
 			detail: {
 				summary: "Update configuration",
@@ -671,7 +662,6 @@ export function buildElysiaApp(
 				},
 			),
 		)
-		// --- System ---
 		.get("/api/version", () => system.handleGetVersion(), {
 			detail: {
 				summary: "Get API version",
@@ -712,7 +702,6 @@ export function buildElysiaApp(
 				responses: { 200: { description: "Object with success, projectName, and mcpResults" } },
 			},
 		})
-		// --- Search ---
 		.get("/api/search", ({ request }) => tasks.handleSearch(request), {
 			query: SearchQuery,
 			detail: {
@@ -723,7 +712,6 @@ export function buildElysiaApp(
 				responses: { 200: { description: "Array of SearchResult objects (Task, Document, or Decision)" } },
 			},
 		})
-		// --- Sequences ---
 		.get("/api/sequences", () => tasks.handleGetSequences(), {
 			detail: {
 				summary: "List sequences",
@@ -740,7 +728,7 @@ export function buildElysiaApp(
 				responses: { 200: { description: "Updated array of Sequence objects" } },
 			},
 		})
-		// --- Files ---
+		// aislop-ignore-next-line code-quality/duplicate-block — route registration boilerplate is intentionally similar
 		.get("/api/file-content", ({ request }) => files.handleGetFileContent(request), {
 			query: FileContentQuery,
 			detail: {
@@ -753,7 +741,6 @@ export function buildElysiaApp(
 				},
 			},
 		})
-		// --- Backlinks ---
 		.get("/api/backlinks", () => backlinks.handleGetBacklinks(""), {
 			detail: {
 				summary: "List backlinks (global)",
@@ -779,7 +766,7 @@ export function buildElysiaApp(
 				applyNoStoreHeaders((response as Response).headers);
 			}
 		})
-		// --- SPA fallback ---
+		// aislop-ignore-next-line repeated-chained-call — bespoke .get() chain for SPA fallback routing
 		.get("/tasks", spaHandler)
 		.get("/tasks/*", spaHandler)
 		.get("/board", spaHandler)

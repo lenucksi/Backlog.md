@@ -6,7 +6,7 @@
  * - Removes multiple consecutive hyphens
  * - Trims hyphens from start and end
  */
-// aislop-ignore-line knip/exports -- used at runtime, not statically detectable
+// aislop-ignore-next-line knip/exports -- used at runtime, not statically detectable
 export function sanitizeUrlTitle(title: string): string {
 	return (
 		title
