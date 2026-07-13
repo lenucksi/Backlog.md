@@ -1,0 +1,47 @@
+src/web/lib/api.ts
+  s_dbb080387bf6e4::t_12c83da1919dec 277-280
+  s_dbb080387bf6e4::t_0fe1f2ce79cfb5 273-276
+src/web/App.tsx
+  s_dbb080387bf6e4::t_32944e005d0911 528-532
+  s_dbb080387bf6e4::t_e4a3d095643b21 535-537
+  s_dbb080387bf6e4::t_81e2312b589301 719
+  s_30f6c868864fe2::t_6d02e51b1673d2 543-555
+src/server/router.ts
+  s_dbb080387bf6e4::t_85e3df817cf648 476-483
+  s_dbb080387bf6e4::t_c0d8e63e670bef 56
+  s_dbb080387bf6e4::t_aafa53007a323d 475
+  s_dbb080387bf6e4::t_5eee32cf266d3d 484-486
+src/web/components/TaskDetailsModal.tsx
+  s_dbb080387bf6e4::t_67c20423b2c9af 24
+  s_dbb080387bf6e4::t_dfaffeaab4a31f 138
+  s_30f6c868864fe2::t_6ba2443821a96c 1251-1280
+  s_dbb080387bf6e4::t_dc790976d8187d 573-583
+  s_dbb080387bf6e4::t_6d895fa97f1809 1315-1316
+src/server/handlers/drafts.ts
+  s_dbb080387bf6e4::t_2095693e2a7941 15-20,22,24,28,32,36-41,47
+  s_30f6c868864fe2::t_9c5c27a1fe4a8d 42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "819bcff2b5bcbbe8c67982394d5690b8eab8a789",
+  "prompts": {},
+  "sessions": {
+    "s_30f6c868864fe2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a3e1b957ffePSfFlaJ1LSOeQ7",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": null
+    },
+    "s_dbb080387bf6e4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a3de1061ffexdzqiIPjlZW0GS",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
