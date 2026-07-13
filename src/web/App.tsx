@@ -525,11 +525,31 @@ function App() {
 
 	const handleArchiveTask = async (taskId: string) => {
 		try {
-			await apiClient.archiveTask(taskId);
+			if (taskId.startsWith("DRAFT-")) {
+				await apiClient.archiveDraft(taskId);
+			} else {
+				await apiClient.archiveTask(taskId);
+			}
 			handleCloseModal();
 			await refreshData();
+			if (taskId.startsWith("DRAFT-") && window.location.pathname === "/drafts") {
+				window.dispatchEvent(new Event("drafts-updated"));
+			}
 		} catch (error) {
 			console.error("Failed to archive task:", error);
+		}
+	};
+
+	const handlePromoteDraft = async (draftId: string) => {
+		try {
+			await apiClient.promoteDraft(draftId);
+			handleCloseModal();
+			await refreshData();
+			if (window.location.pathname === "/drafts") {
+				window.dispatchEvent(new Event("drafts-updated"));
+			}
+		} catch (error) {
+			console.error("Failed to promote draft:", error);
 		}
 	};
 
@@ -696,6 +716,7 @@ function App() {
 				onSaved={refreshData}
 				onSubmit={handleSubmitTask}
 				onArchive={editingTask ? () => handleArchiveTask(editingTask.id) : undefined}
+				onPromote={editingTask?.id?.startsWith("DRAFT-") ? handlePromoteDraft : undefined}
 				availableStatuses={isDraftMode ? ["Draft", ...statuses] : statuses}
 				terminalStatuses={config?.terminalStatuses}
 				blockedStatuses={config?.blockedStatuses}

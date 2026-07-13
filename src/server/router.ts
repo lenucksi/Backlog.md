@@ -53,6 +53,7 @@ export type RouteHandlers = {
 	drafts: {
 		handleListDrafts: () => Promise<Response>;
 		handlePromoteDraft: (draftId: string) => Promise<Response>;
+		handleArchiveDraft: (draftId: string) => Promise<Response>;
 	};
 	milestones: {
 		handleListMilestones: () => Promise<Response>;
@@ -468,6 +469,18 @@ export function buildElysiaApp(
 					200: { description: "Confirmation { success: true }" },
 					404: { description: "Draft not found" },
 					409: { description: "Conflict: draft cannot be promoted" },
+				},
+			}),
+		)
+		.use(
+			// aislop-ignore-next-line code-quality/duplicate-block -- Standard actionRoute pattern; every route has unique handler, tags, and descriptions
+			actionRoute("/api/drafts/:id/archive", (id) => drafts.handleArchiveDraft(id), {
+				summary: "Archive draft",
+				description: "Moves a draft to the archive/drafts/ folder.",
+				tags: ["Drafts"],
+				responses: {
+					200: { description: "Confirmation { success: true }" },
+					404: { description: "Draft not found" },
 				},
 			}),
 		)

@@ -21,6 +21,7 @@ interface Props {
 	onSaved?: () => Promise<void> | void; // refresh callback
 	onSubmit?: (taskData: Partial<Task>) => Promise<void>; // For creating new tasks
 	onArchive?: () => void; // For archiving tasks
+	onPromote?: (draftId: string) => Promise<void>; // For promoting drafts to tasks
 	availableStatuses?: string[]; // Available statuses for new tasks
 	terminalStatuses?: string[]; // Explicit terminal statuses for completion check
 	blockedStatuses?: string[]; // Blocked statuses that should not show archive button
@@ -134,6 +135,7 @@ export const TaskDetailsModal: React.FC<Props> = ({
 	onSaved,
 	onSubmit,
 	onArchive,
+	onPromote,
 	availableStatuses,
 	terminalStatuses,
 	blockedStatuses,
@@ -562,6 +564,17 @@ export const TaskDetailsModal: React.FC<Props> = ({
 		try {
 			await apiClient.demoteTask(task.id);
 			if (onSaved) await onSaved();
+			onClose();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : String(err));
+		}
+	};
+
+	const handlePromote = async () => {
+		if (!task || !onPromote) return;
+		if (!window.confirm("Promote this draft to a task?")) return;
+		try {
+			await onPromote(task.id);
 			onClose();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -1235,15 +1248,36 @@ export const TaskDetailsModal: React.FC<Props> = ({
 						/>
 					</div>
 
-					{mode === "preview" && task && !isFromOtherBranch && (status || "").toLowerCase() !== "draft" && (
-						<SidebarActionButton
-							variant="warning"
-							onClick={handleDemote}
-							icon={<Icons.Refresh className="size-4 mr-2" />}
-						>
-							Demote to Draft
-						</SidebarActionButton>
-					)}
+					{mode === "preview" &&
+						task &&
+						!isFromOtherBranch &&
+						(status || "").toLowerCase() !== "draft" &&
+						task.id.startsWith("DRAFT-") && (
+							<SidebarActionButton
+								variant="primary"
+								onClick={handlePromote}
+								icon={
+									<svg aria-hidden="true" className="size-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+									</svg>
+								}
+							>
+								Promote to Task
+							</SidebarActionButton>
+						)}
+					{mode === "preview" &&
+						task &&
+						!isFromOtherBranch &&
+						(status || "").toLowerCase() !== "draft" &&
+						!task.id.startsWith("DRAFT-") && (
+							<SidebarActionButton
+								variant="warning"
+								onClick={handleDemote}
+								icon={<Icons.Refresh className="size-4 mr-2" />}
+							>
+								Demote to Draft
+							</SidebarActionButton>
+						)}
 
 					{task && onArchive && !isFromOtherBranch && (
 						<SidebarActionButton
@@ -1278,6 +1312,8 @@ const InfoBanner: React.FC<{
 );
 
 const sidebarActionVariants = {
+	primary:
+		"bg-emerald-500 dark:bg-emerald-600 hover:bg-emerald-600 dark:hover:bg-emerald-700 focus:ring-emerald-400 dark:focus:ring-emerald-500",
 	warning:
 		"bg-orange-500 dark:bg-orange-600 hover:bg-orange-600 dark:hover:bg-orange-700 focus:ring-orange-400 dark:focus:ring-orange-500",
 	danger:
