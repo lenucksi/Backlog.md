@@ -17,9 +17,9 @@ function hexToAnsi256(hex: string): number {
 
 function detectTerminalColorSupport(): "truecolor" | "256" | "none" {
 	if (!process.stdout.isTTY || !process.stderr.isTTY) return "none";
-	const colorTerm = process.env.COLORTERM;
+	const colorTerm = Bun.env.COLORTERM;
 	if (colorTerm === "truecolor" || colorTerm === "24bit") return "truecolor";
-	const term = process.env.TERM;
+	const term = Bun.env.TERM;
 	if (term?.includes("truecolor") || term?.includes("24bit")) return "truecolor";
 	if (term?.includes("256")) return "256";
 	if (term) return "256";

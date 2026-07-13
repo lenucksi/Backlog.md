@@ -46,7 +46,7 @@ export class AppError extends Error {
 	}
 
 	formatForMCP(): CallToolResult {
-		const includeDetails = !!process.env.DEBUG;
+		const includeDetails = !!Bun.env.DEBUG;
 		const structured = this.details !== undefined ? { code: this.code, details: this.details } : { code: this.code };
 		return {
 			content: [

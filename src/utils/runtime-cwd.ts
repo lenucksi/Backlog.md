@@ -21,7 +21,7 @@ function resolveOverrideCandidate(cwdOption?: string): RuntimeCwdResolution | nu
 		};
 	}
 
-	const fromEnv = process.env[BACKLOG_CWD_ENV]?.trim();
+	const fromEnv = Bun.env[BACKLOG_CWD_ENV]?.trim();
 	if (fromEnv) {
 		return {
 			cwd: resolve(fromEnv),

@@ -1,4 +1,3 @@
-import { writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Command } from "commander";
@@ -18,7 +17,7 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 		const backlogDir = core.filesystem.backlogDirName;
 
 		if (config?.remoteOperations === false) {
-			if (process.env.DEBUG) {
+			if (Bun.env.DEBUG) {
 				console.error("Remote operations disabled - generating ID from local decisions only");
 			}
 		} else {
@@ -42,7 +41,7 @@ export async function generateNextDecisionId(core: Core): Promise<string> {
 			allIds.push(...branchIds);
 		}
 	} catch (error) {
-		if (process.env.DEBUG) {
+		if (Bun.env.DEBUG) {
 			console.error("Could not fetch remote decision IDs:", error instanceof Error ? error.message : String(error));
 		}
 	}
@@ -266,7 +265,7 @@ export function registerDecisionCommand(program: Command): void {
 			const templateContent = lines.join("\n");
 
 			const tmpFile = join(tmpdir(), `backlog-supersede-${newId}.md`);
-			writeFileSync(tmpFile, templateContent, "utf-8");
+			await Bun.write(tmpFile, templateContent);
 
 			const editorOk = await openInEditor(tmpFile, config);
 			if (!editorOk) {
@@ -274,8 +273,7 @@ export function registerDecisionCommand(program: Command): void {
 				process.exit(EXIT.ERROR);
 			}
 
-			const { readFileSync } = await import("node:fs");
-			const editedContent = readFileSync(tmpFile, "utf-8");
+			const editedContent = await Bun.file(tmpFile).text();
 
 			const { parseDecision } = await import("../markdown/parser.ts");
 

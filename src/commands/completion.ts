@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
@@ -73,11 +72,11 @@ function resolvePowerShellProfilePath(): string {
 
 function getWindowsPowerShellExecutables(): string[] {
 	const candidates = [
-		process.env.ProgramFiles ? join(process.env.ProgramFiles, "PowerShell", "7", "pwsh.exe") : null,
-		process.env["ProgramFiles(x86)"] ? join(process.env["ProgramFiles(x86)"], "PowerShell", "7", "pwsh.exe") : null,
+		Bun.env.ProgramFiles ? join(Bun.env.ProgramFiles, "PowerShell", "7", "pwsh.exe") : null,
+		Bun.env["ProgramFiles(x86)"] ? join(Bun.env["ProgramFiles(x86)"], "PowerShell", "7", "pwsh.exe") : null,
 	].filter((path): path is string => Boolean(path));
 
-	return candidates.filter((path) => existsSync(path));
+	return candidates.filter((path) => Bun.spawnSync(["test", "-e", path]).exitCode === 0);
 }
 
 export interface CompletionInstallResult {
@@ -90,7 +89,7 @@ export interface CompletionInstallResult {
  * Detect the user's current shell
  */
 function detectShell(): Shell | null {
-	const shell = process.env.SHELL || "";
+	const shell = Bun.env.SHELL || "";
 
 	if (shell.includes("bash")) {
 		return "bash";
@@ -116,7 +115,7 @@ async function getCompletionScript(shell: Shell): Promise<string> {
 	const scriptPath = join(__dirname, "..", "..", "completions", getScriptFilename(shell));
 
 	try {
-		if (existsSync(scriptPath)) {
+		if (await Bun.file(scriptPath).exists()) {
 			return await readFile(scriptPath, "utf-8");
 		}
 	} catch {
@@ -421,7 +420,7 @@ export async function installCompletion(
 
 	try {
 		// Create directory if it doesn't exist
-		if (!existsSync(installDir)) {
+		if (!(await Bun.file(installDir).exists())) {
 			await mkdir(installDir, { recursive: true });
 		}
 

@@ -46,7 +46,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 
 		return false;
 	} catch (error) {
-		if (process.env.DEBUG) {
+		if (Bun.env.DEBUG) {
 			getLogger().error("Clipboard copy failed:", error instanceof Error ? error.message : String(error));
 		}
 		return false;

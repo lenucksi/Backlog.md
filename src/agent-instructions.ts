@@ -1,4 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { dirname, isAbsolute, join } from "node:path";
 import {
@@ -141,13 +140,12 @@ export async function addAgentInstructions(
 		const filePath = join(projectRoot, name);
 		let finalContent = "";
 
-		// Check if file exists first to avoid Windows hanging issue
-		if (existsSync(filePath)) {
+		// Check if file exists first
+		if (await Bun.file(filePath).exists()) {
 			try {
-				// On Windows, use synchronous read to avoid hanging
 				let existing: string;
 				if (process.platform === "win32") {
-					existing = readFileSync(filePath, "utf-8");
+					existing = await Bun.file(filePath).text();
 				} else {
 					existing = await Bun.file(filePath).text();
 				}
@@ -194,7 +192,7 @@ export { loadContent as _loadAgentGuideline };
 
 async function readExistingFile(filePath: string): Promise<string> {
 	if (process.platform === "win32") {
-		return readFileSync(filePath, "utf-8");
+		return await Bun.file(filePath).text();
 	}
 	return await Bun.file(filePath).text();
 }
@@ -211,7 +209,7 @@ export async function ensureMcpGuidelines(
 	fileName: AgentInstructionFile,
 ): Promise<EnsureMcpGuidelinesResult> {
 	const filePath = join(projectRoot, fileName);
-	const fileExists = existsSync(filePath);
+	const fileExists = await Bun.file(filePath).exists();
 	let existing = "";
 	let original = "";
 	let insertIndex: number | null = null;
