@@ -1,0 +1,25 @@
+AGENTS.md
+  s_54d3f1f386c57c::t_d0f8caff268523 60-64,78
+  s_54d3f1f386c57c::t_2b9d04af7a8a94 240-248,250,252-253,255,257-259
+  s_54d3f1f386c57c::t_b6978ae436ec9f 322
+  s_54d3f1f386c57c::t_af011bbbe2df6c 363-364,366-367,369
+  s_54d3f1f386c57c::t_79650d9dcad096 373-374,376
+  s_54d3f1f386c57c::t_1ffc1aa619f1ee 436-440
+  s_54d3f1f386c57c::t_7a8dab85099f56 263,265-266,268,270,272-274,276-281,283,285-287,289,291,293,295-296,298,300,302-310
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "23741cadc00811422beecd76ab7174a26cd7ca50",
+  "prompts": {},
+  "sessions": {
+    "s_54d3f1f386c57c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a963be86ffe932L4w9p42QDQT",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
