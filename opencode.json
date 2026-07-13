@@ -30,5 +30,5 @@
 			}
 		}
 	},
-	"plugin": ["./hooks/backlog-guard/opencode-plugin.js"]
+	"plugin": ["./hooks/backlog-guard/opencode-plugin.ts"]
 }

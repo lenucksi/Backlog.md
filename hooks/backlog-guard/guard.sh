@@ -22,5 +22,5 @@ if command -v bun &>/dev/null; then
 elif command -v npx &>/dev/null; then
   exec npx tsx "$DIR/claude-hook.ts"
 else
-  exec node "$DIR/claude-hook.js"
+  echo "error: need bun or tsx to run claude-hook.ts" >&2; exit 1
 fi

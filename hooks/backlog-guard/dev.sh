@@ -10,12 +10,8 @@ case "${1:-all}" in
     bun test "$DIR/guard-core.test.ts"
     ;;
   build)
-    echo ":: Building JS bundles..."
-    bun build "$DIR/opencode-plugin.ts" --outfile "$DIR/opencode-plugin.js" --target=node --format=esm
-    bun build "$DIR/claude-hook.ts" --outfile "$DIR/claude-hook.js" --target=node --format=esm --external=yaml --external=shell-quote
-    echo ":: Copy to npm package..."
-    cp "$DIR/opencode-plugin.js" "$REPO/packages/backlog-guard/opencode-plugin.js"
-    echo ":: Done. $(wc -c < "$DIR/opencode-plugin.js")B opencode-plugin.js, $(wc -c < "$DIR/claude-hook.js")B claude-hook.js"
+    echo ":: Build not needed — Bun runs .ts files directly."
+    echo ":: (npm package builds separately if publishing)"
     ;;
   check)
     echo ":: Biome check..."
@@ -26,7 +22,6 @@ case "${1:-all}" in
   all)
     "$0" check
     "$0" test
-    "$0" build
     echo ":: All checks passed."
     ;;
   *)

@@ -70,11 +70,11 @@ fi
 
 # -- Step 2: Resolve plugin source paths --------------------------------------
 
-# Try to find compiled JS first, then TS, then fallback
-if [[ -f "$DIR/opencode-plugin.js" ]]; then
-  OPENCODE_SRC="$DIR/opencode-plugin.js"
-elif [[ -f "$DIR/opencode-plugin.ts" ]]; then
+# Try to find TS source first, then fallback
+if [[ -f "$DIR/opencode-plugin.ts" ]]; then
   OPENCODE_SRC="$DIR/opencode-plugin.ts"
+elif [[ -f "$DIR/opencode-plugin.js" ]]; then
+  OPENCODE_SRC="$DIR/opencode-plugin.js"
 fi
 
 CLAUDE_SRC="$DIR/guard.sh"
@@ -186,16 +186,15 @@ read -rp "Symlink plugin to ~/.config/opencode/plugins/? [Y/n] " ans
 if [[ ! "$ans" =~ ^[Nn] ]]; then
   mkdir -p "$HOME/.config/opencode/plugins"
   if [[ -n "${OPENCODE_SRC:-}" ]]; then
-    ln -sf "$OPENCODE_SRC" "$HOME/.config/opencode/plugins/backlog-guard.js"
-    ok "Symlinked $OPENCODE_SRC → ~/.config/opencode/plugins/backlog-guard.js"
+    ln -sf "$OPENCODE_SRC" "$HOME/.config/opencode/plugins/backlog-guard.ts"
+    ok "Symlinked $OPENCODE_SRC → ~/.config/opencode/plugins/backlog-guard.ts"
   else
-    # Compile from TS
+    # OpenCode runs on Bun — can load .ts directly
     if command -v bun &>/dev/null; then
-      bun build "$DIR/opencode-plugin.ts" --outfile "$DIR/opencode-plugin.js" --target=node --format=esm
-      ln -sf "$DIR/opencode-plugin.js" "$HOME/.config/opencode/plugins/backlog-guard.js"
-      ok "Compiled and symlinked opencode-plugin.js"
+      ln -sf "$DIR/opencode-plugin.ts" "$HOME/.config/opencode/plugins/backlog-guard.ts"
+      ok "Symlinked opencode-plugin.ts → ~/.config/opencode/plugins/backlog-guard.ts"
     else
-      err "Cannot compile opencode-plugin.ts — need bun or a pre-built .js file."
+      err "Need bun to use opencode-plugin.ts"
     fi
   fi
 else
@@ -207,12 +206,12 @@ else
       echo '{"$schema":"https://opencode.ai/config.json"}' > "$opencode_cfg"
     fi
     local plugin_path
-    if [[ -f "$DIR/opencode-plugin.js" ]]; then
-      plugin_path="$(realpath --relative-to="$GIT_ROOT" "$DIR/opencode-plugin.js")"
-    elif [[ -f "$DIR/opencode-plugin.ts" ]]; then
+    if [[ -f "$DIR/opencode-plugin.ts" ]]; then
       plugin_path="$(realpath --relative-to="$GIT_ROOT" "$DIR/opencode-plugin.ts")"
+    elif [[ -f "$DIR/opencode-plugin.js" ]]; then
+      plugin_path="$(realpath --relative-to="$GIT_ROOT" "$DIR/opencode-plugin.js")"
     else
-      plugin_path="./hooks/backlog-guard/opencode-plugin.js"
+      plugin_path="./hooks/backlog-guard/opencode-plugin.ts"
     fi
 
     local tmp
@@ -232,7 +231,7 @@ echo "    /plugin marketplace add ."
 echo "    /plugin install backlog-guard@backlog-marketplace"
 echo ""
 echo "  OpenCode:"
-echo '    opencode.json → { "plugin": ["./hooks/backlog-guard/opencode-plugin.js"] }'
+echo '    opencode.json → { "plugin": ["./hooks/backlog-guard/opencode-plugin.ts"] }'
 echo "    or: npm publish + add to plugin array"
 echo ""
 echo "  Or from GitHub directly (any project):"

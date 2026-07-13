@@ -1,0 +1,7 @@
+# aislop configuration
+# https://github.com/lenucksi/aislop
+
+exclude:
+  # Generated bundle files (built from .ts sources)
+  - "hooks/backlog-guard/opencode-plugin.js"
+  - "hooks/backlog-guard/claude-hook.js"
