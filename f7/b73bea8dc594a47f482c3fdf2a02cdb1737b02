@@ -1,0 +1,68 @@
+"backlog/drafts/draft-12 - GUI-introduction-screens.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-27
+"backlog/drafts/draft-13 - Create-CHANGELOG.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-23
+"backlog/drafts/draft-6 - GUI-Implement-GUI-Kanban-Board-Display-Interaction.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-33
+"backlog/drafts/draft-8 - GUI-Implement-`backlog-init`-in-GUI-GUI-Packaging.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-29
+"backlog/drafts/draft-5 - GUI-Setup-GUI-Project-Structure.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-27
+"backlog/drafts/draft-14 - GUI-Implement-GUI-Task-Creation-Editing-Forms.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-29
+"backlog/drafts/draft-0018 - Flexible-card-format-with-board-configurable-property-schema.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-54
+src/core/backlog.ts
+  s_30f6c868864fe2::t_be8e737e5894f4 39
+  s_30f6c868864fe2::t_5ac4b071a5aeab 1349,1353,1357,1361,1365,1369,1373,1377,1381,1385
+  s_30f6c868864fe2::t_b67de3982ad618 525-534
+  s_30f6c868864fe2::t_ce98ae6a21f079 25-26
+  s_30f6c868864fe2::t_d9f876dea7f6af 47
+"backlog/drafts/draft-9 - Improve-docs-readme-with-generic-example-and-CLI-command-reference.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-23
+src/core/entity-crud.ts
+  s_dbb080387bf6e4::t_12ac37b793c298 1-2,138-150
+  s_30f6c868864fe2::t_76c5e796618e11 3-137,151-230
+"backlog/drafts/draft-16 - Spike-Support-multiple-task-ID-prefixes-per-project.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-69
+"backlog/drafts/draft-10 - CLI-Add-Agent-Instruction-Prompt.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-60
+"backlog/drafts/draft-0017 - Refactor-BE-to-Go-Rust-and-keep-FE-Package-up-the-entire-thing.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-25
+"backlog/drafts/draft-3 - Improve-drafts-readme-with-generic-example-and-CLI-command-reference.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-23
+"backlog/drafts/draft-7 - CLI-Export-milestones-board-as-roadmap.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-23
+"backlog/drafts/draft-15 - Improve-decisions-readme-with-generic-example-and-CLI-command-reference.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-23
+"backlog/drafts/draft-11 - Improve-tasks-readme-with-generic-example-and-CLI-command-reference.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-23
+"backlog/drafts/draft-2 - GUI-Implement-GUI-for-Drafts-Docs-Decisions.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-31
+"backlog/drafts/draft-4 - Add-CODE-OF-CONDUCT.md"
+  s_dbb080387bf6e4::t_247de2a24a5806 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f7b73bea8dc594a47f482c3fdf2a02cdb1737b02",
+  "prompts": {},
+  "sessions": {
+    "s_30f6c868864fe2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a3e1b957ffePSfFlaJ1LSOeQ7",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    },
+    "s_dbb080387bf6e4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a3de1061ffexdzqiIPjlZW0GS",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
