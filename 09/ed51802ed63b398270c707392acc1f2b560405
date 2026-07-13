@@ -1,0 +1,31 @@
+test/selfhealing/backlog-guard/config.json
+  s_8b93e04b016d43::t_f7cd1d2a8fbf03 1-2
+  s_8b93e04b016d43::t_2dede3cd751e49 3
+test/selfhealing/backlog-guard/guard-access.test.ts
+  s_8b93e04b016d43::t_2eee29ca68d874 1-27
+  s_8b93e04b016d43::t_2dede3cd751e49 28
+test/selfhealing/backlog-guard/harness.ts
+  s_8b93e04b016d43::t_2dede3cd751e49 420
+  s_8b93e04b016d43::t_f16533fed73311 1-419
+package.json
+  s_8b93e04b016d43::t_374f5374cf0b73 63
+test/selfhealing/backlog-guard/guard-access.fix.md
+  s_8b93e04b016d43::t_b690521afb48db 1-43
+  s_8b93e04b016d43::t_2dede3cd751e49 44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "09ed51802ed63b398270c707392acc1f2b560405",
+  "prompts": {},
+  "sessions": {
+    "s_8b93e04b016d43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a9f3f2f3ffeGIRo7a55YAOWhe",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
