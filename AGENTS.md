@@ -57,7 +57,11 @@ From the aislop deduplication campaign (108→1 duplicate blocks):
 3. **Factory functions for boilerplate**: For route registration, schema definitions, and CRUD operations, prefer factory functions over copy-paste. A 10-line factory that eliminates 5×15-line blocks is always worth it.
 4. **Icon/SVG deduplication**: Before inlining an `<svg>`, check `src/web/components/icons.tsx`. If the path exists, use the icon component. If it appears in 2+ files but not in icons.tsx, extract it immediately.
 5. **CLI command bootstrap**: Every CLI command in `src/commands/` starts with `requireProjectRoot()` + `new Core()` + `loadConfig()` — use `ensureProjectConfig()` from `src/utils/cli-context.ts` instead of repeating the pattern.
-6. **Run aislop scan before finalizing**: Run `npx aislop scan` before marking a task Done. Address `code-quality/duplicate-block` findings — they're the cheapest debt to fix.
+6. **Run aislop scan before finalizing**: Run `bun x aislop scan` before marking a task Done. Address `code-quality/duplicate-block` findings — they're the cheapest debt to fix.
+7. **aislop-ignore-line vs aislop-ignore-next-line**: `aislop-ignore-line` suppresses the **same line** (the comment itself), not the next line. `aislop-ignore-next-line` suppresses the line below. Multiple agents silently missed 22 knip suppressions because they used `ignore-line` before `export function` — the directive was applied to the comment line, not the export. Only `aislop-ignore-next-line` reaches the next line.
+8. **aislop-ignore in `.tsx` files**: JSX comments `{/* */}` are NOT parsed by aislop's directive regex. For `.tsx` files, use `aislop-ignore-file` at the top of the file, or place `//` comments before `const X = (` assignments (outside JSX expression context).
+9. **CLI command chaining — preserve bespoke style**: Commander.js `.option()` chains must NOT be extracted to data tables. The bespoke style has human readability value. Suppress `repeated-chained-call` with `aislop-ignore-next-line` placed directly before the first `.option()` call, not before `program.command()`.
+10. **Edit tool partial-replacement overlap**: When using `edit` with `oldString`/`newString`, the `newString` must not reintroduce content already below the replacement. This created duplicate Commander.js flags, crashing all 214 CLI tests.
 
 ### Code Quality Rules
 
@@ -71,17 +75,10 @@ From the aislop deduplication campaign (108→1 duplicate blocks):
 
 Before marking a task Done, in addition to the existing checklist:
 
-- [ ] `npx aislop scan` — review `code-quality/duplicate-block` findings for the changed files
+- [ ] `bun x aislop scan` — review `code-quality/duplicate-block` findings for the changed files
 - [ ] No trivial restating comments added in new/changed code
 - [ ] No console.log/debug left from development (distinguish from intended CLI output)
 - [ ] `react-hooks/exhaustive-deps` clean for any changed React components
-
-## TUI State Patterns
-
-- **Set-mutation preserves closure references**: Use `.clear()` + `.add()` instead of `= new Set()`. Reassignment breaks references held by GenericList itemRenderers or other persisted callbacks.
-- **Pure functions shared by multiple panes**: Place in `task-viewer-state.ts` or a dedicated utils module. Never leave them in the main orchestrator file — that recreates the god-file problem.
-- **Callback interfaces over closure access**: Extracted panes receive state via typed callback interfaces, not by closing over the orchestrator's `let` variables. The orchestrator wires the callbacks.
-
 
 ## Cross-Modality Checklist
 Before considering a feature complete, verify coverage across all 5 access modalities:
@@ -240,80 +237,77 @@ is loaded once per worker`). Unsafe comments get reverted.
 
 ### Milestones
 
-- **Jedes Ticket braucht einen Milestone.** Existierende Milestones verwenden (`backlog milestone list`).
-- Falls ein neuer Milestone nötig ist: Nutzer fragen mit Namens- und Beschreibungsvorschlag.
+- **Every ticket needs a milestone.** Use existing milestones (`backlog milestone list`).
+- If a new milestone is needed: ask the user with a name and description suggestion.
 
-### Tickets schreiben
+### Writing tickets
 
-- **Description**: für Menschen — Outcome, Kontext, Motivation.
-- **Implementation Plan**: für LLMs — konkrete Dateien, API-Entscheidungen, Schritte.
-- **Notes**: Gotchas, Edge Cases, Referenzen, Links.
-- **Acceptance Criteria**: gehören ins Frontmatter (`--ac`), nicht in Notes. Erst abhaken wenn tatsächlich erfüllt.
+- **Description**: for humans — outcome, context, motivation.
+- **Implementation Plan**: for LLMs — concrete files, API decisions, steps.
+- **Notes**: gotchas, edge cases, references, links.
+- **Acceptance Criteria**: go in frontmatter (`--ac`), not in Notes. Only check off when actually fulfilled.
 
-### Während der Bearbeitung
+### During implementation
 
-- **Status aktuell halten**: Ticket auf `In Arbeit` sobald Implementation beginnt. Erst auf `Fertig` wenn alle ACs gehakt UND DoD-Check durch ist.
-- **ACs korrekt haken**: Nur haken wenn tatsächlich erfüllt. Nicht vorher (nicht getestet), nicht nachher (vergessen). DoD ("Definition of Done") erst am Schluss durchgehen und dann abhaken.
-- **References anreichern**: `--ref`, `--doc`, `--modified-file` während der Arbeit setzen, nicht erst am Ende — damit Subagenten den Kontext sofort haben.
-- **Implementation Notes**: Gotchas, Lessons Learned, Edge Cases sofort notieren wenn sie auftauchen. Nicht aufs Ende verschieben.
-- **Final Summary**: Bei Task-Abschluss schreiben. Enthält: was wurde gemacht, welche Dateien, welche Entscheidungen, Commit-Hash.
+- **Keep status current**: Move to `In Progress` as soon as implementation begins. Only set to `Done` when all ACs are checked AND DoD check is complete.
+- **Check ACs correctly**: Only check when actually fulfilled. Not before (untested), not after (forgotten). DoD is checked at the end, then ACs are checked.
+
+- **Enrich references during work**: Set `--ref`, `--doc`, `--modified-file` during work, not at the end — so sub-agents have context immediately.
+
+- **Note implementation gotchas immediately**: Gotchas, Lessons Learned, Edge Cases — write them down as they appear, not at the end.
+
+- **Write Final Summary on task completion**: Contains: what was done, which files, decisions, commit hash.
 
 ### Session-Start
 
-Vor der Implementation in dieser Reihenfolge:
+Before implementation, in this order:
 
-1. **Workflow laden**: `backlog_get_backlog_instructions(instruction: "task-execution")`
-2. **Task lesen**: `backlog_task_view(id: "BACK-NNNN")`
-3. **DoD Defaults checken**: `backlog_definition_of_done_defaults_get()`
-4. **Konventionen laden** (nur Relevantes, nicht alles):
-   - Immer lesen: §Code Standards + §Parallel Test Conventions
-   - Wenn TUI: §TUI State Patterns
-5. **Skills laden**: `skill(name: "context-hunter")` vor jeder Code-Änderung
-6. **Implementation Plan lesen**: Aus dem Task — enthält LLM-konkrete Schritte
-7. **Wiedererfrischung zwischendurch** (bei Bedarf): §Simplicity-first, §Cross-Modality Checklist
+1. **Load workflow**: `backlog_get_backlog_instructions(instruction: "task-execution")`
+   Fallback when MCP is unavailable: `backlog instructions task-execution` via CLI.
 
-### Session-Abschluss
+2. **Read task**: `backlog_task_view(id: "BACK-NNNN")`
 
-Vor Task-Finalisierung in dieser Reihenfolge:
+3. **Check DoD defaults**: `backlog_definition_of_done_defaults_get()`
 
-1. **Impl Notes prüfen**: Wurden Gotchas/Learned notiert? Sonst nachtragen.
-2. **ACs durchgehen**: Jede einzelne abhaken. Nur haken wenn tatsächlich erfüllt.
-3. **DoD Defaults prüfen** (von Schritt 3 gemerkt): Jede abhaken.
-4. **Cross-Modality abdecken**: `skill(name: "modality-parity-check")` wenn nicht N/A.
-5. **Final Summary schreiben**: Was, Welche Dateien, Entscheidungen, Commit-Hash.
-6. **Status auf Done**: `backlog_task_edit(id, status: "Done", finalSummary: "...")`
+4. **Load conventions** (only relevant sections):
+   - Always read: §Code Standards + §Parallel Test Conventions
+   - If TUI: §TUI State Patterns
 
-Implementation Plan (für LLMs) und Description (für Menschen) sind getrennte Felder — nicht vermischen.
+5. **Load skills** (always, in this order):
+   - `skill(name: "context-hunter")` — MUST be loaded before any code change.
+     Classifies complexity, discovers local conventions, prevents blind coding.
+   - `skill(name: "backlog-technical-project-manager")` — always loaded so TPM
+     coordination is available when the user requests it. Contains the Sub-Agent
+     Brief Template, Plan Approval Gate, and Finalization Gate as reference.
 
-## Lessons Learned — Duplicate Code Blocks & Code Quality
+6. **Read implementation plan**: From the task — contains LLM-specific steps.
 
-### Duplicate Code Prevention
+7. **Mid-session refresh** (as needed):
+   - §Simplicity-first, §Cross-Modality Checklist
+   - `backlog instructions overview` via CLI when workflow guidance is needed.
 
-From the aislop deduplication campaign (108→1 duplicate blocks):
+### Session-Finalization
 
-1. **Extract on sight**: When a pattern appears in 2+ locations, extract it immediately — not in a follow-up task. Every kept duplicate doubles future change cost.
-2. **Same-file extraction first**: Before creating a new file/module, check if the helper fits in the same file. Only extract to a shared module when reused across files.
-3. **Factory functions for boilerplate**: For route registration, schema definitions, and CRUD operations, prefer factory functions over copy-paste. A 10-line factory that eliminates 5×15-line blocks is always worth it.
-4. **Icon/SVG deduplication**: Before inlining an `<svg>`, check `src/web/components/icons.tsx`. If the path exists, use the icon component. If it appears in 2+ files but not in icons.tsx, extract it immediately.
-5. **CLI command bootstrap**: Every CLI command in `src/commands/` starts with `requireProjectRoot()` + `new Core()` + `loadConfig()` — use `ensureProjectConfig()` from `src/utils/cli-context.ts` instead of repeating the pattern.
-6. **Run aislop scan before finalizing**: Run `npx aislop scan` before marking a task Done. Address `code-quality/duplicate-block` findings — they're the cheapest debt to fix.
+Before finalizing a task, in this order:
 
-### Code Quality Rules
+1. **Check Implementation Notes**: Were gotchas/learnings noted? If not, add them.
 
-1. **console.log in CLI is output, not debug**: This project is a CLI tool — `console.log()` in command handlers IS the intended stdout output mechanism, not debug logging. Do NOT flag these as "leftover debug logs". Use `console.error()` for errors (stderr). If you need debug logging during development, remove it before committing.
-2. **as unknown as X is sometimes necessary**: TypeScript sometimes needs `as unknown as TargetType` for JSON.parse results, Elysia builder chains, and test fixtures. Prefer proper type guards or interfaces, but don't contort code to avoid the pattern entirely.
-3. **Trivial comments breed**: A comment like `// Load config` above `const config = loadConfig()` adds noise, not value. If the code is self-explanatory, don't comment it. Reserve comments for WHY (not WHAT).
-4. **React exhaustive deps**: Missing `useEffect`/`useMemo`/`useCallback` deps are runtime bugs waiting to happen. Always run `bun run check src/web/ --write` which catches these via lint rules. Never suppress with `// eslint-disable-next-line`.
-5. **Narrative comment blocks**: Decorative section separators (`// --- Tasks ---`) are acceptable navigation aids in long files. Multi-line explanatory preambles should be converted to concise single-line comments or removed if the code is self-explanatory.
+2. **Review ACs**: Check off each one. Only check if actually fulfilled — not before
+   (untested), not after (forgotten). DoD is checked at the end, then ACs are checked.
 
-### Session-End Checklist Additions
+3. **Check DoD defaults**: From step 3 above. Check off each one.
 
-Before marking a task Done, in addition to the existing checklist:
+4. **Cross-Modality check**: `skill(name: "modality-parity-check")` when not N/A.
 
-- [ ] `npx aislop scan` — review `code-quality/duplicate-block` findings for the changed files
-- [ ] No trivial restating comments added in new/changed code
-- [ ] No console.log/debug left from development (distinguish from intended CLI output)
-- [ ] `react-hooks/exhaustive-deps` clean for any changed React components
+5. **TPM Finalization Gate**: If TPM coordination is active, run the Finalization
+   Gate from the backlog-technical-project-manager skill (6 verification steps
+   including PR confirmation, user-perspective validation, evidence review).
+
+6. **Write Final Summary**: What was done, which files, decisions, commit hash.
+
+7. **Set status to Done**: `backlog_task_edit(id, status: "Done", finalSummary: "...")`
+
+Implementation Plan (for LLMs) and Description (for humans) are separate fields — do not mix them.
 
 ## Commands
 
@@ -325,10 +319,10 @@ Before marking a task Done, in addition to the existing checklist:
 - `bun run check .` - Run all Biome checks (format + lint)
 - `bun run build` - Build the CLI tool
 - `bun run cli` - Uses the CLI tool directly
+- `bun run aislop:scan` - Run aislop quality scan
 
 ### Testing
 
-- `bun test` - Run all tests
 - `bun test <filename>` - Run specific test file
 
 ### Configuration Management
@@ -366,47 +360,20 @@ are found, the commit will be blocked until fixed.
 
 ### Biome — NEVER `--unsafe` without explicit review
 
-`bun run check . --write --unsafe` applies **unsafe fixes** that change runtime behavior:
-- `useExhaustiveDependencies` rewrites React `useEffect`/`useMemo` dep arrays
-- `useOptionalChain` changes `a && a.b()` to `a?.b()` (can silently silence null errors)
+`bun run check . --write --unsafe` rewrites React dep arrays (`useExhaustiveDependencies`)
+and changes `a && a.b()` to `a?.b()` (`useOptionalChain`). **Scope to your files only:**
 
-**Always scope to your files** and never use `--unsafe` on the full project:
-```bash
-bun run check src/ui/task-*.ts --write                     # ✅ safe
-bun run check src/ui/task-*.ts src/ui/task-viewer-state.ts --write  # ✅ safe
-bun run check . --write --unsafe                           # ❌ DANGER — rewrites React deps
-```
+- ✅ `bun run check src/ui/task-*.ts --write`
+- ❌ `bun run check . --write --unsafe`
 
-If you accidentally run `--unsafe` project-wide, restore affected files with:
-```bash
-git diff --name-only src/test/ src/web/ | xargs git restore
-```
+Accidental project-wide run? Restore with: `git diff --name-only src/test/ src/web/ | xargs git restore`
 
 ### Swagger/OpenAPI Documentation
 
-All Swagger documentation (`summary`, `description`, `responses.*.description`, schema field `description`) MUST be written in **English only**. This is the standard language for REST API documentation and ensures consistency for external consumers.
+All Swagger documentation MUST be in English. Every route MUST have
+`detail.summary`, `detail.description`, and `detail.responses` (at minimum 200 + 404).
 
-```typescript
-.get("/api/tasks/:id", handler, {
-    params: t.Object({
-        id: t.String({ description: "Task ID (e.g. BACK-123)" }),
-    }),
-    detail: {
-        summary: "Get task by ID",
-        description: "Returns a single task with its full metadata including subtask summaries",
-        tags: ["Tasks"],
-        responses: {
-            200: { description: "Task object with subtaskSummaries" },
-            404: { description: "Task not found" },
-        },
-    },
-})
-```
-
-- Every route MUST have `detail.summary`, `detail.description`, and `detail.responses` (at minimum 200 + 404 where applicable)
-- Path params MUST have a `params` schema with `description` on each field
-- Use `t.Optional()` for nullable/optional schema fields
-- Do NOT add `body` schemas unless the handler is refactored to use Elysia's parsed body instead of `await req.json()`
+For complete schema and annotation conventions, load: `skill(name: "elysia-swagger-openapi")`
 
 ### Post-Change Verification
 
@@ -466,14 +433,11 @@ Run `bun run check <your-files> --write` on any new `.tsx` file immediately afte
 
 ## WebUI Conventions
 
-- **shadcn/ui**: Komponenten via `bun x shadcn@latest add <name>`. Keine custom Modals — `Dialog`, `AlertDialog` aus `@/components/ui/` verwenden. `Dialog`/`Sheet`/`Drawer` brauchen immer einen `DialogTitle` (auch `sr-only` wenn unsichtbar).
-- **Buttons**: `Button` aus shadcn mit `variant` (`default`, `outline`, `destructive`, `ghost`, `link`). Nie rohe `<button>` mit custom Klassen.
-- **Semantic colors**: `bg-background`, `text-foreground`, `text-muted-foreground`, `bg-primary`. Keine raw-Farben wie `bg-blue-500`, `text-white`. Kein `dark:` override — Theme-Tokens decken dark mode ab.
-- **cn()**: `cn()` aus `@/lib/utils` für alle bedingten Klassen. Nie Template-Literals.
-- **size-*** statt `w-* h-*` bei gleicher Breite/Höhe (Icons, Avatare, Buttons).
-- **gap-*** statt `space-x-*`/`space-y-*` für Abstände in Flex/Grid.
-- **Loading states**: `<Skeleton>` aus shadcn, nie "Lade..."-Text.
-- **Dark Mode**: `bootstrapTheme()` in `src/web/main.tsx` **vor** `createRoot` aufrufen (verhindert FOUC). Präferenz in localStorage persistieren.
+Use shadcn/ui components (`Dialog`, `Button`, `Skeleton`, etc.) via `bun x shadcn@latest add <name>`.
+Use semantic color tokens (`bg-background`, `text-foreground`, `text-muted-foreground`), never raw colors.
+Dark mode is handled by theme tokens — no `dark:` overrides needed.
+
+For complete conventions, load: `skill(name: "shadcn")`
 
 ## Git Workflow
 
