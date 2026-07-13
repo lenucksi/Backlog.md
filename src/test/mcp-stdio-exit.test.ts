@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -13,58 +12,63 @@ const START_MESSAGE = "Backlog.md MCP server started (stdio transport)";
 
 let TEST_DIR: string;
 
-type ExitResult = { code: number | null; signal: NodeJS.Signals | null };
+type ExitResult = { code: number | null; signal: string | null };
 
-function waitForSubstring(stream: NodeJS.ReadableStream, substring: string, timeoutMs: number): Promise<void> {
+function waitForSubstring(stream: ReadableStream<Uint8Array>, substring: string, timeoutMs: number): Promise<void> {
+	const reader = stream.getReader();
+	const decoder = new TextDecoder();
+	let buffer = "";
+
 	return new Promise((resolve, reject) => {
-		let buffer = "";
 		const timer = setTimeout(() => {
-			cleanup();
+			reader.cancel();
 			reject(new Error(`Timed out waiting for: ${substring}`));
 		}, timeoutMs);
 
-		const onData = (chunk: Buffer) => {
-			buffer += chunk.toString();
-			if (buffer.includes(substring)) {
-				cleanup();
-				resolve();
-			}
-		};
-
-		const onError = (error: Error) => {
-			cleanup();
-			reject(error);
-		};
-
-		const onEnd = () => {
-			cleanup();
-			reject(new Error(`Stream ended before receiving: ${substring}`));
-		};
-
-		const cleanup = () => {
-			clearTimeout(timer);
-			stream.off("data", onData);
-			stream.off("error", onError);
-			stream.off("end", onEnd);
-		};
-
-		stream.on("data", onData);
-		stream.on("error", onError);
-		stream.on("end", onEnd);
+		function pump(): void {
+			reader.read().then(
+				({ done, value }) => {
+					if (done) {
+						clearTimeout(timer);
+						reject(new Error(`Stream ended before receiving: ${substring}`));
+						return;
+					}
+					buffer += decoder.decode(value, { stream: true });
+					if (buffer.includes(substring)) {
+						clearTimeout(timer);
+						reader.cancel();
+						resolve();
+						return;
+					}
+					pump();
+				},
+				(error: unknown) => {
+					clearTimeout(timer);
+					reject(error instanceof Error ? error : new Error(String(error)));
+				},
+			);
+		}
+		pump();
 	});
 }
 
-function waitForExit(child: ReturnType<typeof spawn>, timeoutMs: number): Promise<ExitResult> {
+function waitForExit(child: ReturnType<typeof Bun.spawn>, timeoutMs: number): Promise<ExitResult> {
 	return new Promise((resolve, reject) => {
 		const timer = setTimeout(() => {
 			child.kill("SIGKILL");
 			reject(new Error("Timed out waiting for MCP process to exit"));
 		}, timeoutMs);
 
-		child.once("exit", (code, signal) => {
-			clearTimeout(timer);
-			resolve({ code, signal });
-		});
+		child.exited.then(
+			(code) => {
+				clearTimeout(timer);
+				resolve({ code, signal: null });
+			},
+			() => {
+				clearTimeout(timer);
+				resolve({ code: null, signal: "SIGKILL" });
+			},
+		);
 	});
 }
 
@@ -117,7 +121,8 @@ describe("MCP stdio shutdown", () => {
 		"exits when stdin closes",
 		async () => {
 			const timeout = getPlatformTimeout(8000);
-			const child = spawn("bun", [CLI_PATH, "mcp", "start", "--debug"], {
+			const child = Bun.spawn({
+				cmd: ["bun", CLI_PATH, "mcp", "start", "--debug"],
 				cwd: TEST_DIR,
 				stdio: ["pipe", "pipe", "pipe"],
 			});

@@ -214,15 +214,15 @@ describe("renderBoardTui non-TTY", () => {
 			const { renderBoardTui } = await import("../ui/board.ts");
 			const tasks = [makeTask({ id: "T-1", title: "My task", status: "To Do" })];
 			const lines: string[] = [];
-			const origWrite = process.stdout.write.bind(process.stdout);
-			process.stdout.write = (chunk: string | Uint8Array) => {
+			const origWrite = Bun.stdout.write.bind(Bun.stdout);
+			Bun.stdout.write = ((chunk: string | Uint8Array) => {
 				lines.push(typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk));
-				return true;
-			};
+				return Promise.resolve(typeof chunk === "string" ? chunk.length : chunk.byteLength);
+			}) as unknown as typeof Bun.stdout.write;
 
 			await renderBoardTui(tasks, ["To Do"], "horizontal", 30);
 
-			process.stdout.write = origWrite;
+			Bun.stdout.write = origWrite;
 			expect(lines.length).toBeGreaterThan(0);
 		}));
 
@@ -237,11 +237,11 @@ describe("renderBoardTui non-TTY", () => {
 				}),
 			];
 			const lines: string[] = [];
-			const origWrite = process.stdout.write.bind(process.stdout);
-			process.stdout.write = (chunk: string | Uint8Array) => {
+			const origWrite = Bun.stdout.write.bind(Bun.stdout);
+			Bun.stdout.write = ((chunk: string | Uint8Array) => {
 				lines.push(typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk));
-				return true;
-			};
+				return Promise.resolve(typeof chunk === "string" ? chunk.length : chunk.byteLength);
+			}) as unknown as typeof Bun.stdout.write;
 
 			await renderBoardTui(tasks, ["To Do"], "horizontal", 30, {
 				milestoneMode: true,
@@ -255,7 +255,7 @@ describe("renderBoardTui non-TTY", () => {
 				],
 			});
 
-			process.stdout.write = origWrite;
+			Bun.stdout.write = origWrite;
 			expect(lines.length).toBeGreaterThan(0);
 		}));
 });

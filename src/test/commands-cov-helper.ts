@@ -34,6 +34,7 @@ export async function runBacklogCli(args: string[], cwd: string, options?: RunBa
 	const originalLog = console.log;
 	const originalError = console.error;
 	const originalWarn = console.warn;
+	const originalBunStdoutWrite = Bun.stdout.write.bind(Bun.stdout);
 	const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 	const originalStderrWrite = process.stderr.write.bind(process.stderr);
 	const originalStdoutIsTTY = (process.stdout as { isTTY?: boolean }).isTTY;
@@ -48,10 +49,12 @@ export async function runBacklogCli(args: string[], cwd: string, options?: RunBa
 		Object.defineProperty(process.stdout, "isTTY", { value: options.tty, configurable: true });
 		Object.defineProperty(process.stdin, "isTTY", { value: options.tty, configurable: true });
 	}
-	process.stdout.write = (chunk: string | Uint8Array) => {
+	const writeCapture = (chunk: string | Uint8Array) => {
 		stdout.push(String(chunk));
 		return true;
 	};
+	Bun.stdout.write = writeCapture as unknown as typeof Bun.stdout.write;
+	process.stdout.write = writeCapture;
 	process.stderr.write = (chunk: string | Uint8Array) => {
 		stderr.push(String(chunk));
 		return true;
@@ -112,6 +115,7 @@ export async function runBacklogCli(args: string[], cwd: string, options?: RunBa
 		console.log = originalLog;
 		console.error = originalError;
 		console.warn = originalWarn;
+		Bun.stdout.write = originalBunStdoutWrite;
 		process.stdout.write = originalStdoutWrite;
 		process.stderr.write = originalStderrWrite;
 		Object.defineProperty(process.stdout, "isTTY", { value: originalStdoutIsTTY, configurable: true });

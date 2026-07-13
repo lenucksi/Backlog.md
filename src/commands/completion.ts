@@ -1,15 +1,13 @@
-import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { getCompletions } from "../completions/helper.ts";
 import { EXIT } from "../utils/exit-codes.ts";
 import { stdout } from "../utils/output.ts";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.dir;
 
 export type Shell = "bash" | "zsh" | "fish" | "pwsh";
 
@@ -43,23 +41,17 @@ function resolvePowerShellProfilePath(): string {
 	const errors: string[] = [];
 
 	for (const executable of candidates) {
-		const result = spawnSync(executable, ["-NoProfile", "-Command", "$PROFILE.CurrentUserAllHosts"], {
-			encoding: "utf-8",
-			windowsHide: true,
-		});
+		const result = Bun.spawnSync([executable, "-NoProfile", "-Command", "$PROFILE.CurrentUserAllHosts"]);
 
-		if (result.error) {
-			errors.push(`${executable}: ${result.error.message}`);
-			continue;
-		}
-
-		if (result.status !== 0) {
-			const failure = result.stderr.trim() || result.stdout.trim() || `exit code ${result.status}`;
+		if (!result.success) {
+			const stderrStr = result.stderr.toString().trim();
+			const stdoutStr = result.stdout.toString().trim();
+			const failure = stderrStr || stdoutStr || `exit code ${result.exitCode}`;
 			errors.push(`${executable}: ${failure}`);
 			continue;
 		}
 
-		const profilePath = result.stdout.trim();
+		const profilePath = result.stdout.toString().trim();
 		if (!profilePath) {
 			errors.push(`${executable}: returned empty profile path`);
 			continue;
