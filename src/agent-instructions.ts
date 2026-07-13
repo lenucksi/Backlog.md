@@ -1,7 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { dirname, isAbsolute, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
 	AGENT_GUIDELINES,
 	CLAUDE_AGENT_CONTENT,
@@ -21,7 +20,7 @@ export type AgentInstructionFile =
 	| ".github/copilot-instructions.md"
 	| "README.md";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.dir;
 
 async function loadContent(textOrPath: string): Promise<string> {
 	if (textOrPath.includes("\n")) return textOrPath;

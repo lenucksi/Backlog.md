@@ -24,7 +24,7 @@ function makeTask(id: string, title: string, status = "To Do") {
 describe("runSequencesView", () => {
 	describe("headless mode (via BACKLOG_HEADLESS)", () => {
 		let output: string;
-		const origWrite = process.stdout.write.bind(process.stdout);
+		const origWrite = Bun.stdout.write.bind(Bun.stdout);
 
 		beforeAll(() => {
 			process.env.BACKLOG_HEADLESS = "1";
@@ -36,14 +36,14 @@ describe("runSequencesView", () => {
 
 		beforeEach(() => {
 			output = "";
-			process.stdout.write = (chunk: string | Uint8Array) => {
+			Bun.stdout.write = ((chunk: string | Uint8Array) => {
 				output += typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk);
-				return true;
-			};
+				return Promise.resolve(typeof chunk === "string" ? chunk.length : chunk.byteLength);
+			}) as unknown as typeof Bun.stdout.write;
 		});
 
 		afterEach(() => {
-			process.stdout.write = origWrite;
+			Bun.stdout.write = origWrite;
 		});
 
 		it("handles empty data", async () => {

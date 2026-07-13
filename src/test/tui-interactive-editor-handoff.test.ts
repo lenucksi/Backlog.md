@@ -43,7 +43,7 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 			"",
 			`if (markerFile) appendFileSync(markerFile, "started\\n");`,
 			`if (taskFile) appendFileSync(taskFile, "\\nEdited by external editor\\n");`,
-			'process.stdout.write("__EDITOR_READY__\\n");',
+			'Bun.stdout.write("__EDITOR_READY__\\n");',
 			"setTimeout(() => process.exit(0), 200);",
 		].join("\n"),
 	);
@@ -62,7 +62,7 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 		...config,
 		remoteOperations: false,
 		checkActiveBranches: false,
-		defaultEditor: `node ${editorScriptPath}`,
+		defaultEditor: `bun ${editorScriptPath}`,
 	};
 	await core.filesystem.saveConfig(updatedConfig);
 
@@ -86,7 +86,7 @@ async function runInteractiveEditScenario(options: InteractiveEditRunOptions): P
 			cwd: testDir,
 			env: {
 				NO_COLOR: "1",
-				EDITOR: `node ${editorScriptPath}`,
+				EDITOR: `bun ${editorScriptPath}`,
 				TUI_EDITOR_MARKER_FILE: editorMarkerPath,
 				TUI_EDITOR_KEY_LOG_FILE: editorInputPath,
 			},
