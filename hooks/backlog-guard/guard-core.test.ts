@@ -1,7 +1,5 @@
 import { describe, test, expect, beforeEach } from "bun:test"
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "fs"
 import { join } from "path"
-import { tmpdir } from "os"
 import {
 	clearConfigCache,
 	loadConfig,
@@ -16,15 +14,15 @@ import {
 let tmpDir: string
 let guardConfig: GuardConfig
 
-beforeEach(() => {
+beforeEach(async () => {
 	clearConfigCache()
-	tmpDir = mkdtempSync(join(tmpdir(), "backlog-guard-test-"))
+	tmpDir = Bun.spawnSync(["mktemp", "-d"]).stdout.toString().trim()
 
 	const backlog = join(tmpDir, "backlog")
-	mkdirSync(join(backlog, "tasks"), { recursive: true })
-	mkdirSync(join(backlog, "docs"))
-	writeFileSync(join(backlog, "config.yml"), "project: test\n")
-	writeFileSync(join(tmpDir, ".backlog-guard"), "dirs:\n  - backlog/\n")
+	Bun.spawnSync(["mkdir", "-p", join(backlog, "tasks")])
+	Bun.spawnSync(["mkdir", "-p", join(backlog, "docs")])
+	await Bun.write(join(backlog, "config.yml"), "project: test\n")
+	await Bun.write(join(tmpDir, ".backlog-guard"), "dirs:\n  - backlog/\n")
 
 	guardConfig = {
 		dirs: [join(tmpDir, "backlog")],
@@ -32,15 +30,15 @@ beforeEach(() => {
 	}
 })
 
-function mkTaskFile(name: string): string {
+async function mkTaskFile(name: string): Promise<string> {
 	const p = join(tmpDir, "backlog", "tasks", name)
-	writeFileSync(p, "# Task\n")
+	await Bun.write(p, "# Task\n")
 	return p
 }
 
-function mkDocFile(name: string): string {
+async function mkDocFile(name: string): Promise<string> {
 	const p = join(tmpDir, "backlog", "docs", name)
-	writeFileSync(p, "# Doc\n")
+	await Bun.write(p, "# Doc\n")
 	return p
 }
 
@@ -56,7 +54,7 @@ describe("loadConfig", () => {
 
 	test("auto-detects via backlog/config.yml", () => {
 		clearConfigCache()
-		rmSync(join(tmpDir, ".backlog-guard"))
+		Bun.spawnSync(["rm", "-rf", join(tmpDir, ".backlog-guard")])
 
 		const cfg = loadConfig(tmpDir)
 		expect(cfg).not.toBeNull()
@@ -66,8 +64,8 @@ describe("loadConfig", () => {
 
 	test("returns null for non-backlog project", () => {
 		clearConfigCache()
-		rmSync(join(tmpDir, ".backlog-guard"))
-		rmSync(join(tmpDir, "backlog", "config.yml"))
+		Bun.spawnSync(["rm", "-rf", join(tmpDir, ".backlog-guard")])
+		Bun.spawnSync(["rm", "-rf", join(tmpDir, "backlog", "config.yml")])
 
 		const cfg = loadConfig(tmpDir)
 		expect(cfg).toBeNull()
@@ -77,15 +75,15 @@ describe("loadConfig", () => {
 // -- Path protection ----------------------------------------------------------
 
 describe("isProtected", () => {
-	test("matches file inside protected dir", () => {
-		const p = mkTaskFile("back-123 - Test.md")
+	test("matches file inside protected dir", async () => {
+		const p = await mkTaskFile("back-123 - Test.md")
 		expect(isProtected(p, guardConfig.dirs)).toBe(join(tmpDir, "backlog"))
 	})
 
-	test("returns null for file outside protected dir", () => {
+	test("returns null for file outside protected dir", async () => {
 		const src = join(tmpDir, "src", "main.ts")
-		mkdirSync(join(tmpDir, "src"), { recursive: true })
-		writeFileSync(src, "const x = 1;\n")
+		Bun.spawnSync(["mkdir", "-p", join(tmpDir, "src")])
+		await Bun.write(src, "const x = 1;\n")
 		expect(isProtected(src, guardConfig.dirs)).toBeNull()
 	})
 })
@@ -133,12 +131,12 @@ describe("classifyPath", () => {
 // -- Bash analysis ------------------------------------------------------------
 
 describe("bashTargetsProtected", () => {
-	test("blocks cat on task file", () => {
-		const p = mkTaskFile("back-123-title.md")
+	test("blocks cat on task file", async () => {
+		const p = await mkTaskFile("back-123-title.md")
 		expect(bashTargetsProtected(`cat ${p}`, guardConfig.dirs)).toBe(p.replace(/\\/g, "/"))
 	})
 
-	test("blocks grep on task directory", () => {
+	test("blocks grep on task directory", async () => {
 		const tasksDir = join(tmpDir, "backlog", "tasks")
 		expect(bashTargetsProtected(`grep -r "status" ${tasksDir}`, guardConfig.dirs)).toBe(tasksDir.replace(/\\/g, "/"))
 	})
@@ -148,7 +146,7 @@ describe("bashTargetsProtected", () => {
 		expect(bashTargetsProtected(`cat something.txt | grep ${name}`, guardConfig.dirs)).toBeNull()
 	})
 
-	test("blocks find on backlog directory", () => {
+	test("blocks find on backlog directory", async () => {
 		const backlog = join(tmpDir, "backlog")
 		expect(bashTargetsProtected(`find ${backlog} -name "*.md"`, guardConfig.dirs)).toBe(backlog.replace(/\\/g, "/"))
 	})
@@ -157,8 +155,8 @@ describe("bashTargetsProtected", () => {
 // -- evaluate() end-to-end ----------------------------------------------------
 
 describe("evaluate", () => {
-	test("Read on task file is blocked with BACK-123 in message", () => {
-		const p = mkTaskFile("back-123-my-feature.md")
+	test("Read on task file is blocked with BACK-123 in message", async () => {
+		const p = await mkTaskFile("back-123-my-feature.md")
 		const result = evaluate({ tool: "Read", filePath: p }, guardConfig)
 		expect(result.blocked).toBe(true)
 		expect(result.errorMessage).toContain("BACK-123")
@@ -166,22 +164,22 @@ describe("evaluate", () => {
 		expect(result.errorMessage).toContain("backlog_task_view")
 	})
 
-	test("Read on src/ outside backlog is allowed", () => {
+	test("Read on src/ outside backlog is allowed", async () => {
 		const src = join(tmpDir, "src", "main.ts")
-		mkdirSync(join(tmpDir, "src"), { recursive: true })
-		writeFileSync(src, "const x = 1;\n")
+		Bun.spawnSync(["mkdir", "-p", join(tmpDir, "src")])
+		await Bun.write(src, "const x = 1;\n")
 		const result = evaluate({ tool: "Read", filePath: src }, guardConfig)
 		expect(result.blocked).toBe(false)
 	})
 
-	test("Bash cat on task file is blocked", () => {
-		const p = mkTaskFile("back-123-title.md")
+	test("Bash cat on task file is blocked", async () => {
+		const p = await mkTaskFile("back-123-title.md")
 		const result = evaluate({ tool: "Bash", command: `cat ${p}` }, guardConfig)
 		expect(result.blocked).toBe(true)
 	})
 
-	test("Edit on doc file suggests document_update", () => {
-		const p = mkDocFile("architecture.md")
+	test("Edit on doc file suggests document_update", async () => {
+		const p = await mkDocFile("architecture.md")
 		const result = evaluate({ tool: "Edit", filePath: p }, guardConfig)
 		expect(result.blocked).toBe(true)
 		expect(result.errorMessage).toContain("mcp__backlog__document_update")
@@ -207,9 +205,9 @@ describe("evaluate", () => {
 		expect(result.errorMessage).toContain("mcp__backlog__task_search")
 	})
 
-	test("Grep outside backlog is allowed", () => {
+	test("Grep outside backlog is allowed", async () => {
 		const src = join(tmpDir, "src")
-		mkdirSync(src, { recursive: true })
+		Bun.spawnSync(["mkdir", "-p", src])
 		const result = evaluate(
 			{ tool: "Grep", grepPath: src, grepPattern: "status" },
 			guardConfig,
@@ -217,19 +215,19 @@ describe("evaluate", () => {
 		expect(result.blocked).toBe(false)
 	})
 
-	test("Read on decision file is blocked with search --type decision", () => {
+	test("Read on decision file is blocked with search --type decision", async () => {
 		const decisions = join(tmpDir, "backlog", "decisions")
-		mkdirSync(decisions)
+		Bun.spawnSync(["mkdir", "-p", decisions])
 		const adr = join(decisions, "adr-001-use-markdown.md")
-		writeFileSync(adr, "# ADR 001\n")
+		await Bun.write(adr, "# ADR 001\n")
 		const result = evaluate({ tool: "Read", filePath: adr }, guardConfig)
 		expect(result.blocked).toBe(true)
 		expect(result.errorMessage).toContain("--type decision")
 	})
 
-	test("Write on decision file suggests backlog decision create", () => {
+	test("Write on decision file suggests backlog decision create", async () => {
 		const decisions = join(tmpDir, "backlog", "decisions")
-		mkdirSync(decisions)
+		Bun.spawnSync(["mkdir", "-p", decisions])
 		const newDecision = join(decisions, "new-architecture-choice.md")
 		const result = evaluate({ tool: "Write", filePath: newDecision }, guardConfig)
 		expect(result.blocked).toBe(true)
@@ -237,20 +235,20 @@ describe("evaluate", () => {
 		expect(result.errorMessage).toContain("--status proposed")
 	})
 
-	test("Read on milestone file suggests milestone_list", () => {
+	test("Read on milestone file suggests milestone_list", async () => {
 		const msDir = join(tmpDir, "backlog", "milestones")
-		mkdirSync(msDir)
+		Bun.spawnSync(["mkdir", "-p", msDir])
 		const ms = join(msDir, "m-1 - release.md")
-		writeFileSync(ms, "# Milestone\n")
+		await Bun.write(ms, "# Milestone\n")
 		const result = evaluate({ tool: "Read", filePath: ms }, guardConfig)
 		expect(result.blocked).toBe(true)
 		expect(result.errorMessage).toContain("mcp__backlog__milestone_list")
 		expect(result.errorMessage).toContain("backlog_milestone_list")
 	})
 
-	test("Write on milestone file suggests milestone_add", () => {
+	test("Write on milestone file suggests milestone_add", async () => {
 		const msDir = join(tmpDir, "backlog", "milestones")
-		mkdirSync(msDir)
+		Bun.spawnSync(["mkdir", "-p", msDir])
 		const newMs = join(msDir, "new-milestone.md")
 		const result = evaluate({ tool: "Write", filePath: newMs }, guardConfig)
 		expect(result.blocked).toBe(true)
@@ -258,19 +256,19 @@ describe("evaluate", () => {
 		expect(result.errorMessage).toContain("backlog_milestone_add")
 	})
 
-	test("Edit on milestone file suggests milestone_rename", () => {
+	test("Edit on milestone file suggests milestone_rename", async () => {
 		const msDir = join(tmpDir, "backlog", "milestones")
-		mkdirSync(msDir)
+		Bun.spawnSync(["mkdir", "-p", msDir])
 		const ms = join(msDir, "m-1 - release.md")
-		writeFileSync(ms, "# Milestone\n")
+		await Bun.write(ms, "# Milestone\n")
 		const result = evaluate({ tool: "Edit", filePath: ms }, guardConfig)
 		expect(result.blocked).toBe(true)
 		expect(result.errorMessage).toContain("mcp__backlog__milestone_rename")
 	})
 
-	test("Grep on decisions directory suggests document_search", () => {
+	test("Grep on decisions directory suggests document_search", async () => {
 		const decisionsDir = join(tmpDir, "backlog", "decisions")
-		mkdirSync(decisionsDir)
+		Bun.spawnSync(["mkdir", "-p", decisionsDir])
 		const result = evaluate(
 			{ tool: "Grep", grepPath: decisionsDir, grepPattern: "architecture" },
 			guardConfig,
@@ -297,7 +295,7 @@ describe("evaluate", () => {
 describe("createGuardEntry (loadConfig + evaluate)", () => {
 	test("no backlog project exits cleanly", async () => {
 		clearConfigCache()
-		const noBacklogDir = mkdtempSync(join(tmpdir(), "no-backlog-"))
+		const noBacklogDir = Bun.spawnSync(["mktemp", "-d"]).stdout.toString().trim()
 		const { createGuardEntry } = await import("./guard-core")
 		const result = createGuardEntry(
 			{ tool: "Read", filePath: "/some/file.md" },

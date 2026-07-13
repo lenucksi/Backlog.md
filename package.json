@@ -70,7 +70,7 @@
 		"prepare": "prek install 2>/dev/null || true",
 		"build:css": "bun ./node_modules/@tailwindcss/cli/dist/index.mjs -i src/web/styles/source.css -o src/web/styles/style.css --minify",
 		"guard:test": "bun test hooks/backlog-guard/guard-core.test.ts",
-		"guard:build": "bun build hooks/backlog-guard/opencode-plugin.ts --outfile hooks/backlog-guard/opencode-plugin.js --target=node --format=esm && bun build hooks/backlog-guard/claude-hook.ts --outfile hooks/backlog-guard/claude-hook.js --target=node --format=esm --external=yaml --external=shell-quote",
+		"guard:build": "bun build hooks/backlog-guard/opencode-plugin.ts --outfile hooks/backlog-guard/opencode-plugin.js --target=bun --format=esm && bun build hooks/backlog-guard/claude-hook.ts --outfile hooks/backlog-guard/claude-hook.js --target=bun --format=esm --external=yaml --external=shell-quote",
 		"guard:dev": "bun run guard:test && bun run guard:build",
 		"dev": "bun run scripts/dev.ts",
 		"dev:server": "bun --watch src/cli.ts browser --non-interactive --no-open",

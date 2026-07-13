@@ -1,3 +1,4 @@
+// Kept for sync compatibility — getVersionSync() must remain sync per §4 no-top-level-await rule
 import { readFileSync } from "node:fs";
 
 // This will be replaced at build time for compiled executables

@@ -26,7 +26,7 @@ export function getPlatformDefaultEditor(os?: string): string {
  */
 export function resolveEditor(config?: BacklogConfig | null): string {
 	// First check environment variable
-	const editorEnv = process.env.EDITOR;
+	const editorEnv = Bun.env.EDITOR;
 	if (editorEnv) {
 		return editorEnv;
 	}

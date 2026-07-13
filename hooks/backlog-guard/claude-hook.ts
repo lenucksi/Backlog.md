@@ -1,11 +1,11 @@
 import { type GuardInput, createGuardEntry } from "./guard-core"
 
-const tool = process.env.HOOK_TOOL || ""
-const fp = process.env.HOOK_FP || ""
-const cmd = process.env.HOOK_CMD || ""
+const tool = Bun.env.HOOK_TOOL || ""
+const fp = Bun.env.HOOK_FP || ""
+const cmd = Bun.env.HOOK_CMD || ""
 let toolInput: Record<string, unknown> = {}
 try {
-	toolInput = JSON.parse(process.env.HOOK_INPUT || "{}")
+	toolInput = JSON.parse(Bun.env.HOOK_INPUT || "{}")
 } catch { /* expected — no tool input provided */ }
 
 const input: GuardInput = {

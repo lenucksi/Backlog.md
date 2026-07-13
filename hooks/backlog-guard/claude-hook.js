@@ -1,6 +1,5 @@
+// @bun
 // hooks/backlog-guard/guard-core.ts
-import { execSync } from "child_process";
-import { existsSync, readFileSync } from "fs";
 import { basename, dirname, resolve } from "path";
 import { parse as parseYaml } from "yaml";
 import { parse as parseShell } from "shell-quote";
@@ -31,8 +30,8 @@ function loadConfig(cwd) {
   let p = cwd;
   for (let i = 0;i < 4; i++) {
     const candidate = resolve(p, ".backlog-guard");
-    if (existsSync(candidate)) {
-      const raw = readFileSync(candidate, "utf8");
+    if (Bun.spawnSync(["test", "-e", candidate]).exitCode === 0) {
+      const raw = Bun.spawnSync(["cat", candidate]).stdout.toString();
       _configCache = resolveDirs(dirname(candidate), raw);
       return _configCache;
     }
@@ -43,7 +42,7 @@ function loadConfig(cwd) {
   }
   p = cwd;
   for (let i = 0;i < 4; i++) {
-    if (existsSync(resolve(p, "backlog", "config.yml"))) {
+    if (Bun.spawnSync(["test", "-e", resolve(p, "backlog", "config.yml")]).exitCode === 0) {
       _configCache = { dirs: [resolve(p, "backlog")], configSource: "auto-detected" };
       return _configCache;
     }
@@ -59,17 +58,15 @@ function loadConfigWithGitRoot(cwd) {
   if (_configCache !== undefined)
     return _configCache;
   try {
-    const gitRoot = execSync("git rev-parse --show-toplevel", {
-      cwd,
-      stdio: ["ignore", "pipe", "ignore"]
-    }).toString().trim();
+    const result = Bun.spawnSync(["git", "rev-parse", "--show-toplevel"], { cwd });
+    const gitRoot = result.stdout.toString().trim();
     const candidate = resolve(gitRoot, ".backlog-guard");
-    if (existsSync(candidate)) {
-      const raw = readFileSync(candidate, "utf8");
+    if (Bun.spawnSync(["test", "-e", candidate]).exitCode === 0) {
+      const raw = Bun.spawnSync(["cat", candidate]).stdout.toString();
       _configCache = resolveDirs(gitRoot, raw);
       return _configCache;
     }
-  } catch { /* expected — no guard config */ }
+  } catch {}
   return loadConfig(cwd);
 }
 function isProtected(filePath, protectedDirs) {
@@ -182,7 +179,7 @@ function docSuggestions(op, blockedPath) {
     return `${both("document_view")}(path="${name}")
 CLI:  backlog doc ${name}`;
   }
-  if ((op === "write" || op === "Write") && !existsSync(blockedPath)) {
+  if ((op === "write" || op === "Write") && Bun.spawnSync(["test", "-e", blockedPath]).exitCode !== 0) {
     return `${both("document_create")}(title="...", content="...")
 CLI:  backlog doc create "Title"`;
   }
@@ -248,8 +245,7 @@ CLI:  backlog search "${pattern}"`;
   ].join(`
 `);
 }
-function buildErrorMessage(opts) {
-  const { tool, kind, taskId, blockedPath, matchedDir, configSource, grepPattern } = opts;
+function buildErrorMessage(tool, kind, taskId, blockedPath, matchedDir, configSource, grepPattern) {
   let header;
   if (tool === "Grep" || tool === "grep") {
     header = "BACKLOG GUARD -- Grep on backlog directory is forbidden.";
@@ -277,7 +273,7 @@ function buildErrorMessage(opts) {
   }
   const matchedStr = matchedDir || "unknown";
   return [
-    `⛔ ${header}`,
+    `\u26D4 ${header}`,
     "All backlog data access must go through MCP tools or the backlog CLI.",
     `Target: ${blockedPath}`,
     "",
@@ -320,7 +316,7 @@ function evaluate(input, config) {
     return { blocked: false };
   const kind = classifyPath(blockedPath);
   const taskId = kind === "task" ? extractTaskId(blockedPath) : null;
-  const errorMessage = buildErrorMessage({ tool, kind, taskId, blockedPath, matchedDir, configSource: config.configSource, grepPattern: actualGrepPattern });
+  const errorMessage = buildErrorMessage(tool, kind, taskId, blockedPath, matchedDir, config.configSource, actualGrepPattern);
   return {
     blocked: true,
     blockedPath,
@@ -338,13 +334,13 @@ function createGuardEntry(input, cwd) {
 }
 
 // hooks/backlog-guard/claude-hook.ts
-var tool = process.env.HOOK_TOOL || "";
-var fp = process.env.HOOK_FP || "";
-var cmd = process.env.HOOK_CMD || "";
+var tool = Bun.env.HOOK_TOOL || "";
+var fp = Bun.env.HOOK_FP || "";
+var cmd = Bun.env.HOOK_CMD || "";
 var toolInput = {};
 try {
-  toolInput = JSON.parse(process.env.HOOK_INPUT || "{}");
-} catch { /* expected — no tool input */ }
+  toolInput = JSON.parse(Bun.env.HOOK_INPUT || "{}");
+} catch {}
 var input = {
   tool,
   filePath: fp,

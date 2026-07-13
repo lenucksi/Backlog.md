@@ -203,7 +203,7 @@ export class BacklogServer {
 
 			this.server = Bun.serve({
 				port: finalPort,
-				development: process.env.NODE_ENV === "development",
+				development: Bun.env.NODE_ENV === "development",
 				fetch: async (req: Request, server: Server<unknown>) => {
 					if (req.headers.get("upgrade")?.toLowerCase() === "websocket") {
 						const success = server.upgrade(req, { data: undefined });

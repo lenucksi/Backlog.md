@@ -16,7 +16,7 @@ export async function generateNextDocId(core: Core): Promise<string> {
 
 		// Skip remote operations if disabled
 		if (config?.remoteOperations === false) {
-			if (process.env.DEBUG) {
+			if (Bun.env.DEBUG) {
 				getLogger().info("Remote operations disabled - generating ID from local documents only");
 			}
 		} else {
@@ -41,7 +41,7 @@ export async function generateNextDocId(core: Core): Promise<string> {
 		}
 	} catch (error) {
 		// Suppress errors for offline mode or other git issues
-		if (process.env.DEBUG) {
+		if (Bun.env.DEBUG) {
 			getLogger().error("Could not fetch remote document IDs:", error instanceof Error ? error.message : String(error));
 		}
 	}
