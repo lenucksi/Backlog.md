@@ -1,0 +1,37 @@
+src/test/zz-sequences-coverage.test.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 27,39,41-42,46
+src/test/zz-task-viewer-coverage.test.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 286-287,289-290,302
+src/ui/splash.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 101
+src/utils/output.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 15,18,21
+src/test/commands-cov-helper.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 37,52,56-57,118
+src/test/mcp-stdio-exit.test.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 15-20,24,28-51,55,62-71,124-125
+src/test/tui-interactive-editor-handoff.test.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 46,65,89
+src/test/zz-board-coverage.test.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 217-218,220-221,225,240-241,243-244,258
+src/agent-instructions.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 23
+src/commands/completion.ts
+  s_8b93e04b016d43::t_c6b80181a5490a 10,44,46-49,54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "60ff82e59870562e2b67eab1305170c9cfe30983",
+  "prompts": {},
+  "sessions": {
+    "s_8b93e04b016d43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a9f3f2f3ffeGIRo7a55YAOWhe",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
