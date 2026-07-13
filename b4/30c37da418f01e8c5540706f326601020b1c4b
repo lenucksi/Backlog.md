@@ -1,0 +1,22 @@
+skills/backlog-technical-project-manager/SKILL.md
+  s_95fab171c2aaaa::t_74a1bf33533af7 131
+  s_95fab171c2aaaa::t_fe1ceaaa038059 1-74,76-78,82,84-85,95-130,132-164,168-187
+  s_95fab171c2aaaa::t_d5ba118b18a939 75,79-81,83,86-94
+  s_95fab171c2aaaa::t_502a23fb5b4f87 165-167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b430c37da418f01e8c5540706f326601020b1c4b",
+  "prompts": {},
+  "sessions": {
+    "s_95fab171c2aaaa": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a4e91f43ffeaAh6Brt1rRn8Fc",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
