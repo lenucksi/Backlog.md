@@ -1,0 +1,31 @@
+src/test/zz-task-viewer-coverage.test.ts
+  s_8b93e04b016d43::t_4cb90ee00bd432 286-287,290,302
+src/test/find-backlog-root.test.ts
+  s_8b93e04b016d43::t_a2e703fac6cacd 194,196
+opencode.json
+  s_8b93e04b016d43::t_68f78fc82827fe 33-42
+src/ui/splash.ts
+  s_8b93e04b016d43::t_200b3b1bb8923d 101
+src/utils/output.ts
+  s_8b93e04b016d43::t_b281ae90dd10af 15,18,21
+src/test/zz-sequences-coverage.test.ts
+  s_8b93e04b016d43::t_4cb90ee00bd432 27,39,42,46
+src/test/zz-board-coverage.test.ts
+  s_8b93e04b016d43::t_4cb90ee00bd432 217-218,221,225,240-241,244,258
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a2690916e3f559efb0c7bd0c04e4af7c8d3e4c00",
+  "prompts": {},
+  "sessions": {
+    "s_8b93e04b016d43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a9f3f2f3ffeGIRo7a55YAOWhe",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
