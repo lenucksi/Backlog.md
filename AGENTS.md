@@ -75,9 +75,11 @@ From the aislop deduplication campaign (108→1 duplicate blocks):
 
 Before marking a task Done, in addition to the existing checklist:
 
+- [ ] `bun run test:fails` — catch parallel race conditions (not just `bun test`)
 - [ ] `bun x aislop scan` — review `code-quality/duplicate-block` findings for the changed files
 - [ ] No trivial restating comments added in new/changed code
 - [ ] No console.log/debug left from development (distinguish from intended CLI output)
+- [ ] No Bun.Global mocks (`Bun.stdout`, `Bun.stdin`, `Bun.stderr`) in new/changed test code
 - [ ] `react-hooks/exhaustive-deps` clean for any changed React components
 
 ## Cross-Modality Checklist
@@ -180,6 +182,13 @@ const result = await $`bun src/cli.ts task create ...`.cwd(TEST_DIR).nothrow();
 const result = await $`bun src/cli.ts task create "My task"`.cwd(TEST_DIR).nothrow();
 ```
 
+Self-healing test fixtures under `test/selfhealing/` are DESIGNED to fail
+— they contain deliberate bugs that an LLM must diagnose and fix.
+They MUST be excluded from all normal test runs via
+`--path-ignore-patterns='test/selfhealing/**'`. Each self-healing test
+must have its own dedicated run script (e.g. `bun run test:selfheal:guard`)
+that is never part of `bun test`, `bun run test:ci`, or any CI pipeline.
+
 ### 6. MEGA-TESTS WITH 5+ SUBPROCESS CALLS — SET EXPLICIT TIMEOUT
 
 CI runs with `--timeout=10000`. A test doing 5+ CLI subprocess calls under
@@ -214,7 +223,10 @@ bun run check .       # Biome format + lint
 
 `test:fails` is the **only** reliable way to catch parallel race conditions
 because it reproduces the exact `--parallel` worker scheduling. Serial test
-runs mask these bugs.
+runs mask these bugs. **Run `bun run test:fails` before every task finalization**
+— a passing `bun test` run alone is NOT sufficient evidence of correctness.
+A failing `test:fails` after your changes means your code has a parallel race
+condition, even if all tests pass when run individually.
 
 ### 9. PRE-EXISTING FAILURE CHECK
 
@@ -225,6 +237,63 @@ git stash && bun test src/test/die-datei.test.ts && git stash pop
 ```
 
 If it fails on both — pre-existing. If only on your change — your bug.
+
+### 10. NEVER mock Bun globals — mock `process.*` instead
+
+`Bun.stdout`, `Bun.stdin`, and `Bun.stderr` are `BunFile` objects (blobs),
+NOT TTY WriteStreams. Assigning a mock function to their `.write` method
+corrupts Bun's internal epoll file descriptor tracking and causes
+`EEXIST: file already exists, epoll_ctl` crashes under parallel load.
+
+`process.stdout.write` is NOT a legacy Node.js compatibility shim in Bun.
+It goes through Bun's native implementation and is the correct API path
+for stdout output. Bun tests that previously worked with `process.stdout`
+mocks WILL break if you touch `Bun.stdout`.
+
+```typescript
+// ✅ CORRECT — mock process.stdout (Bun's correct stdout path)
+const orig = process.stdout.write.bind(process.stdout);
+process.stdout.write = (chunk) => { captured.push(chunk); return true; };
+try { /* test body */ }
+finally { process.stdout.write = orig; }
+
+// ❌ WRONG — mocks a BunFile, destroys epoll tracking, causes EEXIST
+Bun.stdout.write = mockFn as unknown as typeof Bun.stdout.write;
+```
+
+The same rule applies to `Bun.stdin` and `Bun.stderr` — always mock
+`process.stdin`/`process.stderr` instead. BunFile objects must never
+have their prototype methods overridden in test code.
+
+### 11. NEVER use `Bun.spawnSync` for filesystem operations — use `fs.*Sync`
+
+`Bun.spawnSync` spawns a child process with pipes. Each pipe file
+descriptor gets registered in Bun's epoll instance. Under parallel
+load, when the child process exits, the pipe fd is NOT reliably
+deregistered from epoll. The next test that receives the same fd
+number and calls `Bun.file(fd).writer()` crashes with
+`EEXIST: file already exists, epoll_ctl`.
+
+`fs.*Sync` APIs (`readFileSync`, `existsSync`, `statSync`, `mkdirSync`,
+`writeFileSync`, `rmSync`) are NOT legacy Node.js compatibility in Bun.
+They go through Bun's native Rust/Zig implementation WITHOUT spawning
+child processes or allocating pipes. They are parallel-safe and the
+correct choice for all filesystem operations.
+
+```typescript
+// ✅ CORRECT — fs.*Sync, zero subprocesses, parallel-safe
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
+mkdirSync(dir, { recursive: true });
+writeFileSync(path, content);
+const data = readFileSync(path, "utf8");
+
+// ❌ WRONG — spawns a child process with pipes, causes EEXIST under parallel
+Bun.spawnSync(["mkdir", "-p", dir]);
+const content = Bun.spawnSync(["cat", path]).stdout.toString();
+```
+
+Use `Bun.spawnSync` ONLY for its intended purpose: executing external
+programs. Never use it as a replacement for `fs.*Sync` file operations.
 
 ### REPEAL CLAUSE
 
