@@ -60,6 +60,7 @@
 		"test:ci": "CI=true bun test --parallel --timeout=10000 --path-ignore-patterns='worktrees/*' --path-ignore-patterns='src/test/e2e/*' --path-ignore-patterns='src/test/tui-interactive-editor-handoff.test.ts' --path-ignore-patterns='src/test/runtime-cwd.test.ts'",
 		"test:interactive:handoff": "RUN_INTERACTIVE_TUI_TESTS=1 bun test src/test/tui-interactive-editor-handoff.test.ts --timeout=30000",
 		"test:interactive:handoff:fails": "RUN_INTERACTIVE_TUI_TESTS=1 bun test --only-failures src/test/tui-interactive-editor-handoff.test.ts --timeout=30000",
+		"test:selfheal:guard": "bun run test/selfhealing/backlog-guard/harness.ts",
 		"test:e2e": "bun run build:css && bun x playwright test",
 		"test:e2e:ui": "bun run build:css && bun x playwright test --ui",
 		"test:e2e:debug": "bun run build:css && bun x playwright test --debug",
