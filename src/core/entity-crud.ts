@@ -1,25 +1,10 @@
-import type { Core } from "../index.ts";
 import type { Decision, Document, DocumentCreateInput, DocumentUpdateInput } from "../types/index.ts";
 import { normalizeDocumentId } from "../utils/document-id.ts";
 import { getDocumentSubPathFromRelativePath, normalizeDocumentSubPath } from "../utils/document-path.ts";
-import { generateNextDocId } from "../utils/id-generators.ts";
 import { normalizeStringList } from "../utils/task-builders.ts";
+import type { EntityCrudDeps } from "./core-deps.ts";
 import { normalizeDocumentTypeInput } from "./task-input-resolvers.ts";
 import { formatDateStamp } from "./task-operations.ts";
-
-export interface EntityCrudDeps {
-	filesystem: {
-		saveDecision(decision: Decision): Promise<void>;
-		loadDecision(id: string): Promise<Decision | null>;
-		saveDocument(doc: Document, subPath?: string): Promise<string>;
-		loadDocument(id: string): Promise<Document | null>;
-	};
-	stageAndCommit: (message: string, autoCommit?: boolean) => Promise<void>;
-	withCreateLock: <T>(fn: () => Promise<T>) => Promise<T>;
-	getDocument: (id: string) => Promise<Document | null>;
-	/** Known code smell: Core needed for dynamic import in createDecisionWithTitle. Will be fixed in a follow-up. */
-	core: Core;
-}
 
 export async function createDecision(deps: EntityCrudDeps, decision: Decision, autoCommit?: boolean): Promise<void> {
 	await deps.filesystem.saveDecision(decision);
@@ -99,8 +84,7 @@ export async function createDecisionWithTitle(
 	title: string,
 	autoCommit?: boolean,
 ): Promise<Decision> {
-	const { generateNextDecisionId } = await import("../commands/decision.ts");
-	const id = await generateNextDecisionId(deps.core);
+	const id = await deps.generateNextDecisionId();
 
 	const decision: Decision = {
 		id,
@@ -174,7 +158,7 @@ export async function createDocumentFromInput(
 	const tags = normalizeStringList(input.tags);
 	const type = normalizeDocumentTypeInput(input.type) ?? "other";
 	const document = await deps.withCreateLock(async () => {
-		const id = normalizeDocumentId(await generateNextDocId(deps.core));
+		const id = normalizeDocumentId(await deps.generateNextDocId());
 		const document: Document = {
 			id,
 			title,

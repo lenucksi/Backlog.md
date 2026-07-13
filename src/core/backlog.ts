@@ -43,6 +43,7 @@ import { upsertTaskUpdatedDate } from "../utils/task-updated-date.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
 import { migrateConfig, needsMigration } from "./config-migration.ts";
 import { ContentStore } from "./content-store.ts";
+import type { CoreDeps } from "./core-deps.ts";
 import * as draftOps from "./draft-operations.ts";
 import * as entityCrud from "./entity-crud.ts";
 import * as idGen from "./id-generator.ts";
@@ -502,7 +503,7 @@ export class Core {
 		return config?.autoCommit ?? false;
 	}
 
-	private buildTaskOpDeps(): taskOps.TaskOpDeps {
+	private buildTaskOpDeps(): CoreDeps {
 		return {
 			filesystem: this._filesystem,
 			contentStore: this.contentStore,
@@ -515,20 +516,15 @@ export class Core {
 			withCreateLock: <T>(fn: () => Promise<T>) => this.withCreateLock(fn),
 			queryTasks: (opts) => this.queryTasks(opts),
 			stageAndCommit: (msg, auto) => this.stageAndCommit(msg, auto),
-		};
-	}
-
-	private buildDraftOpDeps(): draftOps.DraftOpDeps {
-		return this.buildTaskOpDeps() as unknown as draftOps.DraftOpDeps;
-	}
-
-	private buildEntityCrudDeps(): entityCrud.EntityCrudDeps {
-		return {
-			filesystem: this._filesystem,
-			stageAndCommit: (msg, auto) => this.stageAndCommit(msg, auto),
-			withCreateLock: <T>(fn: () => Promise<T>) => this.withCreateLock(fn),
 			getDocument: (id) => this.getDocument(id),
-			core: this,
+			generateNextDecisionId: async () => {
+				const { generateNextDecisionId } = await import("../commands/decision.ts");
+				return await generateNextDecisionId(this);
+			},
+			generateNextDocId: async () => {
+				const { generateNextDocId } = await import("../utils/id-generators.ts");
+				return await generateNextDocId(this);
+			},
 		};
 	}
 
@@ -781,11 +777,11 @@ export class Core {
 	}
 
 	async updateDraft(task: Task, autoCommit?: boolean): Promise<void> {
-		return draftOps.updateDraft(this.buildDraftOpDeps(), task, autoCommit);
+		return draftOps.updateDraft(this.buildTaskOpDeps(), task, autoCommit);
 	}
 
 	async updateDraftFromInput(draftId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		return draftOps.updateDraftFromInput(this.buildDraftOpDeps(), draftId, input, autoCommit);
+		return draftOps.updateDraftFromInput(this.buildTaskOpDeps(), draftId, input, autoCommit);
 	}
 
 	async editTaskOrDraft(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
@@ -1252,15 +1248,15 @@ export class Core {
 	}
 
 	async archiveDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
-		return draftOps.archiveDraft(this.buildDraftOpDeps(), draftId, autoCommit);
+		return draftOps.archiveDraft(this.buildTaskOpDeps(), draftId, autoCommit);
 	}
 
 	async promoteDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
-		return draftOps.promoteDraft(this.buildDraftOpDeps(), draftId, autoCommit);
+		return draftOps.promoteDraft(this.buildTaskOpDeps(), draftId, autoCommit);
 	}
 
 	async demoteTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
-		return draftOps.demoteTask(this.buildDraftOpDeps(), taskId, autoCommit);
+		return draftOps.demoteTask(this.buildTaskOpDeps(), taskId, autoCommit);
 	}
 
 	async addAcceptanceCriteria(taskId: string, criteria: string[], autoCommit?: boolean): Promise<void> {
@@ -1346,43 +1342,43 @@ export class Core {
 	}
 
 	async createDecision(decision: Decision, autoCommit?: boolean): Promise<void> {
-		return entityCrud.createDecision(this.buildEntityCrudDeps(), decision, autoCommit);
+		return entityCrud.createDecision(this.buildTaskOpDeps(), decision, autoCommit);
 	}
 
 	async editDecision(id: string, updates: { labels?: string[] }): Promise<void> {
-		return entityCrud.editDecision(this.buildEntityCrudDeps(), id, updates);
+		return entityCrud.editDecision(this.buildTaskOpDeps(), id, updates);
 	}
 
 	async resolveDecision(decisionId: string, autoCommit?: boolean): Promise<Decision> {
-		return entityCrud.resolveDecision(this.buildEntityCrudDeps(), decisionId, autoCommit);
+		return entityCrud.resolveDecision(this.buildTaskOpDeps(), decisionId, autoCommit);
 	}
 
 	async updateDecisionFromContent(decisionId: string, content: string, autoCommit?: boolean): Promise<void> {
-		return entityCrud.updateDecisionFromContent(this.buildEntityCrudDeps(), decisionId, content, autoCommit);
+		return entityCrud.updateDecisionFromContent(this.buildTaskOpDeps(), decisionId, content, autoCommit);
 	}
 
 	async createDecisionWithTitle(title: string, autoCommit?: boolean): Promise<Decision> {
-		return entityCrud.createDecisionWithTitle(this.buildEntityCrudDeps(), title, autoCommit);
+		return entityCrud.createDecisionWithTitle(this.buildTaskOpDeps(), title, autoCommit);
 	}
 
 	async createDocument(doc: Document, autoCommit?: boolean, subPath = ""): Promise<void> {
-		return entityCrud.createDocument(this.buildEntityCrudDeps(), doc, autoCommit, subPath);
+		return entityCrud.createDocument(this.buildTaskOpDeps(), doc, autoCommit, subPath);
 	}
 
 	async updateDocument(existingDoc: Document, content: string, autoCommit?: boolean): Promise<void> {
-		return entityCrud.updateDocument(this.buildEntityCrudDeps(), existingDoc, content, autoCommit);
+		return entityCrud.updateDocument(this.buildTaskOpDeps(), existingDoc, content, autoCommit);
 	}
 
 	async createDocumentWithId(title: string, content: string, autoCommit?: boolean): Promise<Document> {
-		return entityCrud.createDocumentWithId(this.buildEntityCrudDeps(), title, content, autoCommit);
+		return entityCrud.createDocumentWithId(this.buildTaskOpDeps(), title, content, autoCommit);
 	}
 
 	async createDocumentFromInput(input: DocumentCreateInput, autoCommit?: boolean): Promise<Document> {
-		return entityCrud.createDocumentFromInput(this.buildEntityCrudDeps(), input, autoCommit);
+		return entityCrud.createDocumentFromInput(this.buildTaskOpDeps(), input, autoCommit);
 	}
 
 	async updateDocumentFromInput(input: DocumentUpdateInput, autoCommit?: boolean): Promise<Document> {
-		return entityCrud.updateDocumentFromInput(this.buildEntityCrudDeps(), input, autoCommit);
+		return entityCrud.updateDocumentFromInput(this.buildTaskOpDeps(), input, autoCommit);
 	}
 
 	async listTasksWithMetadata(

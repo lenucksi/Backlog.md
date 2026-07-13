@@ -1,5 +1,5 @@
 import { DEFAULT_STATUSES, FALLBACK_STATUS } from "../constants/index.ts";
-import type { BacklogConfig, Task, TaskCreateInput, TaskListFilter, TaskUpdateInput } from "../types/index.ts";
+import type { Task, TaskCreateInput, TaskUpdateInput } from "../types/index.ts";
 import { EntityType } from "../types/index.ts";
 import { normalizeAssignee } from "../utils/assignee.ts";
 import { getLogger } from "../utils/logger.ts";
@@ -12,12 +12,8 @@ import {
 } from "../utils/task-builders.ts";
 import { getTaskPath, normalizeTaskId, taskIdsEqual } from "../utils/task-path.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
-import {
-	type DraftOpDeps,
-	demoteTaskWithUpdates,
-	promoteDraftWithUpdates,
-	updateDraftFromInput,
-} from "./draft-operations.ts";
+import type { CoreDeps } from "./core-deps.ts";
+import { demoteTaskWithUpdates, promoteDraftWithUpdates, updateDraftFromInput } from "./draft-operations.ts";
 import { DEFAULT_ORDINAL_STEP } from "./reorder.ts";
 import {
 	applyClearSetAppendBlock,
@@ -39,45 +35,8 @@ async function withGitCommit(shouldAutoCommit: boolean, fn: () => Promise<void>)
 	}
 }
 
-export interface TaskOpDeps {
-	filesystem: {
-		loadConfig(): Promise<BacklogConfig | null>;
-		listTasks(): Promise<Task[]>;
-		loadTask(id: string): Promise<Task | null>;
-		saveTask(task: Task): Promise<string>;
-		saveDraft(draft: Task): Promise<string>;
-		loadDraft(id: string): Promise<Task | null>;
-		listDrafts(): Promise<Array<{ id: string }>>;
-		tasksDir: string;
-		archiveTasksDir: string;
-	};
-	contentStore?: {
-		upsertTask(task: Task): void;
-	};
-	git: {
-		addFile(filepath: string): Promise<void>;
-		commitTaskChange(id: string, message: string, filepath: string): Promise<void>;
-		addAndCommitTaskFile(id: string, filepath: string, type: "create" | "update"): Promise<void>;
-	};
-	idGenerator: {
-		generateNextId(type: EntityType, parent?: string): Promise<string>;
-	};
-	requireCanonicalStatus(status: string): Promise<string>;
-	normalizePriority(value: string | undefined): "high" | "medium" | "low" | undefined;
-	shouldAutoCommit(overrideValue?: boolean): Promise<boolean>;
-	getBacklogDirectoryName(): Promise<string>;
-	withCreateLock<T>(fn: () => Promise<T>): Promise<T>;
-	queryTasks(options?: {
-		filters?: TaskListFilter;
-		query?: string;
-		limit?: number;
-		includeCrossBranch?: boolean;
-	}): Promise<Task[]>;
-	stageAndCommit: (message: string, autoCommit?: boolean) => Promise<void>;
-}
-
 async function resolveCreateOrdinal(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	inputOrdinal: number | undefined,
 	isDraft: boolean,
 ): Promise<number | undefined> {
@@ -100,7 +59,7 @@ async function resolveCreateOrdinal(
 	return Math.max(...ordinals) + DEFAULT_ORDINAL_STEP;
 }
 
-async function writePreparedTask(deps: TaskOpDeps, task: Task, isDraft: boolean): Promise<string> {
+async function writePreparedTask(deps: CoreDeps, task: Task, isDraft: boolean): Promise<string> {
 	if (isDraft) {
 		task.status = "Draft";
 		normalizeAssignee(task);
@@ -112,7 +71,7 @@ async function writePreparedTask(deps: TaskOpDeps, task: Task, isDraft: boolean)
 }
 
 async function finalizeCreatedTask(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	task: Task,
 	filepath: string,
 	isDraft: boolean,
@@ -137,7 +96,7 @@ async function finalizeCreatedTask(
 }
 
 export async function createTaskFromInput(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	input: TaskCreateInput,
 	autoCommit?: boolean,
 ): Promise<{ task: Task; filePath?: string }> {
@@ -252,7 +211,7 @@ export async function createTaskFromInput(
 	return { task: savedTask ?? task, filePath };
 }
 
-export async function createTask(deps: TaskOpDeps, task: Task, autoCommit?: boolean): Promise<string> {
+export async function createTask(deps: CoreDeps, task: Task, autoCommit?: boolean): Promise<string> {
 	if (!task.status) {
 		const config = await deps.filesystem.loadConfig();
 		task.status = config?.defaultStatus || FALLBACK_STATUS;
@@ -264,7 +223,7 @@ export async function createTask(deps: TaskOpDeps, task: Task, autoCommit?: bool
 	return filepath;
 }
 
-export async function updateTask(deps: TaskOpDeps, task: Task, autoCommit?: boolean): Promise<void> {
+export async function updateTask(deps: CoreDeps, task: Task, autoCommit?: boolean): Promise<void> {
 	normalizeAssignee(task);
 
 	const originalTask = await deps.filesystem.loadTask(task.id);
@@ -303,7 +262,7 @@ export async function updateTask(deps: TaskOpDeps, task: Task, autoCommit?: bool
 }
 
 export async function applyTaskUpdateInput(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	task: Task,
 	input: TaskUpdateInput,
 	statusResolver: (status: string) => Promise<string>,
@@ -461,7 +420,7 @@ export async function applyTaskUpdateInput(
 }
 
 export async function updateTaskFromInput(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	taskId: string,
 	input: TaskUpdateInput,
 	autoCommit?: boolean,
@@ -473,7 +432,7 @@ export async function updateTaskFromInput(
 
 	const requestedStatus = input.status?.trim().toLowerCase();
 	if (requestedStatus === "draft") {
-		return await demoteTaskWithUpdates(deps as unknown as DraftOpDeps, task, input, autoCommit);
+		return await demoteTaskWithUpdates(deps, task, input, autoCommit);
 	}
 
 	const { mutated } = await applyTaskUpdateInput(deps, task, input, async (status) =>
@@ -490,7 +449,7 @@ export async function updateTaskFromInput(
 }
 
 export async function editTaskOrDraft(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	taskId: string,
 	input: TaskUpdateInput,
 	autoCommit?: boolean,
@@ -500,9 +459,9 @@ export async function editTaskOrDraft(
 		const requestedStatus = input.status?.trim();
 		const wantsDraft = requestedStatus?.toLowerCase() === "draft";
 		if (requestedStatus && !wantsDraft) {
-			return await promoteDraftWithUpdates(deps as unknown as DraftOpDeps, draft, input, autoCommit);
+			return await promoteDraftWithUpdates(deps, draft, input, autoCommit);
 		}
-		return await updateDraftFromInput(deps as unknown as DraftOpDeps, draft.id, input, autoCommit);
+		return await updateDraftFromInput(deps, draft.id, input, autoCommit);
 	}
 
 	const task = await deps.filesystem.loadTask(taskId);
@@ -513,14 +472,14 @@ export async function editTaskOrDraft(
 	const requestedStatus = input.status?.trim();
 	const wantsDraft = requestedStatus?.toLowerCase() === "draft";
 	if (wantsDraft) {
-		return await demoteTaskWithUpdates(deps as unknown as DraftOpDeps, task, input, autoCommit);
+		return await demoteTaskWithUpdates(deps, task, input, autoCommit);
 	}
 
 	return await updateTaskFromInput(deps, task.id, input, autoCommit);
 }
 
 export async function editTask(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	taskId: string,
 	input: TaskUpdateInput,
 	autoCommit?: boolean,
@@ -534,7 +493,7 @@ export async function editTask(
 }
 
 async function executeStatusChangeCallback(
-	deps: TaskOpDeps,
+	deps: CoreDeps,
 	task: Task,
 	oldStatus: string,
 	newStatus: string,

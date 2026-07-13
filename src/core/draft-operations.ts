@@ -1,54 +1,18 @@
 import { unlink } from "node:fs/promises";
-import { EntityType, type Task, type TaskListFilter, type TaskUpdateInput } from "../types/index.ts";
+import { EntityType, type Task, type TaskUpdateInput } from "../types/index.ts";
 import { normalizeAssignee } from "../utils/assignee.ts";
 import { normalizeId } from "../utils/prefix-config.ts";
 import { normalizeTaskId } from "../utils/task-path.ts";
-import { applyTaskUpdateInput, formatDateStamp, type TaskOpDeps } from "./task-operations.ts";
+import type { CoreDeps } from "./core-deps.ts";
+import { applyTaskUpdateInput, formatDateStamp } from "./task-operations.ts";
 
-export interface DraftOpDeps {
-	filesystem: {
-		saveTask(task: Task): Promise<string>;
-		loadTask(id: string): Promise<Task | null>;
-		saveDraft(task: Task): Promise<string>;
-		loadDraft(id: string): Promise<Task | null>;
-		listDrafts(): Promise<Array<{ id: string }>>;
-		archiveDraft(id: string): Promise<boolean>;
-		promoteDraft(id: string): Promise<boolean>;
-		demoteTask(id: string): Promise<boolean>;
-	};
-	contentStore?: {
-		upsertTask(task: Task): void;
-	};
-	git: {
-		addFile(filepath: string): Promise<void>;
-		commitTaskChange(id: string, message: string, filepath: string): Promise<void>;
-	};
-	idGenerator: {
-		generateNextId(type: EntityType, parent?: string): Promise<string>;
-	};
-	withCreateLock: <T>(fn: () => Promise<T>) => Promise<T>;
-	requireCanonicalStatus: (status: string) => Promise<string>;
-	shouldAutoCommit: (overrideValue?: boolean) => Promise<boolean>;
-	stageAndCommit: (message: string, autoCommit?: boolean) => Promise<void>;
-	normalizePriority: (value: string | undefined) => "high" | "medium" | "low" | undefined;
-	queryTasks: (options?: {
-		filters?: TaskListFilter;
-		query?: string;
-		limit?: number;
-		includeCrossBranch?: boolean;
-	}) => Promise<Task[]>;
-}
-
-/** Local helper: only commit when auto-commit is enabled (same pattern as withGitCommit) */
 async function withAutoCommit(shouldCommit: boolean, fn: () => Promise<void>): Promise<void> {
 	if (shouldCommit) {
 		await fn();
 	}
 }
 
-// updateDraft — standardised to withAutoCommit (was old-style manual git)
-
-export async function updateDraft(deps: DraftOpDeps, task: Task, autoCommit?: boolean): Promise<void> {
+export async function updateDraft(deps: CoreDeps, task: Task, autoCommit?: boolean): Promise<void> {
 	task.status = "Draft";
 	normalizeAssignee(task);
 	task.updatedDate = formatDateStamp();
@@ -61,10 +25,8 @@ export async function updateDraft(deps: DraftOpDeps, task: Task, autoCommit?: bo
 	});
 }
 
-// updateDraftFromInput
-
 export async function updateDraftFromInput(
-	deps: DraftOpDeps,
+	deps: CoreDeps,
 	draftId: string,
 	input: TaskUpdateInput,
 	autoCommit?: boolean,
@@ -74,7 +36,7 @@ export async function updateDraftFromInput(
 		throw new Error(`Draft not found: ${draftId}`);
 	}
 
-	const { mutated } = await applyTaskUpdateInput(deps as unknown as TaskOpDeps, draft, input, async (status) => {
+	const { mutated } = await applyTaskUpdateInput(deps, draft, input, async (status) => {
 		if (status.trim().toLowerCase() !== "draft") {
 			throw new Error("Drafts must use status Draft.");
 		}
@@ -90,10 +52,8 @@ export async function updateDraftFromInput(
 	return refreshed ?? draft;
 }
 
-// promoteDraftWithUpdates — draft → task with status change + metadata update
-
 export async function promoteDraftWithUpdates(
-	deps: DraftOpDeps,
+	deps: CoreDeps,
 	draft: Task,
 	input: TaskUpdateInput,
 	autoCommit?: boolean,
@@ -103,17 +63,12 @@ export async function promoteDraftWithUpdates(
 		throw new Error("Promoting a draft requires a non-draft status.");
 	}
 
-	const { mutated } = await applyTaskUpdateInput(
-		deps as unknown as TaskOpDeps,
-		draft,
-		{ ...input, status: undefined },
-		async (status) => {
-			if (status.trim().toLowerCase() !== "draft") {
-				throw new Error("Drafts must use status Draft.");
-			}
-			return "Draft";
-		},
-	);
+	const { mutated } = await applyTaskUpdateInput(deps, draft, { ...input, status: undefined }, async (status) => {
+		if (status.trim().toLowerCase() !== "draft") {
+			throw new Error("Drafts must use status Draft.");
+		}
+		return "Draft";
+	});
 
 	const canonicalStatus = await deps.requireCanonicalStatus(targetStatus);
 
@@ -149,25 +104,18 @@ export async function promoteDraftWithUpdates(
 	return savedTask ?? { ...promotedTask, filePath: savedPath };
 }
 
-// demoteTaskWithUpdates — task → draft with optional metadata update
-
 export async function demoteTaskWithUpdates(
-	deps: DraftOpDeps,
+	deps: CoreDeps,
 	task: Task,
 	input: TaskUpdateInput,
 	autoCommit?: boolean,
 ): Promise<Task> {
-	const { mutated } = await applyTaskUpdateInput(
-		deps as unknown as TaskOpDeps,
-		task,
-		{ ...input, status: undefined },
-		async (status) => {
-			if (status.trim().toLowerCase() === "draft") {
-				return "Draft";
-			}
-			return deps.requireCanonicalStatus(status);
-		},
-	);
+	const { mutated } = await applyTaskUpdateInput(deps, task, { ...input, status: undefined }, async (status) => {
+		if (status.trim().toLowerCase() === "draft") {
+			return "Draft";
+		}
+		return deps.requireCanonicalStatus(status);
+	});
 
 	const { demotedDraft, savedPath } = await deps.withCreateLock(async () => {
 		const newDraftId = await deps.idGenerator.generateNextId(EntityType.Draft);
@@ -196,9 +144,7 @@ export async function demoteTaskWithUpdates(
 	return (await deps.filesystem.loadDraft(demotedDraft.id)) ?? { ...demotedDraft, filePath: savedPath };
 }
 
-// Simple draft lifecycle operations
-
-export async function archiveDraft(deps: DraftOpDeps, draftId: string, autoCommit?: boolean): Promise<boolean> {
+export async function archiveDraft(deps: CoreDeps, draftId: string, autoCommit?: boolean): Promise<boolean> {
 	const success = await deps.filesystem.archiveDraft(draftId);
 
 	if (success) {
@@ -208,7 +154,7 @@ export async function archiveDraft(deps: DraftOpDeps, draftId: string, autoCommi
 	return success;
 }
 
-export async function promoteDraft(deps: DraftOpDeps, draftId: string, autoCommit?: boolean): Promise<boolean> {
+export async function promoteDraft(deps: CoreDeps, draftId: string, autoCommit?: boolean): Promise<boolean> {
 	const success = await deps.filesystem.promoteDraft(draftId);
 
 	if (success) {
@@ -218,7 +164,7 @@ export async function promoteDraft(deps: DraftOpDeps, draftId: string, autoCommi
 	return success;
 }
 
-export async function demoteTask(deps: DraftOpDeps, taskId: string, autoCommit?: boolean): Promise<boolean> {
+export async function demoteTask(deps: CoreDeps, taskId: string, autoCommit?: boolean): Promise<boolean> {
 	const success = await deps.filesystem.demoteTask(taskId);
 
 	if (success) {
