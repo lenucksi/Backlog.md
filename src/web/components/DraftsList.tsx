@@ -22,9 +22,9 @@ const DraftsList: React.FC<DraftsListProps> = ({ onEditTask, onNewDraft }) => {
 			const draftsData = await response.json();
 			// Sort drafts by ID descending (newest first) - same as TaskList
 			const sortedDrafts = [...draftsData].sort((a, b) => {
-				// Extract numeric part from task IDs (task-1, task-2, etc.)
-				const idA = Number.parseInt(a.id.replace("task-", ""), 10);
-				const idB = Number.parseInt(b.id.replace("task-", ""), 10);
+				// Extract numeric part from IDs (task-1, draft-5, etc.)
+				const idA = Number.parseInt(a.id.replace(/^(task|draft)-/, ""), 10);
+				const idB = Number.parseInt(b.id.replace(/^(task|draft)-/, ""), 10);
 				return idB - idA; // Highest ID first (newest)
 			});
 			setDrafts(sortedDrafts);

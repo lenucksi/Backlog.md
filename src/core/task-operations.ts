@@ -12,6 +12,12 @@ import {
 } from "../utils/task-builders.ts";
 import { getTaskPath, normalizeTaskId, taskIdsEqual } from "../utils/task-path.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
+import {
+	type DraftOpDeps,
+	demoteTaskWithUpdates,
+	promoteDraftWithUpdates,
+	updateDraftFromInput,
+} from "./draft-operations.ts";
 import { DEFAULT_ORDINAL_STEP } from "./reorder.ts";
 import {
 	applyClearSetAppendBlock,
@@ -67,9 +73,7 @@ export interface TaskOpDeps {
 		limit?: number;
 		includeCrossBranch?: boolean;
 	}): Promise<Task[]>;
-	demoteTaskWithUpdates(task: Task, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task>;
-	promoteDraftWithUpdates(draft: Task, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task>;
-	updateDraftFromInput(draftId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task>;
+	stageAndCommit: (message: string, autoCommit?: boolean) => Promise<void>;
 }
 
 async function resolveCreateOrdinal(
@@ -469,7 +473,7 @@ export async function updateTaskFromInput(
 
 	const requestedStatus = input.status?.trim().toLowerCase();
 	if (requestedStatus === "draft") {
-		return await deps.demoteTaskWithUpdates(task, input, autoCommit);
+		return await demoteTaskWithUpdates(deps as unknown as DraftOpDeps, task, input, autoCommit);
 	}
 
 	const { mutated } = await applyTaskUpdateInput(deps, task, input, async (status) =>
@@ -496,9 +500,9 @@ export async function editTaskOrDraft(
 		const requestedStatus = input.status?.trim();
 		const wantsDraft = requestedStatus?.toLowerCase() === "draft";
 		if (requestedStatus && !wantsDraft) {
-			return await deps.promoteDraftWithUpdates(draft, input, autoCommit);
+			return await promoteDraftWithUpdates(deps as unknown as DraftOpDeps, draft, input, autoCommit);
 		}
-		return await deps.updateDraftFromInput(draft.id, input, autoCommit);
+		return await updateDraftFromInput(deps as unknown as DraftOpDeps, draft.id, input, autoCommit);
 	}
 
 	const task = await deps.filesystem.loadTask(taskId);
@@ -509,7 +513,7 @@ export async function editTaskOrDraft(
 	const requestedStatus = input.status?.trim();
 	const wantsDraft = requestedStatus?.toLowerCase() === "draft";
 	if (wantsDraft) {
-		return await deps.demoteTaskWithUpdates(task, input, autoCommit);
+		return await demoteTaskWithUpdates(deps as unknown as DraftOpDeps, task, input, autoCommit);
 	}
 
 	return await updateTaskFromInput(deps, task.id, input, autoCommit);

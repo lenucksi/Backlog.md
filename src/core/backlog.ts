@@ -1,4 +1,4 @@
-import { rename as moveFile, unlink } from "node:fs/promises";
+import { rename as moveFile } from "node:fs/promises";
 import { join } from "node:path";
 import { DEFAULT_STATUSES } from "../constants/index.ts";
 import { FileSystem } from "../file-system/operations.ts";
@@ -22,7 +22,6 @@ import {
 	type TaskListFilter,
 	type TaskUpdateInput,
 } from "../types/index.ts";
-import { normalizeAssignee } from "../utils/assignee.ts";
 import { documentIdsEqual, normalizeDocumentId } from "../utils/document-id.ts";
 import {
 	getDocumentSubPathFromRelativePath,
@@ -37,7 +36,7 @@ import {
 	resolveClosestMilestoneFilterValue,
 } from "../utils/milestone-filter.ts";
 import { matchesModifiedFileFilters, normalizeModifiedFileFilters } from "../utils/modified-files.ts";
-import { extractAnyPrefix, normalizeId } from "../utils/prefix-config.ts";
+import { extractAnyPrefix } from "../utils/prefix-config.ts";
 import {
 	getCanonicalStatus as resolveCanonicalStatus,
 	getValidStatuses as resolveValidStatuses,
@@ -49,6 +48,7 @@ import { upsertTaskUpdatedDate } from "../utils/task-updated-date.ts";
 import { isTerminalStatus } from "../utils/terminal-status.ts";
 import { migrateConfig, needsMigration } from "./config-migration.ts";
 import { ContentStore } from "./content-store.ts";
+import * as draftOps from "./draft-operations.ts";
 import * as idGen from "./id-generator.ts";
 import { migrateDraftPrefixes, needsDraftPrefixMigration } from "./prefix-migration.ts";
 import { calculateNewOrdinal, DEFAULT_ORDINAL_STEP, resolveOrdinalConflicts } from "./reorder.ts";
@@ -519,10 +519,12 @@ export class Core {
 			getBacklogDirectoryName: () => this.getBacklogDirectoryName(),
 			withCreateLock: <T>(fn: () => Promise<T>) => this.withCreateLock(fn),
 			queryTasks: (opts) => this.queryTasks(opts),
-			demoteTaskWithUpdates: (t, i, a) => this.demoteTaskWithUpdates(t, i, a),
-			promoteDraftWithUpdates: (d, i, a) => this.promoteDraftWithUpdates(d, i, a),
-			updateDraftFromInput: (id, i, a) => this.updateDraftFromInput(id, i, a),
+			stageAndCommit: (msg, auto) => this.stageAndCommit(msg, auto),
 		};
+	}
+
+	private buildDraftOpDeps(): draftOps.DraftOpDeps {
+		return this.buildTaskOpDeps() as unknown as draftOps.DraftOpDeps;
 	}
 
 	async getGitOps() {
@@ -757,14 +759,6 @@ export class Core {
 		);
 	}
 
-	private async applyTaskUpdateInput(
-		task: Task,
-		input: TaskUpdateInput,
-		statusResolver: (status: string) => Promise<string>,
-	): Promise<{ task: Task; mutated: boolean }> {
-		return taskOps.applyTaskUpdateInput(this.buildTaskOpDeps(), task, input, statusResolver);
-	}
-
 	async createTaskFromInput(input: TaskCreateInput, autoCommit?: boolean): Promise<{ task: Task; filePath?: string }> {
 		return taskOps.createTaskFromInput(this.buildTaskOpDeps(), input, autoCommit);
 	}
@@ -782,125 +776,15 @@ export class Core {
 	}
 
 	async updateDraft(task: Task, autoCommit?: boolean): Promise<void> {
-		// Drafts always keep status Draft
-		task.status = "Draft";
-		normalizeAssignee(task);
-		task.updatedDate = taskOps.formatDateStamp();
-
-		const filepath = await this._filesystem.saveDraft(task);
-
-		if (await this.shouldAutoCommit(autoCommit)) {
-			await this.git.addFile(filepath);
-			await this.git.commitTaskChange(task.id, `Update draft ${task.id}`, filepath);
-		}
+		return draftOps.updateDraft(this.buildDraftOpDeps(), task, autoCommit);
 	}
 
 	async updateDraftFromInput(draftId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const draft = await this._filesystem.loadDraft(draftId);
-		if (!draft) {
-			throw new Error(`Draft not found: ${draftId}`);
-		}
-
-		const { mutated } = await this.applyTaskUpdateInput(draft, input, async (status) => {
-			if (status.trim().toLowerCase() !== "draft") {
-				throw new Error("Drafts must use status Draft.");
-			}
-			return "Draft";
-		});
-
-		if (!mutated) {
-			return draft;
-		}
-
-		await this.updateDraft(draft, autoCommit);
-		const refreshed = await this._filesystem.loadDraft(draftId);
-		return refreshed ?? draft;
+		return draftOps.updateDraftFromInput(this.buildDraftOpDeps(), draftId, input, autoCommit);
 	}
 
 	async editTaskOrDraft(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
 		return taskOps.editTaskOrDraft(this.buildTaskOpDeps(), taskId, input, autoCommit);
-	}
-
-	private async promoteDraftWithUpdates(draft: Task, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const targetStatus = input.status?.trim();
-		if (!targetStatus || targetStatus.toLowerCase() === "draft") {
-			throw new Error("Promoting a draft requires a non-draft status.");
-		}
-
-		const { mutated } = await this.applyTaskUpdateInput(draft, { ...input, status: undefined }, async (status) => {
-			if (status.trim().toLowerCase() !== "draft") {
-				throw new Error("Drafts must use status Draft.");
-			}
-			return "Draft";
-		});
-
-		const canonicalStatus = await this.requireCanonicalStatus(targetStatus);
-
-		const { promotedTask, savedPath } = await this.withCreateLock(async () => {
-			const newTaskId = await this.generateNextId(EntityType.Task, draft.parentTaskId);
-			const draftPath = draft.filePath;
-
-			const promotedTask: Task = {
-				...draft,
-				id: newTaskId,
-				status: canonicalStatus,
-				filePath: undefined,
-				...(mutated || draft.status !== canonicalStatus ? { updatedDate: taskOps.formatDateStamp() } : {}),
-			};
-
-			normalizeAssignee(promotedTask);
-			const savedPath = await this._filesystem.saveTask(promotedTask);
-
-			if (draftPath) {
-				await unlink(draftPath);
-			}
-
-			return { promotedTask, savedPath };
-		});
-
-		const savedTask = await this._filesystem.loadTask(promotedTask.id);
-		if (this.contentStore && savedTask) {
-			this.contentStore.upsertTask(savedTask);
-		}
-
-		await this.stageAndCommit(`backlog: Promote draft ${normalizeId(draft.id, "draft")}`, autoCommit);
-
-		return savedTask ?? { ...promotedTask, filePath: savedPath };
-	}
-
-	private async demoteTaskWithUpdates(task: Task, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
-		const { mutated } = await this.applyTaskUpdateInput(task, { ...input, status: undefined }, async (status) => {
-			if (status.trim().toLowerCase() === "draft") {
-				return "Draft";
-			}
-			return this.requireCanonicalStatus(status);
-		});
-
-		const { demotedDraft, savedPath } = await this.withCreateLock(async () => {
-			const newDraftId = await this.generateNextId(EntityType.Draft);
-			const taskPath = task.filePath;
-
-			const demotedDraft: Task = {
-				...task,
-				id: newDraftId,
-				status: "Draft",
-				filePath: undefined,
-				...(mutated || task.status !== "Draft" ? { updatedDate: taskOps.formatDateStamp() } : {}),
-			};
-
-			normalizeAssignee(demotedDraft);
-			const savedPath = await this._filesystem.saveDraft(demotedDraft);
-
-			if (taskPath) {
-				await unlink(taskPath);
-			}
-
-			return { demotedDraft, savedPath };
-		});
-
-		await this.stageAndCommit(`backlog: Demote task ${normalizeTaskId(task.id)}`, autoCommit);
-
-		return (await this._filesystem.loadDraft(demotedDraft.id)) ?? { ...demotedDraft, filePath: savedPath };
 	}
 
 	async editTask(taskId: string, input: TaskUpdateInput, autoCommit?: boolean): Promise<Task> {
@@ -1363,33 +1247,15 @@ export class Core {
 	}
 
 	async archiveDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
-		const success = await this._filesystem.archiveDraft(draftId);
-
-		if (success) {
-			await this.stageAndCommit(`backlog: Archive draft ${normalizeId(draftId, "draft")}`, autoCommit);
-		}
-
-		return success;
+		return draftOps.archiveDraft(this.buildDraftOpDeps(), draftId, autoCommit);
 	}
 
 	async promoteDraft(draftId: string, autoCommit?: boolean): Promise<boolean> {
-		const success = await this._filesystem.promoteDraft(draftId);
-
-		if (success) {
-			await this.stageAndCommit(`backlog: Promote draft ${normalizeId(draftId, "draft")}`, autoCommit);
-		}
-
-		return success;
+		return draftOps.promoteDraft(this.buildDraftOpDeps(), draftId, autoCommit);
 	}
 
 	async demoteTask(taskId: string, autoCommit?: boolean): Promise<boolean> {
-		const success = await this._filesystem.demoteTask(taskId);
-
-		if (success) {
-			await this.stageAndCommit(`backlog: Demote task ${normalizeTaskId(taskId)}`, autoCommit);
-		}
-
-		return success;
+		return draftOps.demoteTask(this.buildDraftOpDeps(), taskId, autoCommit);
 	}
 
 	async addAcceptanceCriteria(taskId: string, criteria: string[], autoCommit?: boolean): Promise<void> {

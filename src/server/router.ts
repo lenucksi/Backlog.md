@@ -108,7 +108,8 @@ function actionRoute(
 		responses: Record<string, { description: string }>;
 	},
 ) {
-	return new Elysia({ name: "action-route" }).post(path, ({ params: { id } }) => handler(id), {
+	const routeName = `action-${path.replace(/[^a-zA-Z0-9]/g, "-")}`;
+	return new Elysia({ name: routeName }).post(path, ({ params: { id } }) => handler(id), {
 		params: IdParam,
 		detail: { summary: meta.summary, description: meta.description, tags: meta.tags, responses: meta.responses },
 	});

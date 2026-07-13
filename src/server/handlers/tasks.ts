@@ -201,7 +201,8 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 
 	async function handleUpdateTask(req: Request, taskId: string): Promise<Response> {
 		const updates = await req.json();
-		const existingTask = await ctx.core.filesystem.loadTask(taskId);
+		const draft = await ctx.core.filesystem.loadDraft(taskId);
+		const existingTask = draft ?? (await ctx.core.filesystem.loadTask(taskId));
 		if (!existingTask) {
 			return Response.json({ error: "Task not found" }, { status: 404 });
 		}
@@ -217,7 +218,7 @@ export function createTaskHandlers(ctx: ServerHandlerContext) {
 		}
 
 		try {
-			const updatedTask = await ctx.core.updateTaskFromInput(taskId, updateInput);
+			const updatedTask = await ctx.core.editTaskOrDraft(taskId, updateInput);
 			return Response.json(updatedTask);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Failed to update task";
