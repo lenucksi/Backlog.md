@@ -1,3 +1,5 @@
+import { execSync } from "child_process"
+import { existsSync, readFileSync } from "fs"
 import { basename, dirname, resolve } from "path"
 import { parse as parseYaml } from "yaml"
 import { parse as parseShell } from "shell-quote"
@@ -47,8 +49,8 @@ export function loadConfig(cwd: string): GuardConfig | null {
 	let p = cwd
 	for (let i = 0; i < 4; i++) {
 		const candidate = resolve(p, ".backlog-guard")
-		if (Bun.spawnSync(["test", "-e", candidate]).exitCode === 0) {
-			const raw = Bun.spawnSync(["cat", candidate]).stdout.toString()
+		if (existsSync(candidate)) {
+			const raw = readFileSync(candidate, "utf8")
 			_configCache = resolveDirs(dirname(candidate), raw)
 			return _configCache
 		}
@@ -59,7 +61,7 @@ export function loadConfig(cwd: string): GuardConfig | null {
 
 	p = cwd
 	for (let i = 0; i < 4; i++) {
-		if (Bun.spawnSync(["test", "-e", resolve(p, "backlog", "config.yml")]).exitCode === 0) {
+		if (existsSync(resolve(p, "backlog", "config.yml"))) {
 			_configCache = { dirs: [resolve(p, "backlog")], configSource: "auto-detected" }
 			return _configCache
 		}
@@ -80,11 +82,15 @@ export function loadConfigWithGitRoot(cwd: string): GuardConfig | null {
 	if (_configCache !== undefined) return _configCache
 
 	try {
-		const result = Bun.spawnSync(["git", "rev-parse", "--show-toplevel"], { cwd })
-		const gitRoot = result.stdout.toString().trim()
+		const gitRoot = execSync("git rev-parse --show-toplevel", {
+			cwd,
+			stdio: ["ignore", "pipe", "ignore"],
+		})
+			.toString()
+			.trim()
 		const candidate = resolve(gitRoot, ".backlog-guard")
-		if (Bun.spawnSync(["test", "-e", candidate]).exitCode === 0) {
-			const raw = Bun.spawnSync(["cat", candidate]).stdout.toString()
+		if (existsSync(candidate)) {
+			const raw = readFileSync(candidate, "utf8")
 			_configCache = resolveDirs(gitRoot, raw)
 			return _configCache
 		}
@@ -203,7 +209,7 @@ function docSuggestions(op: string, blockedPath: string): string {
 	if (op === "read" || op === "Read") {
 		return `${both("document_view")}(path="${name}")\nCLI:  backlog doc ${name}`
 	}
-	if ((op === "write" || op === "Write") && Bun.spawnSync(["test", "-e", blockedPath]).exitCode !== 0) {
+	if ((op === "write" || op === "Write") && !existsSync(blockedPath)) {
 		return `${both("document_create")}(title="...", content="...")\nCLI:  backlog doc create "Title"`
 	}
 	return `${both("document_update")}(path="${name}", content="...")\nCLI:  backlog doc update ${name}`

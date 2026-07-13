@@ -1,12 +1,15 @@
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { getCompletions } from "../completions/helper.ts";
 import { EXIT } from "../utils/exit-codes.ts";
 import { stdout } from "../utils/output.ts";
 
-const __dirname = import.meta.dir;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export type Shell = "bash" | "zsh" | "fish" | "pwsh";
 
@@ -40,17 +43,23 @@ function resolvePowerShellProfilePath(): string {
 	const errors: string[] = [];
 
 	for (const executable of candidates) {
-		const result = Bun.spawnSync([executable, "-NoProfile", "-Command", "$PROFILE.CurrentUserAllHosts"]);
+		const result = spawnSync(executable, ["-NoProfile", "-Command", "$PROFILE.CurrentUserAllHosts"], {
+			encoding: "utf-8",
+			windowsHide: true,
+		});
 
-		if (!result.success) {
-			const stderrStr = result.stderr.toString().trim();
-			const stdoutStr = result.stdout.toString().trim();
-			const failure = stderrStr || stdoutStr || `exit code ${result.exitCode}`;
+		if (result.error) {
+			errors.push(`${executable}: ${result.error.message}`);
+			continue;
+		}
+
+		if (result.status !== 0) {
+			const failure = result.stderr.trim() || result.stdout.trim() || `exit code ${result.status}`;
 			errors.push(`${executable}: ${failure}`);
 			continue;
 		}
 
-		const profilePath = result.stdout.toString().trim();
+		const profilePath = result.stdout.trim();
 		if (!profilePath) {
 			errors.push(`${executable}: returned empty profile path`);
 			continue;
@@ -72,11 +81,11 @@ function resolvePowerShellProfilePath(): string {
 
 function getWindowsPowerShellExecutables(): string[] {
 	const candidates = [
-		Bun.env.ProgramFiles ? join(Bun.env.ProgramFiles, "PowerShell", "7", "pwsh.exe") : null,
-		Bun.env["ProgramFiles(x86)"] ? join(Bun.env["ProgramFiles(x86)"], "PowerShell", "7", "pwsh.exe") : null,
+		process.env.ProgramFiles ? join(process.env.ProgramFiles, "PowerShell", "7", "pwsh.exe") : null,
+		process.env["ProgramFiles(x86)"] ? join(process.env["ProgramFiles(x86)"], "PowerShell", "7", "pwsh.exe") : null,
 	].filter((path): path is string => Boolean(path));
 
-	return candidates.filter((path) => Bun.spawnSync(["test", "-e", path]).exitCode === 0);
+	return candidates.filter((path) => existsSync(path));
 }
 
 export interface CompletionInstallResult {
@@ -89,7 +98,7 @@ export interface CompletionInstallResult {
  * Detect the user's current shell
  */
 function detectShell(): Shell | null {
-	const shell = Bun.env.SHELL || "";
+	const shell = process.env.SHELL || "";
 
 	if (shell.includes("bash")) {
 		return "bash";
@@ -115,7 +124,7 @@ async function getCompletionScript(shell: Shell): Promise<string> {
 	const scriptPath = join(__dirname, "..", "..", "completions", getScriptFilename(shell));
 
 	try {
-		if (await Bun.file(scriptPath).exists()) {
+		if (existsSync(scriptPath)) {
 			return await readFile(scriptPath, "utf-8");
 		}
 	} catch {
@@ -420,7 +429,7 @@ export async function installCompletion(
 
 	try {
 		// Create directory if it doesn't exist
-		if (!(await Bun.file(installDir).exists())) {
+		if (!existsSync(installDir)) {
 			await mkdir(installDir, { recursive: true });
 		}
 

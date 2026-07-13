@@ -1,3 +1,4 @@
+import { readFileSync, statSync } from "node:fs";
 import { join, normalize } from "node:path";
 import { DEFAULT_DIRECTORIES, DEFAULT_FILES } from "../constants/index.ts";
 
@@ -20,12 +21,20 @@ interface BacklogConfigMetadata {
 	backlogDirectory: string | null;
 }
 
+function statSafe(path: string): ReturnType<typeof statSync> | null {
+	try {
+		return statSync(path);
+	} catch {
+		return null;
+	}
+}
+
 function directoryExists(path: string): boolean {
-	return Bun.spawnSync(["test", "-d", path]).exitCode === 0;
+	return statSafe(path)?.isDirectory() ?? false;
 }
 
 function fileExists(path: string): boolean {
-	return Bun.spawnSync(["test", "-f", path]).exitCode === 0;
+	return statSafe(path)?.isFile() ?? false;
 }
 
 function parseBacklogConfigMetadata(content: string): BacklogConfigMetadata {
@@ -62,8 +71,7 @@ function readRootBacklogConfigMetadata(rootConfigPath: string): BacklogConfigMet
 		return null;
 	}
 	try {
-		const content = Bun.spawnSync(["cat", rootConfigPath]).stdout.toString();
-		const metadata = parseBacklogConfigMetadata(content);
+		const metadata = parseBacklogConfigMetadata(readFileSync(rootConfigPath, "utf8"));
 		return metadata.projectName ? metadata : null;
 	} catch {
 		return null;
