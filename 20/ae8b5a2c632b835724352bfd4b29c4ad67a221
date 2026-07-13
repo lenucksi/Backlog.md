@@ -1,0 +1,31 @@
+opencode.json
+  s_8b93e04b016d43::t_476a55699120c4 33
+hooks/backlog-guard/install.sh
+  s_8b93e04b016d43::t_ff3993fb13e984 234
+  s_8b93e04b016d43::t_aa835e026b4c3f 73-74,76-77
+  s_8b93e04b016d43::t_4d004218430299 209,211-212,214
+.aislop/config.yml
+  s_8b93e04b016d43::t_d8ed0c9bc9377e 7
+  s_8b93e04b016d43::t_f8b5e3720ec3ec 1-6
+hooks/backlog-guard/guard.sh
+  s_8b93e04b016d43::t_fad3199e88bbd3 25
+package.json
+  s_8b93e04b016d43::t_9b302c66ec1f52 8
+  s_8b93e04b016d43::t_7201b543a0c1ef 73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "20ae8b5a2c632b835724352bfd4b29c4ad67a221",
+  "prompts": {},
+  "sessions": {
+    "s_8b93e04b016d43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0a9f3f2f3ffeGIRo7a55YAOWhe",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
