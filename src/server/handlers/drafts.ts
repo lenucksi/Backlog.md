@@ -41,8 +41,22 @@ export function createDraftHandlers(ctx: ServerHandlerContext) {
 		return handleDraftAction(draftId, (id) => ctx.core.archiveDraft(id), "Draft not found", "Failed to archive draft");
 	}
 
+	async function handleGetDraft(draftId: string): Promise<Response> {
+		try {
+			const draft = await ctx.core.filesystem.loadDraft(draftId);
+			if (!draft) {
+				return Response.json({ error: "Draft not found" }, { status: 404 });
+			}
+			return Response.json(draft);
+		} catch (error) {
+			console.error("Error loading draft:", error instanceof Error ? error.message : String(error));
+			return Response.json({ error: "Failed to load draft" }, { status: 500 });
+		}
+	}
+
 	return {
 		handleListDrafts,
+		handleGetDraft,
 		handlePromoteDraft,
 		handleArchiveDraft,
 	};

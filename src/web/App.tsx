@@ -396,6 +396,13 @@ function App() {
 	const handleEditTask = (task: Task) => {
 		setEditingTask(task);
 		setShowModal(true);
+
+		const pathname = window.location.pathname;
+		if (pathname.startsWith("/drafts")) {
+			navigate(`/drafts/${task.id}/${sanitizeUrlTitle(task.title)}${window.location.search}`, {
+				state: { fromNavigation: true },
+			});
+		}
 	};
 
 	const handleNavigateToTask = (taskId: string) => {
@@ -411,7 +418,11 @@ function App() {
 		setEditingTask(null);
 		setIsDraftMode(false);
 		const pathname = window.location.pathname;
-		if (pathname.startsWith("/board/") || (pathname.startsWith("/tasks/") && pathname !== "/tasks")) {
+		if (
+			pathname.startsWith("/board/") ||
+			(pathname.startsWith("/tasks/") && pathname !== "/tasks") ||
+			(pathname.startsWith("/drafts/") && pathname !== "/drafts")
+		) {
 			navigate(-1);
 		}
 	};
@@ -445,13 +456,33 @@ function App() {
 		return () => ws.close();
 	}, [refreshData, refreshAllData]);
 
-	// Deep link support: open modal when URL matches /board/:id/:title or /tasks/:id/:title
+	// Deep link support: open modal when URL matches /board/:id/:title, /tasks/:id/:title, or /drafts/:id/:title
 	useEffect(() => {
-		const match = location.pathname.match(/^\/(board|tasks)\/([^/]+)/);
+		const match = location.pathname.match(/^\/(board|tasks|drafts)\/([^/]+)/);
 		if (!match) return;
 
+		const entityType = match[1];
 		const id = match[2];
 		if (!id) return;
+
+		if (entityType === "drafts") {
+			const existingDraft = tasks.find((t) => t.id === id);
+			if (existingDraft) {
+				setEditingTask(existingDraft);
+				setShowModal(true);
+				return;
+			}
+			apiClient
+				.fetchDraft(id)
+				.then((t) => {
+					if (t) {
+						setEditingTask(t);
+						setShowModal(true);
+					}
+				})
+				.catch(() => {});
+			return;
+		}
 
 		const taskId = id.replace(/^task-/, "");
 		const existingTask = tasks.find((t) => t.id === taskId);
@@ -630,6 +661,12 @@ function App() {
 		</ErrorBoundary>
 	);
 
+	const draftsListElement = (
+		<ErrorBoundary>
+			<DraftsList onEditTask={handleEditTask} onNewDraft={handleNewDraft} />
+		</ErrorBoundary>
+	);
+
 	return (
 		<ThemeProvider>
 			<Routes>
@@ -656,14 +693,9 @@ function App() {
 					<Route path="tasks/:id" element={taskListElement} />
 					<Route path="tasks/:id/:title" element={taskListElement} />
 					<Route path="milestones" element={milestonesPageElement} />
-					<Route
-						path="drafts"
-						element={
-							<ErrorBoundary>
-								<DraftsList onEditTask={handleEditTask} onNewDraft={handleNewDraft} />
-							</ErrorBoundary>
-						}
-					/>
+					<Route path="milestones/:id/:title" element={milestonesPageElement} />
+					<Route path="drafts" element={draftsListElement} />
+					<Route path="drafts/:id/:title" element={draftsListElement} />
 					{[
 						{ path: "documentation", element: <DocumentationDetail docs={docs} onRefreshData={refreshData} /> },
 						{ path: "documentation/:id", element: <DocumentationDetail docs={docs} onRefreshData={refreshData} /> },

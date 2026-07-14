@@ -52,6 +52,7 @@ export type RouteHandlers = {
 	};
 	drafts: {
 		handleListDrafts: () => Promise<Response>;
+		handleGetDraft: (draftId: string) => Promise<Response>;
 		handlePromoteDraft: (draftId: string) => Promise<Response>;
 		handleArchiveDraft: (draftId: string) => Promise<Response>;
 	};
@@ -459,8 +460,20 @@ export function buildElysiaApp(
 				responses: { 200: { description: "Array of Draft objects" } },
 			},
 		})
+		.get("/api/drafts/:id", ({ params: { id } }) => drafts.handleGetDraft(id), {
+			params: IdParam,
+			detail: {
+				summary: "Get draft by ID",
+				description: "Returns a single draft by its ID (e.g. DRAFT-1). Drafts are task objects with status 'Draft'.",
+				tags: ["Drafts"],
+				responses: {
+					200: { description: "Draft Task object" },
+					404: { description: "Draft not found" },
+				},
+			},
+		})
 		.use(
-			// aislop-ignore-next-line code-quality/duplicate-block -- Standard actionRoute pattern; every route has unique handler, tags, and descriptions
+			// aislop-ignore-next-line code-quality/duplicate-block — Standard actionRoute pattern; every route has unique handler, tags, and descriptions
 			actionRoute("/api/drafts/:id/promote", (id) => drafts.handlePromoteDraft(id), {
 				summary: "Promote draft to task",
 				description: "Converts a draft into a task. The draft is deleted and a new task file is created.",
@@ -786,7 +799,9 @@ export function buildElysiaApp(
 		.get("/board", spaHandler)
 		.get("/board/*", spaHandler)
 		.get("/milestones", spaHandler)
+		.get("/milestones/*", spaHandler)
 		.get("/drafts", spaHandler)
+		.get("/drafts/*", spaHandler)
 		.get("/documentation", spaHandler)
 		.get("/documentation/*", spaHandler)
 		.get("/decisions", spaHandler)
