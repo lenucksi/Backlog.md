@@ -270,6 +270,10 @@ class ApiClient {
 		await this.fetchWithRetry(`${API_BASE}/tasks/${id}`, { method: "DELETE" });
 	}
 
+	async fetchDraft(id: string): Promise<Task> {
+		return this.fetchJson<Task>(`${API_BASE}/drafts/${encodeURIComponent(id)}`);
+	}
+
 	async archiveDraft(id: string): Promise<void> {
 		await this.fetchWithRetry(`${API_BASE}/drafts/${id}/archive`, { method: "POST" });
 	}

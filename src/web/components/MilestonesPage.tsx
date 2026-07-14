@@ -1,11 +1,12 @@
 // aislop-ignore-file jsx-a11y/prefer-tag-over-role -- milestone card uses div with role="region"
 import Fuse from "fuse.js";
 import type React from "react";
-import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import type { Milestone, MilestoneBucket, Task } from "../../types";
 import { apiClient } from "../lib/api";
 import { buildMilestoneBuckets, collectArchivedMilestoneKeys, isDoneStatus, milestoneKey } from "../utils/milestones";
+import { sanitizeUrlTitle } from "../utils/urlHelpers";
 import { Icons } from "./icons";
 import MilestoneTaskRow from "./MilestoneTaskRow";
 import Modal from "./Modal";
@@ -80,6 +81,24 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 	const [removeReassignTo, setRemoveReassignTo] = useState("");
 	const [modalError, setModalError] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
+
+	const { id: milestoneIdFromUrl } = useParams<{ id?: string }>();
+
+	useEffect(() => {
+		if (!milestoneIdFromUrl) return;
+		setExpandedBuckets((prev) => ({ ...prev, [milestoneIdFromUrl]: true }));
+		const timer = setTimeout(() => {
+			const el = document.querySelector(`[data-milestone-id="${CSS.escape(milestoneIdFromUrl)}"]`);
+			if (el) {
+				el.scrollIntoView({ behavior: "smooth", block: "center" });
+				el.classList.add("ring-2", "ring-blue-400", "dark:ring-blue-500");
+				setTimeout(() => {
+					el.classList.remove("ring-2", "ring-blue-400", "dark:ring-blue-500");
+				}, 3000);
+			}
+		}, 300);
+		return () => clearTimeout(timer);
+	}, [milestoneIdFromUrl]);
 
 	const archivedMilestoneIds = useMemo(
 		() => collectArchivedMilestoneKeys(archivedMilestones, milestoneEntities),
@@ -523,6 +542,7 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 				role="region"
 				key={bucket.key}
 				aria-label={`${bucket.label} milestone card`}
+				data-milestone-id={bucket.milestone ?? ""}
 				className={`rounded-lg border-2 transition-all duration-200 ${
 					isDropTarget
 						? "border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.01]"
@@ -537,7 +557,13 @@ const MilestonesPage: React.FC<MilestonesPageProps> = ({
 				<div className="px-5 py-4">
 					{/* Header row */}
 					<div className="flex items-center justify-between gap-4">
-						<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{bucket.label}</h3>
+						<Link
+							to={`/milestones/${encodeURIComponent(bucket.milestone ?? "")}/${sanitizeUrlTitle(bucket.label)}`}
+							className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+							onClick={(e) => e.stopPropagation()}
+						>
+							{bucket.label}
+						</Link>
 						{isEmpty ? (
 							<span className="text-sm text-gray-400 dark:text-gray-500">{isDragging ? "Drop here" : "No tasks"}</span>
 						) : (
