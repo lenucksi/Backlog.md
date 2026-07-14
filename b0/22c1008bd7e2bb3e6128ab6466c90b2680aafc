@@ -1,0 +1,38 @@
+src/server/handlers/drafts.ts
+  s_1b09c05b6a1458::t_b295369d896392 44-56,59
+src/web/lib/api.ts
+  s_1b09c05b6a1458::t_e599df4fb46379 273-276
+src/web/components/MilestonesPage.tsx
+  s_1b09c05b6a1458::t_8b3dc19bc63727 4-5
+  s_1b09c05b6a1458::t_3db6dd3c24b1b6 85-106
+  s_1b09c05b6a1458::t_a5410fd1190630 549
+  s_1b09c05b6a1458::t_03ca2bd8dcb58c 564-570
+  s_1b09c05b6a1458::t_8a9eb5bfd47ab6 8
+src/server/router.ts
+  s_1b09c05b6a1458::t_5a3a44ce6dbfc9 463-474,476
+  s_1b09c05b6a1458::t_b923d81fea2ffa 55
+  s_1b09c05b6a1458::t_f997e06c097f08 802,804
+src/web/App.tsx
+  s_1b09c05b6a1458::t_c980a177aec036 399-405
+  s_1b09c05b6a1458::t_dc8dae3ca6ba8c 459,461,464,468-485
+  s_1b09c05b6a1458::t_a5a655b5ac66bc 421-425
+  s_1b09c05b6a1458::t_f143065095f21f 664-669
+  s_1b09c05b6a1458::t_9199f014a19535 696-698
+  s_1b09c05b6a1458::t_5b3f49c90182d3 486
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b022c1008bd7e2bb3e6128ab6466c90b2680aafc",
+  "prompts": {},
+  "sessions": {
+    "s_1b09c05b6a1458": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_09fc45bd6ffeTC0yWsutngJ5Zw",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Lenucksi <dev@local>"
+    }
+  }
+}
